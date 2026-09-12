@@ -1,6 +1,58 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "main_pool.c": {
+      "source": "src/game/memory.c",
+      "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",
+      "sha256": "38ddea6e814fb68b93226fdee6ba4e0f39ba1e0a10d869b9f7ddea1ae2f3d316",
+      "functions": {
+        "main_pool_init": {
+          "start": 2874,
+          "end": 3470,
+          "sha256": "7d5603bb4c78de57b5330e2d36fecfb8a923e618a2528ea6761112941f6419e8"
+        },
+        "main_pool_alloc": {
+          "start": 3669,
+          "end": 4589,
+          "sha256": "2ccc483086f9b934f3e75bb766d47f9cf0f71da1f7bcb7816adce4a5e6d5275c"
+        },
+        "main_pool_free": {
+          "start": 4842,
+          "end": 5629,
+          "sha256": "3db42d5f0376a67123c8a04505541b31691ed423c2c17050775481cc892f2b18"
+        },
+        "main_pool_realloc": {
+          "start": 5853,
+          "end": 6164,
+          "sha256": "14638873e1536c3a6d82d1272faddca1dcd99c4c38de7d96e163bc4ae9891be6"
+        },
+        "main_pool_available": {
+          "start": 6264,
+          "end": 6329,
+          "sha256": "38a22f1c236321fd1e8e9d3c045bb56f2ded40a479fb0e2ffd089610d2e1b4eb"
+        },
+        "main_pool_push_state": {
+          "start": 6434,
+          "end": 6926,
+          "sha256": "829728f3924002215dde43bcdc0ac3de3bda7360b8549f7f42bcaaf865be65ab"
+        },
+        "main_pool_pop_state": {
+          "start": 7057,
+          "end": 7304,
+          "sha256": "4e6f936fccef16efaf7daa703c5c3220e4c305f89e1c1d27fc060c4a392fc76d"
+        },
+        "alloc_only_pool_init": {
+          "start": 11695,
+          "end": 12226,
+          "sha256": "6050f87811e65104fa4d6fdc6b72c8e7f3fa633c89ff8a34d6c90a4eff3e53cf"
+        },
+        "alloc_only_pool_resize": {
+          "start": 12815,
+          "end": 13124,
+          "sha256": "2cb1e907df5cbd88d9d54454f41a4b2bd6e3ce28ca277c341b2e5da90eaf2932"
+        }
+      }
+    },
     "math_util.c": {
       "source": "src/engine/math_util.c",
       "source_sha256": "9cca7513caf9831a9525ff2ea6869b1fbeab2d09731a0b18f46b81d08c6dc119",

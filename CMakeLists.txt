@@ -6,10 +6,12 @@ add_library(sm64_physics_core STATIC
     extracted/animation.c
     extracted/math_util.c
     extracted/object_nodes.c
+    extracted/main_pool.c
     host/animation.c
     host/address.c
     host/object_nodes.c
     host/pool.c
+    host/main_pool.c
     upstream/src/engine/surface_collision.c
     upstream/src/engine/surface_load.c
     upstream/src/game/mario.c
@@ -36,6 +38,8 @@ add_library(sm64_physics_core STATIC
 )
 target_include_directories(sm64_physics_core PUBLIC upstream/include upstream/src upstream)
 target_include_directories(sm64_physics_core PRIVATE upstream/src/engine)
+target_include_directories(sm64_physics_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+set_source_files_properties(extracted/main_pool.c PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_POOL_IMPLEMENTATION)
 target_compile_definitions(sm64_physics_core PUBLIC VERSION_US _LANGUAGE_C NON_MATCHING AVOID_UB NO_SEGMENTED_MEMORY)
 set_target_properties(sm64_physics_core PROPERTIES C_STANDARD 11 POSITION_INDEPENDENT_CODE ON)
 if(NOT MSVC)
@@ -57,4 +61,7 @@ if(BUILD_TESTING)
     add_executable(sm64_object_nodes_test tests/object_nodes.c tests/collision_state.c)
     target_link_libraries(sm64_object_nodes_test PRIVATE sm64_physics_core)
     add_test(NAME native_object_nodes COMMAND sm64_object_nodes_test)
+    add_executable(sm64_main_pool_test tests/main_pool.c)
+    target_link_libraries(sm64_main_pool_test PRIVATE sm64_physics_core)
+    add_test(NAME native_main_pool COMMAND sm64_main_pool_test)
 endif()

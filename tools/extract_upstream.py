@@ -13,6 +13,13 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "main_pool.c": {
+        "source": "src/game/memory.c",
+        "headers": ["host/main_pool.h"],
+        "functions": ["main_pool_init", "main_pool_alloc", "main_pool_free",
+                      "main_pool_realloc", "main_pool_available", "main_pool_push_state",
+                      "main_pool_pop_state", "alloc_only_pool_init", "alloc_only_pool_resize"],
+    },
     "math_util.c": {
         "source": "src/engine/math_util.c",
         "omit": ["mtxf_to_mtx", "mtxf_rotate_xy"],
@@ -88,7 +95,7 @@ def main():
             continue
         for header in spec["headers"]:
             if not (ROOT / "upstream" / "include" / header).exists() and not (
-                    ROOT / "upstream" / "src" / header).exists():
+                    ROOT / "upstream" / "src" / header).exists() and not (ROOT / header).exists():
                 raise ValueError(f"Missing imported header {header}")
             contents += f'#include "{header}"\n'.encode()
         functions = {}

@@ -34,6 +34,16 @@ adapter, not a modification to a decompiled physics algorithm. Object-node
 globals are currently single-context state; owned worlds and concurrent
 simulation are still pending.
 
+The original main-pool allocation, free, resize and push/pop functions now run
+against `sm64_host_main_pool` storage. Their source bodies are extracted
+verbatim; a private compatibility header maps their global state names onto a
+thread-local active pool. Creation/destruction and storage ownership live in
+the host adapter. This isolates pool memory only, not the rest of simulation.
+Calls retain the original allocator's preconditions: valid active pool,
+bounded internal allocation sizes and valid stack operations. Upstream pop
+restores head pointers but leaves sentinel links for the next allocation to
+renew; it is not a general-purpose snapshot/restore API.
+
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
 **The archive is not yet a usable world simulation library.** In particular:
@@ -78,6 +88,10 @@ animation metadata and do not validate FrameTee's future ROM animation decoder.
 `native_object_nodes` checks the original node links, ordering/removal, spawn
 transforms and native matrix math. It also checks host allocation alignment and
 failure without changing pool state. It does not run the object behavior loop.
+
+`native_main_pool` interleaves two owned pools and checks contents, exhaustion,
+left/right allocation, nested push/pop and resizing. It does not prove full
+world independence, concurrent stepping or world snapshot support.
 
 To reproduce the source import from a checkout of the recorded revision:
 
