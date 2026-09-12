@@ -4,6 +4,9 @@
 #include "engine/surface_load.h"
 #include "game/object_list_processor.h"
 #include "game/mario.h"
+#include "game/object_helpers.h"
+#include "game/memory.h"
+#include "behavior_data.h"
 #include "terrain.h"
 
 struct sm64_terrain {
@@ -12,6 +15,9 @@ struct sm64_terrain {
     struct SurfaceNode *nodes;
     struct Surface *surfaces;
     s32 node_count, surface_count;
+    s32 static_node_count, static_surface_count;
+    u32 time_stop;
+    const BehaviorScript *ddd_warp_behavior;
     s16 surface_capacity;
     struct NumTimesCalled calls;
     s32 floor_misses;
@@ -44,5 +50,9 @@ extern _Thread_local struct sm64_terrain *sm64_active_terrain;
 #define gNumFindFloorMisses (sm64_active_terrain->floor_misses)
 #define gEnvironmentRegions (sm64_active_terrain->environment)
 #define sFloorGeo (sm64_active_terrain->floor_geometry)
+#define gTimeStopState (sm64_active_terrain->time_stop)
+#define gNumStaticSurfaces (sm64_active_terrain->static_surface_count)
+#define gNumStaticSurfaceNodes (sm64_active_terrain->static_node_count)
+#define bhvDDDWarp (sm64_active_terrain->ddd_warp_behavior)
 #endif
 #endif

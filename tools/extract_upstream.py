@@ -13,14 +13,32 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "area_terrain.c": {
+        "source": "src/engine/surface_load.c",
+        "omit": ["clear_dynamic_surfaces", "transform_object_vertices",
+                 "load_object_surfaces", "load_object_collision_model"],
+    },
     "terrain_load.c": {
         "source": "src/engine/surface_load.c",
         "headers": ["host/terrain_state.h"],
         "functions": ["alloc_surface_node", "alloc_surface", "add_surface_to_cell",
                       "min_3", "max_3", "lower_cell_index", "upper_cell_index",
                       "add_surface", "read_surface_data", "surface_has_force",
-                      "surf_has_no_cam_collision"],
+                      "surf_has_no_cam_collision", "clear_spatial_partition",
+                      "clear_dynamic_surfaces", "transform_object_vertices",
+                      "load_object_surfaces", "load_object_collision_model"],
         "footer": "host/terrain.c",
+    },
+    "object_transforms.c": {
+        "source": "src/game/object_helpers.c",
+        "headers": ["sm64.h", "engine/math_util.h", "game/object_helpers.h"],
+        "functions": ["obj_apply_scale_to_matrix", "dist_between_objects",
+                      "obj_build_transform_from_pos_and_angle"],
+    },
+    "object_helpers.c": {
+        "source": "src/game/object_helpers.c",
+        "omit": ["obj_apply_scale_to_matrix", "dist_between_objects",
+                 "obj_build_transform_from_pos_and_angle"],
     },
     "terrain_queries.c": {
         "source": "src/engine/surface_collision.c",
@@ -65,7 +83,7 @@ def function_range(data, name):
     token = rb'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
     masked = re.sub(token, lambda m: bytes(10 if b == 10 else 32 for b in m[0]),
                     data, flags=re.S)
-    pattern = rb'^[^\n;{}]*\b' + name.encode() + rb'\s*\([^;{}]*\)\s*\{'
+    pattern = rb'^[A-Za-z_][^\n;{}]*\b' + name.encode() + rb'\s*\([^;{}]*\)\s*\{'
     matches = list(re.finditer(pattern, masked, re.M))
     if len(matches) != 1:
         raise ValueError(f"Expected one definition of {name}, found {len(matches)}")

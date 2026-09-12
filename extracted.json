@@ -1,10 +1,49 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "area_terrain.c": {
+      "source": "src/engine/surface_load.c",
+      "source_sha256": "8c8ebdb88ee1485f8c031d1493ea82cbcf8928d79de951d6dc90a7f97d78068c",
+      "sha256": "e4b3c4dcfdda4bb142e757c4168aed0b4a5f870c93e4a69e9728897c2b47a15a",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 17330,
+          "sha256": "2323a05410d9b6231df74a4252febdcc32df1acca1d1e38ae738a56cd58dc273"
+        },
+        {
+          "start": 17594,
+          "end": 17714,
+          "sha256": "128f38c59ba2766571dc751efc7143eba353183bbcf6c2e7286ce137dabd2ac2"
+        },
+        {
+          "start": 18895,
+          "end": 19006,
+          "sha256": "349dbfb6d2ec257beeebfd7186d8fcefad84ed65043ec430de16c6fca2375c80"
+        },
+        {
+          "start": 20313,
+          "end": 20394,
+          "sha256": "3c784e6aab9713a8c6f22969faa172290662ef116ead04a59c2a45b0a01b52f0"
+        },
+        {
+          "start": 21935,
+          "end": 21936,
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "omitted_functions": [
+        "clear_dynamic_surfaces",
+        "transform_object_vertices",
+        "load_object_surfaces",
+        "load_object_collision_model"
+      ],
+      "functions": {}
+    },
     "terrain_load.c": {
       "source": "src/engine/surface_load.c",
       "source_sha256": "8c8ebdb88ee1485f8c031d1493ea82cbcf8928d79de951d6dc90a7f97d78068c",
-      "sha256": "da49e0989c0a10a07be82c8cfd32b6024df9b0f98dc335f73e22467c36ff7709",
+      "sha256": "1f67c1688df85643ce668225c6c29fed9a230eb10da197333a4141ec5e1e0cd1",
       "functions": {
         "alloc_surface_node": {
           "start": 977,
@@ -60,8 +99,88 @@
           "start": 10828,
           "end": 11239,
           "sha256": "b0f927170ed8abd8e45e3ac382f94073855bf50183770031e937e81d7273d7f9"
+        },
+        "clear_spatial_partition": {
+          "start": 1864,
+          "end": 2185,
+          "sha256": "e4594139f8aa14372b00a5042b6f8a587661c397b1c8c3e579ae108102568087"
+        },
+        "clear_dynamic_surfaces": {
+          "start": 17330,
+          "end": 17594,
+          "sha256": "2ef9a3a88b19462b3bd9931a76bfc320b13606f677f8d07d565065feb756f90b"
+        },
+        "transform_object_vertices": {
+          "start": 17714,
+          "end": 18895,
+          "sha256": "772d505a6ab0063e57df4693fc447b3e33486cf7b957f7d30b4fdf8790f926b8"
+        },
+        "load_object_surfaces": {
+          "start": 19006,
+          "end": 20313,
+          "sha256": "b96aef0c6af57ae064aa82509bf816beeaf5a4c51b123403a17c8d3fafc3a416"
+        },
+        "load_object_collision_model": {
+          "start": 20394,
+          "end": 21935,
+          "sha256": "671cba5d749e5551eb00b0bd6a43325090e564b8c6659dd3a3d7b60fbf81ccb3"
         }
       }
+    },
+    "object_transforms.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "551698eca0c305de7d700f2bcffebf933a3525150e924f5359f6b2e8b192f0ca",
+      "functions": {
+        "obj_apply_scale_to_matrix": {
+          "start": 7348,
+          "end": 8100,
+          "sha256": "65d31e09d094f09d351701c3de3ccfd030042c112d48af60d56878b7f8a66b4c"
+        },
+        "dist_between_objects": {
+          "start": 10268,
+          "end": 10506,
+          "sha256": "8fa375957ec33f84942be8cfd77066d76d94ddc6ff82805ab958c17a1db7d317"
+        },
+        "obj_build_transform_from_pos_and_angle": {
+          "start": 57468,
+          "end": 58004,
+          "sha256": "ea32de4b3cf9427f4c32dbe2cd41531edf25cff443230e9172eef998b6b33bd7"
+        }
+      }
+    },
+    "object_helpers.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "6930dea09135fffc1dcb25427d6ee7734df720f836d605bee6dc635adb0ce18c",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 7348,
+          "sha256": "218767fd41264b46418ff87381209037e50897867b38c293a72de197719db3f3"
+        },
+        {
+          "start": 8100,
+          "end": 10268,
+          "sha256": "1f7a5eef5b3d8d16cb97e56d59c9e5fc7084dc76d79c4952c7a6f00af8de4685"
+        },
+        {
+          "start": 10506,
+          "end": 57468,
+          "sha256": "a4cbaa3373cb2b1e711115f223b99472db784a94644b25e2c879a44ae737796e"
+        },
+        {
+          "start": 58004,
+          "end": 89695,
+          "sha256": "d5a0396f7c39790e34273bab0f638e9e97cb5f80c3f234077342c4100579e929"
+        }
+      ],
+      "omitted_functions": [
+        "obj_apply_scale_to_matrix",
+        "dist_between_objects",
+        "obj_build_transform_from_pos_and_angle"
+      ],
+      "functions": {}
     },
     "terrain_queries.c": {
       "source": "src/engine/surface_collision.c",

@@ -9,18 +9,19 @@ add_library(sm64_physics_core STATIC
     extracted/main_pool.c
     extracted/terrain_load.c
     extracted/terrain_queries.c
+    extracted/object_transforms.c
+    extracted/object_helpers.c
     host/animation.c
     host/address.c
     host/object_nodes.c
     host/pool.c
     host/main_pool.c
-    upstream/src/engine/surface_load.c
+    extracted/area_terrain.c
     upstream/src/game/mario.c
     upstream/src/game/mario_step.c
     upstream/src/game/interaction.c
     upstream/src/engine/behavior_script.c
     upstream/src/game/object_collision.c
-    upstream/src/game/object_helpers.c
     upstream/src/game/object_list_processor.c
     upstream/src/game/platform_displacement.c
     upstream/src/game/spawn_object.c
@@ -38,7 +39,7 @@ add_library(sm64_physics_core STATIC
     upstream/src/game/mario_actions_submerged.c
 )
 target_include_directories(sm64_physics_core PUBLIC upstream/include upstream/src upstream)
-target_include_directories(sm64_physics_core PRIVATE upstream/src/engine)
+target_include_directories(sm64_physics_core PRIVATE upstream/src/engine upstream/src/game)
 target_include_directories(sm64_physics_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 set_source_files_properties(extracted/main_pool.c PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_POOL_IMPLEMENTATION)
 set_source_files_properties(extracted/terrain_load.c extracted/terrain_queries.c
@@ -67,6 +68,9 @@ if(BUILD_TESTING)
     add_executable(sm64_main_pool_test tests/main_pool.c)
     target_link_libraries(sm64_main_pool_test PRIVATE sm64_physics_core)
     add_test(NAME native_main_pool COMMAND sm64_main_pool_test)
+    add_executable(sm64_moving_surfaces_test tests/moving_surfaces.c)
+    target_link_libraries(sm64_moving_surfaces_test PRIVATE sm64_physics_core)
+    add_test(NAME native_moving_surfaces COMMAND sm64_moving_surfaces_test)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         find_package(Threads REQUIRED)
         add_executable(sm64_terrain_threads_test tests/terrain_threads.c)

@@ -49,9 +49,18 @@ owned instances use the original surface normal calculation, cell insertion,
 ordering and query functions. Creation copies host data and checks pool limits;
 terrain copies rebuild their own surfaces and links. Native queries now require
 an activated terrain, whose state is thread-local. This isolates terrain only:
-the original full area/object collision loader is still compiled but has not
-been routed into this context, and Mario/object globals remain to be adapted.
+the full area loader has not been routed into this context, and Mario/object
+globals remain to be adapted.
 Do not use the archive as a full simulation until those paths share one world.
+
+The original moving-object collision loader, vertex transformation and dynamic
+partition clearing now use the owned terrain context. A checked host entry
+validates the decoded collision stream, the original 200-vertex temporary
+buffer limit and remaining pool capacity before invoking the loader. Object
+transform helpers are extracted unchanged from their mixed source file. The
+loader retains the original time-stop, distance, room and object-flag behavior.
+Terrain copies retain current dynamic geometry but borrow object/Mario/behavior
+references; a complete world clone must clone and rebind those objects.
 
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
@@ -103,6 +112,11 @@ failure without changing pool state. It does not run the object behavior loop.
 `native_main_pool` interleaves two owned pools and checks contents, exhaustion,
 left/right allocation, nested push/pop and resizing. It does not prove full
 world independence, concurrent stepping or world snapshot support.
+
+`native_moving_surfaces` exercises decoded object collision, translated platform
+movement, dynamic clearing, time stop, distance culling, DDD warp room assignment,
+invalid stream rejection and dynamic-geometry copy lifetime. It does not run
+the behavior interpreter or Mario stepping.
 
 To reproduce the source import from a checkout of the recorded revision:
 

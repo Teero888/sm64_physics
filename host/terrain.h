@@ -20,6 +20,8 @@ struct sm64_terrain_region {
  * The original surface and partition limits are enforced before loading. */
 struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *triangles,
     size_t count, const struct sm64_terrain_region *regions, size_t region_count);
+/* Copies current static/dynamic geometry. Object/Mario/behavior references are
+ * borrowed, not cloned; a full-world clone must rebind those references. */
 struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain);
 void sm64_terrain_destroy(struct sm64_terrain *terrain);
 
@@ -30,4 +32,10 @@ struct sm64_terrain *sm64_terrain_activate(struct sm64_terrain *terrain);
 void sm64_terrain_set_query_state(struct sm64_terrain *terrain, bool camera,
     struct Object *current_object, struct Object *mario_object, struct MarioState *mario);
 size_t sm64_terrain_surface_count(const struct sm64_terrain *terrain);
+void sm64_terrain_set_time_stop(struct sm64_terrain *terrain, uint32_t flags);
+void sm64_terrain_set_ddd_warp_behavior(struct sm64_terrain *terrain, const BehaviorScript *behavior);
+/* Validates the decoded stream and pool capacity before invoking the original
+ * object loader. Object and behavior pointers are borrowed from the owning
+ * world and must remain alive while their surfaces exist. */
+bool sm64_terrain_load_object(struct sm64_terrain *terrain, struct Object *object, size_t word_count);
 #endif
