@@ -1,0 +1,32 @@
+{
+  "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
+  "files": {
+    "animation.c": {
+      "source": "src/engine/graph_node.c",
+      "source_sha256": "6fbfce429c55e49de25c076597cfebd0d7e38c76feaa3a3b89d124a0b7a05890",
+      "sha256": "3124b4c8079b5dc07c08631d04165dbc9844088b7973d7baa19a64eb29e530ee",
+      "functions": {
+        "geo_obj_init_animation": {
+          "start": 26107,
+          "end": 26637,
+          "sha256": "194a4faf170622cfeb66d11d4b949956c5b55eea356f9e9fe853dd168cd07e84"
+        },
+        "geo_obj_init_animation_accel": {
+          "start": 26693,
+          "end": 27384,
+          "sha256": "e9239ef7abd024a4f5b18814000c69d32dfbf19287bdf0b1d7dff2cf4155cbc4"
+        },
+        "retrieve_animation_index": {
+          "start": 27757,
+          "end": 28034,
+          "sha256": "9bd354b04344895046ba1bfda40d9fc3d508c8254cebe140c8f9d1cf1dbb8188"
+        },
+        "geo_update_animation_frame": {
+          "start": 28210,
+          "end": 29643,
+          "sha256": "126abd9075c201b5d290f30080f36cd52dd1dc5e640adcdc92929e57c1a943be"
+        }
+      }
+    }
+  }
+}

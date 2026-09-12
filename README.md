@@ -14,6 +14,13 @@ include dependencies needed to compile them. Host adaptation belongs in
 `host/`, outside those source files. The upstream license is preserved at
 `upstream/LICENSE.md`.
 
+`extracted/` contains selected complete functions copied verbatim from mixed
+upstream files. `extracted.json` records the source file hash, original byte
+ranges and function hashes. The animation routines are extracted this way
+without importing the scene renderer. `host/animation.c` owns the frame/time
+mutations previously performed during rendering and calls the original frame
+calculation. This hook is tested, but is not yet connected to a world tick.
+
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
 **The archive is not yet a usable world simulation library.** In particular:
@@ -27,7 +34,9 @@ behavior interpreter and object behaviors compile as a native static archive.
   not implemented yet.
 - FrameTee still uses its old backend. This repository is not wired to it yet.
 
-Upstream's `NON_MATCHING` and `AVOID_UB` host paths are enabled. Floating-point
+Upstream's `NON_MATCHING`, `AVOID_UB` and `NO_SEGMENTED_MEMORY` host paths are
+enabled. FrameTee must resolve segmented ROM addresses to native pointers
+before passing decoded assets to physics. Floating-point
 contraction and strict aliasing optimizations are disabled. The target is the
 US game initially; regional support and cross-platform execution are unverified.
 Emulator bit parity is not a requirement, but the simulation algorithms must
@@ -48,11 +57,21 @@ explicit test state. It does not exercise terrain loading, Mario actions or
 object behavior. Test-only globals and debug hooks live in `tests/collision.c`,
 not the production library.
 
+`native_animation` runs without a renderer and checks forward/reverse playback,
+looping, clamping, fractional speeds, frozen animations, duplicate calls in a
+tick, tick-counter wrap and animation index lookup. The tests use synthetic
+animation metadata and do not validate FrameTee's future ROM animation decoder.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh
 python3 tools/import_upstream.py /path/to/n64decomp-sm64
+python3 tools/extract_upstream.py /path/to/n64decomp-sm64
+python3 tools/verify_upstream.py /path/to/n64decomp-sm64
 ```
+
+The optional checkout argument to the verifier compares extracted function
+bytes directly against the pinned Git commit, in addition to the local hashes.
 
 ## Remaining implementation
 
