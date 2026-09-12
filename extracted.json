@@ -4,7 +4,7 @@
     "mario_ground.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "0d296dca55fb74e5271fba50cdda9a6eeb0b42c2e8915e32d7be3cb9166c7b30",
+      "sha256": "03e37d04db3154831c9390a26eabc080f73cf1a9525074b4cc6b19fb47d3f672",
       "functions": {
         "perform_ground_quarter_step": {
           "start": 8252,
@@ -15,6 +15,26 @@
           "start": 10155,
           "end": 11007,
           "sha256": "f1023e305e456ecd524a9dc4528ac804ba77f9edf18bcbb4b5559b0f37a93fd6"
+        },
+        "check_ledge_grab": {
+          "start": 11009,
+          "end": 12258,
+          "sha256": "5d734f7e76de28e414636fa351ef972aabecbe020ba07d96494b68b7a4e5982b"
+        },
+        "perform_air_quarter_step": {
+          "start": 12260,
+          "end": 15897,
+          "sha256": "d3dea79f21530de0f38e00156ff9780bf461132ffa16129cacdb80721e7e00a2"
+        },
+        "apply_vertical_wind": {
+          "start": 18200,
+          "end": 18924,
+          "sha256": "e8a66f6d9a28aac48da6a5868feae2ae62829603c9b897573cc93a7e08603cee"
+        },
+        "perform_air_step": {
+          "start": 18926,
+          "end": 20366,
+          "sha256": "fb0830e3f22fd3bec9c76a1a85f218b632c6c7f88aca0522f2e92b04ad4b9c6d"
         },
         "apply_twirl_gravity": {
           "start": 15899,
@@ -46,7 +66,7 @@
     "mario_step.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "97fc60cfdb7416fc6b9899c2a263642a3c3c1078f64b9dd7adcdec2f6418ec75",
+      "sha256": "3f2e6ad379f2a6b9e12ea8f58acf9d258ba2a560af67a6cde305fb44ed389408",
       "copied_ranges": [
         {
           "start": 0,
@@ -60,8 +80,18 @@
         },
         {
           "start": 11007,
+          "end": 11009,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 12258,
+          "end": 12260,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 15897,
           "end": 15899,
-          "sha256": "f4a5a73ac051734411845c561a9bf7eab9d7d0b18be7b454b788aa809bc710ef"
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
         },
         {
           "start": 16251,
@@ -75,8 +105,18 @@
         },
         {
           "start": 18198,
+          "end": 18200,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 18924,
+          "end": 18926,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 20366,
           "end": 20437,
-          "sha256": "93d4653e866e8113009b3b524e3a2fe9979f938b5b07a8dad2eff4bf8fa69436"
+          "sha256": "df0ac4112385c6167521c8d6bbaa451168cd38c8f31aa043da44b8a1279d83b8"
         },
         {
           "start": 20707,
@@ -92,6 +132,10 @@
       "omitted_functions": [
         "perform_ground_quarter_step",
         "perform_ground_step",
+        "check_ledge_grab",
+        "perform_air_quarter_step",
+        "apply_vertical_wind",
+        "perform_air_step",
         "apply_twirl_gravity",
         "should_strengthen_gravity_for_jump_ascent",
         "apply_gravity",

@@ -66,7 +66,9 @@ Original Mario ground quarter-steps, ground movement, gravity and collision
 helpers now run independently of the remaining action dispatcher. The terrain
 context owns the shell-water pseudo-floor and level number used by those
 helpers. This makes direct native ground movement executable, but does not yet
-implement a complete input-driven Mario/world tick or the airborne action path.
+implement a complete input-driven Mario/world tick. Original air quarter-steps,
+air movement, ledge checks and vertical wind now use the same terrain context;
+the complete airborne action dispatcher is still pending.
 
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
@@ -129,6 +131,10 @@ checking displacement, wall response and shell-water support. It also checks
 normal gravity, jump-height release, terminal velocity, long-jump gravity and
 twirl gravity. It sets Mario state directly; it does not verify controller input,
 action transitions or complete level gameplay.
+
+`native_mario_air` executes the original air step and checks falling, landing,
+ceiling response, ceiling/ledge grabs and lava-wall collision. These are direct
+movement tests, not complete airborne action or level-transition tests.
 
 To reproduce the source import from a checkout of the recorded revision:
 
