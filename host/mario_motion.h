@@ -3,4 +3,6 @@
 /* Declarations for original functions separated from their previous C unit. */
 struct MarioState;
 void apply_gravity(struct MarioState *mario);
+void update_mario_button_inputs(struct MarioState *mario);
+void update_mario_joystick_inputs(struct MarioState *mario);
 #endif

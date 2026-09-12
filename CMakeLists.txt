@@ -3,6 +3,9 @@ project(sm64_physics LANGUAGES C)
 
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
+    extracted/controller.c
+    extracted/mario_input.c
+    host/controller.c
     extracted/animation.c
     extracted/math_util.c
     extracted/object_nodes.c
@@ -83,6 +86,9 @@ if(BUILD_TESTING)
     add_executable(sm64_mario_air_test tests/mario_air.c)
     target_link_libraries(sm64_mario_air_test PRIVATE sm64_physics_core)
     add_test(NAME native_mario_air COMMAND sm64_mario_air_test)
+    add_executable(sm64_controller_test tests/controller.c)
+    target_link_libraries(sm64_controller_test PRIVATE sm64_physics_core)
+    add_test(NAME native_controller COMMAND sm64_controller_test)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         find_package(Threads REQUIRED)
         add_executable(sm64_terrain_threads_test tests/terrain_threads.c)

@@ -136,6 +136,15 @@ action transitions or complete level gameplay.
 ceiling response, ceiling/ledge grabs and lava-wall collision. These are direct
 movement tests, not complete airborne action or level-transition tests.
 
+The host controller adapter accepts raw buttons and signed stick coordinates.
+It computes button edges using the original read-controller expression and
+calls the verbatim analog adjustment routine. Mario's original button and
+joystick processing is extracted separately. `native_controller` covers the
+dead zone, stick normalization, button edges, input timers, camera-relative
+direction, squish suppression and independent controller histories. Full input
+processing still needs geometry checks, camera-mode flags and action dispatch;
+these component tests do not establish a complete playable world.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

@@ -13,6 +13,16 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "controller.c": {
+        "source": "src/game/game_init.c",
+        "headers": ["sm64.h"],
+        "functions": ["adjust_analog_stick"],
+    },
+    "mario_input.c": {
+        "source": "src/game/mario.c",
+        "headers": ["sm64.h", "game/mario.h", "game/area.h", "game/camera.h", "engine/math_util.h"],
+        "functions": ["update_mario_button_inputs", "update_mario_joystick_inputs"],
+    },
     "mario_ground.c": {
         "source": "src/game/mario_step.c",
         "headers": ["host/terrain_state.h", "engine/math_util.h"],
@@ -37,7 +47,7 @@ EXTRACTIONS = {
     "mario.c": {
         "source": "src/game/mario.c",
         "omit": ["sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
-                 "vec3f_find_ceil"],
+                 "vec3f_find_ceil", "update_mario_button_inputs", "update_mario_joystick_inputs"],
     },
     "area_terrain.c": {
         "source": "src/engine/surface_load.c",

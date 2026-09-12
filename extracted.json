@@ -1,6 +1,35 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "controller.c": {
+      "source": "src/game/game_init.c",
+      "source_sha256": "5b8e3626c98e917931f350379e3a30705100113d670e726272a8db57ec556525",
+      "sha256": "d00413990f1e15c67b8fdc59ae3302fc08e4669c275167e7d29b21842d241ae1",
+      "functions": {
+        "adjust_analog_stick": {
+          "start": 14566,
+          "end": 15783,
+          "sha256": "101a8244d9b03c64470ca69e22558e8a2c7b763a850adf06c9e1fe4b82b57c68"
+        }
+      }
+    },
+    "mario_input.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "c37df355ec136331fa740f37d8dd956858433c6b68d17e501207bbb26479fc55",
+      "functions": {
+        "update_mario_button_inputs": {
+          "start": 39715,
+          "end": 40638,
+          "sha256": "aab9cc4707c7bc64a85a392cbf4c5959becea1946310055889f1d45f080c9057"
+        },
+        "update_mario_joystick_inputs": {
+          "start": 40692,
+          "end": 41250,
+          "sha256": "63624adb77450e8eb04d5ebef5a73aedfefbb707fa9a439255d635b6197380b1"
+        }
+      }
+    },
     "mario_ground.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
@@ -174,7 +203,7 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "2c1f0ca256a9ab7a3ddc12a6106d1d786c7998fbac2eb150af63ae10a91f3770",
+      "sha256": "98dbc966c2cda5042ca1d22c9be32fee1de2b18affe54d4b0b3397a69caf18b4",
       "copied_ranges": [
         {
           "start": 0,
@@ -198,15 +227,27 @@
         },
         {
           "start": 19184,
+          "end": 39715,
+          "sha256": "a70375b344cf329f1c5623f1eb59ee2c19e25e7e4bb809b7aa0e739f9e92bbff"
+        },
+        {
+          "start": 40638,
+          "end": 40692,
+          "sha256": "d0c0e76cbdabf01c63ab0cf80ae08690e5cc39f7f6bf01e1b69d392cc8805dc2"
+        },
+        {
+          "start": 41250,
           "end": 60332,
-          "sha256": "d104f903028fd1633b1307588991a1d59efdd366fb2ed8bc3e37652b179cf7f2"
+          "sha256": "965b699b7380fc9047293d74c30eb79e2d89ca9d9a74b1981e75ae5466f24c64"
         }
       ],
       "omitted_functions": [
         "sTerrainSounds",
         "mario_get_terrain_sound_addend",
         "resolve_and_return_wall_collisions",
-        "vec3f_find_ceil"
+        "vec3f_find_ceil",
+        "update_mario_button_inputs",
+        "update_mario_joystick_inputs"
       ],
       "functions": {}
     },
