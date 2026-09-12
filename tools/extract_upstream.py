@@ -13,6 +13,18 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "math_util.c": {
+        "source": "src/engine/math_util.c",
+        "omit": ["mtxf_to_mtx", "mtxf_rotate_xy"],
+    },
+    "object_nodes.c": {
+        "source": "src/engine/graph_node.c",
+        "headers": ["sm64.h", "engine/graph_node.h", "engine/math_util.h",
+                    "engine/geo_layout.h", "game/area.h", "game/memory.h"],
+        "functions": ["init_scene_graph_node_links", "init_graph_node_object",
+                      "geo_add_child", "geo_remove_child", "geo_make_first_child",
+                      "geo_reset_object_node", "geo_obj_init", "geo_obj_init_spawninfo"],
+    },
     "animation.c": {
         "source": "src/engine/graph_node.c",
         "headers": ["sm64.h", "engine/graph_node.h", "game/area.h", "game/memory.h"],
@@ -54,6 +66,26 @@ def main():
         data = subprocess.check_output(
             ["git", "-C", str(checkout), "show", f"{revision}:{spec['source']}"])
         contents = b"/* Generated verbatim upstream function extraction. See extracted.json. */\n"
+        if "omit" in spec:
+            excluded = sorted(function_range(data, name) for name in spec["omit"])
+            copied = []
+            previous = 0
+            contents += f'#line 1 "n64decomp/{spec["source"]}"\n'.encode()
+            for start, end in excluded + [(len(data), len(data))]:
+                body = data[previous:start]
+                contents += body
+                copied.append({"start": previous, "end": start,
+                               "sha256": hashlib.sha256(body).hexdigest()})
+                contents += b"\n" * data[start:end].count(b"\n")
+                previous = end
+            (ROOT / "extracted").mkdir(exist_ok=True)
+            (ROOT / "extracted" / output).write_bytes(contents)
+            outputs[output] = {"source": spec["source"],
+                               "source_sha256": hashlib.sha256(data).hexdigest(),
+                               "sha256": hashlib.sha256(contents).hexdigest(),
+                               "copied_ranges": copied, "omitted_functions": spec["omit"],
+                               "functions": {}}
+            continue
         for header in spec["headers"]:
             if not (ROOT / "upstream" / "include" / header).exists() and not (
                     ROOT / "upstream" / "src" / header).exists():

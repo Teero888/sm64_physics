@@ -21,6 +21,19 @@ without importing the scene renderer. `host/animation.c` owns the frame/time
 mutations previously performed during rendering and calls the original frame
 calculation. This hook is tested, but is not yet connected to a world tick.
 
+The object-node link and initialization functions are also extracted unchanged.
+They keep the data bookkeeping used by the original object allocator, without
+scene traversal or GPU work. The compiled math extraction omits the two N64
+fixed-point matrix packing functions; all bytes outside those named functions
+are verified against the original. Other mixed presentation functions in the
+behavior sources still need separation.
+
+The host allocation-only pool aligns native allocations to `max_align_t` and
+rejects requests that exceed its supplied storage. This is a host memory
+adapter, not a modification to a decompiled physics algorithm. Object-node
+globals are currently single-context state; owned worlds and concurrent
+simulation are still pending.
+
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
 **The archive is not yet a usable world simulation library.** In particular:
@@ -54,13 +67,17 @@ ctest --test-dir build --output-on-failure
 missing or additional files. `native_collision` executes original floor,
 ceiling, dynamic platform, camera filtering, water and gas queries against
 explicit test state. It does not exercise terrain loading, Mario actions or
-object behavior. Test-only globals and debug hooks live in `tests/collision.c`,
+object behavior. Test-only globals and debug hooks live in `tests/collision_state.c`,
 not the production library.
 
 `native_animation` runs without a renderer and checks forward/reverse playback,
 looping, clamping, fractional speeds, frozen animations, duplicate calls in a
 tick, tick-counter wrap and animation index lookup. The tests use synthetic
 animation metadata and do not validate FrameTee's future ROM animation decoder.
+
+`native_object_nodes` checks the original node links, ordering/removal, spawn
+transforms and native matrix math. It also checks host allocation alignment and
+failure without changing pool state. It does not run the object behavior loop.
 
 To reproduce the source import from a checkout of the recorded revision:
 

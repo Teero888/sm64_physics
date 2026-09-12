@@ -1,6 +1,80 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "math_util.c": {
+      "source": "src/engine/math_util.c",
+      "source_sha256": "9cca7513caf9831a9525ff2ea6869b1fbeab2d09731a0b18f46b81d08c6dc119",
+      "sha256": "19eb0b29f1d8b3a98e128144db96c38f87e3849609d671c2f9b852d7be42a1e5",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 16593,
+          "sha256": "0bdf0eaf4e9761f78e7f86ee90cffe614c91fae033e1a96c61f08a0ba59889b2"
+        },
+        {
+          "start": 17359,
+          "end": 17441,
+          "sha256": "5826f4858db180c97550d6fcee331e849284e0480107b3a614ecaa70c6fcce9f"
+        },
+        {
+          "start": 17673,
+          "end": 26792,
+          "sha256": "c2c39fb0f7e543517bbe4aed21847fe00f27214bb34b05d931503e7cd1a7ba8a"
+        }
+      ],
+      "omitted_functions": [
+        "mtxf_to_mtx",
+        "mtxf_rotate_xy"
+      ],
+      "functions": {}
+    },
+    "object_nodes.c": {
+      "source": "src/engine/graph_node.c",
+      "source_sha256": "6fbfce429c55e49de25c076597cfebd0d7e38c76feaa3a3b89d124a0b7a05890",
+      "sha256": "d02f8811c1aef2048e1e1aafe235a305b8623e15bc226b8ac047d1f22e8af716",
+      "functions": {
+        "init_scene_graph_node_links": {
+          "start": 717,
+          "end": 992,
+          "sha256": "22ec66411deafc6278510713dcefab81c2d84c497830b86c11f0dbd45ed48bd1"
+        },
+        "init_graph_node_object": {
+          "start": 10368,
+          "end": 11489,
+          "sha256": "040800ca7359bb5ef8cb98b5f6393c39eb38048ecec18b03503a64c670ba4cab"
+        },
+        "geo_add_child": {
+          "start": 18908,
+          "end": 19653,
+          "sha256": "dd0c7aff465c9baa74a46b07b3ffdc1b9eda88f5b407e10e00d215b14b8482c9"
+        },
+        "geo_remove_child": {
+          "start": 19902,
+          "end": 20650,
+          "sha256": "5c6b30373c6c574eec32dce5728030dcb42ee59e8355d421825f29202ef708b1"
+        },
+        "geo_make_first_child": {
+          "start": 20954,
+          "end": 21727,
+          "sha256": "a96cf755d4e4241b0c5f9790484c895478e8cbc1c2c4182234dc2b2a0fcbea8e"
+        },
+        "geo_reset_object_node": {
+          "start": 24255,
+          "end": 24514,
+          "sha256": "8a6dd43003360be43d53bc8766567c0bff6a30d4e76336c4ed07a68a2a28da99"
+        },
+        "geo_obj_init": {
+          "start": 24580,
+          "end": 25168,
+          "sha256": "5a3a998116fbf46e1f387d02c9ea75f9915066700314f26b0744180eeb304ad4"
+        },
+        "geo_obj_init_spawninfo": {
+          "start": 25241,
+          "end": 26051,
+          "sha256": "4e677c9bb04dd3dd2c0dbe4d3d291a678b3285a5c10075c5b69db6b9e8644324"
+        }
+      }
+    },
     "animation.c": {
       "source": "src/engine/graph_node.c",
       "source_sha256": "6fbfce429c55e49de25c076597cfebd0d7e38c76feaa3a3b89d124a0b7a05890",
