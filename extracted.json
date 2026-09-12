@@ -1,6 +1,145 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "terrain_load.c": {
+      "source": "src/engine/surface_load.c",
+      "source_sha256": "8c8ebdb88ee1485f8c031d1493ea82cbcf8928d79de951d6dc90a7f97d78068c",
+      "sha256": "da49e0989c0a10a07be82c8cfd32b6024df9b0f98dc335f73e22467c36ff7709",
+      "functions": {
+        "alloc_surface_node": {
+          "start": 977,
+          "end": 1287,
+          "sha256": "dbd0cd9e43bedd904a72e1b84f75ae8cc862c20b0c5465c79d5053b0193bfb97"
+        },
+        "alloc_surface": {
+          "start": 1390,
+          "end": 1789,
+          "sha256": "abd1f45fea8124173ff44b54641f80e0f8672a911e428b2814e8d974d9dbfccf"
+        },
+        "add_surface_to_cell": {
+          "start": 2676,
+          "end": 4464,
+          "sha256": "4c05b2fc04c020c845150e97f62b3ca0860d7778895153843fd4805b3d93a14b"
+        },
+        "min_3": {
+          "start": 4513,
+          "end": 4682,
+          "sha256": "3dbf7c18ebb0e2fb7ec225b5717ba4604f68a470c21c2074d63e8a420829d1ac"
+        },
+        "max_3": {
+          "start": 4732,
+          "end": 4901,
+          "sha256": "69051c8c3ae76e9d93cae903335798c94da5ffad5c254a59aa7653c0035fac18"
+        },
+        "lower_cell_index": {
+          "start": 5101,
+          "end": 5722,
+          "sha256": "9c415c15bc52a097e0afd6ea85e48f66055ffbd23c0774eb87d2e08b7c32b964"
+        },
+        "upper_cell_index": {
+          "start": 5922,
+          "end": 6577,
+          "sha256": "1bf59a06faa99000c6c012c267231edac06cb35c8d53cffca436dd18f8b7a9d4"
+        },
+        "add_surface": {
+          "start": 6857,
+          "end": 7869,
+          "sha256": "b6aa8cddabec3809ba69c7e2e0148466439136fff40b954e75ced01586899cc0"
+        },
+        "read_surface_data": {
+          "start": 8144,
+          "end": 10128,
+          "sha256": "8ddf9ab191880eec53681672f7a898225407e202332ffc5926d914501a85ca8b"
+        },
+        "surface_has_force": {
+          "start": 10222,
+          "end": 10734,
+          "sha256": "9902836c2ef4aa9c7025e2648873a110c5202263997233e883cf8f7990fbea19"
+        },
+        "surf_has_no_cam_collision": {
+          "start": 10828,
+          "end": 11239,
+          "sha256": "b0f927170ed8abd8e45e3ac382f94073855bf50183770031e937e81d7273d7f9"
+        }
+      }
+    },
+    "terrain_queries.c": {
+      "source": "src/engine/surface_collision.c",
+      "source_sha256": "148a61bd623c7320e5dbf69c95264287b0a057369edb204dc24ace49cfae2916",
+      "sha256": "1152f43e3ea615b2380d14973078a2388c69cad6ce7c7326969d57c80dcb59d6",
+      "functions": {
+        "find_wall_collisions_from_list": {
+          "start": 489,
+          "end": 5639,
+          "sha256": "83f9a7af03e8fc3ac268064fe216b59b09629f7a7b2bac8df7aecf18559c724a"
+        },
+        "f32_find_wall_collision": {
+          "start": 5715,
+          "end": 6199,
+          "sha256": "d9517de400be4be90ef9ca393453fe3b8273ea699d2c561c61f122c0ee22256c"
+        },
+        "find_wall_collisions": {
+          "start": 6257,
+          "end": 7439,
+          "sha256": "456f13d5f940d47a7506145e2c0e2c0dcc690fc88a336519938b78511080982f"
+        },
+        "find_ceil_from_list": {
+          "start": 7694,
+          "end": 10130,
+          "sha256": "3a358ddcc57c1841d151940a7e5edd9d5252ec7e0a28b21ec703c3fa839c12c2"
+        },
+        "find_ceil": {
+          "start": 10213,
+          "end": 11854,
+          "sha256": "b25d6ada1e84604aa96a86f467398e59c37472b89299a7c34542f41f05522769"
+        },
+        "unused_obj_find_floor_height": {
+          "start": 12079,
+          "end": 12264,
+          "sha256": "e4d3944f80302257e87b7f3fba8cfd8f5086cddda8f54f245e3cf21d6e8384a6"
+        },
+        "find_floor_height_and_data": {
+          "start": 12592,
+          "end": 13077,
+          "sha256": "6dd4f948a7456bdf94fefd5be4a581fde94796fbd87c0df068e3c6dba00d83a3"
+        },
+        "find_floor_from_list": {
+          "start": 13171,
+          "end": 15364,
+          "sha256": "126a9d9861cf9c5d09baea75c704905224c13330bc2ea73a20d1b19f2e19c380"
+        },
+        "find_floor_height": {
+          "start": 15429,
+          "end": 15579,
+          "sha256": "77e65b46bb3036cba3218f08cf1e4e54389f12009670349021ed27c7fc8ff8c5"
+        },
+        "unused_find_dynamic_floor": {
+          "start": 15720,
+          "end": 16544,
+          "sha256": "491bfcc2a47e1ffde8896a76a66ded8ac9d3a2af127869c473f40990d4da1aac"
+        },
+        "find_floor": {
+          "start": 16626,
+          "end": 19401,
+          "sha256": "322f903e4efef9c209de0fed9f37ee2ce6ee913eff6307a21a9d5645e4e632fc"
+        },
+        "find_water_level": {
+          "start": 19619,
+          "end": 20474,
+          "sha256": "37d62770a1352444fe01f01f7fe30d31985a601498cc41eabdc4f5f44139f833"
+        },
+        "find_poison_gas_level": {
+          "start": 20562,
+          "end": 21505,
+          "sha256": "fd55f515991eddf8fc609095e00649578d70cf8be191aa7d40fda63b292537f6"
+        },
+        "unused_resolve_floor_or_ceil_collisions": {
+          "start": 24345,
+          "end": 25357,
+          "sha256": "d447dc9aab108d06444873308ba39a578e2ae1fbdbc7da615031c92f794263af"
+        }
+      }
+    },
     "main_pool.c": {
       "source": "src/game/memory.c",
       "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",

@@ -13,6 +13,25 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "terrain_load.c": {
+        "source": "src/engine/surface_load.c",
+        "headers": ["host/terrain_state.h"],
+        "functions": ["alloc_surface_node", "alloc_surface", "add_surface_to_cell",
+                      "min_3", "max_3", "lower_cell_index", "upper_cell_index",
+                      "add_surface", "read_surface_data", "surface_has_force",
+                      "surf_has_no_cam_collision"],
+        "footer": "host/terrain.c",
+    },
+    "terrain_queries.c": {
+        "source": "src/engine/surface_collision.c",
+        "headers": ["host/terrain_state.h"],
+        "functions": ["find_wall_collisions_from_list", "f32_find_wall_collision",
+                      "find_wall_collisions", "find_ceil_from_list", "find_ceil",
+                      "unused_obj_find_floor_height", "find_floor_height_and_data",
+                      "find_floor_from_list", "find_floor_height", "unused_find_dynamic_floor",
+                      "find_floor", "find_water_level", "find_poison_gas_level",
+                      "unused_resolve_floor_or_ceil_collisions"],
+    },
     "main_pool.c": {
         "source": "src/game/memory.c",
         "headers": ["host/main_pool.h"],
@@ -106,6 +125,8 @@ def main():
             contents += f'\n#line {line} "n64decomp/{spec["source"]}"\n'.encode() + body + b"\n"
             functions[name] = {"start": start, "end": end,
                                "sha256": hashlib.sha256(body).hexdigest()}
+        if "footer" in spec:
+            contents += f'\n#include "{spec["footer"]}"\n'.encode()
         (ROOT / "extracted").mkdir(exist_ok=True)
         (ROOT / "extracted" / output).write_bytes(contents)
         outputs[output] = {"source": spec["source"],

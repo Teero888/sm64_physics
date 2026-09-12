@@ -44,6 +44,15 @@ bounded internal allocation sizes and valid stack operations. Upstream pop
 restores head pointers but leaves sentinel links for the next allocation to
 renew; it is not a general-purpose snapshot/restore API.
 
+`host/terrain.h` accepts decoded triangle and environment-region data. Its
+owned instances use the original surface normal calculation, cell insertion,
+ordering and query functions. Creation copies host data and checks pool limits;
+terrain copies rebuild their own surfaces and links. Native queries now require
+an activated terrain, whose state is thread-local. This isolates terrain only:
+the original full area/object collision loader is still compiled but has not
+been routed into this context, and Mario/object globals remain to be adapted.
+Do not use the archive as a full simulation until those paths share one world.
+
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
 **The archive is not yet a usable world simulation library.** In particular:
@@ -74,11 +83,13 @@ ctest --test-dir build --output-on-failure
 ```
 
 `upstream_fidelity` checks every imported file against the manifest and rejects
-missing or additional files. `native_collision` executes original floor,
-ceiling, dynamic platform, camera filtering, water and gas queries against
-explicit test state. It does not exercise terrain loading, Mario actions or
-object behavior. Test-only globals and debug hooks live in `tests/collision_state.c`,
-not the production library.
+missing or additional files. `native_collision` loads decoded triangles through
+the original surface helpers and checks floor, ceiling, wall, dynamic platform,
+camera filtering, water and gas queries. It also checks independent instances,
+terrain copy lifetime and degenerate triangles. The old test-only query globals
+have been removed. These tests do not exercise the full area/object loader,
+Mario actions or object behavior. On Linux, `native_terrain_threads` runs
+concurrent queries and checks that floor-geometry scratch state stays separate.
 
 `native_animation` runs without a renderer and checks forward/reverse playback,
 looping, clamping, fractional speeds, frozen animations, duplicate calls in a
