@@ -13,6 +13,30 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_ground.c": {
+        "source": "src/game/mario_step.c",
+        "headers": ["host/terrain_state.h", "engine/math_util.h"],
+        "functions": ["perform_ground_quarter_step", "perform_ground_step",
+                      "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
+                      "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
+    },
+    "mario_step.c": {
+        "source": "src/game/mario_step.c",
+        "omit": ["perform_ground_quarter_step", "perform_ground_step",
+                 "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
+                 "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
+    },
+    "mario_collision_helpers.c": {
+        "source": "src/game/mario.c",
+        "headers": ["host/terrain_state.h", "level_table.h"],
+        "functions": ["sTerrainSounds", "mario_get_terrain_sound_addend",
+                      "resolve_and_return_wall_collisions", "vec3f_find_ceil"],
+    },
+    "mario.c": {
+        "source": "src/game/mario.c",
+        "omit": ["sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
+                 "vec3f_find_ceil"],
+    },
     "area_terrain.c": {
         "source": "src/engine/surface_load.c",
         "omit": ["clear_dynamic_surfaces", "transform_object_vertices",
@@ -85,6 +109,11 @@ def function_range(data, name):
                     data, flags=re.S)
     pattern = rb'^[A-Za-z_][^\n;{}]*\b' + name.encode() + rb'\s*\([^;{}]*\)\s*\{'
     matches = list(re.finditer(pattern, masked, re.M))
+    if not matches:
+        # Preserve initialized tables as complete declarations too. This is
+        # needed for dependencies such as Mario's terrain sound lookup table.
+        pattern = rb'^[A-Za-z_][^\n;{}]*\b' + name.encode() + rb'\s*\[[^;{}]*=\s*\{'
+        matches = list(re.finditer(pattern, masked, re.M))
     if len(matches) != 1:
         raise ValueError(f"Expected one definition of {name}, found {len(matches)}")
     start = matches[0].start()
@@ -95,6 +124,8 @@ def function_range(data, name):
         end += 1
     if depth:
         raise ValueError(f"Unterminated function {name}")
+    if end < len(masked) and masked[end] == ord(';'):
+        end += 1
     return start, end
 
 def main():

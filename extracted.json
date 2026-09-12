@@ -1,6 +1,171 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_ground.c": {
+      "source": "src/game/mario_step.c",
+      "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
+      "sha256": "0d296dca55fb74e5271fba50cdda9a6eeb0b42c2e8915e32d7be3cb9166c7b30",
+      "functions": {
+        "perform_ground_quarter_step": {
+          "start": 8252,
+          "end": 10153,
+          "sha256": "2cf58d7e904fb8bde4d3cc2c86e675caad5eeaebd698ade972a89878908e8f41"
+        },
+        "perform_ground_step": {
+          "start": 10155,
+          "end": 11007,
+          "sha256": "f1023e305e456ecd524a9dc4528ac804ba77f9edf18bcbb4b5559b0f37a93fd6"
+        },
+        "apply_twirl_gravity": {
+          "start": 15899,
+          "end": 16251,
+          "sha256": "03cddfd8d095e3fb2412f2aff6d41d831203adafa0210a41d07aa8d5a089a8bb"
+        },
+        "should_strengthen_gravity_for_jump_ascent": {
+          "start": 16253,
+          "end": 16641,
+          "sha256": "d204195fc7b8f6a1d8aee59eb8d276dccd7e442eeb77217493c7e2eb07cff970"
+        },
+        "apply_gravity": {
+          "start": 16643,
+          "end": 18198,
+          "sha256": "652c7f40cc03b3390aaf770fd7883f1e99ddf1091c91dc150dd9f8fa7e8c73c5"
+        },
+        "set_vel_from_pitch_and_yaw": {
+          "start": 20437,
+          "end": 20707,
+          "sha256": "7c26000b83f97cc062a8435dcedeba09eb378bfa2808d95386cec596c8626f2a"
+        },
+        "set_vel_from_yaw": {
+          "start": 20709,
+          "end": 20918,
+          "sha256": "8396b453fbb6e50994e6266d2383e6ae1165c30038fc48f7f52e8a4ee79d3c84"
+        }
+      }
+    },
+    "mario_step.c": {
+      "source": "src/game/mario_step.c",
+      "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
+      "sha256": "97fc60cfdb7416fc6b9899c2a263642a3c3c1078f64b9dd7adcdec2f6418ec75",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 8252,
+          "sha256": "347d89566d2d33565dfbf7ffd48fa0a6393143324757f966ffb0e91c2b68e8cf"
+        },
+        {
+          "start": 10153,
+          "end": 10155,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 11007,
+          "end": 15899,
+          "sha256": "f4a5a73ac051734411845c561a9bf7eab9d7d0b18be7b454b788aa809bc710ef"
+        },
+        {
+          "start": 16251,
+          "end": 16253,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 16641,
+          "end": 16643,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 18198,
+          "end": 20437,
+          "sha256": "93d4653e866e8113009b3b524e3a2fe9979f938b5b07a8dad2eff4bf8fa69436"
+        },
+        {
+          "start": 20707,
+          "end": 20709,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 20918,
+          "end": 20919,
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "omitted_functions": [
+        "perform_ground_quarter_step",
+        "perform_ground_step",
+        "apply_twirl_gravity",
+        "should_strengthen_gravity_for_jump_ascent",
+        "apply_gravity",
+        "set_vel_from_pitch_and_yaw",
+        "set_vel_from_yaw"
+      ],
+      "functions": {}
+    },
+    "mario_collision_helpers.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "935292e65e3128ee059350c4b5e7dbd9fa292d5dc79b0da48e6bedb96a4897ea",
+      "functions": {
+        "sTerrainSounds": {
+          "start": 14848,
+          "end": 16142,
+          "sha256": "767af2d13b553f8f00a98f99393056f3bd0b79fa3da8c12d13cbe0dd52998e52"
+        },
+        "mario_get_terrain_sound_addend": {
+          "start": 16292,
+          "end": 18201,
+          "sha256": "87ae7b11eb75284030e99f02edba3fb3f29ddc26ec498dc51a8932dda412b6b0"
+        },
+        "resolve_and_return_wall_collisions": {
+          "start": 18268,
+          "end": 18932,
+          "sha256": "da9b240958c490ebc953a569587c5e210d08f620894dc6187cfa70b5d56e907d"
+        },
+        "vec3f_find_ceil": {
+          "start": 19029,
+          "end": 19184,
+          "sha256": "54db75b86d32176ebc20764abf9e360dbec8a48a5ff7dd33936a1f09cb052668"
+        }
+      }
+    },
+    "mario.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "2c1f0ca256a9ab7a3ddc12a6106d1d786c7998fbac2eb150af63ae10a91f3770",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 14848,
+          "sha256": "6ade7aab11e6713879282abb42d08e4e5701887dbce8c52ff4cdd65703f09ffd"
+        },
+        {
+          "start": 16142,
+          "end": 16292,
+          "sha256": "abbe3e0843e42b58b391a067cbc60b46dd903e9d8abad7af2ecef48b12253ed9"
+        },
+        {
+          "start": 18201,
+          "end": 18268,
+          "sha256": "3351b75d6d83568d9b056db8a01293c3e711e42177c175c2d2b1524460176896"
+        },
+        {
+          "start": 18932,
+          "end": 19029,
+          "sha256": "4779a42c880a39f50a50e72c78b541ca2b6b45599f69399bb5d40beadc8268d6"
+        },
+        {
+          "start": 19184,
+          "end": 60332,
+          "sha256": "d104f903028fd1633b1307588991a1d59efdd366fb2ed8bc3e37652b179cf7f2"
+        }
+      ],
+      "omitted_functions": [
+        "sTerrainSounds",
+        "mario_get_terrain_sound_addend",
+        "resolve_and_return_wall_collisions",
+        "vec3f_find_ceil"
+      ],
+      "functions": {}
+    },
     "area_terrain.c": {
       "source": "src/engine/surface_load.c",
       "source_sha256": "8c8ebdb88ee1485f8c031d1493ea82cbcf8928d79de951d6dc90a7f97d78068c",

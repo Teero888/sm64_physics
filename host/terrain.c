@@ -50,6 +50,8 @@ struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *tri
     terrain->triangle_count = count;
     terrain->region_count = region_count;
     terrain->surface_capacity = 2300;
+    terrain->water_floor.type = SURFACE_VERY_SLIPPERY;
+    terrain->water_floor.normal.y = 1.0f;
     terrain->environment[0] = (s16) region_count;
     for (size_t i = 0; i < region_count; ++i) {
         TerrainData *out = terrain->environment + 1 + 6 * i;
@@ -102,6 +104,8 @@ struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain) {
     memcpy(copy->surfaces, terrain->surfaces, count * sizeof(*terrain->surfaces));
     memcpy(copy->environment, terrain->environment, (1 + 6 * terrain->region_count) * sizeof(TerrainData));
     copy->camera = terrain->camera;
+    copy->level_num = terrain->level_num;
+    copy->water_floor = terrain->water_floor;
     copy->include_intangible = terrain->include_intangible;
     copy->time_stop = terrain->time_stop;
     copy->ddd_warp_behavior = terrain->ddd_warp_behavior;
@@ -125,6 +129,10 @@ size_t sm64_terrain_surface_count(const struct sm64_terrain *terrain) {
 
 void sm64_terrain_set_time_stop(struct sm64_terrain *terrain, uint32_t flags) {
     terrain->time_stop = flags;
+}
+
+void sm64_terrain_set_level(struct sm64_terrain *terrain, int16_t level_num) {
+    terrain->level_num = level_num;
 }
 
 void sm64_terrain_set_ddd_warp_behavior(struct sm64_terrain *terrain, const BehaviorScript *behavior) {

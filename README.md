@@ -62,6 +62,12 @@ loader retains the original time-stop, distance, room and object-flag behavior.
 Terrain copies retain current dynamic geometry but borrow object/Mario/behavior
 references; a complete world clone must clone and rebind those objects.
 
+Original Mario ground quarter-steps, ground movement, gravity and collision
+helpers now run independently of the remaining action dispatcher. The terrain
+context owns the shell-water pseudo-floor and level number used by those
+helpers. This makes direct native ground movement executable, but does not yet
+implement a complete input-driven Mario/world tick or the airborne action path.
+
 The Mario action groups, movement, interactions, collision, object processing,
 behavior interpreter and object behaviors compile as a native static archive.
 **The archive is not yet a usable world simulation library.** In particular:
@@ -117,6 +123,12 @@ world independence, concurrent stepping or world snapshot support.
 movement, dynamic clearing, time stop, distance culling, DDD warp room assignment,
 invalid stream rejection and dynamic-geometry copy lifetime. It does not run
 the behavior interpreter or Mario stepping.
+
+`native_mario_ground` executes the original ground step against owned terrain,
+checking displacement, wall response and shell-water support. It also checks
+normal gravity, jump-height release, terminal velocity, long-jump gravity and
+twirl gravity. It sets Mario state directly; it does not verify controller input,
+action transitions or complete level gameplay.
 
 To reproduce the source import from a checkout of the recorded revision:
 
