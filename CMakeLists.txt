@@ -44,7 +44,7 @@ add_library(sm64_physics_core STATIC
     extracted/mario_surface_class.c
     upstream/src/game/interaction.c
     upstream/src/engine/behavior_script.c
-    upstream/src/game/object_collision.c
+    extracted/object_collision.c
     upstream/src/game/object_list_processor.c
     upstream/src/game/platform_displacement.c
     upstream/src/game/macro_special_objects.c
@@ -81,6 +81,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_object_collision_test tests/object_collision.c)
+    target_link_libraries(sm64_object_collision_test PRIVATE sm64_physics_core)
+    add_test(NAME native_object_collision COMMAND sm64_object_collision_test)
     add_executable(sm64_objects_test tests/objects.c)
     target_link_libraries(sm64_objects_test PRIVATE sm64_physics_core)
     add_test(NAME native_object_lifetime COMMAND sm64_objects_test)

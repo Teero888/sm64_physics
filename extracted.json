@@ -1,6 +1,53 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "object_collision.c": {
+      "source": "src/game/object_collision.c",
+      "source_sha256": "5977c3aaaeacebbc24a7c0f6e4c06cd839f1a3a006efad781b90f775e66fbf64",
+      "sha256": "a124b6480f34eb76d34bc134b8c04378e505abaec9ab37cfa1074dcc1036e7d3",
+      "functions": {
+        "detect_object_hitbox_overlap": {
+          "start": 523,
+          "end": 1642,
+          "sha256": "4330f328541283cc7c6600663b585b322ee0cd059a8c3e94f2b506d4e8dc0771"
+        },
+        "detect_object_hurtbox_overlap": {
+          "start": 1644,
+          "end": 2553,
+          "sha256": "8c674ad579779964d9be3b88a2187271905fcb90eb32a131c47b4ffc30644b4d"
+        },
+        "clear_object_collision": {
+          "start": 2555,
+          "end": 2908,
+          "sha256": "f98d044d3a7cbf38935404a2d7fae75ada8772c54eb42413228811ae068aa1f3"
+        },
+        "check_collision_in_list": {
+          "start": 2910,
+          "end": 3342,
+          "sha256": "1ce7b1f145b525ccb31b1878acad70377acf2cf775ffbb0301db827f362135d2"
+        },
+        "check_player_object_collision": {
+          "start": 3344,
+          "end": 4707,
+          "sha256": "5984d802c2f5be4cfb1802da707d5f983585f6de5b97c723368088757f393ba9"
+        },
+        "check_pushable_object_collision": {
+          "start": 4709,
+          "end": 5064,
+          "sha256": "0c68b7afc1a819dab0c4fb2ed880af27ff9f6710c3e46d4a1dbe3cb7a64aa6a0"
+        },
+        "check_destructive_object_collision": {
+          "start": 5066,
+          "end": 6061,
+          "sha256": "432695711730a2c7116e2cd5a87e0d7fd86182074eb16c6bf834ee3d40e60396"
+        },
+        "detect_object_collisions": {
+          "start": 6063,
+          "end": 6777,
+          "sha256": "dc36621518de7e3389ff644d688e16f4b2b9c0866b5cbf955c913c65e10efb64"
+        }
+      }
+    },
     "object_lifetime.c": {
       "source": "src/game/spawn_object.c",
       "source_sha256": "108e2d896e632fb405a36e15e519d593f7f5f1ffd0a57fad6b2414c3ceab4f56",

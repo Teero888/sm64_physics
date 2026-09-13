@@ -10,6 +10,8 @@ void sm64_objects_destroy(struct sm64_objects *objects);
  * time; native deletion calls require objects belonging to the active pool. */
 struct sm64_objects *sm64_objects_activate(struct sm64_objects *objects);
 void sm64_objects_set_level(struct sm64_objects *objects, s16 level);
+/* Borrowed reference used by original hurtbox/invincibility handling. */
+void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario);
 /* Requires active objects and valid borrowed behavior bytecode. Returns NULL
  * for invalid list selection or exhaustion with no evictable object. Original
  * create_object retains its infinite-loop exhaustion behavior for native

@@ -40,6 +40,11 @@ void sm64_objects_set_level(struct sm64_objects *objects, s16 level) {
     objects->level = level;
 }
 
+void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario) {
+    assert(objects);
+    objects->mario = mario;
+}
+
 struct ObjectNode *sm64_objects_list(struct sm64_objects *objects, unsigned list) {
     return objects && list < NUM_OBJ_LISTS ? &objects->lists[list] : NULL;
 }

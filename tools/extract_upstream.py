@@ -13,6 +13,14 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "object_collision.c": {
+        "source": "src/game/object_collision.c",
+        "headers": ["host/objects_state.h", "game/interaction.h"],
+        "functions": ["detect_object_hitbox_overlap", "detect_object_hurtbox_overlap",
+                      "clear_object_collision", "check_collision_in_list", "check_player_object_collision",
+                      "check_pushable_object_collision", "check_destructive_object_collision",
+                      "detect_object_collisions"],
+    },
     "object_lifetime.c": {
         "source": "src/game/spawn_object.c",
         "headers": ["host/objects_state.h"],

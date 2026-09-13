@@ -214,6 +214,14 @@ terrain floor snapping and independent owners. Other object-processing and
 behavior functions still use globals that need to be bound to this context;
 this is not yet a complete object update loop or cloneable world.
 
+The original `detect_object_collisions` pass now uses those owned object lists
+and the context's borrowed Mario reference. `native_object_collision` checks
+hitbox boundaries, intangible timers, hurtbox invincibility flags, list-order
+priority, the four-object collision limit, destructive-object distance/flag
+gates and independent contexts. Interaction dispatch and the complete behavior
+update loop still need to be connected; collision records alone do not execute
+coin collection, damage or other gameplay interactions.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh
