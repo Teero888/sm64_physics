@@ -6,7 +6,6 @@
 #include "game/object_list_processor.h"
 #include "engine/graph_node.h"
 
-u16 gAreaUpdateCounter;
 static unsigned calls;
 static void native_callback(void) { ++calls; }
 /* Native bytecode words using upstream's command encoding. Field 0x3f is

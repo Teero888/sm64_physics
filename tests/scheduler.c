@@ -5,7 +5,6 @@
 #include "game/object_list_processor.h"
 #include "game/interaction.h"
 #include "engine/graph_node.h"
-u16 gAreaUpdateCounter;
 static int calls[32], count;
 static void surface_call(void) { calls[count++] = 1; }
 static void regular_call(void) { calls[count++] = 2; }

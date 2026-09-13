@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include "../host/object_frame.h"
 #include "../host/audio.h"
+#include "../host/animation.h"
 #include "engine/surface_load.h"
 #include "game/object_list_processor.h"
 #include "game/interaction.h"
-u16 gAreaUpdateCounter;
 static struct sm64_objects *world;
 static struct Object *platform, *player;
 static struct MarioState mario;
@@ -43,6 +43,10 @@ int main(void) {
     player = sm64_objects_spawn(player_script);
     struct Object *coin = sm64_objects_spawn(coin_script);
     assert(sm64_objects_spawn(tail_script));
+    struct Animation animation = {.loopEnd = 100};
+    struct Animation *animation_pointer = &animation;
+    geo_obj_init_animation(&coin->header.gfx, &animation_pointer);
+    coin->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
     TerrainData collision[] = {TERRAIN_LOAD_VERTICES, 3, -100,0,-100, 0,0,100, 100,0,-100,
         SURFACE_DEFAULT, 1, 0,1,2, TERRAIN_LOAD_CONTINUE};
     platform->collisionData = collision;
@@ -52,6 +56,7 @@ int main(void) {
     sm64_objects_set_mario(world, player);
     sm64_objects_set_motion_state(world, &mario, NULL, 0);
     sm64_objects_step(world, terrain, 0);
+    assert(sm64_objects_animation_tick(world) == 1 && coin->header.gfx.animInfo.animFrame == 0);
     assert(surface_calls == 1 && player_calls == 1 && tail_calls == 1);
     assert(player->platform == platform && observed_x == 0);
     assert(sm64_terrain_surface_count(terrain) == 1);
@@ -60,14 +65,17 @@ int main(void) {
     assert(sm64_objects_previous_count(world) == 4);
     request_stop = 1;
     sm64_objects_step(world, terrain, 2);
+    assert(coin->header.gfx.animInfo.animFrame == 2);
     assert(observed_x == 10 && tail_calls == 3);
     assert(sm64_objects_time_stop(world) & TIME_STOP_ACTIVE);
     sm64_objects_step(world, terrain, 3);
+    assert(coin->header.gfx.animInfo.animFrame == 2 && coin->header.gfx.animInfo.animTimer == 4);
     assert(surface_calls == 3 && tail_calls == 3 && player_calls == 4);
     assert(observed_x == 10 && sm64_terrain_surface_count(terrain) == 1);
     request_stop = 0;
     sm64_objects_set_time_stop(world, 0);
     sm64_objects_step(world, terrain, 4);
+    assert(coin->header.gfx.animInfo.animFrame == 3);
     assert(surface_calls == 4 && tail_calls == 4 && observed_x == 15);
     sm64_objects_destroy(world);
     sm64_terrain_destroy(terrain);

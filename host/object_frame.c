@@ -2,6 +2,7 @@
 #include <time.h>
 #include "object_frame.h"
 #include "object_frame_state.h"
+#include "animation.h"
 
 u64 sm64_frame_clock(void) {
     struct timespec value = {0};
@@ -34,7 +35,18 @@ void sm64_objects_step(struct sm64_objects *objects, struct sm64_terrain *terrai
     terrain->time_stop_ref = &objects->time_stop;
     objects->global_timer = frame;
     terrain->level_num = objects->level;
+    /* Original area_update_objects increments this before update_objects. */
+    ++objects->animation_tick;
     update_objects(0);
+    /* Animation state used by the next behavior tick must progress without
+     * invoking a renderer. Frozen objects have HAS_ANIMATION cleared by the
+     * original scheduler; the helper still stamps their animation timer. */
+    for (size_t i = 0; i < OBJECT_POOL_CAPACITY; ++i) {
+        struct Object *object = &objects->pool[i];
+        if (object->activeFlags && (object->header.gfx.node.flags & GRAPH_RENDER_ACTIVE)) {
+            sm64_physics_advance_object_animation(&object->header.gfx);
+        }
+    }
     terrain->time_stop = objects->time_stop;
     terrain->current_ref = previous_current;
     terrain->mario_object_ref = previous_mario_object;

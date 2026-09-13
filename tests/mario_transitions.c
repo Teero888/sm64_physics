@@ -6,8 +6,6 @@
 #include "game/area.h"
 #include "game/object_helpers.h"
 
-/* Animation clock is supplied by the caller until world clock binding lands. */
-u16 gAreaUpdateCounter;
 
 static const BehaviorScript held[] = {0}, dropped[] = {0}, thrown[] = {0}, shell[] = {0};
 int main(void) {

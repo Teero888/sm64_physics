@@ -6,12 +6,16 @@
 #include "../host/animation.h"
 #include "../host/animation_bank.h"
 
-u16 gAreaUpdateCounter = 1;
+static struct sm64_objects *world;
 #define CHECK(expr) do { if (!(expr)) { \
     fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #expr); exit(1); \
 } } while (0)
 
 int main(void) {
+    world = sm64_objects_create();
+    CHECK(world);
+    sm64_objects_activate(world);
+    sm64_objects_set_animation_tick(world, 1);
     s16 values_a[] = {4, 8, 12}, values_b[] = {40, 80, 120};
     u16 indices[] = {1,0, 1,1, 1,2};
     struct sm64_animation_asset assets[] = {
@@ -48,15 +52,15 @@ int main(void) {
     CHECK(set_mario_animation(&mario, 0) == -1 && current->values[0] == 4);
     set_anim_to_frame(&mario, 3);
     CHECK(is_anim_past_frame(&mario, 3));
-    ++gAreaUpdateCounter;
+    sm64_objects_set_animation_tick(world, sm64_objects_animation_tick(world) + 1);
     sm64_physics_advance_object_animation(&object.header.gfx);
     CHECK(is_anim_at_end(&mario) && is_anim_past_end(&mario));
     CHECK(set_mario_anim_with_accel(&mario, 1, 0x8000) == -1);
-    ++gAreaUpdateCounter;
+    sm64_objects_set_animation_tick(world, sm64_objects_animation_tick(world) + 1);
     sm64_physics_advance_object_animation(&object.header.gfx);
     CHECK(object.header.gfx.animInfo.animFrame == 0);
     sm64_animation_bank_destroy(a);
-    ++gAreaUpdateCounter;
+    sm64_objects_set_animation_tick(world, sm64_objects_animation_tick(world) + 1);
     sm64_physics_advance_object_animation(&second_object.header.gfx);
     update_mario_pos_for_anim(&second);
     CHECK(second.pos[0] == 10 && second.pos[1] == 20 && second.pos[2] == 30);
@@ -65,5 +69,7 @@ int main(void) {
     CHECK(sm64_animation_bank_create(assets, 2) == NULL);
     CHECK(sm64_animation_bank_create(NULL, 0) == NULL);
     puts("Native animation banks: relocation, switching, translation and independent lifetimes passed");
+    sm64_objects_activate(NULL);
+    sm64_objects_destroy(world);
     return 0;
 }

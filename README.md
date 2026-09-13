@@ -244,8 +244,8 @@ room, spawning, transform and movement helpers are bound to the object context.
 `native_behavior_execution` executes calls/returns, delays, loops, a native
 callback, child spawning, movement flags, action timer resets and independent
 contexts. It uses test-authored bytecode and a callback observer, not a complete
-level's behavior asset set. Game-specific native callbacks, global animation
-timing and the complete frame scheduler still need full-world integration.
+level's behavior asset set. Game-specific native callbacks still need
+full-world integration.
 
 `host/scheduler.h` exposes the original terrain/non-terrain object-list update
 phases and deactivated-object cleanup, now bound to the owned object context.
@@ -263,7 +263,7 @@ stop is retained. Profiling uses host time; the N64 debug overlay is omitted
 while simulation diagnostic counters are reset. `native_object_frame` combines
 a moving collision platform, collision observation and deferred time stop.
 Its player callback is a test observer: this does not yet execute Mario's full
-action dispatcher, advance all animation state or provide a complete world
+action dispatcher or provide a complete world
 clone. ROM decoding, game-specific callback integration and FrameTee's renderer
 are still outstanding.
 
@@ -282,7 +282,17 @@ when grabbed, dropped or thrown. `native_mario_transitions` checks held-state
 changes, original drop/throw placement, script replacement, ride release,
 input priority, triple jumps and quicksand overrides. Camera-dependent water
 transitions and the complete action dispatcher remain unconnected. The test
-still supplies the animation clock pending unified world clock ownership.
+uses the owning object context's animation clock.
+
+The 16-bit area animation counter is now owned by each object context. The
+full object frame increments it before behaviors (as upstream
+`area_update_objects` does), then advances animation state for live objects
+with active graph nodes. Original scheduler animation flags preserve time-stop
+freezing. The renderer must consume these frames without advancing them.
+Standalone animation calls require an active owning context and can set its
+tick through `host/animation.h`. Tests cover independent clocks, wraparound,
+duplicate calls and frame-level freeze/resume. Selecting/loading active areas,
+held-object scene traversal and complete world snapshots remain outstanding.
 
 To reproduce the source import from a checkout of the recorded revision:
 

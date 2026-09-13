@@ -1,8 +1,5 @@
 /* Generated verbatim upstream function extraction. See extracted.json. */
-#include "sm64.h"
-#include "engine/graph_node.h"
-#include "game/area.h"
-#include "game/memory.h"
+#include "host/animation_state.h"
 
 #line 736 "n64decomp/src/engine/graph_node.c"
 void geo_obj_init_animation(struct GraphNodeObject *graphNode, struct Animation **animPtrAddr) {

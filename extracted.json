@@ -2723,7 +2723,7 @@
     "animation.c": {
       "source": "src/engine/graph_node.c",
       "source_sha256": "6fbfce429c55e49de25c076597cfebd0d7e38c76feaa3a3b89d124a0b7a05890",
-      "sha256": "3124b4c8079b5dc07c08631d04165dbc9844088b7973d7baa19a64eb29e530ee",
+      "sha256": "5a2a2d7144154de2a6a1427690c501a56265b1fbe87bf35d962bde5588fb155d",
       "functions": {
         "geo_obj_init_animation": {
           "start": 26107,

@@ -20,6 +20,7 @@ struct sm64_objects {
     u16 displacement_state;
     u16 random_seed;
     u32 global_timer;
+    u16 animation_tick;
     u32 object_counter;
     u32 previous_object_count;
     u8 debug_level_select;

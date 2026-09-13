@@ -379,7 +379,7 @@ EXTRACTIONS = {
     },
     "animation.c": {
         "source": "src/engine/graph_node.c",
-        "headers": ["sm64.h", "engine/graph_node.h", "game/area.h", "game/memory.h"],
+        "headers": ["host/animation_state.h"],
         "functions": ["geo_obj_init_animation", "geo_obj_init_animation_accel",
                       "retrieve_animation_index", "geo_update_animation_frame"],
     },
