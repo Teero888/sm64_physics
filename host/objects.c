@@ -51,6 +51,12 @@ u16 sm64_objects_random_seed(const struct sm64_objects *objects) {
     return objects->random_seed;
 }
 
+void sm64_objects_set_frame_info(struct sm64_objects *objects, u32 frame, u8 debug_level_select) {
+    assert(objects);
+    objects->global_timer = frame;
+    objects->debug_level_select = debug_level_select;
+}
+
 void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario) {
     assert(objects);
     objects->mario = mario;

@@ -1,6 +1,48 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_status.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "09833301ca1ecb1c01518c49f63d145e688a8d64424c730049ff6813e1e0a2c0",
+      "functions": {
+        "update_mario_health": {
+          "start": 45967,
+          "end": 48106,
+          "sha256": "1153287ff03e566f61aa7b6ff5d897dfd7c3aa334086a4123e6b13737685793c"
+        },
+        "update_mario_info_for_cam": {
+          "start": 48161,
+          "end": 48468,
+          "sha256": "56e77b95d8eb25cb997cae9d53092962805027e2970443f247263acb08fe116e"
+        },
+        "mario_reset_bodystate": {
+          "start": 48542,
+          "end": 48899,
+          "sha256": "74272117b139ac8796c23b466a43a172014919c6d17f2db61a43dc3fc7551f95"
+        },
+        "sink_mario_in_quicksand": {
+          "start": 48960,
+          "end": 49207,
+          "sha256": "5deb770f14f68456d61290e535fe0e7fa5bf77fb1656ba54a6879c7da871166e"
+        },
+        "sCapFlickerFrames": {
+          "start": 49453,
+          "end": 49496,
+          "sha256": "effcd7d40fd2474f4dcf3b73f75fff8f2e074f959211fb1cdb31e22756508ac6"
+        },
+        "update_and_return_cap_flags": {
+          "start": 49562,
+          "end": 50657,
+          "sha256": "327f91338835ab7f5c3ffa7e758772e85d61c6c39a2119547e96225cc83c662e"
+        },
+        "mario_update_hitbox_and_cap_model": {
+          "start": 50718,
+          "end": 52362,
+          "sha256": "ed6f03d6e208b769adb81a0c47d61e6ec2c139b52e802a8d08ac80b391a16d6b"
+        }
+      }
+    },
     "object_frame.c": {
       "source": "src/game/object_list_processor.c",
       "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
@@ -1591,7 +1633,7 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "710139ffc3422b9a6b78512bb2bcfaf83732ca67b4dbbbb69e9ce6403399adb1",
+      "sha256": "edafc23c1fc9eeafbec57090afc5ef8968de37b9d60f674000856cc189074d74",
       "copied_ranges": [
         {
           "start": 0,
@@ -1780,11 +1822,53 @@
         },
         {
           "start": 44603,
+          "end": 45967,
+          "sha256": "1a57e3d3f42f0456918881f1b3358e4dc3c3f52ed79ddf803cab68de4f82cdb9"
+        },
+        {
+          "start": 48106,
+          "end": 48161,
+          "sha256": "610b9adbb6ce45093ec9a64277ee21c513a4dbdc56c471013453bc4337c894c2"
+        },
+        {
+          "start": 48468,
+          "end": 48542,
+          "sha256": "e62b0d1c9771976bf1154823b48eb4a59102acfdd8cf1617e7b2ae6251bf015a"
+        },
+        {
+          "start": 48899,
+          "end": 48960,
+          "sha256": "20ea080f1c6e3aecfe08e653f56749a39685e6d1b79761b289785bd153c33c9d"
+        },
+        {
+          "start": 49207,
+          "end": 49453,
+          "sha256": "cbe893e5483e8164638e9d95f21f958644ad4fc3073a46e48b2600ff217c0940"
+        },
+        {
+          "start": 49496,
+          "end": 49562,
+          "sha256": "0c3b9a522b3bad0b4dd22da60f41d00aad90fac1519e768269a5d51027f0f83a"
+        },
+        {
+          "start": 50657,
+          "end": 50718,
+          "sha256": "f168de2ffcf053967b9a5845416987b3a950f9f2daafff3fc985573f0ff6d349"
+        },
+        {
+          "start": 52362,
           "end": 60332,
-          "sha256": "82a559105ed7e28c8c406b4c0f3c0209a321df0b30a7af91e7c1266d4bcddd13"
+          "sha256": "fe88e4a8d5b426a5347407e3b5e72b1b8d1c7df7a0437669e8b2196a91acfe6b"
         }
       ],
       "omitted_functions": [
+        "update_mario_health",
+        "update_mario_info_for_cam",
+        "mario_reset_bodystate",
+        "sink_mario_in_quicksand",
+        "sCapFlickerFrames",
+        "update_and_return_cap_flags",
+        "mario_update_hitbox_and_cap_model",
         "play_sound_if_no_flag",
         "play_mario_jump_sound",
         "adjust_sound_for_speed",

@@ -13,6 +13,15 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_status.c": {'source': 'src/game/mario.c',
+ 'headers': ['host/mario_status_state.h'],
+ 'functions': ['update_mario_health',
+               'update_mario_info_for_cam',
+               'mario_reset_bodystate',
+               'sink_mario_in_quicksand',
+               'sCapFlickerFrames',
+               'update_and_return_cap_flags',
+               'mario_update_hitbox_and_cap_model']},
     "object_frame.c": {
         "source": "src/game/object_list_processor.c",
         "headers": ["host/object_frame_state.h"],
@@ -290,7 +299,7 @@ EXTRACTIONS = {
     },
     "mario.c": {
         "source": "src/game/mario.c",
-        "omit": ["play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
+        "omit": ['update_mario_health', 'update_mario_info_for_cam', 'mario_reset_bodystate', 'sink_mario_in_quicksand', 'sCapFlickerFrames', 'update_and_return_cap_flags', 'mario_update_hitbox_and_cap_model', "play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
                  "play_sound_and_spawn_particles", "play_mario_action_sound", "play_mario_landing_sound",
                  "play_mario_landing_sound_once", "play_mario_heavy_landing_sound",
                  "play_mario_heavy_landing_sound_once", "play_mario_sound",
@@ -385,6 +394,10 @@ def function_range(data, name):
         pattern = rb'^[A-Za-z_][^\n;{}]*\b' + name.encode() + rb'\s*\[[^;{}]*=\s*\{'
         matches = list(re.finditer(pattern, masked, re.M))
     if len(matches) != 1:
+        scalar = rb'^[A-Za-z_][^\n;{}]*\b' + name.encode() + rb'\s*=\s*[^;{}]+;'
+        scalars = list(re.finditer(scalar, masked, re.M))
+        if len(scalars) == 1:
+            return scalars[0].span()
         raise ValueError(f"Expected one definition of {name}, found {len(matches)}")
     start = matches[0].start()
     depth = 1

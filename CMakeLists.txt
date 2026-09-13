@@ -14,6 +14,7 @@ add_library(sm64_physics_core STATIC
     host/save.c
     extracted/sound_control.c
     extracted/mario_sound.c
+    extracted/mario_status.c
     extracted/object_sound.c
     extracted/object_animation_query.c
     extracted/sound_spawner.c
@@ -89,6 +90,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_mario_status_test tests/mario_status.c)
+    target_link_libraries(sm64_mario_status_test PRIVATE sm64_physics_core)
+    add_test(NAME native_mario_status COMMAND sm64_mario_status_test)
     add_executable(sm64_object_frame_test tests/object_frame.c)
     target_link_libraries(sm64_object_frame_test PRIVATE sm64_physics_core)
     add_test(NAME native_object_frame COMMAND sm64_object_frame_test)

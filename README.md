@@ -267,6 +267,13 @@ action dispatcher, advance all animation state or provide a complete world
 clone. ROM decoding, game-specific callback integration and FrameTee's renderer
 are still outstanding.
 
+`host/mario_status.h` exposes original health, cap timing, hitbox and body/camera
+output updates using owned frame/debug state. `native_mario_status` checks
+poison and water health changes, healing/hurting counters, cap expiry and dialog
+timer pauses, short hitboxes, invincibility visibility and camera output.
+These routines remain to be invoked through the complete Mario dispatcher;
+passing their component test does not establish playable Mario simulation.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

@@ -22,6 +22,8 @@ struct sm64_objects {
     u32 global_timer;
     u32 object_counter;
     u32 previous_object_count;
+    u8 debug_level_select;
+    Vec3f global_sound_source;
     const BehaviorScript *command;
     struct GraphNode **models;
     const BehaviorScript *haunted_chair, *mad_piano, *message_panel;
