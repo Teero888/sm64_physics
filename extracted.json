@@ -1,6 +1,345 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "behavior_script.c": {
+      "source": "src/engine/behavior_script.c",
+      "source_sha256": "f648bd72f34714c86aba5bb5d1d413ca6c1e5b564e062ab2d8128523e9beb3b3",
+      "sha256": "8c597fe9b1b7db8d3004c283a933e334e96aa21ca4b27f90d1f81dba5c0503ce",
+      "functions": {
+        "obj_update_gfx_pos_and_angle": {
+          "start": 2512,
+          "end": 2897,
+          "sha256": "6e98fd3ce5d90d125c12580e0b9532e5e7d319d40035a9b68f0d8756b4818aca"
+        },
+        "cur_obj_bhv_stack_push": {
+          "start": 2973,
+          "end": 3138,
+          "sha256": "3352cef6fa6ee1f53854bbfecbb6a9ba3e7809307e13e3c90df60080d4ba7b1b"
+        },
+        "cur_obj_bhv_stack_pop": {
+          "start": 3220,
+          "end": 3421,
+          "sha256": "a0d1ce06401956f4a57476a2752e2c8dbe908dfc0bacee9ff005183078e97a5c"
+        },
+        "bhv_cmd_hide": {
+          "start": 3567,
+          "end": 3673,
+          "sha256": "cdff09ed6c612c315fa0eb291f20000fc87db9c132181dbf7738acd8178f67b3"
+        },
+        "bhv_cmd_disable_rendering": {
+          "start": 3757,
+          "end": 3923,
+          "sha256": "74dc97bfa6c5b9af7ed2f22ec9564f56cbc73300e55c57a913dc8f6e1529ea80"
+        },
+        "bhv_cmd_billboard": {
+          "start": 4029,
+          "end": 4189,
+          "sha256": "b7cf42a06a998b69a5379ba5944b778cdc9baa199a42c9e92a8e9ba4674b7960"
+        },
+        "bhv_cmd_set_model": {
+          "start": 4278,
+          "end": 4485,
+          "sha256": "01d8a21b46de3211d85f66436621ad642e98786ca64df63265daa37bcee1071f"
+        },
+        "bhv_cmd_spawn_child": {
+          "start": 4606,
+          "end": 4935,
+          "sha256": "4919bb281d695ee37eb841a5e52f91dde4a2059753368c2da7506de29446ef31"
+        },
+        "bhv_cmd_spawn_obj": {
+          "start": 5052,
+          "end": 5527,
+          "sha256": "57f195db73320e25445e46d74ce95bf83b37ba9e326c453e017cc0abf822d9f2"
+        },
+        "bhv_cmd_spawn_child_with_param": {
+          "start": 5692,
+          "end": 6120,
+          "sha256": "63fcde8afa213684b1defd969cf9e7d944028ce8bb4c3b49fd554899c9669943"
+        },
+        "bhv_cmd_deactivate": {
+          "start": 6213,
+          "end": 6338,
+          "sha256": "fbc818bdb4c08c68f5f1b4eb3367f4bb2d91d5fe507b4cdd88c7c8984d5cb9b9"
+        },
+        "bhv_cmd_break": {
+          "start": 6402,
+          "end": 6463,
+          "sha256": "34a5e6f270ae4accc7899636c65b94ac336dbcfba4a8bc30c01b85b3331f0c31"
+        },
+        "bhv_cmd_break_unused": {
+          "start": 6542,
+          "end": 6610,
+          "sha256": "aa09fd396ccae6f689b0deeecf1281ad1cf5aa1742efac892785727904cb7911"
+        },
+        "bhv_cmd_call": {
+          "start": 6744,
+          "end": 7104,
+          "sha256": "2fe67a05c30dae62398f92e180e56eb91fd3b590e6f3eb400dda8d312ce24476"
+        },
+        "bhv_cmd_return": {
+          "start": 7233,
+          "end": 7413,
+          "sha256": "bf702e440b5d23589ac66c47657bf50e9e1015308eddeecdd57c7896b8f9b9ea"
+        },
+        "bhv_cmd_delay": {
+          "start": 7512,
+          "end": 7914,
+          "sha256": "93374bb98a576e1b2a832fa302ad66abf9167087e0fa3f49fb11464efd3837d7"
+        },
+        "bhv_cmd_delay_var": {
+          "start": 8055,
+          "end": 8438,
+          "sha256": "0e3694dbb258f4ab3a98919ba251eef2cfc88a9be60aff08937341e3c345d978"
+        },
+        "bhv_cmd_goto": {
+          "start": 8534,
+          "end": 8722,
+          "sha256": "7f66fbb93c8b75169e661998482770ddc55d5bc020bfa255ad7ac2d60cc6e40e"
+        },
+        "bhv_cmd_begin_repeat_unused": {
+          "start": 8932,
+          "end": 9266,
+          "sha256": "3b8b19b7177616ed78dcaba70a34e619cef5a933a56a4106717ad3e4edcd2a05"
+        },
+        "bhv_cmd_begin_repeat": {
+          "start": 9385,
+          "end": 9713,
+          "sha256": "4750dad47f56255bb4c6206ca764bf9091499c8b8de59b8657222f24a2674adf"
+        },
+        "bhv_cmd_end_repeat": {
+          "start": 9790,
+          "end": 10463,
+          "sha256": "335bfc2422ab448dc4d89957767b5e3aacc2ce5a043361a31b3ec5ca97658099"
+        },
+        "bhv_cmd_end_repeat_continue": {
+          "start": 10625,
+          "end": 11268,
+          "sha256": "cbbdb072b2ae6843ae55db7991462aecca270941d4024197d3f7266dc779433e"
+        },
+        "bhv_cmd_begin_loop": {
+          "start": 11351,
+          "end": 11562,
+          "sha256": "30f56549215f13e345d796668b532590b91a975e0ac4b21e66695f724d6aae62"
+        },
+        "bhv_cmd_end_loop": {
+          "start": 11637,
+          "end": 11910,
+          "sha256": "01e8c575fc29c57fb46936ec26496e025416434cf63f676952848b0a5251a989"
+        },
+        "bhv_cmd_call_native": {
+          "start": 12072,
+          "end": 12243,
+          "sha256": "27724c02d19e1ba51ec1858aa98d774bb6ce9d941218d7233a0ddd2d393cb19b"
+        },
+        "bhv_cmd_set_float": {
+          "start": 12333,
+          "end": 12540,
+          "sha256": "05b441b4e86596c25f3a0786f74fe50a94cef2edb77255b09f1d89da9bc69092"
+        },
+        "bhv_cmd_set_int": {
+          "start": 12631,
+          "end": 12834,
+          "sha256": "bc9ffc8c6c08f8cf97de108725ed6be6bcdf6e421b3beab183a0d9e5f3f16dee"
+        },
+        "bhv_cmd_set_int_unused": {
+          "start": 12947,
+          "end": 13215,
+          "sha256": "bc9547a9b6114666be9813ea7ade9e74e297a5662f72bc960c9037abd3916d11"
+        },
+        "bhv_cmd_set_random_float": {
+          "start": 13343,
+          "end": 13623,
+          "sha256": "ffc0d87d755bb3a4e6a2cfff1fc7ec2122ae0089d5c254bd572ff8fb275548a1"
+        },
+        "bhv_cmd_set_random_int": {
+          "start": 13751,
+          "end": 14032,
+          "sha256": "5a0485010aee08d4327cc4dba333bacaf3be0b5e6d7ecb589d6772cbac779f07"
+        },
+        "bhv_cmd_set_int_rand_rshift": {
+          "start": 14224,
+          "end": 14506,
+          "sha256": "dfd15cafe0c7c903fb0b17c32e3eaad90921e7ff09c7f79c915628e7609202cd"
+        },
+        "bhv_cmd_add_random_float": {
+          "start": 14634,
+          "end": 14941,
+          "sha256": "5eb1be86785667b7c27eb8f5a717494adf1fb75e5c1eecdaa063d3655051c7ea"
+        },
+        "bhv_cmd_add_int_rand_rshift": {
+          "start": 15140,
+          "end": 15468,
+          "sha256": "184ebba6b4a4676431f700eaf491490379712cc809428ef3ee2eb4d1d8038df4"
+        },
+        "bhv_cmd_add_float": {
+          "start": 15558,
+          "end": 15765,
+          "sha256": "81df5ef9ad1ddbbbd03cf9c03a392b4dd7dc3b682df75d8250aa457a5019a828"
+        },
+        "bhv_cmd_add_int": {
+          "start": 15856,
+          "end": 16059,
+          "sha256": "ad434b42b8e129a0c494f036692c53c1672179a1e65960ba88962db3dff9c1cd"
+        },
+        "bhv_cmd_or_int": {
+          "start": 16221,
+          "end": 16457,
+          "sha256": "f3fc120a51b919d961072ac80493c04e5f9766f249c75348e0e40ba29ba20be4"
+        },
+        "bhv_cmd_bit_clear": {
+          "start": 16565,
+          "end": 16809,
+          "sha256": "75679c16d5f87da8bb5dbcbc9b4c71f1249ae0b986c7721afbef397f01da86c2"
+        },
+        "bhv_cmd_load_animations": {
+          "start": 16943,
+          "end": 17132,
+          "sha256": "8c65c51628c4c0619fd46e09ae84be8f75949f1dd8203fef2193df540cc3abbe"
+        },
+        "bhv_cmd_animate": {
+          "start": 17267,
+          "end": 17546,
+          "sha256": "4c78044c3c4348374ce3a2782960c5115a70915281b244b8f8e25be91940d188"
+        },
+        "bhv_cmd_drop_to_floor": {
+          "start": 17675,
+          "end": 18018,
+          "sha256": "9a228b42e568dbe8004522703a322ed39a16fbc9b7e67573285b5e1037011b06"
+        },
+        "bhv_cmd_nop_1": {
+          "start": 18086,
+          "end": 18218,
+          "sha256": "6df0e388e7e6fd8d7e30508a5d7c252c930f8572b92fa6d23fd2a69bcf4f1b9d"
+        },
+        "bhv_cmd_nop_3": {
+          "start": 18286,
+          "end": 18418,
+          "sha256": "1907aa234dde92d34c48d453ad1d95cb165c1898e8c04a81e84b9e77c634dc87"
+        },
+        "bhv_cmd_nop_2": {
+          "start": 18486,
+          "end": 18618,
+          "sha256": "cfda804e3f53e7569bcbf4adea138ea3f33a56a1151bc85faa59536222696b19"
+        },
+        "bhv_cmd_sum_float": {
+          "start": 18774,
+          "end": 19088,
+          "sha256": "5725725166e2966043b6f3528bb973b0fef0187d086deb288b6c559673814c63"
+        },
+        "bhv_cmd_sum_int": {
+          "start": 19254,
+          "end": 19560,
+          "sha256": "5e3c5401467aa7d4c469bd6e21c89c6a96f59f9ad769c3c2a349b0e372286f05"
+        },
+        "bhv_cmd_set_hitbox": {
+          "start": 19666,
+          "end": 19930,
+          "sha256": "96b06301a9e8d1870e53518f983d20f194858ccbf8359599291d8b38e3d52ae5"
+        },
+        "bhv_cmd_set_hurtbox": {
+          "start": 20038,
+          "end": 20305,
+          "sha256": "e7600314faa448a6b3650dfea3e0f3563e92a5306fd19f30cdebebd911f1e8d5"
+        },
+        "bhv_cmd_set_hitbox_with_offset": {
+          "start": 20467,
+          "end": 20839,
+          "sha256": "1d98641033b40f2a625efe491a25b57361973787003b1897ba60fcee91d490aa"
+        },
+        "bhv_cmd_nop_4": {
+          "start": 20914,
+          "end": 21094,
+          "sha256": "61f1cab6a1f5bfa171e42b45152497797b35beb6a3667f52c3984c8aed764152"
+        },
+        "bhv_cmd_begin": {
+          "start": 21279,
+          "end": 21908,
+          "sha256": "1fc825c61d160ad655e7a7d48ca650a5c6aaf1c6bb559c1ed3e3a02cea65a528"
+        },
+        "bhv_cmd_load_collision_data": {
+          "start": 23826,
+          "end": 24050,
+          "sha256": "2bb9959c3b8ad682d904944fcbc4640ae436219a2357f5f40dbbcccd16c71d3a"
+        },
+        "bhv_cmd_set_home": {
+          "start": 24152,
+          "end": 24398,
+          "sha256": "124443fa5c0e7b88c3210cc59d9fb9d37d3cc2d48299987bf26ce29d6d7c1c7e"
+        },
+        "bhv_cmd_set_interact_type": {
+          "start": 24487,
+          "end": 24645,
+          "sha256": "89f04f5f6386b76dbdebd80ce7494e7b9defa36372167ba80dc24c145bb81d8a"
+        },
+        "bhv_cmd_set_interact_subtype": {
+          "start": 24751,
+          "end": 24918,
+          "sha256": "8d0ed28a00ced8a83944664ebdd9d7755d87ded6d5c9d7005709d9ce0e2beeb2"
+        },
+        "bhv_cmd_scale": {
+          "start": 25027,
+          "end": 25245,
+          "sha256": "d013c684305ad0d5064806130995feb574c4d99b0db81c6eb1640f3c2c9268c9"
+        },
+        "bhv_cmd_set_obj_physics": {
+          "start": 25452,
+          "end": 26075,
+          "sha256": "bca2f2bbde9f83809932d346811046d4f26cf88cffc2c53400cc98aea86c98a3"
+        },
+        "bhv_cmd_parent_bit_clear": {
+          "start": 26277,
+          "end": 26543,
+          "sha256": "01b85eda46a61b5f1e0b20e0ba0b68c71179e79415f21b954722d327afaf1c40"
+        },
+        "bhv_cmd_spawn_water_droplet": {
+          "start": 26657,
+          "end": 26886,
+          "sha256": "7b5957513400f729d529c2cee10be8299194ece4b13aed6dd7dbe3e7d2d756c2"
+        },
+        "bhv_cmd_animate_texture": {
+          "start": 27025,
+          "end": 27344,
+          "sha256": "250ffce7d5acaf169b715ad678835e5adf48e9b63fd131a94ec53c0a3bd1431d"
+        },
+        "stub_behavior_script_2": {
+          "start": 27346,
+          "end": 27383,
+          "sha256": "19bfffbe991daee2811a37386e409a9faf53267c84a4dbdb9f7b2c6d84da21e9"
+        },
+        "BehaviorCmdTable": {
+          "start": 27422,
+          "end": 28876,
+          "sha256": "8fcfabaa48190e7bb840bb154100b7e05a69a6a19e2781130be5decc26efca2d"
+        },
+        "cur_obj_update": {
+          "start": 29009,
+          "end": 32708,
+          "sha256": "116dc8883a5fac83aa89d7a84f935b2dbfd2f5ed556befe4d723723d125ecdff"
+        }
+      }
+    },
+    "random.c": {
+      "source": "src/engine/behavior_script.c",
+      "source_sha256": "f648bd72f34714c86aba5bb5d1d413ca6c1e5b564e062ab2d8128523e9beb3b3",
+      "sha256": "0e4ab8c51e7bfa674dd8306de1beaaf7d0351bfd73e7a0414f0d19c9747bf23e",
+      "functions": {
+        "random_u16": {
+          "start": 1506,
+          "end": 2107,
+          "sha256": "0644ab81d1753c291ba060982a271896549cee58ccbd6355272dfb13e5bd2e2d"
+        },
+        "random_float": {
+          "start": 2163,
+          "end": 2252,
+          "sha256": "f8006b6f46db14f8199f9741253e0971cbbd9b0fdd24c4cf45b767722dd712a0"
+        },
+        "random_sign": {
+          "start": 2300,
+          "end": 2415,
+          "sha256": "ba30dd9df9fb591f262ceb47a0b761919751c83434d907fbb19b0e0286c0f95c"
+        }
+      }
+    },
     "object_math.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",

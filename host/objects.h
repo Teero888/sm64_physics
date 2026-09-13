@@ -10,6 +10,8 @@ void sm64_objects_destroy(struct sm64_objects *objects);
  * time; native deletion calls require objects belonging to the active pool. */
 struct sm64_objects *sm64_objects_activate(struct sm64_objects *objects);
 void sm64_objects_set_level(struct sm64_objects *objects, s16 level);
+void sm64_objects_set_random_seed(struct sm64_objects *objects, u16 seed);
+u16 sm64_objects_random_seed(const struct sm64_objects *objects);
 /* Borrowed reference used by original hurtbox/invincibility handling. */
 void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario);
 /* Borrowed state for original Mario and non-Mario platform displacement. */

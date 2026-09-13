@@ -44,7 +44,8 @@ add_library(sm64_physics_core STATIC
     extracted/mario_action_setup.c
     extracted/mario_surface_class.c
     upstream/src/game/interaction.c
-    upstream/src/engine/behavior_script.c
+    extracted/behavior_script.c
+    extracted/random.c
     extracted/object_collision.c
     upstream/src/game/object_list_processor.c
     extracted/platform_displacement.c
@@ -82,6 +83,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_random_test tests/random.c)
+    target_link_libraries(sm64_random_test PRIVATE sm64_physics_core)
+    add_test(NAME native_random_state COMMAND sm64_random_test)
     add_executable(sm64_platform_test tests/platform.c)
     target_link_libraries(sm64_platform_test PRIVATE sm64_physics_core)
     add_test(NAME native_platform_displacement COMMAND sm64_platform_test)

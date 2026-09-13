@@ -17,6 +17,10 @@ struct sm64_objects {
     struct MarioState *mario_state;
     u32 time_stop;
     u16 displacement_state;
+    u16 random_seed;
+    u32 global_timer;
+    const BehaviorScript *command;
+    struct GraphNode **models;
     s16 level;
 };
 extern _Thread_local struct sm64_objects *sm64_active_objects;

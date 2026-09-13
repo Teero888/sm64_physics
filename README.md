@@ -231,6 +231,16 @@ surface association. The full world adapter still needs to schedule these
 functions in the original frame order and synchronize time-stop state across
 terrain and objects.
 
+The original behavior interpreter, command table and command handlers are now
+extracted with context bindings for the current object/command, frame counter,
+model table and random seed. Native bytecode still requires trusted resolved
+pointers. The original random generator runs independently in each object
+context; `native_random_state` verifies the special seed reset, replay from a
+saved seed, independent owners and output ranges. Full `cur_obj_update` is
+still unverified and cannot yet link independently: its room, spawning and
+movement helpers and special behavior identities need host-context bindings.
+The archive compiling is not evidence that the full interpreter can execute.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

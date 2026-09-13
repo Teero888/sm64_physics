@@ -40,6 +40,16 @@ void sm64_objects_set_level(struct sm64_objects *objects, s16 level) {
     objects->level = level;
 }
 
+void sm64_objects_set_random_seed(struct sm64_objects *objects, u16 seed) {
+    assert(objects);
+    objects->random_seed = seed;
+}
+
+u16 sm64_objects_random_seed(const struct sm64_objects *objects) {
+    assert(objects);
+    return objects->random_seed;
+}
+
 void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario) {
     assert(objects);
     objects->mario = mario;
