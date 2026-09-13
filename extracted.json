@@ -1,6 +1,75 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "object_lifetime.c": {
+      "source": "src/game/spawn_object.c",
+      "source_sha256": "108e2d896e632fb405a36e15e519d593f7f5f1ffd0a57fad6b2414c3ceab4f56",
+      "sha256": "e1793fd75e7b21cab1dfbb4565c221d4c0cc4de10e92edb492c96f50b490ea64",
+      "functions": {
+        "try_allocate_object": {
+          "start": 2193,
+          "end": 2818,
+          "sha256": "e4d6c3c9882104a81d4a68971acab57be33f30f0bde8cc0b781a2be75f2da77b"
+        },
+        "deallocate_object": {
+          "start": 3445,
+          "end": 3727,
+          "sha256": "1859a29ae5702692a6bd998e1867e3b0c8f08f240efce949782867419fb20a47"
+        },
+        "init_free_object_list": {
+          "start": 3794,
+          "end": 4260,
+          "sha256": "d69248d381df2213dd67ea703da2425b4a627f79c1bd795c5c7ca8a33a657684"
+        },
+        "clear_object_lists": {
+          "start": 4347,
+          "end": 4545,
+          "sha256": "2c5ec0a1fd4106741d4d4b0239c13264b97b6f430a9c743c3a04ac31e2c1de82"
+        },
+        "unload_object": {
+          "start": 5292,
+          "end": 5790,
+          "sha256": "3719d7f84c0cefe86b3fc2dbc1cbc51afcd9a9c73d25e79388904bbb5cfe4805"
+        },
+        "allocate_object": {
+          "start": 5973,
+          "end": 8670,
+          "sha256": "b8465eea5df54182dba4eb7cf43b3626f5dc6c374fca5d9611e4635fda7e6f71"
+        },
+        "snap_object_to_floor": {
+          "start": 8765,
+          "end": 9118,
+          "sha256": "cda979013a22d391a367160fa711afaab88174863a37cbc9fcd08b728d5765be"
+        },
+        "create_object": {
+          "start": 9216,
+          "end": 10492,
+          "sha256": "81bf7be1e543df7438898442c7e5be55220fca37f8939ab06882f5e9a6758ebd"
+        },
+        "mark_obj_for_deletion": {
+          "start": 10560,
+          "end": 10702,
+          "sha256": "4e86935ef30641c49163bcf93885b37ae849fa16a04e673be80708af38495aeb"
+        }
+      }
+    },
+    "object_slots.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "1babb143d9fa1128462fbc577cf04dbde583d9c6b164723ca943da39350ccefa",
+      "functions": {
+        "find_unimportant_object": {
+          "start": 27914,
+          "end": 28167,
+          "sha256": "5a68b486339172da402a91ebd22ad824c634b99e0d22755c595bffc0990d6eea"
+        },
+        "count_unimportant_objects": {
+          "start": 28169,
+          "end": 28441,
+          "sha256": "15f55959021d1239450e02eebd4b19aec560fc487a24c8cd870f374d01fc5be5"
+        }
+      }
+    },
     "memory_pool.c": {
       "source": "src/game/memory.c",
       "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",
@@ -1169,7 +1238,7 @@
     "object_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
-      "sha256": "0d9598fb477d417b345ad12b34704a6ec8aa309a98d01abb3c2bd2fc52dbbcdf",
+      "sha256": "55a22cd2aad4e583c4a5476501a3e5be913a8758d9d452e8eb7c8b203724dab2",
       "copied_ranges": [
         {
           "start": 0,
@@ -1183,8 +1252,18 @@
         },
         {
           "start": 10506,
+          "end": 27914,
+          "sha256": "b45cfe3a4ebb70210453891a535ab8b1211e8a8bbbcd25ad76f72ec2cab10602"
+        },
+        {
+          "start": 28167,
+          "end": 28169,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 28441,
           "end": 31611,
-          "sha256": "a9b02da91893fe741fba18300d9dddc92d7c3cb4122e83109f747d811611a05d"
+          "sha256": "e09eb48e5e479b1f77f36ef279808268fa613cd352cd487caf3f256be58c2255"
         },
         {
           "start": 31801,
@@ -1203,6 +1282,8 @@
         }
       ],
       "omitted_functions": [
+        "find_unimportant_object",
+        "count_unimportant_objects",
         "cur_obj_check_anim_frame",
         "cur_obj_check_anim_frame_in_range",
         "obj_apply_scale_to_matrix",

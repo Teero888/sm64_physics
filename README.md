@@ -204,6 +204,16 @@ main-pool owner's lifetime and retain the original valid-size/free preconditions
 whole-block reuse, coalescing and independent owners. This does not yet test
 complete Chain Chomp or Wiggler behavior execution.
 
+`host/objects.h` owns object slots, free and active lists, and their bookkeeping
+parent node. The original allocator, deletion, spawn initialization and
+unimportant-object selection operate on this context. The host spawn entry
+checks list bounds and exhausted pools before calling upstream; internal
+`create_object` retains its original exhaustion semantics. Behavior bytecode
+is borrowed. `native_object_lifetime` exercises slot reuse, full-pool eviction,
+terrain floor snapping and independent owners. Other object-processing and
+behavior functions still use globals that need to be bound to this context;
+this is not yet a complete object update loop or cloneable world.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

@@ -867,29 +867,29 @@ struct Object *cur_obj_find_nearest_object_with_behavior(const BehaviorScript *b
     return closestObj;
 }
 
-struct Object *find_unimportant_object(void) {
-    struct ObjectNode *listHead = &gObjectLists[OBJ_LIST_UNIMPORTANT];
-    struct ObjectNode *obj = listHead->next;
 
-    if (listHead == obj) {
-        obj = NULL;
-    }
 
-    return (struct Object *) obj;
-}
 
-s32 count_unimportant_objects(void) {
-    struct ObjectNode *listHead = &gObjectLists[OBJ_LIST_UNIMPORTANT];
-    struct ObjectNode *obj = listHead->next;
-    s32 count = 0;
 
-    while (listHead != obj) {
-        count++;
-        obj = obj->next;
-    }
 
-    return count;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 s32 count_objects_with_behavior(const BehaviorScript *behavior) {
     uintptr_t *behaviorAddr = segmented_to_virtual(behavior);

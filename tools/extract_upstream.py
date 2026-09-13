@@ -13,6 +13,18 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "object_lifetime.c": {
+        "source": "src/game/spawn_object.c",
+        "headers": ["host/objects_state.h"],
+        "functions": ["try_allocate_object", "deallocate_object", "init_free_object_list",
+                      "clear_object_lists", "unload_object", "allocate_object", "snap_object_to_floor",
+                      "create_object", "mark_obj_for_deletion"],
+    },
+    "object_slots.c": {
+        "source": "src/game/object_helpers.c",
+        "headers": ["host/objects_state.h"],
+        "functions": ["find_unimportant_object", "count_unimportant_objects"],
+    },
     "memory_pool.c": {
         "source": "src/game/memory.c",
         "headers": ["host/memory_pool.h"],
@@ -171,7 +183,8 @@ EXTRACTIONS = {
     },
     "object_helpers.c": {
         "source": "src/game/object_helpers.c",
-        "omit": ["cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range",
+        "omit": ["find_unimportant_object", "count_unimportant_objects",
+                 "cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range",
                  "obj_apply_scale_to_matrix", "dist_between_objects",
                  "obj_build_transform_from_pos_and_angle"],
     },
