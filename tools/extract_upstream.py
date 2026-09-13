@@ -13,6 +13,24 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "save.c": {
+        "source": "src/game/save_file.c",
+        "headers": ["host/save_state.h"],
+        "functions": ["gLevelToCourseNumTable", "stub_save_file_1", "calc_checksum",
+                      "verify_save_block_signature", "add_save_block_signature",
+                      "restore_main_menu_data", "save_main_menu_data", "wipe_main_menu_data",
+                      "get_coin_score_age", "set_coin_score_age", "touch_coin_score_age",
+                      "touch_high_score_ages", "restore_save_file_data", "save_file_do_save",
+                      "save_file_erase", "save_file_copy", "save_file_load_all", "save_file_reload",
+                      "save_file_collect_star_or_key", "save_file_exists", "save_file_get_max_coin_score",
+                      "save_file_get_course_star_count", "save_file_get_total_star_count",
+                      "save_file_set_flags", "save_file_clear_flags", "save_file_get_flags",
+                      "save_file_get_star_flags", "save_file_set_star_flags", "save_file_get_course_coin_score",
+                      "save_file_is_cannon_unlocked", "save_file_set_cannon_unlocked",
+                      "save_file_set_cap_pos", "save_file_get_cap_pos", "save_file_set_sound_mode", "save_file_get_sound_mode",
+                      "save_file_move_cap_to_default_location", "disable_warp_checkpoint",
+                      "check_if_should_set_warp_checkpoint", "check_warp_checkpoint"],
+    },
     "mario_sound.c": {
         "source": "src/game/mario.c",
         "headers": ["sm64.h", "game/mario.h", "audio/external.h"],
@@ -29,7 +47,8 @@ EXTRACTIONS = {
     "sound_control.c": {
         "source": "src/game/sound_init.c",
         "headers": ["host/audio_state.h"],
-        "functions": ["reset_volume", "lower_background_noise", "raise_background_noise",
+        "functions": ["sSoundMenuModeToSoundMode", "set_sound_mode",
+                      "reset_volume", "lower_background_noise", "raise_background_noise",
                       "disable_background_sound", "enable_background_sound",
                       "fadeout_music", "fadeout_level_music", "play_cutscene_music",
                       "play_shell_music", "stop_shell_music", "play_cap_music",

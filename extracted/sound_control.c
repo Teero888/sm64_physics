@@ -1,6 +1,16 @@
 /* Generated verbatim upstream function extraction. See extracted.json. */
 #include "host/audio_state.h"
 
+#line 35 "n64decomp/src/game/sound_init.c"
+static s16 sSoundMenuModeToSoundMode[] = { SOUND_MODE_STEREO, SOUND_MODE_MONO, SOUND_MODE_HEADSET };
+
+#line 141 "n64decomp/src/game/sound_init.c"
+void set_sound_mode(u16 soundMode) {
+    if (soundMode < 3) {
+        audio_set_sound_mode(sSoundMenuModeToSoundMode[soundMode]);
+    }
+}
+
 #line 82 "n64decomp/src/game/sound_init.c"
 void reset_volume(void) {
     sMusicVolume = 0;

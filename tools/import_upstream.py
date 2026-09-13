@@ -9,6 +9,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = [
+    "src/game/save_file.c",
     "src/game/sound_init.c", "src/game/spawn_sound.c", "src/game/memory.c",
     "src/game/game_init.c", "src/engine/graph_node.c",
     "src/engine/math_util.c", "src/engine/surface_collision.c",

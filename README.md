@@ -182,6 +182,18 @@ camera-relative source coordinates, and connect FrameTee's event consumer.
 The original sound-spawner routine is retained, but its object creation path
 still depends on the unfinished full object runtime.
 
+`host/save.h` owns the original US save progression logic and its working and
+committed buffers. FrameTee supplies/receives native decoded `SaveBuffer` data;
+raw EEPROM byte decoding and file I/O belong to the host. Original signature
+checks, backup repair, reload, star/key collection, coin scores, cannon bits,
+cap recovery and warp checkpoint functions operate on this context. Cloning
+preserves pending changes, committed data and checkpoint state independently.
+Sound-mode changes emit an audio event and therefore require an active audio
+context as well. `native_save_progress` exercises those gameplay paths,
+including the original coin-score truncation behavior and corrupted-backup
+recovery. The full world adapter must still synchronize its level/course/act
+context with this component and bind other users of the original save globals.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

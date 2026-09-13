@@ -2,6 +2,7 @@
   "repository": "https://github.com/n64decomp/sm64.git",
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "sources": [
+    "src/game/save_file.c",
     "src/game/sound_init.c",
     "src/game/spawn_sound.c",
     "src/game/memory.c",
@@ -430,6 +431,7 @@
     "src/game/profiler.h": "3c4a7fbb3292d0336fcd17a8046a519703708cdad35da3e8beb5bc5abb07cd31",
     "src/game/rendering_graph_node.h": "a37e3f0c780d619f71c456015eb4fe70cc472472221ca85b30161229dd24e69d",
     "src/game/rumble_init.h": "350b0e7030eb7369586a3ade48f82197ae5f76ea38b9e745a29014e446277f32",
+    "src/game/save_file.c": "9689d25f46019b3f319d1633ad6a5c56f7696ae097ce50ada322c73784bb5d66",
     "src/game/save_file.h": "23e6b898bccbdac3c44ab11c677d9e7a2dd2e0ced7624de3883d5a884ae7f184",
     "src/game/segment2.h": "a6b595d558dab9cff93fb1c91524c31c8de1fdc01a9e6d01d31a31c4a86326d5",
     "src/game/sound_init.c": "c7b29ae67ec97682a1a01f0d4a55023676fc39102d81c32ee896fb1b71e3a3ff",

@@ -71,3 +71,4 @@ void play_star_fanfare(void) { emit(SM64_AUDIO_STAR_FANFARE, 0, 0, 0, 0, NULL); 
 void play_power_star_jingle(u8 arg) { emit(SM64_AUDIO_POWER_STAR, arg, 0, 0, 0, NULL); }
 void play_race_fanfare(void) { emit(SM64_AUDIO_RACE_FANFARE, 0, 0, 0, 0, NULL); }
 void play_toads_jingle(void) { emit(SM64_AUDIO_TOAD_JINGLE, 0, 0, 0, 0, NULL); }
+void audio_set_sound_mode(u8 mode) { emit(SM64_AUDIO_SOUND_MODE, mode, 0, 0, 0, NULL); }

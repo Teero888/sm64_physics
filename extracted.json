@@ -1,6 +1,208 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "save.c": {
+      "source": "src/game/save_file.c",
+      "source_sha256": "9689d25f46019b3f319d1633ad6a5c56f7696ae097ce50ada322c73784bb5d66",
+      "sha256": "a073ae6a30df010e4d447ee3c29782e4fe10b28f0ff40d2acf8b8590e3f5b1cc",
+      "functions": {
+        "gLevelToCourseNumTable": {
+          "start": 929,
+          "end": 1001,
+          "sha256": "8e98766e7bd73cdbca8cb39cdfe337e7d892b8a40c552a9b2d62dfe30a8b9a3f"
+        },
+        "stub_save_file_1": {
+          "start": 1282,
+          "end": 1345,
+          "sha256": "3eb3a4aa533040a1b398c8d2def4e31291cb79f6d3ea7ff675e19c96af21f8a1"
+        },
+        "calc_checksum": {
+          "start": 3168,
+          "end": 3314,
+          "sha256": "e4722f9f39340122f999494c7e3957fdab76d68f07b0818722b666f0f3cc2154"
+        },
+        "verify_save_block_signature": {
+          "start": 3403,
+          "end": 3736,
+          "sha256": "45c447c2df3ea89e5a0b59da6fd01f42c7c437b2556b5795e87efe0e8f648cc3"
+        },
+        "add_save_block_signature": {
+          "start": 3822,
+          "end": 4066,
+          "sha256": "a66703f312b76f5f84e61b493e3c698ffcb7c5b5300e7f5c6af07bb4ebfb0d3a"
+        },
+        "restore_main_menu_data": {
+          "start": 4139,
+          "end": 4673,
+          "sha256": "7d3b2ec33308dbbf4fbe61b781e933ad048ef6789188871a52b0ea7b345e8620"
+        },
+        "save_main_menu_data": {
+          "start": 4675,
+          "end": 5165,
+          "sha256": "24a783cbd6497cfe50145ebf939edd933f61d17cdc544ce440e57194d1c42dba"
+        },
+        "wipe_main_menu_data": {
+          "start": 5167,
+          "end": 5589,
+          "sha256": "84aaec882a97eee2a20cdcd768552da9ca8bc9d15bf92d461cd4363e8249a80e"
+        },
+        "get_coin_score_age": {
+          "start": 5591,
+          "end": 5746,
+          "sha256": "5f2b30d5b2c686cc9828910b7b986fc407bc2632b283b8cf0c543e6bbd1eefaf"
+        },
+        "set_coin_score_age": {
+          "start": 5748,
+          "end": 6010,
+          "sha256": "2025e34787efca66e36a66eac4904d215ef0ce957424e717f1e0d5ef848850fd"
+        },
+        "touch_coin_score_age": {
+          "start": 6094,
+          "end": 6601,
+          "sha256": "c3962dc30df3b20e6ef1dc1b9aec7043ae532c27b448d88a8131bb21eb040ffc"
+        },
+        "touch_high_score_ages": {
+          "start": 6659,
+          "end": 6871,
+          "sha256": "70d0a51189b3fc5c50d83810cf63fe3c2917afb7e156dce7db6f67923d2dd1f3"
+        },
+        "restore_save_file_data": {
+          "start": 6944,
+          "end": 7615,
+          "sha256": "59c81fde8820686fafa7918800c029500803418df68bc5dbe4cc6524410ef51c"
+        },
+        "save_file_do_save": {
+          "start": 7617,
+          "end": 8237,
+          "sha256": "c9e352feed059575c09231c736ca3e03221704814d992b040316ddb3ca34e2df"
+        },
+        "save_file_erase": {
+          "start": 8239,
+          "end": 8467,
+          "sha256": "4fe7cc35ca39f4376cbd3738b6900142381b8ee68763a048babd99fb8f343678"
+        },
+        "save_file_copy": {
+          "start": 8531,
+          "end": 8880,
+          "sha256": "0e3b2b771a46206b5570bff14cf7bc08b86ba2e351c5473d79dc792de1652950"
+        },
+        "save_file_load_all": {
+          "start": 8882,
+          "end": 10699,
+          "sha256": "8ead1bc2af7abd9a187603517f7eb838e4c0ea4e08c45eca0d24650fa71abbc1"
+        },
+        "save_file_reload": {
+          "start": 10882,
+          "end": 11318,
+          "sha256": "e09052a4a5fc8166c35fc210a2746d934905c6c373baa5abe61549578758fbb9"
+        },
+        "save_file_collect_star_or_key": {
+          "start": 11462,
+          "end": 13361,
+          "sha256": "b057e710a37086f9959034230a7e93e12d89e5ccfb790418d8ab2628a526c4f0"
+        },
+        "save_file_exists": {
+          "start": 13363,
+          "end": 13483,
+          "sha256": "6f58134b07c4b002f16775e83c5cf032551d06eda7a1d5c6c816e101a90172e9"
+        },
+        "save_file_get_max_coin_score": {
+          "start": 13691,
+          "end": 14460,
+          "sha256": "c4dc4ecd3c657a746067cb090daf4025bd18010a43614d172145108440b97187"
+        },
+        "save_file_get_course_star_count": {
+          "start": 14462,
+          "end": 14779,
+          "sha256": "1fdb78fbebc726e2f76658f51c23be1b338d71e141028151da1937db7d1a2678"
+        },
+        "save_file_get_total_star_count": {
+          "start": 14781,
+          "end": 15186,
+          "sha256": "b36c7da25f7a84e98a74ccf0cd816e41dd380c97df5b1c9306214ccbfa2826f6"
+        },
+        "save_file_set_flags": {
+          "start": 15188,
+          "end": 15346,
+          "sha256": "06435e1c723866241bc40210cdfe0cbf6b30a73b31dc0ce18886b5b036659444"
+        },
+        "save_file_clear_flags": {
+          "start": 15348,
+          "end": 15562,
+          "sha256": "ec189035f37c4ef12b1d6cb255186a80de3225d85e9259924e44604c30fefeeb"
+        },
+        "save_file_get_flags": {
+          "start": 15564,
+          "end": 15745,
+          "sha256": "425c2498be0190307abf44acb2c8d2b900804b5ca965748c0e9fb03fd8f283c8"
+        },
+        "save_file_get_star_flags": {
+          "start": 15899,
+          "end": 16252,
+          "sha256": "ac497aa4a1256ec15eef4689e0988d4ea9ce9b633f7caccaac793af52c97e0c4"
+        },
+        "save_file_set_star_flags": {
+          "start": 16406,
+          "end": 16826,
+          "sha256": "51b79957142191616fc4278babe37c86e4f53fc74a7789492fdd21e974fa8525"
+        },
+        "save_file_get_course_coin_score": {
+          "start": 16828,
+          "end": 16973,
+          "sha256": "8a1b430232a249d013ad667bb7e100aa8f9f71093d9685ede2b4d7a941d8258e"
+        },
+        "save_file_is_cannon_unlocked": {
+          "start": 17047,
+          "end": 17190,
+          "sha256": "bcee133e3b2b360cba6d91fe387a0b78219620e98a5800852660a5c6d5f42357"
+        },
+        "save_file_set_cannon_unlocked": {
+          "start": 17261,
+          "end": 17502,
+          "sha256": "6fce52c4fabcfe9eedc39627d4b54f149110d009f16cedb26467e13952c6d69f"
+        },
+        "save_file_set_cap_pos": {
+          "start": 17504,
+          "end": 17805,
+          "sha256": "0564d5fbb85e12e3af9449202554a29fc270adf81d0c643347cb7f0c7a6504bf"
+        },
+        "save_file_get_cap_pos": {
+          "start": 17807,
+          "end": 18189,
+          "sha256": "5e9e074a188134eac1449d315d97b5b49d8daf98cb3702270b68994b7e8c27c5"
+        },
+        "save_file_set_sound_mode": {
+          "start": 18191,
+          "end": 18368,
+          "sha256": "5c7cee7be9965fb9af863bed0aff501f9a1c022c94321beb3fe420f7fc03da4c"
+        },
+        "save_file_get_sound_mode": {
+          "start": 18370,
+          "end": 18454,
+          "sha256": "424f97cb5235a5d8f505ae08b716ea0489b651d345506edcbbc8a12bcae4aa10"
+        },
+        "save_file_move_cap_to_default_location": {
+          "start": 18456,
+          "end": 19053,
+          "sha256": "a39ddc9be840bf7a7d313ac1fc15bc325c9e614c1577a96136a3ce3d02800da7"
+        },
+        "disable_warp_checkpoint": {
+          "start": 19306,
+          "end": 19478,
+          "sha256": "4643f829ce6bf1bb763720c3561ae6ea8e548af0284b3d3a441159e4116c18c3"
+        },
+        "check_if_should_set_warp_checkpoint": {
+          "start": 19596,
+          "end": 20032,
+          "sha256": "d1e1e29ee0c8a6baa0cef1c663e4f98a13fc84901f60f7cdb7fd820896cfc87a"
+        },
+        "check_warp_checkpoint": {
+          "start": 20253,
+          "end": 21007,
+          "sha256": "1d135147ca9cb2604b61300493aaaaf20c714fb86816930697e3f14622051a1e"
+        }
+      }
+    },
     "mario_sound.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
@@ -78,8 +280,18 @@
     "sound_control.c": {
       "source": "src/game/sound_init.c",
       "source_sha256": "c7b29ae67ec97682a1a01f0d4a55023676fc39102d81c32ee896fb1b71e3a3ff",
-      "sha256": "b69b9d065de9f1ab0ed4afc82f27f58cd58a146bb4620054b5c485ef1c91b9d0",
+      "sha256": "6599f882fd856df7a025c0757c494887206876dbaba88b256ab4381bb2d630a1",
       "functions": {
+        "sSoundMenuModeToSoundMode": {
+          "start": 857,
+          "end": 957,
+          "sha256": "a2ba0f3c2de768d721dca7ac162af7c5accb70b071568c61dd192395dd402a69"
+        },
+        "set_sound_mode": {
+          "start": 3480,
+          "end": 3617,
+          "sha256": "667aa742fb8e748810ca6d65f6b7dc984e4024ba3ff55b2c319c970d6bf2899b"
+        },
         "reset_volume": {
           "start": 2275,
           "end": 2324,
