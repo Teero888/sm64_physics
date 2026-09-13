@@ -3,6 +3,9 @@ project(sm64_physics LANGUAGES C)
 
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
+    extracted/animation_loader.c
+    extracted/mario_animation.c
+    host/animation_bank.c
     extracted/controller.c
     extracted/mario_input.c
     host/controller.c
@@ -75,6 +78,9 @@ if(BUILD_TESTING)
     add_executable(sm64_animation_test tests/animation.c)
     target_link_libraries(sm64_animation_test PRIVATE sm64_physics_core)
     add_test(NAME native_animation COMMAND sm64_animation_test)
+    add_executable(sm64_animation_bank_test tests/animation_bank.c)
+    target_link_libraries(sm64_animation_bank_test PRIVATE sm64_physics_core)
+    add_test(NAME native_animation_bank COMMAND sm64_animation_bank_test)
     add_executable(sm64_object_nodes_test tests/object_nodes.c)
     target_link_libraries(sm64_object_nodes_test PRIVATE sm64_physics_core)
     add_test(NAME native_object_nodes COMMAND sm64_object_nodes_test)

@@ -13,6 +13,18 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "animation_loader.c": {
+        "source": "src/game/memory.c",
+        "headers": ["sm64.h", "host/animation_bank.h"],
+        "functions": ["load_patchable_table"],
+    },
+    "mario_animation.c": {
+        "source": "src/game/mario.c",
+        "headers": ["sm64.h", "game/mario.h", "game/memory.h", "engine/graph_node.h", "engine/math_util.h"],
+        "functions": ["is_anim_at_end", "is_anim_past_end", "set_mario_animation", "set_mario_anim_with_accel",
+                      "set_anim_to_frame", "is_anim_past_frame", "find_mario_anim_flags_and_translation",
+                      "update_mario_pos_for_anim", "return_mario_anim_y_translation"],
+    },
     "mario_action_setup.c": {
         "source": "src/game/mario.c",
         "headers": ["sm64.h", "game/mario.h", "game/mario_step.h", "engine/math_util.h"],
@@ -64,7 +76,10 @@ EXTRACTIONS = {
     },
     "mario.c": {
         "source": "src/game/mario.c",
-        "omit": ["sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
+        "omit": ["is_anim_at_end", "is_anim_past_end", "set_mario_animation", "set_mario_anim_with_accel",
+                 "set_anim_to_frame", "is_anim_past_frame", "find_mario_anim_flags_and_translation",
+                 "update_mario_pos_for_anim", "return_mario_anim_y_translation",
+                 "sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
                  "vec3f_find_ceil", "update_mario_button_inputs", "update_mario_joystick_inputs",
                  "mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs",
                  "mario_facing_downhill", "mario_set_forward_vel", "set_mario_y_vel_based_on_fspeed",

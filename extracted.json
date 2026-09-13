@@ -1,6 +1,70 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "animation_loader.c": {
+      "source": "src/game/memory.c",
+      "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",
+      "sha256": "e1c5d369d590dcab201f96d5f4b9e4e0a9c130951d58c844f2ed4a5c8c6104b3",
+      "functions": {
+        "load_patchable_table": {
+          "start": 17585,
+          "end": 18058,
+          "sha256": "5a225ac9fa1c5749235e2a044d78eadd2dbe8e9a7e7cf2770d35954315596f63"
+        }
+      }
+    },
+    "mario_animation.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "882a0d5029a4a87f138058d2740d62bc6e9a8e08240e655a91b9716f38f7625c",
+      "functions": {
+        "is_anim_at_end": {
+          "start": 1174,
+          "end": 1349,
+          "sha256": "773b3e262d51533eb8bdae44452790fd0b097c5d99d8a6d38fe539b15b3fdb63"
+        },
+        "is_anim_past_end": {
+          "start": 1435,
+          "end": 1612,
+          "sha256": "dd41e0b22d484b5490300e553ea6692d95367837131c414403f16f54f08b6976"
+        },
+        "set_mario_animation": {
+          "start": 1703,
+          "end": 2865,
+          "sha256": "89439ee2641a5346a0345fd18c5a873358b2656ff69f020df4ccf638c05e4e54"
+        },
+        "set_mario_anim_with_accel": {
+          "start": 2968,
+          "end": 4318,
+          "sha256": "f655c824864b6d44e6db9aa95a4cf24db96ec774b508da1e8175e89a473a3048"
+        },
+        "set_anim_to_frame": {
+          "start": 4399,
+          "end": 5066,
+          "sha256": "8c90affeea490a5b18ebdcecfaabdd9f271835677277e5b5ac52a26809962a24"
+        },
+        "is_anim_past_frame": {
+          "start": 5068,
+          "end": 6071,
+          "sha256": "4afad91339f0117c353f6439890223b1c46f27a914d77b5f35f10f8ff9a71860"
+        },
+        "find_mario_anim_flags_and_translation": {
+          "start": 6192,
+          "end": 7039,
+          "sha256": "b0995577baab269b9567a1bf205e0bb8a605464a2354ef7ab352735a020fc667"
+        },
+        "update_mario_pos_for_anim": {
+          "start": 7111,
+          "end": 7554,
+          "sha256": "e023a1469f3c36c91e4faa0c045ee0183b4425a33f3f7b4270f7370e7e6548b8"
+        },
+        "return_mario_anim_y_translation": {
+          "start": 7622,
+          "end": 7806,
+          "sha256": "5d5a13b707b7e84f88705ead188dbd80edf16a5f1e92c147a1fa389a22ffd892"
+        }
+      }
+    },
     "mario_action_setup.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
@@ -306,12 +370,57 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "9ab48becc9e124d61bbf2671cf0d4c054f8793a33eae23968c37313cb25fcefd",
+      "sha256": "d928aa7bd28022a5b3ef08595c6aa16e560eaa09eb9af0eef925225c6698ba07",
       "copied_ranges": [
         {
           "start": 0,
+          "end": 1174,
+          "sha256": "7b809508f10e1d3b2343fbd0e60b7971f2c163095264121fe0c43f8de76c1029"
+        },
+        {
+          "start": 1349,
+          "end": 1435,
+          "sha256": "dfdbc27e3c65424c5879ce060ec6449a66fe5e27a175dc6e588ac698ce7b313e"
+        },
+        {
+          "start": 1612,
+          "end": 1703,
+          "sha256": "b9300b42b02cc7b7365c11def721b08046fba5b5b48635e69d6666301065f187"
+        },
+        {
+          "start": 2865,
+          "end": 2968,
+          "sha256": "1e0aadf773dd97ad229abda81b5ece379f376a9851cb1b1c8f0528b7bddcb4c4"
+        },
+        {
+          "start": 4318,
+          "end": 4399,
+          "sha256": "0aa0b59d4993ae0180ea325d077a461b706841fbe53b4411f93b1dcd13aa263f"
+        },
+        {
+          "start": 5066,
+          "end": 5068,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 6071,
+          "end": 6192,
+          "sha256": "7526902ad39e9ed590d5616c56b9c05f3649728ee140d041eadc727b540dc964"
+        },
+        {
+          "start": 7039,
+          "end": 7111,
+          "sha256": "8b7d7551a9eb3b8cd1f121e90d870ec823459c0f672acbd900dbbcf06a19d1d4"
+        },
+        {
+          "start": 7554,
+          "end": 7622,
+          "sha256": "69de9c89c0249b959ec6d8c2066ea30737739425156572582a3805f02a28338e"
+        },
+        {
+          "start": 7806,
           "end": 12899,
-          "sha256": "ecf0d7141f47a3beb05dc4637b8afc73082dba5d4c9801af4df92f83a7ab622e"
+          "sha256": "ce108cd8a524f6f427f52600fbf752ed38d5f3c745570b927edfb22ec9d0547f"
         },
         {
           "start": 13189,
@@ -405,6 +514,15 @@
         }
       ],
       "omitted_functions": [
+        "is_anim_at_end",
+        "is_anim_past_end",
+        "set_mario_animation",
+        "set_mario_anim_with_accel",
+        "set_anim_to_frame",
+        "is_anim_past_frame",
+        "find_mario_anim_flags_and_translation",
+        "update_mario_pos_for_anim",
+        "return_mario_anim_y_translation",
         "sTerrainSounds",
         "mario_get_terrain_sound_addend",
         "resolve_and_return_wall_collisions",

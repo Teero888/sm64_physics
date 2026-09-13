@@ -159,6 +159,15 @@ backwards long-jump speed, squish downgrades and surface-dependent walking
 setup. This verifies action initialization, not the per-frame action handlers
 or the complete `execute_mario_action` dispatcher.
 
+`host/animation_bank.h` accepts decoded animation arrays and owns copies of
+their values and indices. Original animation loading, selection, relocation,
+frame queries and root translation run against native memory, with no ROM I/O.
+Each animated Mario needs its own bank because the original loader reuses one
+destination buffer. The bank must outlive its handler and animation pointers.
+`native_animation_bank` checks switching, repeated selection, translation,
+fractional timing, invalid indices in asset data and independent banks. Full
+world cloning still needs to reconstruct and rebind these pointers.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh
