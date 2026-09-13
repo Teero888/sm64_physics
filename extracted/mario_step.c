@@ -41,8 +41,8 @@ f32 get_additive_y_vel_for_jumps(void) {
  * this could be used for checking if Mario was on the trampoline.
  * It could, for example, make him bounce.
  */
-void stub_mario_step_1(UNUSED struct MarioState *x) {
-}
+
+
 
 /**
  * Does nothing. This is only called by the beta trampoline.

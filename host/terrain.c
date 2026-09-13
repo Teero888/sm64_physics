@@ -105,6 +105,7 @@ struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain) {
     memcpy(copy->environment, terrain->environment, (1 + 6 * terrain->region_count) * sizeof(TerrainData));
     copy->camera = terrain->camera;
     copy->level_num = terrain->level_num;
+    copy->camera_movement_flags = terrain->camera_movement_flags;
     copy->water_floor = terrain->water_floor;
     copy->include_intangible = terrain->include_intangible;
     copy->time_stop = terrain->time_stop;
@@ -133,6 +134,14 @@ void sm64_terrain_set_time_stop(struct sm64_terrain *terrain, uint32_t flags) {
 
 void sm64_terrain_set_level(struct sm64_terrain *terrain, int16_t level_num) {
     terrain->level_num = level_num;
+}
+
+void sm64_terrain_set_camera_movement_flags(struct sm64_terrain *terrain, int16_t flags) {
+    terrain->camera_movement_flags = flags;
+}
+
+int16_t sm64_terrain_camera_movement_flags(const struct sm64_terrain *terrain) {
+    return terrain->camera_movement_flags;
 }
 
 void sm64_terrain_set_ddd_warp_behavior(struct sm64_terrain *terrain, const BehaviorScript *behavior) {

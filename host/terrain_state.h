@@ -7,6 +7,9 @@
 #include "game/mario_step.h"
 #include "game/area.h"
 #include "game/level_update.h"
+#include "game/camera.h"
+#include "game/interaction.h"
+#include "host/mario_motion.h"
 #include "game/object_helpers.h"
 #include "game/memory.h"
 #include "behavior_data.h"
@@ -20,6 +23,7 @@ struct sm64_terrain {
     s32 node_count, surface_count;
     s32 static_node_count, static_surface_count;
     s16 level_num;
+    s16 camera_movement_flags;
     struct Surface water_floor;
     u32 time_stop;
     const BehaviorScript *ddd_warp_behavior;
@@ -61,5 +65,6 @@ extern _Thread_local struct sm64_terrain *sm64_active_terrain;
 #define bhvDDDWarp (sm64_active_terrain->ddd_warp_behavior)
 #define gCurrLevelNum (sm64_active_terrain->level_num)
 #define gWaterSurfacePseudoFloor (sm64_active_terrain->water_floor)
+#define gCameraMovementFlags (sm64_active_terrain->camera_movement_flags)
 #endif
 #endif

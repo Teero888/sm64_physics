@@ -5,4 +5,7 @@ struct MarioState;
 void apply_gravity(struct MarioState *mario);
 void update_mario_button_inputs(struct MarioState *mario);
 void update_mario_joystick_inputs(struct MarioState *mario);
+void update_mario_geometry_inputs(struct MarioState *mario);
+void update_mario_inputs(struct MarioState *mario);
+void debug_print_speed_action_normal(struct MarioState *mario);
 #endif

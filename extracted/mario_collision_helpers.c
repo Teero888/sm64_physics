@@ -1,6 +1,7 @@
 /* Generated verbatim upstream function extraction. See extracted.json. */
 #include "host/terrain_state.h"
 #include "level_table.h"
+#include "engine/math_util.h"
 
 #line 435 "n64decomp/src/game/mario.c"
 s8 sTerrainSounds[7][6] = {

@@ -141,9 +141,16 @@ It computes button edges using the original read-controller expression and
 calls the verbatim analog adjustment routine. Mario's original button and
 joystick processing is extracted separately. `native_controller` covers the
 dead zone, stick normalization, button edges, input timers, camera-relative
-direction, squish suppression and independent controller histories. Full input
-processing still needs geometry checks, camera-mode flags and action dispatch;
+direction, squish suppression and independent controller histories. Full-world
+execution still needs action dispatch and level transitions;
 these component tests do not establish a complete playable world.
+
+Original geometry input checks and `update_mario_inputs` now run against the
+terrain context, including camera movement flags. `native_mario_geometry_input`
+checks water/gas flags, slopes, crushing, OOB position recovery, death-warp
+requests, input resets, timers and first-person eligibility. It uses explicit
+test observers for the debug callback and warp dependency. No production warp
+stub was added: actual transitions and the action dispatcher remain required.
 
 To reproduce the source import from a checkout of the recorded revision:
 

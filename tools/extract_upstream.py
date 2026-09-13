@@ -26,28 +26,34 @@ EXTRACTIONS = {
     "mario_ground.c": {
         "source": "src/game/mario_step.c",
         "headers": ["host/terrain_state.h", "engine/math_util.h"],
-        "functions": ["perform_ground_quarter_step", "perform_ground_step",
+        "functions": ["stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                       "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                       "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                       "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
     },
     "mario_step.c": {
         "source": "src/game/mario_step.c",
-        "omit": ["perform_ground_quarter_step", "perform_ground_step",
+        "omit": ["stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                  "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                  "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                  "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
     },
     "mario_collision_helpers.c": {
         "source": "src/game/mario.c",
-        "headers": ["host/terrain_state.h", "level_table.h"],
+        "headers": ["host/terrain_state.h", "level_table.h", "engine/math_util.h"],
         "functions": ["sTerrainSounds", "mario_get_terrain_sound_addend",
                       "resolve_and_return_wall_collisions", "vec3f_find_ceil"],
+    },
+    "mario_geometry_input.c": {
+        "source": "src/game/mario.c",
+        "headers": ["host/terrain_state.h", "engine/math_util.h"],
+        "functions": ["mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs"],
     },
     "mario.c": {
         "source": "src/game/mario.c",
         "omit": ["sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
-                 "vec3f_find_ceil", "update_mario_button_inputs", "update_mario_joystick_inputs"],
+                 "vec3f_find_ceil", "update_mario_button_inputs", "update_mario_joystick_inputs",
+                 "mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs"],
     },
     "area_terrain.c": {
         "source": "src/engine/surface_load.c",

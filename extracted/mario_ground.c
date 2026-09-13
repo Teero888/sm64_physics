@@ -2,6 +2,10 @@
 #include "host/terrain_state.h"
 #include "engine/math_util.h"
 
+#line 42 "n64decomp/src/game/mario_step.c"
+void stub_mario_step_1(UNUSED struct MarioState *x) {
+}
+
 #line 258 "n64decomp/src/game/mario_step.c"
 static s32 perform_ground_quarter_step(struct MarioState *m, Vec3f nextPos) {
     UNUSED struct Surface *lowerWall;

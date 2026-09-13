@@ -24,6 +24,7 @@ add_library(sm64_physics_core STATIC
     extracted/mario_step.c
     extracted/mario_ground.c
     extracted/mario_collision_helpers.c
+    extracted/mario_geometry_input.c
     upstream/src/game/interaction.c
     upstream/src/engine/behavior_script.c
     upstream/src/game/object_collision.c
@@ -49,6 +50,7 @@ target_include_directories(sm64_physics_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR
 set_source_files_properties(extracted/main_pool.c PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_POOL_IMPLEMENTATION)
 set_source_files_properties(extracted/terrain_load.c extracted/terrain_queries.c
     extracted/mario_ground.c extracted/mario_collision_helpers.c
+    extracted/mario_geometry_input.c
     PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_TERRAIN_IMPLEMENTATION)
 target_compile_definitions(sm64_physics_core PUBLIC VERSION_US _LANGUAGE_C NON_MATCHING AVOID_UB NO_SEGMENTED_MEMORY)
 set_target_properties(sm64_physics_core PROPERTIES C_STANDARD 11 POSITION_INDEPENDENT_CODE ON)
@@ -89,6 +91,9 @@ if(BUILD_TESTING)
     add_executable(sm64_controller_test tests/controller.c)
     target_link_libraries(sm64_controller_test PRIVATE sm64_physics_core)
     add_test(NAME native_controller COMMAND sm64_controller_test)
+    add_executable(sm64_mario_geometry_input_test tests/mario_geometry_input.c)
+    target_link_libraries(sm64_mario_geometry_input_test PRIVATE sm64_physics_core)
+    add_test(NAME native_mario_geometry_input COMMAND sm64_mario_geometry_input_test)
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         find_package(Threads REQUIRED)
         add_executable(sm64_terrain_threads_test tests/terrain_threads.c)
