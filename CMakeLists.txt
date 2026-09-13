@@ -4,6 +4,8 @@ project(sm64_physics LANGUAGES C)
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
     extracted/object_lifetime.c
+    extracted/behavior_helpers.c
+    host/behavior.c
     extracted/object_math.c
     extracted/object_slots.c
     host/objects.c
@@ -83,6 +85,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_behavior_test tests/behavior.c)
+    target_link_libraries(sm64_behavior_test PRIVATE sm64_physics_core)
+    add_test(NAME native_behavior_execution COMMAND sm64_behavior_test)
     add_executable(sm64_random_test tests/random.c)
     target_link_libraries(sm64_random_test PRIVATE sm64_physics_core)
     add_test(NAME native_random_state COMMAND sm64_random_test)

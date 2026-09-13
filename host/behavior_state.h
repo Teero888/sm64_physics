@@ -15,6 +15,13 @@ typedef s32 (*BhvCommandProc)(void);
 #define gCurBhvCommand (sm64_active_objects->command)
 #define gGlobalTimer (sm64_active_objects->global_timer)
 #define gLoadedGraphNodes (sm64_active_objects->models)
+#define bhvHauntedChair (sm64_active_objects->haunted_chair)
+#define bhvMadPiano (sm64_active_objects->mad_piano)
+#define bhvMessagePanel (sm64_active_objects->message_panel)
+#define gMarioCurrentRoom (sm64_active_objects->mario_room)
+#define gDoorAdjacentRooms (sm64_active_objects->adjacent_rooms)
+#define gNumRoomedObjectsInMarioRoom (sm64_active_objects->roomed_near)
+#define gNumRoomedObjectsNotInMarioRoom (sm64_active_objects->roomed_far)
 /* Original bytecode argument macros from behavior_script.c. Bytecode contains
  * native pointers; host decoding must resolve addresses before execution. */
 #define BHV_CMD_GET_1ST_U8(index)  (u8)((gCurBhvCommand[index] >> 24) & 0xFF)

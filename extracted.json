@@ -1,6 +1,143 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "behavior_helpers.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "ee1926d97fb20da4db9a9ac6f26752804c0c6d25aecbd233b4751ec6e2acbe18",
+      "functions": {
+        "cur_obj_has_behavior": {
+          "start": 44870,
+          "end": 45049,
+          "sha256": "1c5da7af6062cb7fe95b1879cc988c37e800c716c69a39010973c3603b3134a9"
+        },
+        "cur_obj_hide": {
+          "start": 24916,
+          "end": 24999,
+          "sha256": "bb7e28f7f1d30724b26736c1c816032e6578e847fa26bf8a299299b1ed359c3d"
+        },
+        "cur_obj_move_xz_using_fvel_and_yaw": {
+          "start": 43446,
+          "end": 43660,
+          "sha256": "0684f8af64dbb3e4c3c1f10d8d395caae80b020df24a193fe1a70d103302fb42"
+        },
+        "cur_obj_move_y_with_terminal_vel": {
+          "start": 43662,
+          "end": 43798,
+          "sha256": "5dcc55aea322bbae7df06e13e15a2e7f91b8a9ca43ab7059ff7b1cb27c248f8c"
+        },
+        "cur_obj_scale": {
+          "start": 23179,
+          "end": 23320,
+          "sha256": "5c8a1ee1c8749a573a4a28d770e270e3cfa3d25425af4e1afc2e408257b1e197"
+        },
+        "obj_angle_to_object": {
+          "start": 12264,
+          "end": 12540,
+          "sha256": "dee7c05209adc393d9f526c83c4fc7c96f74e7d591a6539b7557a7fa739dd51a"
+        },
+        "obj_build_transform_relative_to_parent": {
+          "start": 58462,
+          "end": 59110,
+          "sha256": "fc3861a5d7d1b9ea8b32522eb5fb778bedef3af53914cf0aed4d4f169dadc3af"
+        },
+        "obj_copy_pos_and_angle": {
+          "start": 20346,
+          "end": 20475,
+          "sha256": "f64b0b9caab1e9c1e2804789135b45d591a1724c947c4fc120ca267b49a4d4a9"
+        },
+        "obj_set_face_angle_to_move_angle": {
+          "start": 25969,
+          "end": 26171,
+          "sha256": "8884981f110f2fd2d0ecbd1ea5e1345c30e781c589dcb537abbdf118029f8fc9"
+        },
+        "obj_set_throw_matrix_from_transform": {
+          "start": 58006,
+          "end": 58460,
+          "sha256": "dd291289836392cfa3a3bf69115842f0ac176bf6faab769b1eff080ad0985e85"
+        },
+        "spawn_object_at_origin": {
+          "start": 17228,
+          "end": 17858,
+          "sha256": "93e328d74d46b23bd04df394d96158cb1299de0e057f6f36b60e7db6ebcee525"
+        },
+        "cur_obj_enable_rendering_if_mario_in_room": {
+          "start": 72164,
+          "end": 73010,
+          "sha256": "a85c3d41e90e250d6792d54a40093cdef7be8764b78c4a14fe4bcf9c9b59bf55"
+        },
+        "obj_apply_scale_to_transform": {
+          "start": 22066,
+          "end": 22579,
+          "sha256": "c19c9f97f32112672bf6acc882ea0d41d4df17ba60e8d0ee21b11dad729389c7"
+        },
+        "obj_copy_pos": {
+          "start": 20477,
+          "end": 20625,
+          "sha256": "ba4e0756618c25acfe1dd2b8eef08da691303bfc5819ab7da80834509888ab3d"
+        },
+        "obj_copy_angle": {
+          "start": 20627,
+          "end": 20973,
+          "sha256": "eac672ce47d1ab95b1665f39bc3ce23f268b14d7d3b91396debe23a6336c027e"
+        },
+        "spawn_object": {
+          "start": 17860,
+          "end": 18093,
+          "sha256": "0c05f53d40bd53170a3d27be82fe361291bab49fe9de5b5866abf7a97293def7"
+        },
+        "random_f32_around_zero": {
+          "start": 61938,
+          "end": 62035,
+          "sha256": "e2bbb6722db7320862885473575666a6f8758625e01775713ebeaa2a2774cc41"
+        },
+        "obj_translate_xz_random": {
+          "start": 62496,
+          "end": 62703,
+          "sha256": "a13c6b1bbec272ffcc2482034b3dfb0a7fc187f00f9f5564207f7fe1c436d495"
+        },
+        "obj_translate_xyz_random": {
+          "start": 62217,
+          "end": 62494,
+          "sha256": "4f905399437f70d80d49ecb8cd404469dc010e06f7bdf31a93a3a9025a617dbe"
+        },
+        "obj_scale": {
+          "start": 23014,
+          "end": 23177,
+          "sha256": "92dbdeef6f9922ceab33c6651bc53aa856fac96a9e1e0bd533efd47ae1fe9b4b"
+        },
+        "is_item_in_array": {
+          "start": 71162,
+          "end": 71341,
+          "sha256": "666a5c6cfb325babd7d0da59f187731b78ade179d99e3762f6557e5523c7c0a6"
+        },
+        "sLevelsWithRooms": {
+          "start": 856,
+          "end": 930,
+          "sha256": "f946c5258ba3e0a1929f0ba522937b59e708564baa726af280d3c9f97f797a64"
+        },
+        "bhv_init_room": {
+          "start": 71392,
+          "end": 72162,
+          "sha256": "c132cab215b5f5d79fa9e03ecbd52fcd093d6c8d83070b68e90a1adb9f4ea8b2"
+        },
+        "cur_obj_enable_rendering": {
+          "start": 24472,
+          "end": 24564,
+          "sha256": "10f28d80c725f44d0f7f9bd68071fbd0b147620a4930a6d41234e55a701b73db"
+        },
+        "cur_obj_disable_rendering": {
+          "start": 24732,
+          "end": 24826,
+          "sha256": "37df4f8baed3e18574ab9b62a9b73978ff9dea8015575157ea938b4bf317d822"
+        },
+        "spawn_water_droplet": {
+          "start": 15749,
+          "end": 17226,
+          "sha256": "b646690e15f74cb98950e9deecbb3e5b8305ab9c0b50817fa19acfb43fd7f268"
+        }
+      }
+    },
     "behavior_script.c": {
       "source": "src/engine/behavior_script.c",
       "source_sha256": "f648bd72f34714c86aba5bb5d1d413ca6c1e5b564e062ab2d8128523e9beb3b3",
@@ -1688,12 +1825,17 @@
     "object_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
-      "sha256": "59b3c6428544a4f399c5001e4a3ebcb204201710217d28d88f3d9c2be94a028a",
+      "sha256": "76e577d31ea23df8bb45f9c1dcdc60a7d4b9f094ffcd9fa2b76c85c918da2f94",
       "copied_ranges": [
         {
           "start": 0,
+          "end": 856,
+          "sha256": "caf2da2bef872691bac0854615864b40670eb058d0fa5c374d388fec583563b8"
+        },
+        {
+          "start": 930,
           "end": 7348,
-          "sha256": "218767fd41264b46418ff87381209037e50897867b38c293a72de197719db3f3"
+          "sha256": "a6d01b6501e8a9e747e87eba33411937d27e9ba82c2f896d662461a6677fdab9"
         },
         {
           "start": 8100,
@@ -1702,8 +1844,43 @@
         },
         {
           "start": 10506,
+          "end": 12264,
+          "sha256": "24c57712f9ae745bc768d96ed936c7403dd706cae722fe06168eadaac49a4b2a"
+        },
+        {
+          "start": 12540,
+          "end": 15749,
+          "sha256": "75f6e6e02940cf74a90c94770ceee4984d6b3fc12a2421702d3f1d1be9f04185"
+        },
+        {
+          "start": 17226,
+          "end": 17228,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 17858,
+          "end": 17860,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 18093,
+          "end": 20346,
+          "sha256": "aeae56296890451db249f9d0f00c68e9ef4eaf3f12c0a3d16aa08c89ed565d91"
+        },
+        {
+          "start": 20475,
+          "end": 20477,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 20625,
+          "end": 20627,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 20973,
           "end": 21510,
-          "sha256": "71a6e9743945c81b5b826d015b9efd470851c2e0f211d8195ca6087378431dcc"
+          "sha256": "3f3e2bd4d36750ec7863a0cd59f5bbc19d3ca834f549b91e2e36938fab7d6653"
         },
         {
           "start": 21682,
@@ -1712,8 +1889,43 @@
         },
         {
           "start": 22064,
+          "end": 22066,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 22579,
+          "end": 23014,
+          "sha256": "814fd0f1c983aeb92abcd61dd12c80a919f6eeaebfbd9f4bb9116b442c6c078b"
+        },
+        {
+          "start": 23177,
+          "end": 23179,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 23320,
+          "end": 24472,
+          "sha256": "dd8eca1bc609fe2a9ab2adcfca7bd61586e3a988c0a0a30497c3670c88686ad6"
+        },
+        {
+          "start": 24564,
+          "end": 24732,
+          "sha256": "cc0aa47389d1d15ad3bc70d7c93a030a81149c70cb25d64fff22d1c8b10c92bd"
+        },
+        {
+          "start": 24826,
+          "end": 24916,
+          "sha256": "63eb64ef083272f5036ef5567d2e5b792580bf89cc363708f121211f02bbe575"
+        },
+        {
+          "start": 24999,
+          "end": 25969,
+          "sha256": "557b1db1dd939e1162e4ff714c73231bd9384cf42ad91f7b343734e7113737a8"
+        },
+        {
+          "start": 26171,
           "end": 27914,
-          "sha256": "211f01d82ef5bcf57ec2505f36ae1e583d22cbb0818d013052e3ee8848dee485"
+          "sha256": "32bea15b5992a88db2d49df3c1713cc3f208403b5ac45c4e33fdcb6e20a26774"
         },
         {
           "start": 28167,
@@ -1732,13 +1944,53 @@
         },
         {
           "start": 32069,
+          "end": 43446,
+          "sha256": "178913b9da50345fa3661c690fad8d20d4fbe6c7de5f313ef31ed2f8008a2fe1"
+        },
+        {
+          "start": 43660,
+          "end": 43662,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 43798,
+          "end": 44870,
+          "sha256": "a7ddc982b2fe2b4c0906731edf39fb0aad2335b5be9e7882eb9a620b443ee688"
+        },
+        {
+          "start": 45049,
           "end": 57468,
-          "sha256": "4b5fc089dbc0c4117f0dfa813dca4e3c84ce91ff57ab2364bdeb5f0c8e360721"
+          "sha256": "9b7fde983a6010197c9779c969789bc4d3e8d412be2291cc7f5d7a041ada1424"
         },
         {
           "start": 58004,
+          "end": 58006,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 58460,
+          "end": 58462,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 59110,
+          "end": 61938,
+          "sha256": "33d2083c2943b8d7676017df2031d9cb7554b48f3c52208e4c5d169372cf1995"
+        },
+        {
+          "start": 62035,
+          "end": 62217,
+          "sha256": "44a72557ef55ad716cc758a9cee8d12d9e938c214d271edea4455b251bc7f711"
+        },
+        {
+          "start": 62494,
+          "end": 62496,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 62703,
           "end": 65720,
-          "sha256": "65477cf3bc36a9630ba926997167c438349cb7f88cf1a1efd681c08903e39d70"
+          "sha256": "2f9bc6215f4ad4d50bdd0645d796d7a7947b3df368edbdf8588fb88f9d075f66"
         },
         {
           "start": 65813,
@@ -1747,11 +1999,52 @@
         },
         {
           "start": 65908,
+          "end": 71162,
+          "sha256": "90091d077839ff635296ab22c6389a6357f151be0551fe9f3a4e5b6e4c84bd25"
+        },
+        {
+          "start": 71341,
+          "end": 71392,
+          "sha256": "abbeb9dd9cb72c3c9d1997f9bbd4884ce04284aa94195135901ebf19f8b68dbf"
+        },
+        {
+          "start": 72162,
+          "end": 72164,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 73010,
           "end": 89695,
-          "sha256": "ac8cbd9c8f1bcb4d10ff065adfc93701cf4057e5f4254009a0491b2bee7e2ef6"
+          "sha256": "15c585ffe8d57684dc419e6540235e82d0042693300f0ce9346c95d7a6f2d58e"
         }
       ],
       "omitted_functions": [
+        "cur_obj_has_behavior",
+        "cur_obj_hide",
+        "cur_obj_move_xz_using_fvel_and_yaw",
+        "cur_obj_move_y_with_terminal_vel",
+        "cur_obj_scale",
+        "obj_angle_to_object",
+        "obj_build_transform_relative_to_parent",
+        "obj_copy_pos_and_angle",
+        "obj_set_face_angle_to_move_angle",
+        "obj_set_throw_matrix_from_transform",
+        "spawn_object_at_origin",
+        "cur_obj_enable_rendering_if_mario_in_room",
+        "obj_apply_scale_to_transform",
+        "obj_copy_pos",
+        "obj_copy_angle",
+        "spawn_object",
+        "random_f32_around_zero",
+        "obj_translate_xz_random",
+        "obj_translate_xyz_random",
+        "obj_scale",
+        "is_item_in_array",
+        "sLevelsWithRooms",
+        "bhv_init_room",
+        "cur_obj_enable_rendering",
+        "cur_obj_disable_rendering",
+        "spawn_water_droplet",
         "absf",
         "absi",
         "linear_mtxf_mul_vec3f",

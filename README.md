@@ -236,10 +236,16 @@ extracted with context bindings for the current object/command, frame counter,
 model table and random seed. Native bytecode still requires trusted resolved
 pointers. The original random generator runs independently in each object
 context; `native_random_state` verifies the special seed reset, replay from a
-saved seed, independent owners and output ranges. Full `cur_obj_update` is
-still unverified and cannot yet link independently: its room, spawning and
-movement helpers and special behavior identities need host-context bindings.
-The archive compiling is not evidence that the full interpreter can execute.
+saved seed, independent owners and output ranges.
+
+`host/behavior.h` runs one original `cur_obj_update` using native bytecode,
+borrowed model nodes and host-supplied special behavior identities. The original
+room, spawning, transform and movement helpers are bound to the object context.
+`native_behavior_execution` executes calls/returns, delays, loops, a native
+callback, child spawning, movement flags, action timer resets and independent
+contexts. It uses test-authored bytecode and a callback observer, not a complete
+level's behavior asset set. Game-specific native callbacks, global animation
+timing and the complete frame scheduler still need full-world integration.
 
 To reproduce the source import from a checkout of the recorded revision:
 

@@ -21,6 +21,9 @@ struct sm64_objects {
     u32 global_timer;
     const BehaviorScript *command;
     struct GraphNode **models;
+    const BehaviorScript *haunted_chair, *mad_piano, *message_panel;
+    RoomData adjacent_rooms[60][2];
+    s16 mario_room, roomed_near, roomed_far;
     s16 level;
 };
 extern _Thread_local struct sm64_objects *sm64_active_objects;
