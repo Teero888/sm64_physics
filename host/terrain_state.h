@@ -33,6 +33,10 @@ struct sm64_terrain {
     s16 camera, include_intangible;
     struct Object *current_object, *mario_object;
     struct MarioState *mario;
+    /* Optional live bindings while an owned object frame is executing. */
+    struct Object **current_ref, **mario_object_ref;
+    struct MarioState **mario_ref;
+    u32 *time_stop_ref;
     struct FloorGeometry floor_geometry;
     TerrainData *environment;
     struct sm64_terrain_triangle *triangles;
@@ -52,14 +56,14 @@ extern _Thread_local struct sm64_terrain *sm64_active_terrain;
 #define gSurfacesAllocated (sm64_active_terrain->surface_count)
 #define gCheckingSurfaceCollisionsForCamera (sm64_active_terrain->camera)
 #define gFindFloorIncludeSurfaceIntangible (sm64_active_terrain->include_intangible)
-#define gCurrentObject (sm64_active_terrain->current_object)
-#define gMarioObject (sm64_active_terrain->mario_object)
-#define gMarioState (sm64_active_terrain->mario)
+#define gCurrentObject (*(sm64_active_terrain->current_ref ? sm64_active_terrain->current_ref : &sm64_active_terrain->current_object))
+#define gMarioObject (*(sm64_active_terrain->mario_object_ref ? sm64_active_terrain->mario_object_ref : &sm64_active_terrain->mario_object))
+#define gMarioState (*(sm64_active_terrain->mario_ref ? sm64_active_terrain->mario_ref : &sm64_active_terrain->mario))
 #define gNumCalls (sm64_active_terrain->calls)
 #define gNumFindFloorMisses (sm64_active_terrain->floor_misses)
 #define gEnvironmentRegions (sm64_active_terrain->environment)
 #define sFloorGeo (sm64_active_terrain->floor_geometry)
-#define gTimeStopState (sm64_active_terrain->time_stop)
+#define gTimeStopState (*(sm64_active_terrain->time_stop_ref ? sm64_active_terrain->time_stop_ref : &sm64_active_terrain->time_stop))
 #define gNumStaticSurfaces (sm64_active_terrain->static_surface_count)
 #define gNumStaticSurfaceNodes (sm64_active_terrain->static_node_count)
 #define bhvDDDWarp (sm64_active_terrain->ddd_warp_behavior)

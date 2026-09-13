@@ -13,6 +13,16 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "object_frame.c": {
+        "source": "src/game/object_list_processor.c",
+        "headers": ["host/object_frame_state.h"],
+        "functions": ["update_objects"],
+    },
+    "debug_stub.c": {
+        "source": "src/game/debug.c",
+        "headers": ["sm64.h"],
+        "functions": ["stub_debug_5"],
+    },
     'object_scheduler.c': {'source': 'src/game/object_list_processor.c',
  'headers': ['host/scheduler_state.h'],
  'functions': ['sObjectListUpdateOrder',
@@ -25,7 +35,7 @@ EXTRACTIONS = {
                'update_non_terrain_objects',
                'unload_deactivated_objects']},
     'object_list_processor.c': {'source': 'src/game/object_list_processor.c',
- 'omit': ['sObjectListUpdateOrder',
+ 'omit': ['update_objects', 'sObjectListUpdateOrder',
           'update_objects_starting_at',
           'update_objects_during_time_stop',
           'update_objects_in_list',

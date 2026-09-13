@@ -1,6 +1,30 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "object_frame.c": {
+      "source": "src/game/object_list_processor.c",
+      "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
+      "sha256": "1fbe8c0ffecc81a0d4c12169599bec7a12e7fe27c471df185ebf962acc70baeb",
+      "functions": {
+        "update_objects": {
+          "start": 19721,
+          "end": 21691,
+          "sha256": "93dfc83427c57fee0bb845417d45b0e28586589528a1c4d62030781f08e52315"
+        }
+      }
+    },
+    "debug_stub.c": {
+      "source": "src/game/debug.c",
+      "source_sha256": "78c1baceabc1089a34e1724c1277a6c241548848534591ff5afc8e6f94083390",
+      "sha256": "26a7abf5f3a33e3d5f2bdd9ee637957fe3a6da1e19915fa6fa7accd7fe33db6d",
+      "functions": {
+        "stub_debug_5": {
+          "start": 13444,
+          "end": 13471,
+          "sha256": "49382dd4f657ddf202f394f3e222ac444e43397926eda66ed2f42714ffeab0a8"
+        }
+      }
+    },
     "object_scheduler.c": {
       "source": "src/game/object_list_processor.c",
       "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
@@ -56,7 +80,7 @@
     "object_list_processor.c": {
       "source": "src/game/object_list_processor.c",
       "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
-      "sha256": "5ddaf9bfb32e322014b4aea5d3bc397fdb183ca1dd05a254c677eab957adb475",
+      "sha256": "016deab24e9e568e64db1cad9f15ca8ac97269208b11003967edab34f052ee05",
       "copied_ranges": [
         {
           "start": 0,
@@ -105,11 +129,17 @@
         },
         {
           "start": 19199,
+          "end": 19721,
+          "sha256": "a1b6c3ba7d11921aaea727737856a12f9cc065bc317928537dba6f6792cc9c1c"
+        },
+        {
+          "start": 21691,
           "end": 21692,
-          "sha256": "6c9424fa4c658738d2cfbfd59a811d1b2cb29c996e13bc264953b486c7352850"
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
         }
       ],
       "omitted_functions": [
+        "update_objects",
         "sObjectListUpdateOrder",
         "update_objects_starting_at",
         "update_objects_during_time_stop",

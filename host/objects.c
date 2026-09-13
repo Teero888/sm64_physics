@@ -14,6 +14,7 @@ struct sm64_objects *sm64_objects_create(void) {
     if (!objects) return NULL;
     struct sm64_objects *previous = sm64_objects_activate(objects);
     objects->level = LEVEL_BOB;
+    objects->active_lists = objects->lists;
     init_free_object_list();
     clear_object_lists(objects->lists);
     /* The original allocator requires every free slot to already have a

@@ -255,6 +255,18 @@ including persistent objects. These phases still require the full frame path
 to place terrain clearing, platform displacement and object collisions between
 them and to apply deferred time-stop activation.
 
+`host/object_frame.h` now invokes the entire original `update_objects` function,
+with live terrain bindings for the current object, Mario and time-stop flags.
+The original order of surface clearing/rebuilding, platform displacement,
+collision detection, remaining behavior updates, deletion and deferred time
+stop is retained. Profiling uses host time; the N64 debug overlay is omitted
+while simulation diagnostic counters are reset. `native_object_frame` combines
+a moving collision platform, collision observation and deferred time stop.
+Its player callback is a test observer: this does not yet execute Mario's full
+action dispatcher, advance all animation state or provide a complete world
+clone. ROM decoding, game-specific callback integration and FrameTee's renderer
+are still outstanding.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

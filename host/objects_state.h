@@ -11,6 +11,7 @@
 struct sm64_objects {
     struct Object pool[OBJECT_POOL_CAPACITY];
     struct ObjectNode lists[NUM_OBJ_LISTS], free_list;
+    struct ObjectNode *active_lists;
     struct GraphNode parent;
     struct Object *current, *mario;
     struct Object *mario_platform;
@@ -20,6 +21,7 @@ struct sm64_objects {
     u16 random_seed;
     u32 global_timer;
     u32 object_counter;
+    u32 previous_object_count;
     const BehaviorScript *command;
     struct GraphNode **models;
     const BehaviorScript *haunted_chair, *mad_piano, *message_panel;
@@ -29,7 +31,7 @@ struct sm64_objects {
 };
 extern _Thread_local struct sm64_objects *sm64_active_objects;
 #define gObjectPool (sm64_active_objects->pool)
-#define gObjectLists (sm64_active_objects->lists)
+#define gObjectLists (sm64_active_objects->active_lists)
 #define gFreeObjectList (sm64_active_objects->free_list)
 #define gObjParentGraphNode (sm64_active_objects->parent)
 #define gCurrentObject (sm64_active_objects->current)

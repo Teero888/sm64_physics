@@ -2,6 +2,7 @@
   "repository": "https://github.com/n64decomp/sm64.git",
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "sources": [
+    "src/game/debug.c",
     "src/game/save_file.c",
     "src/game/sound_init.c",
     "src/game/spawn_sound.c",
@@ -379,6 +380,7 @@
     "src/game/behaviors/wind.inc.c": "de7794a89acdd19063fa23dc7cbfffe488eefb52c0aece81d33ed028823ce3a8",
     "src/game/behaviors/yoshi.inc.c": "3f08a47c2c6d9c01aa973df783f83ab1caa23be0bb004e67bc4f417647a8a35e",
     "src/game/camera.h": "04985ebbe50eb95745c27a4d023df58e5ce5a464383c2bf81dc97ba17707b6ef",
+    "src/game/debug.c": "78c1baceabc1089a34e1724c1277a6c241548848534591ff5afc8e6f94083390",
     "src/game/debug.h": "c74427118b2d1c795e97bdcd4dfe09ae06d2b38ee8f1853f645766fec657fb80",
     "src/game/decompress.h": "ad885997d4f6f5afb0b4f01f7df551fe608a29ba5a4ed3006ebfae7c4c0d171a",
     "src/game/envfx_bubbles.h": "30f6afbc98c110c47961f74a384127d3eaf62d4b1045fe924d4e94d62335a705",
