@@ -274,6 +274,16 @@ timer pauses, short hitboxes, invincibility visibility and camera output.
 These routines remain to be invoked through the complete Mario dispatcher;
 passing their component test does not establish playable Mario simulation.
 
+Original shared action transitions and held-object interactions now execute
+with carry-script identities and Hoot release timing bound to the owned object
+context. Hosts supply distinct resolved carry scripts through
+`sm64_objects_bind_carry_assets`; non-holdable objects switch to those scripts
+when grabbed, dropped or thrown. `native_mario_transitions` checks held-state
+changes, original drop/throw placement, script replacement, ride release,
+input priority, triple jumps and quicksand overrides. Camera-dependent water
+transitions and the complete action dispatcher remain unconnected. The test
+still supplies the animation clock pending unified world clock ownership.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

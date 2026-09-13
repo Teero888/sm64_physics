@@ -13,6 +13,11 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    'mario_holding.c': {'source': 'src/game/interaction.c', 'headers': ['host/mario_holding_state.h'], 'functions': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
+    'interaction.c': {'source': 'src/game/interaction.c', 'omit': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
+    'object_held_state.c': {'source': 'src/game/object_helpers.c', 'headers': ['host/mario_holding_state.h'], 'functions': ['obj_set_held_state']},
+    'mario_transitions.c': {'source': 'src/game/mario.c', 'headers': ['sm64.h', 'game/mario.h', 'game/area.h', 'game/interaction.h', 'engine/math_util.h', 'engine/surface_collision.h'], 'functions': ['mario_floor_is_slope', 'mario_floor_is_steep', 'find_floor_height_relative_polar', 'find_floor_slope', 'set_steep_jump_action', 'set_jump_from_landing', 'set_jumping_action', 'drop_and_set_mario_action', 'hurt_and_set_mario_action', 'check_common_action_exits', 'check_common_hold_action_exits']},
+
     "mario_status.c": {'source': 'src/game/mario.c',
  'headers': ['host/mario_status_state.h'],
  'functions': ['update_mario_health',
@@ -299,7 +304,7 @@ EXTRACTIONS = {
     },
     "mario.c": {
         "source": "src/game/mario.c",
-        "omit": ['update_mario_health', 'update_mario_info_for_cam', 'mario_reset_bodystate', 'sink_mario_in_quicksand', 'sCapFlickerFrames', 'update_and_return_cap_flags', 'mario_update_hitbox_and_cap_model', "play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
+        "omit": ['mario_floor_is_slope', 'mario_floor_is_steep', 'find_floor_height_relative_polar', 'find_floor_slope', 'set_steep_jump_action', 'set_jump_from_landing', 'set_jumping_action', 'drop_and_set_mario_action', 'hurt_and_set_mario_action', 'check_common_action_exits', 'check_common_hold_action_exits', 'update_mario_health', 'update_mario_info_for_cam', 'mario_reset_bodystate', 'sink_mario_in_quicksand', 'sCapFlickerFrames', 'update_and_return_cap_flags', 'mario_update_hitbox_and_cap_model', "play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
                  "play_sound_and_spawn_particles", "play_mario_action_sound", "play_mario_landing_sound",
                  "play_mario_landing_sound_once", "play_mario_heavy_landing_sound",
                  "play_mario_heavy_landing_sound_once", "play_mario_sound",
@@ -337,7 +342,7 @@ EXTRACTIONS = {
     },
     "object_helpers.c": {
         "source": "src/game/object_helpers.c",
-        "omit": ['cur_obj_has_behavior', 'cur_obj_hide', 'cur_obj_move_xz_using_fvel_and_yaw', 'cur_obj_move_y_with_terminal_vel', 'cur_obj_scale', 'obj_angle_to_object', 'obj_build_transform_relative_to_parent', 'obj_copy_pos_and_angle', 'obj_set_face_angle_to_move_angle', 'obj_set_throw_matrix_from_transform', 'spawn_object_at_origin', 'cur_obj_enable_rendering_if_mario_in_room', 'obj_apply_scale_to_transform', 'obj_copy_pos', 'obj_copy_angle', 'spawn_object', 'random_f32_around_zero', 'obj_translate_xz_random', 'obj_translate_xyz_random', 'obj_scale', 'is_item_in_array', 'sLevelsWithRooms', 'bhv_init_room', 'cur_obj_enable_rendering', 'cur_obj_disable_rendering', 'spawn_water_droplet', "absf", "absi", "linear_mtxf_mul_vec3f", "linear_mtxf_transpose_mul_vec3f",
+        "omit": ['obj_set_held_state', 'cur_obj_has_behavior', 'cur_obj_hide', 'cur_obj_move_xz_using_fvel_and_yaw', 'cur_obj_move_y_with_terminal_vel', 'cur_obj_scale', 'obj_angle_to_object', 'obj_build_transform_relative_to_parent', 'obj_copy_pos_and_angle', 'obj_set_face_angle_to_move_angle', 'obj_set_throw_matrix_from_transform', 'spawn_object_at_origin', 'cur_obj_enable_rendering_if_mario_in_room', 'obj_apply_scale_to_transform', 'obj_copy_pos', 'obj_copy_angle', 'spawn_object', 'random_f32_around_zero', 'obj_translate_xz_random', 'obj_translate_xyz_random', 'obj_scale', 'is_item_in_array', 'sLevelsWithRooms', 'bhv_init_room', 'cur_obj_enable_rendering', 'cur_obj_disable_rendering', 'spawn_water_droplet', "absf", "absi", "linear_mtxf_mul_vec3f", "linear_mtxf_transpose_mul_vec3f",
                  "find_unimportant_object", "count_unimportant_objects",
                  "cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range",
                  "obj_apply_scale_to_matrix", "dist_between_objects",

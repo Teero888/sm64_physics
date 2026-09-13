@@ -1,6 +1,157 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_holding.c": {
+      "source": "src/game/interaction.c",
+      "source_sha256": "4c78e27752d1e50258124b9a505618fcc42014a2ab79c1eb1f383cf6c7227b99",
+      "sha256": "120a7da6139f4822cc0b1c1e15c45e3b15c05f526f07bd0f8dae1dc7ba1e949f",
+      "functions": {
+        "mario_stop_riding_object": {
+          "start": 11155,
+          "end": 11369,
+          "sha256": "44215b70202f2f0dd1b23b7426bf104bdde8a3bb4382c32b08df578840b50b17"
+        },
+        "mario_grab_used_object": {
+          "start": 11371,
+          "end": 11553,
+          "sha256": "3f9f620970813076185ca83f0100abdce8d482210c78836831ad90e98de5b61c"
+        },
+        "mario_drop_held_object": {
+          "start": 11555,
+          "end": 12300,
+          "sha256": "f15a62fb25daa48aea7f56c85cf261b635809b2f2b213d29259288ca698dc870"
+        },
+        "mario_throw_held_object": {
+          "start": 12302,
+          "end": 12940,
+          "sha256": "375f76d063e2048e54a1d585c0b287ffce15ddbcaed3efbe2db50f568a552830"
+        },
+        "mario_stop_riding_and_holding": {
+          "start": 12942,
+          "end": 13216,
+          "sha256": "14df1782cb38bcb117eb62ffc9e91b695707eb5a59948cd4fc94657fef609401"
+        }
+      }
+    },
+    "interaction.c": {
+      "source": "src/game/interaction.c",
+      "source_sha256": "4c78e27752d1e50258124b9a505618fcc42014a2ab79c1eb1f383cf6c7227b99",
+      "sha256": "531e033c66888e2a50d90afb79d930c5470eb33a6ce28089b09b07224fba8239",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 11155,
+          "sha256": "496417038ffe30df2e2511e5ba7cffecc5c1415642f3eaee1e445f5dbdd1bcc4"
+        },
+        {
+          "start": 11369,
+          "end": 11371,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 11553,
+          "end": 11555,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 12300,
+          "end": 12302,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 12940,
+          "end": 12942,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 13216,
+          "end": 61913,
+          "sha256": "37fa87d61e5d4340e36c40a4c9b77326451afaac16768f9bce3c9685fb2223b3"
+        }
+      ],
+      "omitted_functions": [
+        "mario_stop_riding_object",
+        "mario_grab_used_object",
+        "mario_drop_held_object",
+        "mario_throw_held_object",
+        "mario_stop_riding_and_holding"
+      ],
+      "functions": {}
+    },
+    "object_held_state.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "dffc3180ea8ab6aba3c06af3982c9d989963887c8adb8d422531c25ec5a8fb92",
+      "functions": {
+        "obj_set_held_state": {
+          "start": 9491,
+          "end": 10068,
+          "sha256": "e10640e3f2ec7d306efb0fa10aa6c3610eb3e57058033a380bb375b40d5562db"
+        }
+      }
+    },
+    "mario_transitions.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "23df3add636e766f6eb7830e52aaf4a5ebdfc5320c1d98950a2e9cc069b5aeea",
+      "functions": {
+        "mario_floor_is_slope": {
+          "start": 20453,
+          "end": 21147,
+          "sha256": "da64147155601099b4da8cc3f48494eae16645a69ccc65847f39c87afab6472d"
+        },
+        "mario_floor_is_steep": {
+          "start": 21221,
+          "end": 22147,
+          "sha256": "4a69bd09efee2947a15687b6c7a9c0a09580d0cd8a46b73edca8d9a3d7a5725c"
+        },
+        "find_floor_height_relative_polar": {
+          "start": 22229,
+          "end": 22614,
+          "sha256": "d4800750a378c8f549ff8235481c9ec30467d607dd9b20db11a68b9613d1fc79"
+        },
+        "find_floor_slope": {
+          "start": 22689,
+          "end": 23603,
+          "sha256": "c7ed4ab3e35578cecffef1fcf55215b347fb37427bd8efc2064bd1b12004f7c0"
+        },
+        "set_steep_jump_action": {
+          "start": 24417,
+          "end": 25068,
+          "sha256": "f5dd0787a2dd0147674f658f0d99d4109710d717dada8cde77ec32673ff0d32e"
+        },
+        "set_jump_from_landing": {
+          "start": 32552,
+          "end": 34227,
+          "sha256": "dac45a443b2ce80155a56ede594060eb91ebae00f12757128d5a49a3a677904b"
+        },
+        "set_jumping_action": {
+          "start": 34341,
+          "end": 34918,
+          "sha256": "48b654818d792a4b070d922dc7e72a88a34af8a31346582e3e9880c4b9234117"
+        },
+        "drop_and_set_mario_action": {
+          "start": 34984,
+          "end": 35156,
+          "sha256": "e339851723f3d5601e7cb2a9a2f5f53a3fa6120d1a0de26d3fbf5a575b343bb4"
+        },
+        "hurt_and_set_mario_action": {
+          "start": 35222,
+          "end": 35407,
+          "sha256": "f601be88c5408a090ac2ecb4240dbab340163e37e27ab5f44601f18bf61429d0"
+        },
+        "check_common_action_exits": {
+          "start": 35545,
+          "end": 36014,
+          "sha256": "ea323439812c23081b76b6e8d2cdf332650541be61eadac3c59a255827ee9e89"
+        },
+        "check_common_hold_action_exits": {
+          "start": 36168,
+          "end": 36662,
+          "sha256": "e490f9a399e21fd96877e02f6d555b7071e8e4f2340275b7be87b55a362495fa"
+        }
+      }
+    },
     "mario_status.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
@@ -1633,7 +1784,7 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "edafc23c1fc9eeafbec57090afc5ef8968de37b9d60f674000856cc189074d74",
+      "sha256": "51156c4e468591d0d8e914c193dc7cf638cd47eb309d8bba813e318a7ef85b43",
       "copied_ranges": [
         {
           "start": 0,
@@ -1772,8 +1923,33 @@
         },
         {
           "start": 20377,
+          "end": 20453,
+          "sha256": "39271e0cfe7f4a09fa1c056a0beb7e3a22b8c2804cd9d63bda35b618c1e3bb90"
+        },
+        {
+          "start": 21147,
+          "end": 21221,
+          "sha256": "6b4cae8532710a133af6d56d5551983de8dec89f4a79ac48503b5fe2c0800a35"
+        },
+        {
+          "start": 22147,
+          "end": 22229,
+          "sha256": "ed4a98c9cae7c8be937bf1581099f0131930657ed79cda7a941962c69c7ccb45"
+        },
+        {
+          "start": 22614,
+          "end": 22689,
+          "sha256": "93992db8e15d2669c793cd481ed7417c1a1cb594edffb5b0878f44daade9449c"
+        },
+        {
+          "start": 23603,
+          "end": 24417,
+          "sha256": "883c29f916169f0ae51e340538f3e60517fd651175b5af4f1072bd06d5eb0036"
+        },
+        {
+          "start": 25068,
           "end": 25133,
-          "sha256": "c3c12e4bba2ac6b864acc9446950949cd188d453904cca966149b2c613fe7e5a"
+          "sha256": "57c2b7685ca5a6b44acf824336260c3b1a3949fa128c7822c86868623e12f54d"
         },
         {
           "start": 25555,
@@ -1802,8 +1978,38 @@
         },
         {
           "start": 32474,
+          "end": 32552,
+          "sha256": "461f75cc7990380edbfebd1ea7ab44ad7ce3e460a3c9e64baf8e92e70b745762"
+        },
+        {
+          "start": 34227,
+          "end": 34341,
+          "sha256": "1d21ea05f4d95bfc6e258ff2c1fe2943547bde22790a7e31f2899fa93a06d1b7"
+        },
+        {
+          "start": 34918,
+          "end": 34984,
+          "sha256": "ac32b300699217077d018f521257e11474811ba9cb7b595406749ec2d6f1fca4"
+        },
+        {
+          "start": 35156,
+          "end": 35222,
+          "sha256": "2b6e7e40cc50403715d3031affaf5aa4e4a14afeeabf72260e3080d0c429cec0"
+        },
+        {
+          "start": 35407,
+          "end": 35545,
+          "sha256": "77251027e53098680b900148041a4b398f28fd76209a5b9d51ba05618a90d202"
+        },
+        {
+          "start": 36014,
+          "end": 36168,
+          "sha256": "49ebb8e2bf260a88ee775c628c7854696e8bbaa0c7a1019e74197af46c57ae99"
+        },
+        {
+          "start": 36662,
           "end": 39715,
-          "sha256": "6ea8223dcde25a4dada1a8d179ef195c591f43f9cda702af11ce2fe3c12164b9"
+          "sha256": "e88393cbfe3a1ec3e9f1f777d46165c898def574e288cc900a5bc65663a12fe5"
         },
         {
           "start": 40638,
@@ -1862,6 +2068,17 @@
         }
       ],
       "omitted_functions": [
+        "mario_floor_is_slope",
+        "mario_floor_is_steep",
+        "find_floor_height_relative_polar",
+        "find_floor_slope",
+        "set_steep_jump_action",
+        "set_jump_from_landing",
+        "set_jumping_action",
+        "drop_and_set_mario_action",
+        "hurt_and_set_mario_action",
+        "check_common_action_exits",
+        "check_common_hold_action_exits",
         "update_mario_health",
         "update_mario_info_for_cam",
         "mario_reset_bodystate",
@@ -2060,7 +2277,7 @@
     "object_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
-      "sha256": "76e577d31ea23df8bb45f9c1dcdc60a7d4b9f094ffcd9fa2b76c85c918da2f94",
+      "sha256": "fbb91658b4cf1d8139c9d4ffddb85708a5d9641ac97b9d7e08c2f7e9849daa57",
       "copied_ranges": [
         {
           "start": 0,
@@ -2074,8 +2291,13 @@
         },
         {
           "start": 8100,
+          "end": 9491,
+          "sha256": "0c165163399bd19bd1a97026c3bd8641d0eb9084e9fa899a55da588396eabc59"
+        },
+        {
+          "start": 10068,
           "end": 10268,
-          "sha256": "1f7a5eef5b3d8d16cb97e56d59c9e5fc7084dc76d79c4952c7a6f00af8de4685"
+          "sha256": "7afef682f219d383fda926dfcf804bfbe034561e55ebd7c32f7c823da5b89849"
         },
         {
           "start": 10506,
@@ -2254,6 +2476,7 @@
         }
       ],
       "omitted_functions": [
+        "obj_set_held_state",
         "cur_obj_has_behavior",
         "cur_obj_hide",
         "cur_obj_move_xz_using_fvel_and_yaw",

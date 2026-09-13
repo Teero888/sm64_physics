@@ -27,6 +27,7 @@ struct sm64_objects {
     const BehaviorScript *command;
     struct GraphNode **models;
     const BehaviorScript *haunted_chair, *mad_piano, *message_panel;
+    const BehaviorScript *carry_held, *carry_dropped, *carry_thrown, *underwater_shell;
     RoomData adjacent_rooms[60][2];
     s16 mario_room, roomed_near, roomed_far;
     s16 level;

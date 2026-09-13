@@ -266,26 +266,26 @@ void create_transformation_from_matrices(Mat4 a0, Mat4 a1, Mat4 a2) {
     a0[3][3] = 1.0f;
 }
 
-void obj_set_held_state(struct Object *obj, const BehaviorScript *heldBehavior) {
-    obj->parentObj = o;
 
-    if (obj->oFlags & OBJ_FLAG_HOLDABLE) {
-        if (heldBehavior == bhvCarrySomething3) {
-            obj->oHeldState = HELD_HELD;
-        }
 
-        if (heldBehavior == bhvCarrySomething5) {
-            obj->oHeldState = HELD_THROWN;
-        }
 
-        if (heldBehavior == bhvCarrySomething4) {
-            obj->oHeldState = HELD_DROPPED;
-        }
-    } else {
-        obj->curBhvCommand = segmented_to_virtual(heldBehavior);
-        obj->bhvStackIndex = 0;
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 f32 lateral_dist_between_objects(struct Object *obj1, struct Object *obj2) {
     f32 dx = obj1->oPosX - obj2->oPosX;

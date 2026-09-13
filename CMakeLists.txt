@@ -46,7 +46,10 @@ add_library(sm64_physics_core STATIC
     extracted/mario_geometry_input.c
     extracted/mario_action_setup.c
     extracted/mario_surface_class.c
-    upstream/src/game/interaction.c
+    extracted/interaction.c
+    extracted/mario_holding.c
+    extracted/object_held_state.c
+    extracted/mario_transitions.c
     extracted/behavior_script.c
     extracted/random.c
     extracted/object_collision.c
@@ -90,6 +93,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_mario_transitions_test tests/mario_transitions.c)
+    target_link_libraries(sm64_mario_transitions_test PRIVATE sm64_physics_core)
+    add_test(NAME native_mario_transitions COMMAND sm64_mario_transitions_test)
     add_executable(sm64_mario_status_test tests/mario_status.c)
     target_link_libraries(sm64_mario_status_test PRIVATE sm64_physics_core)
     add_test(NAME native_mario_status COMMAND sm64_mario_status_test)
