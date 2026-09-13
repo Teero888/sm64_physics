@@ -9,6 +9,8 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCES = [
+    "src/game/sound_init.c", "src/game/spawn_sound.c", "src/game/memory.c",
+    "src/game/game_init.c", "src/engine/graph_node.c",
     "src/engine/math_util.c", "src/engine/surface_collision.c",
     "src/engine/surface_load.c", "src/game/mario.c", "src/game/mario_step.c",
     "src/game/interaction.c", "src/engine/behavior_script.c",

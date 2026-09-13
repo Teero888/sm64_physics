@@ -999,25 +999,25 @@ s32 cur_obj_check_if_at_animation_end(void) {
     }
 }
 
-s32 cur_obj_check_anim_frame(s32 frame) {
-    s32 animFrame = o->header.gfx.animInfo.animFrame;
 
-    if (animFrame == frame) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
 
-s32 cur_obj_check_anim_frame_in_range(s32 startFrame, s32 rangeLength) {
-    s32 animFrame = o->header.gfx.animInfo.animFrame;
 
-    if (animFrame >= startFrame && animFrame < startFrame + rangeLength) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 s32 cur_obj_check_frame_prior_current_frame(s16 *a0) {
     s16 sp6 = o->header.gfx.animInfo.animFrame;

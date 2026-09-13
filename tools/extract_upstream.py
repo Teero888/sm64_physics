@@ -13,6 +13,39 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_sound.c": {
+        "source": "src/game/mario.c",
+        "headers": ["sm64.h", "game/mario.h", "audio/external.h"],
+        "functions": ["play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
+                      "play_sound_and_spawn_particles", "play_mario_action_sound", "play_mario_landing_sound",
+                      "play_mario_landing_sound_once", "play_mario_heavy_landing_sound",
+                      "play_mario_heavy_landing_sound_once", "play_mario_sound"],
+    },
+    "object_animation_query.c": {
+        "source": "src/game/object_helpers.c",
+        "headers": ["host/object_context.h"],
+        "functions": ["cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range"],
+    },
+    "sound_control.c": {
+        "source": "src/game/sound_init.c",
+        "headers": ["host/audio_state.h"],
+        "functions": ["reset_volume", "lower_background_noise", "raise_background_noise",
+                      "disable_background_sound", "enable_background_sound",
+                      "fadeout_music", "fadeout_level_music", "play_cutscene_music",
+                      "play_shell_music", "stop_shell_music", "play_cap_music",
+                      "fadeout_cap_music", "stop_cap_music"],
+    },
+    "object_sound.c": {
+        "source": "src/game/spawn_sound.c",
+        "headers": ["sm64.h", "audio/external.h", "game/object_list_processor.h",
+                    "game/object_helpers.h", "game/spawn_sound.h"],
+        "functions": ["exec_anim_sound_state", "cur_obj_play_sound_1", "cur_obj_play_sound_2"],
+    },
+    "sound_spawner.c": {
+        "source": "src/game/spawn_sound.c",
+        "headers": ["sm64.h", "behavior_data.h", "game/object_list_processor.h", "game/object_helpers.h"],
+        "functions": ["create_sound_spawner"],
+    },
     "animation_loader.c": {
         "source": "src/game/memory.c",
         "headers": ["sm64.h", "host/animation_bank.h"],
@@ -76,7 +109,11 @@ EXTRACTIONS = {
     },
     "mario.c": {
         "source": "src/game/mario.c",
-        "omit": ["is_anim_at_end", "is_anim_past_end", "set_mario_animation", "set_mario_anim_with_accel",
+        "omit": ["play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
+                 "play_sound_and_spawn_particles", "play_mario_action_sound", "play_mario_landing_sound",
+                 "play_mario_landing_sound_once", "play_mario_heavy_landing_sound",
+                 "play_mario_heavy_landing_sound_once", "play_mario_sound",
+                 "is_anim_at_end", "is_anim_past_end", "set_mario_animation", "set_mario_anim_with_accel",
                  "set_anim_to_frame", "is_anim_past_frame", "find_mario_anim_flags_and_translation",
                  "update_mario_pos_for_anim", "return_mario_anim_y_translation",
                  "sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
@@ -110,7 +147,8 @@ EXTRACTIONS = {
     },
     "object_helpers.c": {
         "source": "src/game/object_helpers.c",
-        "omit": ["obj_apply_scale_to_matrix", "dist_between_objects",
+        "omit": ["cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range",
+                 "obj_apply_scale_to_matrix", "dist_between_objects",
                  "obj_build_transform_from_pos_and_angle"],
     },
     "terrain_queries.c": {

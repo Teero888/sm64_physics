@@ -3,6 +3,12 @@ project(sm64_physics LANGUAGES C)
 
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
+    extracted/sound_control.c
+    extracted/mario_sound.c
+    extracted/object_sound.c
+    extracted/object_animation_query.c
+    extracted/sound_spawner.c
+    host/audio.c
     extracted/animation_loader.c
     extracted/mario_animation.c
     host/animation_bank.c
@@ -70,6 +76,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_audio_test tests/audio.c)
+    target_link_libraries(sm64_audio_test PRIVATE sm64_physics_core)
+    add_test(NAME native_audio_events COMMAND sm64_audio_test)
     add_test(NAME upstream_fidelity COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tools/verify_upstream.py)
     add_executable(sm64_collision_test tests/collision.c)

@@ -1,6 +1,186 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_sound.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "b6366bfff53f4e20abd7645c17f8d6d760d1ca2f036b23ab9eb4abd83712fdc1",
+      "functions": {
+        "play_sound_if_no_flag": {
+          "start": 8040,
+          "end": 8253,
+          "sha256": "20a28d4f63c8d956790f8c6af8b86dd711169a53e552427f671fef40160de507"
+        },
+        "play_mario_jump_sound": {
+          "start": 8342,
+          "end": 8907,
+          "sha256": "91cbd74f2d3bb37d053bba1a0e1b6f709e55a7f24066c7fcb30d1f8a07932082"
+        },
+        "adjust_sound_for_speed": {
+          "start": 8975,
+          "end": 9201,
+          "sha256": "9b35dab3b24f50281eae116b0fec1a69ee660d86a6ebcc9eb479180e3ab6c47e"
+        },
+        "play_sound_and_spawn_particles": {
+          "start": 9314,
+          "end": 10249,
+          "sha256": "a9738452806ac25ab4134076fe741684fbf5291dcc0f341be2593b16cffd7445"
+        },
+        "play_mario_action_sound": {
+          "start": 10348,
+          "end": 10615,
+          "sha256": "ee76ef4c7f6cc649e6cd2f78345d6b4541918c3f8560ad898e7f1f7e0775b71b"
+        },
+        "play_mario_landing_sound": {
+          "start": 10677,
+          "end": 10869,
+          "sha256": "93a3104eec3094354702875d4fc5529a243264e0d7708de9a773259621b88292"
+        },
+        "play_mario_landing_sound_once": {
+          "start": 11068,
+          "end": 11258,
+          "sha256": "10c2e3a396438158b2691704d35779f5ac1b21391b555af38a3bcafca58215e8"
+        },
+        "play_mario_heavy_landing_sound": {
+          "start": 11347,
+          "end": 11551,
+          "sha256": "9d1d535aa05ce90875e0ef392fd87798dc816dae51e6080a6b062fd9d33d479c"
+        },
+        "play_mario_heavy_landing_sound_once": {
+          "start": 11783,
+          "end": 11985,
+          "sha256": "64c4e2d5c8a97e95fbcd6aded53303632d909719aea5c325a9cf4fc475de6593"
+        },
+        "play_mario_sound": {
+          "start": 12075,
+          "end": 12674,
+          "sha256": "3e5798464be71815b08cba0f2e834e8ed9bfb46e68bc81d3364287147584d5b7"
+        }
+      }
+    },
+    "object_animation_query.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "c52b2374314f12be4410e8df31b58a470b29f5745b4809ec4bb0d793685f8b23",
+      "functions": {
+        "cur_obj_check_anim_frame": {
+          "start": 31611,
+          "end": 31801,
+          "sha256": "c803e84ba8cba9e59c37b3e495a9d1100178fd78e778eb55559ff9d94282d2b2"
+        },
+        "cur_obj_check_anim_frame_in_range": {
+          "start": 31803,
+          "end": 32069,
+          "sha256": "899b606b963552b156ed32f8d7c444479d964273f9c454064252f7290c0526d0"
+        }
+      }
+    },
+    "sound_control.c": {
+      "source": "src/game/sound_init.c",
+      "source_sha256": "c7b29ae67ec97682a1a01f0d4a55023676fc39102d81c32ee896fb1b71e3a3ff",
+      "sha256": "b69b9d065de9f1ab0ed4afc82f27f58cd58a146bb4620054b5c485ef1c91b9d0",
+      "functions": {
+        "reset_volume": {
+          "start": 2275,
+          "end": 2324,
+          "sha256": "b610ea51ec165ea7f502087c473659cb559b7f3d9911861ed2f349e260d1b63f"
+        },
+        "lower_background_noise": {
+          "start": 2376,
+          "end": 2628,
+          "sha256": "946a5a9fd245877f227daeccc1f283378c390208628f7be9d1a072a7b6f65f87"
+        },
+        "raise_background_noise": {
+          "start": 2680,
+          "end": 2932,
+          "sha256": "01534b5cd83b5e49255c66216486ff9ddab58d1d98d91036cb31ae1ccaa1369d"
+        },
+        "disable_background_sound": {
+          "start": 2984,
+          "end": 3168,
+          "sha256": "917e90556207135a8f9b20e2d25b9a47ddc56e7244a76a0a2a1b90491979d22e"
+        },
+        "enable_background_sound": {
+          "start": 3220,
+          "end": 3402,
+          "sha256": "cb6cb276f5c7d49f43b9bdb0f239b1bcdd713bea51c738a141a0369dacd0b243"
+        },
+        "fadeout_music": {
+          "start": 6856,
+          "end": 7031,
+          "sha256": "eae5c83000a8ecfd4b87c2467cd00f524d245a61b4d6826b6d9a5b6b0143b49f"
+        },
+        "fadeout_level_music": {
+          "start": 7083,
+          "end": 7284,
+          "sha256": "3ddc2c183c181a376e5e229bbf47970bdb93ca0b8f9f4944326215db57ff7599"
+        },
+        "play_cutscene_music": {
+          "start": 7336,
+          "end": 7452,
+          "sha256": "99beb173c44ed5f385f193184b2bf48938e912d8effe54a77ddffa43cf70c199"
+        },
+        "play_shell_music": {
+          "start": 7504,
+          "end": 7703,
+          "sha256": "b9d5ae889822c588a0557b478bc1da666c7975987efa912bbe21a63c89813fe8"
+        },
+        "stop_shell_music": {
+          "start": 7755,
+          "end": 7928,
+          "sha256": "2775132f5640f13c73fa31ece57f4b8d4b414e4da86fc53d85a1d1f8d1ef094b"
+        },
+        "play_cap_music": {
+          "start": 7980,
+          "end": 8222,
+          "sha256": "b351bf42bfface88412702c9406f2d3591910d07be374f667f55a6ce514d3b8a"
+        },
+        "fadeout_cap_music": {
+          "start": 8274,
+          "end": 8411,
+          "sha256": "4bed15f3781316b9c18ab99b25f868ec30806a70196c6e3854eab7f76b190ccf"
+        },
+        "stop_cap_music": {
+          "start": 8463,
+          "end": 8628,
+          "sha256": "efa377b8e37ad3a0f20c8391f33dc8702483bf6f6d092e4f25e63d9df6d3d806"
+        }
+      }
+    },
+    "object_sound.c": {
+      "source": "src/game/spawn_sound.c",
+      "source_sha256": "1835df7f4a3f9b07b02792903629c30bac25b6b50318e2eb04d44e42418bfbb7",
+      "sha256": "db4aea8e3514d22182de1a517ea70a3eba376e7048cdb2a086fd1a3b153ed053",
+      "functions": {
+        "exec_anim_sound_state": {
+          "start": 460,
+          "end": 1543,
+          "sha256": "808e8b4d72ac0b473d30c47f71ec4f27c5cd4e433f811fae895b2257d092fe53"
+        },
+        "cur_obj_play_sound_1": {
+          "start": 2046,
+          "end": 2243,
+          "sha256": "15372ec55cd563057927d5001928034fe2e90cf6b49c8606d05930d436d1636b"
+        },
+        "cur_obj_play_sound_2": {
+          "start": 2245,
+          "end": 2760,
+          "sha256": "867006f7a61915433bd8b1bc604ddc196fe68ca936f155fa3fa5878e815bbef8"
+        }
+      }
+    },
+    "sound_spawner.c": {
+      "source": "src/game/spawn_sound.c",
+      "source_sha256": "1835df7f4a3f9b07b02792903629c30bac25b6b50318e2eb04d44e42418bfbb7",
+      "sha256": "44d8694e3dfbc67fb16af10c5e9dc28b584dba972d6c05444cd27165bb151f41",
+      "functions": {
+        "create_sound_spawner": {
+          "start": 1668,
+          "end": 1830,
+          "sha256": "3c52084ba16654a77a162c4c6b7287de812c2d9c5732adea09609d79bdf36ee4"
+        }
+      }
+    },
     "animation_loader.c": {
       "source": "src/game/memory.c",
       "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",
@@ -370,7 +550,7 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "d928aa7bd28022a5b3ef08595c6aa16e560eaa09eb9af0eef925225c6698ba07",
+      "sha256": "710139ffc3422b9a6b78512bb2bcfaf83732ca67b4dbbbb69e9ce6403399adb1",
       "copied_ranges": [
         {
           "start": 0,
@@ -419,8 +599,58 @@
         },
         {
           "start": 7806,
+          "end": 8040,
+          "sha256": "047474119d165a8d1ac8f3831d14d11214d04e5c104a95a014e1b34961096ffa"
+        },
+        {
+          "start": 8253,
+          "end": 8342,
+          "sha256": "2392635017675973b8e80fce36f7418355bd1ae0e8308bc644d6c9ba3a2dff9e"
+        },
+        {
+          "start": 8907,
+          "end": 8975,
+          "sha256": "dc3e47c4355d9088008e5efb7fe64edfeda26e5fba450c46bd31079c949bf434"
+        },
+        {
+          "start": 9201,
+          "end": 9314,
+          "sha256": "7110aff12b402f96b4499aa96cc13c58deafad38144143f56130bf0986e038c6"
+        },
+        {
+          "start": 10249,
+          "end": 10348,
+          "sha256": "416c04b559ad4613ee79a340e85b8dcc19dc47bc9f1232e240af64b8e5dea64f"
+        },
+        {
+          "start": 10615,
+          "end": 10677,
+          "sha256": "c11e99955441aae460cbefeea39d479d77944fabca269a3648ec6773b1e27fb1"
+        },
+        {
+          "start": 10869,
+          "end": 11068,
+          "sha256": "0e23ae374143a595f6aaab82f11799ec95527a0d5ad31f556f76da3322c0b2fd"
+        },
+        {
+          "start": 11258,
+          "end": 11347,
+          "sha256": "475db0bcd5762ba0f880cd2921368abcf6a48fbb46641baa93679662af0f4050"
+        },
+        {
+          "start": 11551,
+          "end": 11783,
+          "sha256": "05f1fbaa0a5e892a8660e0f71cd750a84f8e84ef2aadb02f5bc21dd3bb6dcaf8"
+        },
+        {
+          "start": 11985,
+          "end": 12075,
+          "sha256": "82bf784c086fc0daf2c67294092da3e25f7b52c146ca1859e4e304261841f5b0"
+        },
+        {
+          "start": 12674,
           "end": 12899,
-          "sha256": "ce108cd8a524f6f427f52600fbf752ed38d5f3c745570b927edfb22ec9d0547f"
+          "sha256": "96489846c7bd2a049b70f0ad07c38d351a2fd17eccae4523a582a544bca75c9d"
         },
         {
           "start": 13189,
@@ -514,6 +744,16 @@
         }
       ],
       "omitted_functions": [
+        "play_sound_if_no_flag",
+        "play_mario_jump_sound",
+        "adjust_sound_for_speed",
+        "play_sound_and_spawn_particles",
+        "play_mario_action_sound",
+        "play_mario_landing_sound",
+        "play_mario_landing_sound_once",
+        "play_mario_heavy_landing_sound",
+        "play_mario_heavy_landing_sound_once",
+        "play_mario_sound",
         "is_anim_at_end",
         "is_anim_past_end",
         "set_mario_animation",
@@ -695,7 +935,7 @@
     "object_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
-      "sha256": "6930dea09135fffc1dcb25427d6ee7734df720f836d605bee6dc635adb0ce18c",
+      "sha256": "0d9598fb477d417b345ad12b34704a6ec8aa309a98d01abb3c2bd2fc52dbbcdf",
       "copied_ranges": [
         {
           "start": 0,
@@ -709,8 +949,18 @@
         },
         {
           "start": 10506,
+          "end": 31611,
+          "sha256": "a9b02da91893fe741fba18300d9dddc92d7c3cb4122e83109f747d811611a05d"
+        },
+        {
+          "start": 31801,
+          "end": 31803,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 32069,
           "end": 57468,
-          "sha256": "a4cbaa3373cb2b1e711115f223b99472db784a94644b25e2c879a44ae737796e"
+          "sha256": "4b5fc089dbc0c4117f0dfa813dca4e3c84ce91ff57ab2364bdeb5f0c8e360721"
         },
         {
           "start": 58004,
@@ -719,6 +969,8 @@
         }
       ],
       "omitted_functions": [
+        "cur_obj_check_anim_frame",
+        "cur_obj_check_anim_frame_in_range",
         "obj_apply_scale_to_matrix",
         "dist_between_objects",
         "obj_build_transform_from_pos_and_angle"

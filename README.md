@@ -168,6 +168,20 @@ destination buffer. The bank must outlive its handler and animation pointers.
 fractional timing, invalid indices in asset data and independent banks. Full
 world cloning still needs to reconstruct and rebind these pointers.
 
+`host/audio.h` exposes synchronous audio request events for the host to consume.
+Original cap/shell music bookkeeping, Mario sound flags and particle requests,
+and object animation sound triggers are extracted verbatim. Their low-level
+audio calls emit typed events; no audio engine or N64 audio thread is linked.
+The music state is caller-owned, supports independent activation and cloning,
+and permits an explicitly silent sink. Events copy the source coordinates;
+source identities are native address cookies and must not be serialized.
+`native_audio_events` covers music replacement/fades, duplicate suppression,
+independent continuation, animation triggers, Mario flags and landing particles.
+The complete world must still own `gAudioRandom` and the object globals, provide
+camera-relative source coordinates, and connect FrameTee's event consumer.
+The original sound-spawner routine is retained, but its object creation path
+still depends on the unfinished full object runtime.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh
