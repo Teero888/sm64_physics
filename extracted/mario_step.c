@@ -28,9 +28,9 @@ struct Surface gWaterSurfacePseudoFloor = {
  * known through stub_mario_step_2 and whether Mario was on it,
  * and if so return a higher value than 0.
  */
-f32 get_additive_y_vel_for_jumps(void) {
-    return 0.0f;
-}
+
+
+
 
 /**
  * Does nothing, but takes in a MarioState. This is only ever

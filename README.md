@@ -152,6 +152,13 @@ requests, input resets, timers and first-person eligibility. It uses explicit
 test observers for the debug callback and warp dependency. No production warp
 stub was added: actual transitions and the action dispatcher remain required.
 
+Original `set_mario_action` and its moving/airborne/submerged/cutscene setup
+helpers now link independently. `native_mario_action_setup` checks initial jump
+velocity and flight to landing through `perform_air_step`, timer resets,
+backwards long-jump speed, squish downgrades and surface-dependent walking
+setup. This verifies action initialization, not the per-frame action handlers
+or the complete `execute_mario_action` dispatcher.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

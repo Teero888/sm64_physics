@@ -1,6 +1,70 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_action_setup.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "a80ebdc2a398ccec3c270c2a88d2cd450a762358a5df1603d50576ac822c0f97",
+      "functions": {
+        "set_mario_y_vel_based_on_fspeed": {
+          "start": 25133,
+          "end": 25555,
+          "sha256": "d0e780914ddf520603f9765ea3389e470e3472ed35ff060237cb065548691921"
+        },
+        "set_mario_action_airborne": {
+          "start": 25615,
+          "end": 29107,
+          "sha256": "a7f4488949d20e998fed2cc4697a7f66b9db8585ad8120be3363e590d3607712"
+        },
+        "set_mario_action_moving": {
+          "start": 29165,
+          "end": 30358,
+          "sha256": "b9347896ff86292852fe0976506b877776bf54505f195c291a14b1585155db0d"
+        },
+        "set_mario_action_submerged": {
+          "start": 30460,
+          "end": 30691,
+          "sha256": "9db24d462b838c7f7ec94567b4e9d98d52c62f0b5d540f642563e88b7ca4fa27"
+        },
+        "set_mario_action_cutscene": {
+          "start": 30751,
+          "end": 31313,
+          "sha256": "389fbe18dd2821a8277bcb902db4aae41d339a9ce8ddcd74a5e5636f1591aa4f"
+        },
+        "set_mario_action": {
+          "start": 31428,
+          "end": 32474,
+          "sha256": "a6acabb7613df5e2e6729e0654208c6161341dde9e80c9c3303a12a0d0c65a3c"
+        }
+      }
+    },
+    "mario_surface_class.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "5f61f43336f394bf93618e2bc70dd817d8e6c238ff371bdfadfa0c99d7ad99e7",
+      "functions": {
+        "mario_get_floor_class": {
+          "start": 13251,
+          "end": 14826,
+          "sha256": "c75ddf49c5807bcd116fd231753086c5ac9b39b6bc61a2138efb4fffde0be6f4"
+        },
+        "mario_floor_is_slippery": {
+          "start": 19700,
+          "end": 20377,
+          "sha256": "4be15baffa4d8c32ba0d0b52da38a37b46a54c51ca85ef2722289dd22e1ce405"
+        },
+        "mario_facing_downhill": {
+          "start": 19239,
+          "end": 19623,
+          "sha256": "03990ed2955a4733aa205cfac1febe585d9839362efecd65349713ae9bf7f2fa"
+        },
+        "mario_set_forward_vel": {
+          "start": 12899,
+          "end": 13189,
+          "sha256": "5a0f3d3292d2cb870d8b8cb369a19cebbc0bbf5d74bbfdbbeebb6708fbd1f2f6"
+        }
+      }
+    },
     "controller.c": {
       "source": "src/game/game_init.c",
       "source_sha256": "5b8e3626c98e917931f350379e3a30705100113d670e726272a8db57ec556525",
@@ -33,8 +97,13 @@
     "mario_ground.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "a5e941c989aa68d3eeb1d2131c8471d306bf8d4d8115d31b45fde207846410f3",
+      "sha256": "67d83efd3e2b21afe1bba7c572e961830e02231cc81cdf23de47e3a4488ce631",
       "functions": {
+        "get_additive_y_vel_for_jumps": {
+          "start": 920,
+          "end": 979,
+          "sha256": "ded7f01a37654448cc1716be7ef5190ee72efc0af28e960c0a3315044bf328da"
+        },
         "stub_mario_step_1": {
           "start": 1431,
           "end": 1486,
@@ -100,12 +169,17 @@
     "mario_step.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "6f4f043a840f921e266f22006b5c861678950d146ff100ec515e1656be39b9ed",
+      "sha256": "3b713a49b1d62638e153df63dc43a4589d4a4aeea66d9358e2d18dcb6ed641f7",
       "copied_ranges": [
         {
           "start": 0,
+          "end": 920,
+          "sha256": "01cb25036cfa36ba51bb94a1a2ecf319bcc69d507b957df1b3ad467b528e3294"
+        },
+        {
+          "start": 979,
           "end": 1431,
-          "sha256": "bcc979bcf480fa363b51e02ee32dac1d7a533861b0059ee018fe886045473688"
+          "sha256": "db755adf7718cb3428b3d6ef1a0986e8bf12cf6a001b1d5f3995818af2a935d5"
         },
         {
           "start": 1486,
@@ -169,6 +243,7 @@
         }
       ],
       "omitted_functions": [
+        "get_additive_y_vel_for_jumps",
         "stub_mario_step_1",
         "perform_ground_quarter_step",
         "perform_ground_step",
@@ -214,18 +289,8 @@
     "mario_geometry_input.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "ea624babd94baf87accfb90b7f6a5d0ef2a6d23b52e0a9746fcd1f332d71e8f3",
+      "sha256": "075a28eae9213e3bdb796fea6dac3a74744b6c4a8a9a7ba375cb1b1cf4a20cd6",
       "functions": {
-        "mario_get_floor_class": {
-          "start": 13251,
-          "end": 14826,
-          "sha256": "c75ddf49c5807bcd116fd231753086c5ac9b39b6bc61a2138efb4fffde0be6f4"
-        },
-        "mario_floor_is_slippery": {
-          "start": 19700,
-          "end": 20377,
-          "sha256": "4be15baffa4d8c32ba0d0b52da38a37b46a54c51ca85ef2722289dd22e1ce405"
-        },
         "update_mario_geometry_inputs": {
           "start": 41322,
           "end": 43304,
@@ -241,12 +306,17 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "c85e31ec92b232d56fa6db79d70896dac11c3a360efb5fe8aadac0ad655d37eb",
+      "sha256": "9ab48becc9e124d61bbf2671cf0d4c054f8793a33eae23968c37313cb25fcefd",
       "copied_ranges": [
         {
           "start": 0,
+          "end": 12899,
+          "sha256": "ecf0d7141f47a3beb05dc4637b8afc73082dba5d4c9801af4df92f83a7ab622e"
+        },
+        {
+          "start": 13189,
           "end": 13251,
-          "sha256": "6900167458fe926246beda4324f9d09b5264809fd9b89fbed595a232e1afbf6f"
+          "sha256": "d02967c948c673a1d3b2f264851061ecc00be6f11304ba7df766ae149e0f706a"
         },
         {
           "start": 14826,
@@ -270,13 +340,48 @@
         },
         {
           "start": 19184,
+          "end": 19239,
+          "sha256": "db258c9805805e1d2a2fc017c5aabe8665095db073a04ec9f8ae40c83a3d6bf5"
+        },
+        {
+          "start": 19623,
           "end": 19700,
-          "sha256": "fb8c8e43bba3b2e779e6ef3118dfd3ae502df01507ad7377ee95edb7ad29929d"
+          "sha256": "6af7c417da3be498aa35f2c8a430916b897805720f7a7cb8158930021da971da"
         },
         {
           "start": 20377,
+          "end": 25133,
+          "sha256": "c3c12e4bba2ac6b864acc9446950949cd188d453904cca966149b2c613fe7e5a"
+        },
+        {
+          "start": 25555,
+          "end": 25615,
+          "sha256": "414969cb3653f05bd0bc3d4b7b541f15831fb6229c0882fbced2a2692168e883"
+        },
+        {
+          "start": 29107,
+          "end": 29165,
+          "sha256": "f66ef9eff44c8df96825d8c6e9fc07c11a12b811ace199e020f85b7c26d6bef5"
+        },
+        {
+          "start": 30358,
+          "end": 30460,
+          "sha256": "8f12ea0c19eaa0bfc57e5afc0bfc119d18a00ca8dda89e85383638bec6d5fa63"
+        },
+        {
+          "start": 30691,
+          "end": 30751,
+          "sha256": "017a9ee16ed1c39d1a1ba278bf039ac742c8f89c987b085094ed0d03f6184134"
+        },
+        {
+          "start": 31313,
+          "end": 31428,
+          "sha256": "2005627250509c89dacca035b78af4576b06c840994e0139f5d293ad7a891223"
+        },
+        {
+          "start": 32474,
           "end": 39715,
-          "sha256": "30df8bb58b027fada8a747cbfe5ef36c4eb1bfaff26993dbd2fd97f9289f997b"
+          "sha256": "6ea8223dcde25a4dada1a8d179ef195c591f43f9cda702af11ce2fe3c12164b9"
         },
         {
           "start": 40638,
@@ -309,7 +414,15 @@
         "mario_get_floor_class",
         "mario_floor_is_slippery",
         "update_mario_geometry_inputs",
-        "update_mario_inputs"
+        "update_mario_inputs",
+        "mario_facing_downhill",
+        "mario_set_forward_vel",
+        "set_mario_y_vel_based_on_fspeed",
+        "set_mario_action_airborne",
+        "set_mario_action_moving",
+        "set_mario_action_submerged",
+        "set_mario_action_cutscene",
+        "set_mario_action"
       ],
       "functions": {}
     },

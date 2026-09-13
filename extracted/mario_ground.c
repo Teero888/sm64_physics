@@ -2,6 +2,11 @@
 #include "host/terrain_state.h"
 #include "engine/math_util.h"
 
+#line 29 "n64decomp/src/game/mario_step.c"
+f32 get_additive_y_vel_for_jumps(void) {
+    return 0.0f;
+}
+
 #line 42 "n64decomp/src/game/mario_step.c"
 void stub_mario_step_1(UNUSED struct MarioState *x) {
 }

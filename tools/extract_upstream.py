@@ -13,6 +13,19 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_action_setup.c": {
+        "source": "src/game/mario.c",
+        "headers": ["sm64.h", "game/mario.h", "game/mario_step.h", "engine/math_util.h"],
+        "functions": ["set_mario_y_vel_based_on_fspeed", "set_mario_action_airborne",
+                      "set_mario_action_moving", "set_mario_action_submerged",
+                      "set_mario_action_cutscene", "set_mario_action"],
+    },
+    "mario_surface_class.c": {
+        "source": "src/game/mario.c",
+        "headers": ["sm64.h", "game/mario.h", "game/area.h", "engine/math_util.h"],
+        "functions": ["mario_get_floor_class", "mario_floor_is_slippery",
+                      "mario_facing_downhill", "mario_set_forward_vel"],
+    },
     "controller.c": {
         "source": "src/game/game_init.c",
         "headers": ["sm64.h"],
@@ -26,14 +39,14 @@ EXTRACTIONS = {
     "mario_ground.c": {
         "source": "src/game/mario_step.c",
         "headers": ["host/terrain_state.h", "engine/math_util.h"],
-        "functions": ["stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
+        "functions": ["get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                       "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                       "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                       "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
     },
     "mario_step.c": {
         "source": "src/game/mario_step.c",
-        "omit": ["stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
+        "omit": ["get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                  "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                  "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                  "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
@@ -47,13 +60,16 @@ EXTRACTIONS = {
     "mario_geometry_input.c": {
         "source": "src/game/mario.c",
         "headers": ["host/terrain_state.h", "engine/math_util.h"],
-        "functions": ["mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs"],
+        "functions": ["update_mario_geometry_inputs", "update_mario_inputs"],
     },
     "mario.c": {
         "source": "src/game/mario.c",
         "omit": ["sTerrainSounds", "mario_get_terrain_sound_addend", "resolve_and_return_wall_collisions",
                  "vec3f_find_ceil", "update_mario_button_inputs", "update_mario_joystick_inputs",
-                 "mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs"],
+                 "mario_get_floor_class", "mario_floor_is_slippery", "update_mario_geometry_inputs", "update_mario_inputs",
+                 "mario_facing_downhill", "mario_set_forward_vel", "set_mario_y_vel_based_on_fspeed",
+                 "set_mario_action_airborne", "set_mario_action_moving", "set_mario_action_submerged",
+                 "set_mario_action_cutscene", "set_mario_action"],
     },
     "area_terrain.c": {
         "source": "src/engine/surface_load.c",
