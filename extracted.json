@@ -1,6 +1,63 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_environment.c": {
+      "source": "src/game/mario_step.c",
+      "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
+      "sha256": "7b4599e502ac0db3c64dd5ee1bfe703ee19b6cbde6a22dcb659ca287358d6299",
+      "functions": {
+        "sMovingSandSpeeds": {
+          "start": 228,
+          "end": 277,
+          "sha256": "e625bb15d1e54957d189b23923aab824a6b59b78973e70a93c383b8aaf47afcd"
+        },
+        "stub_mario_step_2": {
+          "start": 1822,
+          "end": 1854,
+          "sha256": "85cd821751ed36776d7eb10a117b898d3ae9ab4ad7253a426050db914038c372"
+        },
+        "transfer_bully_speed": {
+          "start": 1856,
+          "end": 2668,
+          "sha256": "b9b68dc3eed19ba14b0aa029fba08347c273d439763ffcff848cf61507a55f9c"
+        },
+        "init_bully_collision_data": {
+          "start": 2670,
+          "end": 3145,
+          "sha256": "98f0073af123575a3340fcf3e74bc5a7742781fdf0e10c4b90cb3d558a18dde8"
+        },
+        "mario_bonk_reflection": {
+          "start": 3147,
+          "end": 3768,
+          "sha256": "6552d5f4015c115647e286a5a1824ab3157751c979990b78d64f2b5be7620e1f"
+        },
+        "mario_push_off_steep_floor": {
+          "start": 5404,
+          "end": 5819,
+          "sha256": "79f6587927c3648e50e94fcdd621969e6d7fd307e5bdf594a171835ac2f1ccca"
+        },
+        "mario_update_moving_sand": {
+          "start": 5821,
+          "end": 6401,
+          "sha256": "ba244448d31fa5743ca4a6f93dfa9a8049835addee8fbfe013ad7505622e49ce"
+        },
+        "mario_update_windy_ground": {
+          "start": 6403,
+          "end": 7272,
+          "sha256": "7c9a69ca4618f058e53e557b9eb9a731e5644703d5cb6f8acc68207eaebc7c7d"
+        },
+        "stop_and_set_height_to_floor": {
+          "start": 7274,
+          "end": 7633,
+          "sha256": "2a3a2302bdc5d01e1e330e33141f7f57183394fe2c76b2bca1b94435ee4d9426"
+        },
+        "stationary_ground_step": {
+          "start": 7635,
+          "end": 8250,
+          "sha256": "be95499250e618e157165444705a218cae6b5f255ca3a2426d26d759412c8ba0"
+        }
+      }
+    },
     "mario_holding.c": {
       "source": "src/game/interaction.c",
       "source_sha256": "4c78e27752d1e50258124b9a505618fcc42014a2ab79c1eb1f383cf6c7227b99",
@@ -1647,12 +1704,17 @@
     "mario_step.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "3b713a49b1d62638e153df63dc43a4589d4a4aeea66d9358e2d18dcb6ed641f7",
+      "sha256": "2445d157254ce5fc7d72cf2ebe951ff4bbf3e069c10c3a960f265c1a4975c4f8",
       "copied_ranges": [
         {
           "start": 0,
+          "end": 228,
+          "sha256": "4fdc5dea8338ef17b7e70fff85537b50db58dc70375321fe1156a7292ab3dd62"
+        },
+        {
+          "start": 277,
           "end": 920,
-          "sha256": "01cb25036cfa36ba51bb94a1a2ecf319bcc69d507b957df1b3ad467b528e3294"
+          "sha256": "3c1878a03b0cb7d5dcb86d46333ba974d5195e4c3215c90f9e8494c66f051c0d"
         },
         {
           "start": 979,
@@ -1661,8 +1723,53 @@
         },
         {
           "start": 1486,
+          "end": 1822,
+          "sha256": "86093ef381d7785001dbc96abf0d100c6e614e9d7e393348755ff5c2edc39913"
+        },
+        {
+          "start": 1854,
+          "end": 1856,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 2668,
+          "end": 2670,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 3145,
+          "end": 3147,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 3768,
+          "end": 5404,
+          "sha256": "b09ed14a33a26a677cac6ba89ece373211c3cef06ba1864c6a7809633b96c4ef"
+        },
+        {
+          "start": 5819,
+          "end": 5821,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 6401,
+          "end": 6403,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 7272,
+          "end": 7274,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 7633,
+          "end": 7635,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 8250,
           "end": 8252,
-          "sha256": "bf20de24158c698d712771b9d99c8bc06944cb6ca8b66f6691ee44c1e6b74d61"
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
         },
         {
           "start": 10153,
@@ -1721,6 +1828,16 @@
         }
       ],
       "omitted_functions": [
+        "sMovingSandSpeeds",
+        "stub_mario_step_2",
+        "transfer_bully_speed",
+        "init_bully_collision_data",
+        "mario_bonk_reflection",
+        "mario_push_off_steep_floor",
+        "mario_update_moving_sand",
+        "mario_update_windy_ground",
+        "stop_and_set_height_to_floor",
+        "stationary_ground_step",
         "get_additive_y_vel_for_jumps",
         "stub_mario_step_1",
         "perform_ground_quarter_step",

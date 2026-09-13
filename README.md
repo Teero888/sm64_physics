@@ -294,6 +294,14 @@ tick through `host/animation.h`. Tests cover independent clocks, wraparound,
 duplicate calls and frame-level freeze/resume. Selecting/loading active areas,
 held-object scene traversal and complete world snapshots remain outstanding.
 
+Original stationary ground movement, moving-sand and horizontal-wind forces,
+floor snapping, wall reflection and Bully speed transfer are independently
+linked, with wind gust timing bound to the owned frame counter.
+`native_mario_environment` exercises stationary downwarping, sand force speed
+and direction, wind movement, velocity reset, bonking and collision speed
+transfer. Quicksand sinking/death still depends on the remaining Mario
+sound/camera transition boundary; full action dispatch is still outstanding.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

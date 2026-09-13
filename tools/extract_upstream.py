@@ -13,6 +13,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_environment.c": {'source': 'src/game/mario_step.c', 'headers': ['host/behavior_state.h', 'game/mario_step.h'], 'functions': ['sMovingSandSpeeds', 'stub_mario_step_2', 'transfer_bully_speed', 'init_bully_collision_data', 'mario_bonk_reflection', 'mario_push_off_steep_floor', 'mario_update_moving_sand', 'mario_update_windy_ground', 'stop_and_set_height_to_floor', 'stationary_ground_step']},
     'mario_holding.c': {'source': 'src/game/interaction.c', 'headers': ['host/mario_holding_state.h'], 'functions': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
     'interaction.c': {'source': 'src/game/interaction.c', 'omit': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
     'object_held_state.c': {'source': 'src/game/object_helpers.c', 'headers': ['host/mario_holding_state.h'], 'functions': ['obj_set_held_state']},
@@ -286,7 +287,7 @@ EXTRACTIONS = {
     },
     "mario_step.c": {
         "source": "src/game/mario_step.c",
-        "omit": ["get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
+        "omit": ['sMovingSandSpeeds', 'stub_mario_step_2', 'transfer_bully_speed', 'init_bully_collision_data', 'mario_bonk_reflection', 'mario_push_off_steep_floor', 'mario_update_moving_sand', 'mario_update_windy_ground', 'stop_and_set_height_to_floor', 'stationary_ground_step', "get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                  "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                  "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                  "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],

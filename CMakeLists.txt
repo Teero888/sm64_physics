@@ -40,6 +40,7 @@ add_library(sm64_physics_core STATIC
     host/main_pool.c
     extracted/area_terrain.c
     extracted/mario.c
+    extracted/mario_environment.c
     extracted/mario_step.c
     extracted/mario_ground.c
     extracted/mario_collision_helpers.c
@@ -93,6 +94,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_mario_environment_test tests/mario_environment.c)
+    target_link_libraries(sm64_mario_environment_test PRIVATE sm64_physics_core)
+    add_test(NAME native_mario_environment COMMAND sm64_mario_environment_test)
     add_executable(sm64_mario_transitions_test tests/mario_transitions.c)
     target_link_libraries(sm64_mario_transitions_test PRIVATE sm64_physics_core)
     add_test(NAME native_mario_transitions COMMAND sm64_mario_transitions_test)
