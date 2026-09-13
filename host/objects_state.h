@@ -19,6 +19,7 @@ struct sm64_objects {
     u16 displacement_state;
     u16 random_seed;
     u32 global_timer;
+    u32 object_counter;
     const BehaviorScript *command;
     struct GraphNode **models;
     const BehaviorScript *haunted_chair, *mad_piano, *message_panel;

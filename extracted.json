@@ -1,6 +1,127 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "object_scheduler.c": {
+      "source": "src/game/object_list_processor.c",
+      "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
+      "sha256": "4132c3044510a81cba2cae8fcae52992cd9653d3f277a20d3bf0dea5ce742b76",
+      "functions": {
+        "sObjectListUpdateOrder": {
+          "start": 4211,
+          "end": 4756,
+          "sha256": "b4c8e9ad7735b59b373d75db4019ce6d714de1549c1cfb7d196eb0ef70a39078"
+        },
+        "update_objects_starting_at": {
+          "start": 9985,
+          "end": 10365,
+          "sha256": "48ab001cbc1502b3b456e04829acddbdf15e7719835891fe613a13405a6b8ebf"
+        },
+        "update_objects_during_time_stop": {
+          "start": 10795,
+          "end": 12039,
+          "sha256": "277d78d6f56eab6361746672f26bc0ef1730c2f19bebdfcf4f1573605735081f"
+        },
+        "update_objects_in_list": {
+          "start": 12142,
+          "end": 12482,
+          "sha256": "3f70f4af0712b312f331f47778ee920a8b43757b12c369891efa9916fe94f6dd"
+        },
+        "unload_deactivated_objects_in_list": {
+          "start": 12554,
+          "end": 13214,
+          "sha256": "d87aea97fab8e4dbc2f92d8a9194b42594973121219d15ee2990348ce780d41e"
+        },
+        "set_object_respawn_info_bits": {
+          "start": 13538,
+          "end": 13952,
+          "sha256": "091c3afd3fc7c40eef8c096e40c7fd67e03cc8836557aa417bb4ddbb699682d7"
+        },
+        "update_terrain_objects": {
+          "start": 18107,
+          "end": 18332,
+          "sha256": "e7909028ecd91a23a577b777fbdaae7e772b940a1467e9f5f57889ae4189738b"
+        },
+        "update_non_terrain_objects": {
+          "start": 18468,
+          "end": 18724,
+          "sha256": "1be81de66f1da0b6f3808d6e5bbbabc28c1a699d5040627344bc7773fcf45c7f"
+        },
+        "unload_deactivated_objects": {
+          "start": 18784,
+          "end": 19199,
+          "sha256": "f8b09c70d4028f0194e423f098b1462216bb302cfe4c7bc6830a879effb5419a"
+        }
+      }
+    },
+    "object_list_processor.c": {
+      "source": "src/game/object_list_processor.c",
+      "source_sha256": "195b221a831459e0f5f948b7c8e2d9741cc5718f6917fa97c5cc579cc5e9c659",
+      "sha256": "5ddaf9bfb32e322014b4aea5d3bc397fdb183ca1dd05a254c677eab957adb475",
+      "copied_ranges": [
+        {
+          "start": 0,
+          "end": 4211,
+          "sha256": "4c734692786d90510a82563084bf8d56b0c54f0e7b6a0ff294e50e11fcb0bfb0"
+        },
+        {
+          "start": 4756,
+          "end": 9985,
+          "sha256": "1dd58afa4022eac6543310f5057b052c2c52163f68eb6b27d1e0e392c3055529"
+        },
+        {
+          "start": 10365,
+          "end": 10795,
+          "sha256": "0c825127efdd4dc0a137fb83b76214d441f94559d14350e2726fe5709e991db2"
+        },
+        {
+          "start": 12039,
+          "end": 12142,
+          "sha256": "3a0f940a915ed61793509f1594d3c8cffba0d6d4290c9b4292f67a0aeac4b3a3"
+        },
+        {
+          "start": 12482,
+          "end": 12554,
+          "sha256": "8f92de2162dd14c3c91e117848850772d2df6b9e4e4da31756a7037c8ee27dd1"
+        },
+        {
+          "start": 13214,
+          "end": 13538,
+          "sha256": "96eb67a6c049994e2a5c7d77c993964c1335d45081bf4f84e99e9ed53a5cca6b"
+        },
+        {
+          "start": 13952,
+          "end": 18107,
+          "sha256": "781b0215613639479ac8e7b357116cae699ff5f3b5f1f7c91ed3c7d79156af16"
+        },
+        {
+          "start": 18332,
+          "end": 18468,
+          "sha256": "34590851ec8752f16600799a72fb9744e5da8c8b10ab19b04ab89352ce4d5636"
+        },
+        {
+          "start": 18724,
+          "end": 18784,
+          "sha256": "200670e99232c6055a33e62d6b70eaf5fc1f236af3064d5cd9db4d3b415908b3"
+        },
+        {
+          "start": 19199,
+          "end": 21692,
+          "sha256": "6c9424fa4c658738d2cfbfd59a811d1b2cb29c996e13bc264953b486c7352850"
+        }
+      ],
+      "omitted_functions": [
+        "sObjectListUpdateOrder",
+        "update_objects_starting_at",
+        "update_objects_during_time_stop",
+        "update_objects_in_list",
+        "unload_deactivated_objects_in_list",
+        "set_object_respawn_info_bits",
+        "update_terrain_objects",
+        "update_non_terrain_objects",
+        "unload_deactivated_objects"
+      ],
+      "functions": {}
+    },
     "behavior_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",

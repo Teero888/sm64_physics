@@ -49,7 +49,8 @@ add_library(sm64_physics_core STATIC
     extracted/behavior_script.c
     extracted/random.c
     extracted/object_collision.c
-    upstream/src/game/object_list_processor.c
+    extracted/object_list_processor.c
+    extracted/object_scheduler.c
     extracted/platform_displacement.c
     upstream/src/game/macro_special_objects.c
     upstream/src/game/obj_behaviors.c
@@ -85,6 +86,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_scheduler_test tests/scheduler.c)
+    target_link_libraries(sm64_scheduler_test PRIVATE sm64_physics_core)
+    add_test(NAME native_object_scheduler COMMAND sm64_scheduler_test)
     add_executable(sm64_behavior_test tests/behavior.c)
     target_link_libraries(sm64_behavior_test PRIVATE sm64_physics_core)
     add_test(NAME native_behavior_execution COMMAND sm64_behavior_test)

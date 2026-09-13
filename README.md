@@ -247,6 +247,14 @@ contexts. It uses test-authored bytecode and a callback observer, not a complete
 level's behavior asset set. Game-specific native callbacks, global animation
 timing and the complete frame scheduler still need full-world integration.
 
+`host/scheduler.h` exposes the original terrain/non-terrain object-list update
+phases and deactivated-object cleanup, now bound to the owned object context.
+`native_object_scheduler` checks phase order, time-stop exceptions and full
+freeze, animation suppression for frozen objects, and 16/32-bit respawn flags
+including persistent objects. These phases still require the full frame path
+to place terrain clearing, platform displacement and object collisions between
+them and to apply deferred time-stop activation.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh
