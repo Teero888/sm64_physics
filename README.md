@@ -222,6 +222,15 @@ gates and independent contexts. Interaction dispatch and the complete behavior
 update loop still need to be connected; collision records alone do not execute
 coin collection, damage or other gameplay interactions.
 
+Original platform tracking and displacement now use the owned object context,
+with borrowed Mario/current-object state and an explicit time-stop value.
+`native_platform_displacement` checks the four-unit attachment threshold,
+translation, quarter-turn rotation for Mario and other objects, time-stop
+suppression and independent platform references. Terrain supplies the platform
+surface association. The full world adapter still needs to schedule these
+functions in the original frame order and synchronize time-stop state across
+terrain and objects.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

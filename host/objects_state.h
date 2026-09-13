@@ -13,6 +13,10 @@ struct sm64_objects {
     struct ObjectNode lists[NUM_OBJ_LISTS], free_list;
     struct GraphNode parent;
     struct Object *current, *mario;
+    struct Object *mario_platform;
+    struct MarioState *mario_state;
+    u32 time_stop;
+    u16 displacement_state;
     s16 level;
 };
 extern _Thread_local struct sm64_objects *sm64_active_objects;
@@ -22,5 +26,9 @@ extern _Thread_local struct sm64_objects *sm64_active_objects;
 #define gObjParentGraphNode (sm64_active_objects->parent)
 #define gCurrentObject (sm64_active_objects->current)
 #define gMarioObject (sm64_active_objects->mario)
+#define gMarioPlatform (sm64_active_objects->mario_platform)
+#define gMarioStates (sm64_active_objects->mario_state)
+#define gTimeStopState (sm64_active_objects->time_stop)
+#define D_8032FEC0 (sm64_active_objects->displacement_state)
 #define gCurrLevelNum (sm64_active_objects->level)
 #endif

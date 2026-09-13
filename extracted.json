@@ -1,6 +1,70 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "object_math.c": {
+      "source": "src/game/object_helpers.c",
+      "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
+      "sha256": "44476fbee9534e5d548f2a40596c2268a343f8c4c5770564260bbb455911d852",
+      "functions": {
+        "absf": {
+          "start": 65720,
+          "end": 65813,
+          "sha256": "689f372039707f0d9fdc78e888b632babb45ebcb45e37aeec464b854622da196"
+        },
+        "absi": {
+          "start": 65815,
+          "end": 65908,
+          "sha256": "47d0fb6964ee2fd34e9cd10e54f0ff619c8df02340560482d8c1b70f1b8d2580"
+        },
+        "linear_mtxf_mul_vec3f": {
+          "start": 21510,
+          "end": 21682,
+          "sha256": "1c12c21d842af46e3cc534445b17f28c20f47555c10530cad5d84f0b788e7be2"
+        },
+        "linear_mtxf_transpose_mul_vec3f": {
+          "start": 21882,
+          "end": 22064,
+          "sha256": "22de7cb9917da06fbaaa2c0d673c2813e0772a3b8fe862f70a9e647af3e24ab1"
+        }
+      }
+    },
+    "platform_displacement.c": {
+      "source": "src/game/platform_displacement.c",
+      "source_sha256": "6c662c1fe740620cec44488c56917063296e2180363727ade709f11b84fe7368",
+      "sha256": "5c5e75ef309d1663d3094873852ac347256ff296f26c7819a578d236d96df08c",
+      "functions": {
+        "update_mario_platform": {
+          "start": 523,
+          "end": 1768,
+          "sha256": "0fadcc6ae0ac411ae7375409217a53741c5584296281463a282a11b3daa25709"
+        },
+        "get_mario_pos": {
+          "start": 1831,
+          "end": 1976,
+          "sha256": "93492aa892e523a4239a69f02b5e9627be6001035523e22e6999e55b83469642"
+        },
+        "set_mario_pos": {
+          "start": 2011,
+          "end": 2150,
+          "sha256": "25adcc3b797f99ca4e251ff67cf03ede9b4ff788c1edcc95faedb779d047d068"
+        },
+        "apply_platform_displacement": {
+          "start": 2292,
+          "end": 4658,
+          "sha256": "231893a80b8954ee41dc6bbfd63aef56e5c50a50ae3df3eb7f1683e05f1b726d"
+        },
+        "apply_mario_platform_displacement": {
+          "start": 4733,
+          "end": 4979,
+          "sha256": "35a4ef49b9f0b97c2989f426cf4d830667ead40426dd8e870f34908e29188dbb"
+        },
+        "clear_mario_platform": {
+          "start": 5041,
+          "end": 5103,
+          "sha256": "6d42cacd930cac3dc51cc5fea39d5556af3338dd325ecd632686e7b6457f598d"
+        }
+      }
+    },
     "object_collision.c": {
       "source": "src/game/object_collision.c",
       "source_sha256": "5977c3aaaeacebbc24a7c0f6e4c06cd839f1a3a006efad781b90f775e66fbf64",
@@ -1285,7 +1349,7 @@
     "object_helpers.c": {
       "source": "src/game/object_helpers.c",
       "source_sha256": "f25b45830541914ee18628e023ff8b7bb93a08559196f5896b85db135b633663",
-      "sha256": "55a22cd2aad4e583c4a5476501a3e5be913a8758d9d452e8eb7c8b203724dab2",
+      "sha256": "59b3c6428544a4f399c5001e4a3ebcb204201710217d28d88f3d9c2be94a028a",
       "copied_ranges": [
         {
           "start": 0,
@@ -1299,8 +1363,18 @@
         },
         {
           "start": 10506,
+          "end": 21510,
+          "sha256": "71a6e9743945c81b5b826d015b9efd470851c2e0f211d8195ca6087378431dcc"
+        },
+        {
+          "start": 21682,
+          "end": 21882,
+          "sha256": "47d867d3b9f203a0a33cd5810c8323fbae7c7f9fef41188876dd752bdf97f6bc"
+        },
+        {
+          "start": 22064,
           "end": 27914,
-          "sha256": "b45cfe3a4ebb70210453891a535ab8b1211e8a8bbbcd25ad76f72ec2cab10602"
+          "sha256": "211f01d82ef5bcf57ec2505f36ae1e583d22cbb0818d013052e3ee8848dee485"
         },
         {
           "start": 28167,
@@ -1324,11 +1398,25 @@
         },
         {
           "start": 58004,
+          "end": 65720,
+          "sha256": "65477cf3bc36a9630ba926997167c438349cb7f88cf1a1efd681c08903e39d70"
+        },
+        {
+          "start": 65813,
+          "end": 65815,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 65908,
           "end": 89695,
-          "sha256": "d5a0396f7c39790e34273bab0f638e9e97cb5f80c3f234077342c4100579e929"
+          "sha256": "ac8cbd9c8f1bcb4d10ff065adfc93701cf4057e5f4254009a0491b2bee7e2ef6"
         }
       ],
       "omitted_functions": [
+        "absf",
+        "absi",
+        "linear_mtxf_mul_vec3f",
+        "linear_mtxf_transpose_mul_vec3f",
         "find_unimportant_object",
         "count_unimportant_objects",
         "cur_obj_check_anim_frame",

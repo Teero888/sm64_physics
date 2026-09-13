@@ -13,6 +13,17 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "object_math.c": {
+        "source": "src/game/object_helpers.c",
+        "headers": ["sm64.h"],
+        "functions": ["absf", "absi", "linear_mtxf_mul_vec3f", "linear_mtxf_transpose_mul_vec3f"],
+    },
+    "platform_displacement.c": {
+        "source": "src/game/platform_displacement.c",
+        "headers": ["host/objects_state.h", "game/platform_displacement.h"],
+        "functions": ["update_mario_platform", "get_mario_pos", "set_mario_pos",
+                      "apply_platform_displacement", "apply_mario_platform_displacement", "clear_mario_platform"],
+    },
     "object_collision.c": {
         "source": "src/game/object_collision.c",
         "headers": ["host/objects_state.h", "game/interaction.h"],
@@ -191,7 +202,8 @@ EXTRACTIONS = {
     },
     "object_helpers.c": {
         "source": "src/game/object_helpers.c",
-        "omit": ["find_unimportant_object", "count_unimportant_objects",
+        "omit": ["absf", "absi", "linear_mtxf_mul_vec3f", "linear_mtxf_transpose_mul_vec3f",
+                 "find_unimportant_object", "count_unimportant_objects",
                  "cur_obj_check_anim_frame", "cur_obj_check_anim_frame_in_range",
                  "obj_apply_scale_to_matrix", "dist_between_objects",
                  "obj_build_transform_from_pos_and_angle"],

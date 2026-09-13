@@ -45,6 +45,14 @@ void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario) 
     objects->mario = mario;
 }
 
+void sm64_objects_set_motion_state(struct sm64_objects *objects, struct MarioState *mario,
+                                   struct Object *current, u32 time_stop) {
+    assert(objects);
+    objects->mario_state = mario;
+    objects->current = current;
+    objects->time_stop = time_stop;
+}
+
 struct ObjectNode *sm64_objects_list(struct sm64_objects *objects, unsigned list) {
     return objects && list < NUM_OBJ_LISTS ? &objects->lists[list] : NULL;
 }

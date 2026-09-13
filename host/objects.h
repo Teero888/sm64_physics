@@ -12,6 +12,9 @@ struct sm64_objects *sm64_objects_activate(struct sm64_objects *objects);
 void sm64_objects_set_level(struct sm64_objects *objects, s16 level);
 /* Borrowed reference used by original hurtbox/invincibility handling. */
 void sm64_objects_set_mario(struct sm64_objects *objects, struct Object *mario);
+/* Borrowed state for original Mario and non-Mario platform displacement. */
+void sm64_objects_set_motion_state(struct sm64_objects *objects, struct MarioState *mario,
+                                   struct Object *current, u32 time_stop);
 /* Requires active objects and valid borrowed behavior bytecode. Returns NULL
  * for invalid list selection or exhaustion with no evictable object. Original
  * create_object retains its infinite-loop exhaustion behavior for native
