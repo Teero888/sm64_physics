@@ -3,6 +3,7 @@ project(sm64_physics LANGUAGES C)
 
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
+    extracted/memory_pool.c
     extracted/save.c
     host/save.c
     extracted/sound_control.c
@@ -78,6 +79,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_memory_pool_test tests/memory_pool.c)
+    target_link_libraries(sm64_memory_pool_test PRIVATE sm64_physics_core)
+    add_test(NAME native_memory_pool COMMAND sm64_memory_pool_test)
     add_executable(sm64_save_test tests/save.c)
     target_link_libraries(sm64_save_test PRIVATE sm64_physics_core)
     add_test(NAME native_save_progress COMMAND sm64_save_test)

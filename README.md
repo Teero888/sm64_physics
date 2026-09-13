@@ -194,6 +194,16 @@ including the original coin-score truncation behavior and corrupted-backup
 recovery. The full world adapter must still synchronize its level/course/act
 context with this component and bind other users of the original save globals.
 
+The original `mem_pool_init`, `mem_pool_alloc` and `mem_pool_free` functions
+now run on the owned main pool. These provide the auxiliary object storage used
+by Chain Chomp and Wiggler. Native bookkeeping and the alignment macro use
+`max_align_t` so split block headers remain aligned on x86-64; allocation,
+free-list traversal and coalescing bodies remain verbatim. Pools share their
+main-pool owner's lifetime and retain the original valid-size/free preconditions.
+`native_memory_pool` checks odd-size alignment, fragmented frees, exhaustion,
+whole-block reuse, coalescing and independent owners. This does not yet test
+complete Chain Chomp or Wiggler behavior execution.
+
 To reproduce the source import from a checkout of the recorded revision:
 
 ```sh

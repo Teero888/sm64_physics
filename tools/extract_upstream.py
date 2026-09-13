@@ -13,6 +13,11 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "memory_pool.c": {
+        "source": "src/game/memory.c",
+        "headers": ["host/memory_pool.h"],
+        "functions": ["mem_pool_init", "mem_pool_alloc", "mem_pool_free"],
+    },
     "save.c": {
         "source": "src/game/save_file.c",
         "headers": ["host/save_state.h"],

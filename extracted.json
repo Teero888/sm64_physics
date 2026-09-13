@@ -1,6 +1,28 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "memory_pool.c": {
+      "source": "src/game/memory.c",
+      "source_sha256": "d4eed8d96cd9259cf582669a3aa4a38d9699310a469717e2df07863566162d63",
+      "sha256": "21a09160aa73c63d1083e3bec97cbbc0dc0ba190735edd43c79c51be815029e5",
+      "functions": {
+        "mem_pool_init": {
+          "start": 13304,
+          "end": 13953,
+          "sha256": "afe7eb1fa0ff64ddf3d6ad20c55df5f088662d2a2c002d2a511e7ab1b71c9443"
+        },
+        "mem_pool_alloc": {
+          "start": 14037,
+          "end": 14953,
+          "sha256": "a055250e82d04b916612fb0bf1d89bea246262edda31b5f0fb77592637097009"
+        },
+        "mem_pool_free": {
+          "start": 15020,
+          "end": 16608,
+          "sha256": "1f24d36e32e0632e638f664cbe273e35623b2f2b6bcce163251918f925e575f9"
+        }
+      }
+    },
     "save.c": {
       "source": "src/game/save_file.c",
       "source_sha256": "9689d25f46019b3f319d1633ad6a5c56f7696ae097ce50ada322c73784bb5d66",
