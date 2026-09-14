@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 project(sm64_physics LANGUAGES C)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
 # The source files in upstream/ are never patched for the host build.
 add_library(sm64_physics_core STATIC
     extracted/object_lifetime.c

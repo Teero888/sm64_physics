@@ -1,6 +1,9 @@
 #ifndef SM64_PHYSICS_MEMORY_POOL_H
 #define SM64_PHYSICS_MEMORY_POOL_H
 #include <stddef.h>
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L) && !defined(_MSC_VER)
+typedef union { long long __ll; long double __ld; void *__p; } max_align_t;
+#endif
 #include "sm64.h"
 #include "game/memory.h"
 
