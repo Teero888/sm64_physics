@@ -6,6 +6,9 @@ add_library(sm64_physics_core STATIC
     extracted/object_lifetime.c
     extracted/behavior_helpers.c
     host/behavior.c
+    host/camera.c
+    extracted/mario_camera.c
+    extracted/mario_quicksand.c
     extracted/object_math.c
     extracted/object_slots.c
     host/objects.c
@@ -94,6 +97,9 @@ endif()
 include(CTest)
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(sm64_mario_camera_test tests/mario_camera.c)
+    target_link_libraries(sm64_mario_camera_test PRIVATE sm64_physics_core)
+    add_test(NAME native_mario_camera COMMAND sm64_mario_camera_test)
     add_executable(sm64_mario_environment_test tests/mario_environment.c)
     target_link_libraries(sm64_mario_environment_test PRIVATE sm64_physics_core)
     add_test(NAME native_mario_environment COMMAND sm64_mario_environment_test)

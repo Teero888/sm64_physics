@@ -1,6 +1,40 @@
 {
   "revision": "9921382a68bb0c865e5e45eb594d9c64db59b1af",
   "files": {
+    "mario_camera.c": {
+      "source": "src/game/mario.c",
+      "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
+      "sha256": "5d20392424b74b492344c61e0869023a08866e8ac7c612e5f2b367e0fcb28c05",
+      "functions": {
+        "update_mario_sound_and_camera": {
+          "start": 23677,
+          "end": 24362,
+          "sha256": "9bae4a5b169954b551e5315d19ee66ef810ce35698fa5d2afacc4c4dc67700fe"
+        },
+        "transition_submerged_to_walking": {
+          "start": 36738,
+          "end": 37063,
+          "sha256": "afe404dd968991e41905c2187965158ca6dd4a2cd1b3f613a5aa784550b99e63"
+        },
+        "set_water_plunge_action": {
+          "start": 37232,
+          "end": 37736,
+          "sha256": "112ad230b23cad24b3d7a421b5124424adfa272f0f1a3401ef4d9a1bddaab35d"
+        }
+      }
+    },
+    "mario_quicksand.c": {
+      "source": "src/game/mario_step.c",
+      "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
+      "sha256": "18cdb965fdb7d29f005fa79bb2cc21e9060b633b67990e9225398deb450effff",
+      "functions": {
+        "mario_update_quicksand": {
+          "start": 3770,
+          "end": 5402,
+          "sha256": "0792a07ecfe31c8bfd1d94f12d6a79f780f666e6fc3b2fecffcc5fa878b80c35"
+        }
+      }
+    },
     "mario_environment.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
@@ -1704,7 +1738,7 @@
     "mario_step.c": {
       "source": "src/game/mario_step.c",
       "source_sha256": "db2b0acc0f6f48550b8edb8ff332b1b4635edc2359ae6e212fb7fb9a69a0ab57",
-      "sha256": "2445d157254ce5fc7d72cf2ebe951ff4bbf3e069c10c3a960f265c1a4975c4f8",
+      "sha256": "8cc15d0943b36b339f4a2d21282c2c2bc320d9cdfd985eec5940873a3331e620",
       "copied_ranges": [
         {
           "start": 0,
@@ -1743,8 +1777,13 @@
         },
         {
           "start": 3768,
+          "end": 3770,
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+        },
+        {
+          "start": 5402,
           "end": 5404,
-          "sha256": "b09ed14a33a26a677cac6ba89ece373211c3cef06ba1864c6a7809633b96c4ef"
+          "sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
         },
         {
           "start": 5819,
@@ -1828,6 +1867,7 @@
         }
       ],
       "omitted_functions": [
+        "mario_update_quicksand",
         "sMovingSandSpeeds",
         "stub_mario_step_2",
         "transfer_bully_speed",
@@ -1901,7 +1941,7 @@
     "mario.c": {
       "source": "src/game/mario.c",
       "source_sha256": "a16936e42951b0ecf232fbbdb50d9f596bb8f59d13cf5269e5ba9537bca9b26e",
-      "sha256": "51156c4e468591d0d8e914c193dc7cf638cd47eb309d8bba813e318a7ef85b43",
+      "sha256": "6bcb9d6af83deb117b286831386420fe43019503d9d18642e314699b9603da80",
       "copied_ranges": [
         {
           "start": 0,
@@ -2060,8 +2100,13 @@
         },
         {
           "start": 23603,
+          "end": 23677,
+          "sha256": "cdc2c2362058120131f8bfae4c3229dc91bb8daf5c69d77c21708035bff33c59"
+        },
+        {
+          "start": 24362,
           "end": 24417,
-          "sha256": "883c29f916169f0ae51e340538f3e60517fd651175b5af4f1072bd06d5eb0036"
+          "sha256": "b26990bd04968cf7b63b158d106a041dd5da9bf682e597d715f38e3616f54fee"
         },
         {
           "start": 25068,
@@ -2125,8 +2170,18 @@
         },
         {
           "start": 36662,
+          "end": 36738,
+          "sha256": "8c4211dc0c0f63e01e28c230cef74667561000bb10e9ffbbe54de7b14316d0d0"
+        },
+        {
+          "start": 37063,
+          "end": 37232,
+          "sha256": "3749d186efe77bb88779335908bd42f4843b708a57eda36160d7e10030735d33"
+        },
+        {
+          "start": 37736,
           "end": 39715,
-          "sha256": "e88393cbfe3a1ec3e9f1f777d46165c898def574e288cc900a5bc65663a12fe5"
+          "sha256": "17cd2b9cb4f2f27935a0d3d8e42263bc65daebad1a5efdebc3d5b6e1a799eb77"
         },
         {
           "start": 40638,
@@ -2185,6 +2240,9 @@
         }
       ],
       "omitted_functions": [
+        "update_mario_sound_and_camera",
+        "transition_submerged_to_walking",
+        "set_water_plunge_action",
         "mario_floor_is_slope",
         "mario_floor_is_steep",
         "find_floor_height_relative_polar",

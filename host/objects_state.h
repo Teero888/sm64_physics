@@ -1,6 +1,7 @@
 #ifndef SM64_PHYSICS_OBJECTS_STATE_H
 #define SM64_PHYSICS_OBJECTS_STATE_H
 #include "host/objects.h"
+#include "host/camera.h"
 #include "audio/external.h"
 #include "engine/graph_node.h"
 #include "engine/math_util.h"
@@ -21,6 +22,8 @@ struct sm64_objects {
     u16 random_seed;
     u32 global_timer;
     u16 animation_tick;
+    sm64_camera_mode_callback camera_callback;
+    void *camera_user;
     u32 object_counter;
     u32 previous_object_count;
     u8 debug_level_select;

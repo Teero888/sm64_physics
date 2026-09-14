@@ -13,6 +13,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXTRACTIONS = {
+    "mario_camera.c": {'source': 'src/game/mario.c', 'headers': ['host/mario_camera_state.h'], 'functions': ['update_mario_sound_and_camera', 'transition_submerged_to_walking', 'set_water_plunge_action']},
+    "mario_quicksand.c": {'source': 'src/game/mario_step.c', 'headers': ['sm64.h', 'game/mario.h', 'game/mario_step.h', 'game/interaction.h'], 'functions': ['mario_update_quicksand']},
     "mario_environment.c": {'source': 'src/game/mario_step.c', 'headers': ['host/behavior_state.h', 'game/mario_step.h'], 'functions': ['sMovingSandSpeeds', 'stub_mario_step_2', 'transfer_bully_speed', 'init_bully_collision_data', 'mario_bonk_reflection', 'mario_push_off_steep_floor', 'mario_update_moving_sand', 'mario_update_windy_ground', 'stop_and_set_height_to_floor', 'stationary_ground_step']},
     'mario_holding.c': {'source': 'src/game/interaction.c', 'headers': ['host/mario_holding_state.h'], 'functions': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
     'interaction.c': {'source': 'src/game/interaction.c', 'omit': ['mario_stop_riding_object', 'mario_grab_used_object', 'mario_drop_held_object', 'mario_throw_held_object', 'mario_stop_riding_and_holding']},
@@ -287,7 +289,7 @@ EXTRACTIONS = {
     },
     "mario_step.c": {
         "source": "src/game/mario_step.c",
-        "omit": ['sMovingSandSpeeds', 'stub_mario_step_2', 'transfer_bully_speed', 'init_bully_collision_data', 'mario_bonk_reflection', 'mario_push_off_steep_floor', 'mario_update_moving_sand', 'mario_update_windy_ground', 'stop_and_set_height_to_floor', 'stationary_ground_step', "get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
+        "omit": ['mario_update_quicksand', 'sMovingSandSpeeds', 'stub_mario_step_2', 'transfer_bully_speed', 'init_bully_collision_data', 'mario_bonk_reflection', 'mario_push_off_steep_floor', 'mario_update_moving_sand', 'mario_update_windy_ground', 'stop_and_set_height_to_floor', 'stationary_ground_step', "get_additive_y_vel_for_jumps", "stub_mario_step_1", "perform_ground_quarter_step", "perform_ground_step",
                  "check_ledge_grab", "perform_air_quarter_step", "apply_vertical_wind", "perform_air_step",
                  "apply_twirl_gravity", "should_strengthen_gravity_for_jump_ascent",
                  "apply_gravity", "set_vel_from_pitch_and_yaw", "set_vel_from_yaw"],
@@ -305,7 +307,7 @@ EXTRACTIONS = {
     },
     "mario.c": {
         "source": "src/game/mario.c",
-        "omit": ['mario_floor_is_slope', 'mario_floor_is_steep', 'find_floor_height_relative_polar', 'find_floor_slope', 'set_steep_jump_action', 'set_jump_from_landing', 'set_jumping_action', 'drop_and_set_mario_action', 'hurt_and_set_mario_action', 'check_common_action_exits', 'check_common_hold_action_exits', 'update_mario_health', 'update_mario_info_for_cam', 'mario_reset_bodystate', 'sink_mario_in_quicksand', 'sCapFlickerFrames', 'update_and_return_cap_flags', 'mario_update_hitbox_and_cap_model', "play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
+        "omit": ['update_mario_sound_and_camera', 'transition_submerged_to_walking', 'set_water_plunge_action', 'mario_floor_is_slope', 'mario_floor_is_steep', 'find_floor_height_relative_polar', 'find_floor_slope', 'set_steep_jump_action', 'set_jump_from_landing', 'set_jumping_action', 'drop_and_set_mario_action', 'hurt_and_set_mario_action', 'check_common_action_exits', 'check_common_hold_action_exits', 'update_mario_health', 'update_mario_info_for_cam', 'mario_reset_bodystate', 'sink_mario_in_quicksand', 'sCapFlickerFrames', 'update_and_return_cap_flags', 'mario_update_hitbox_and_cap_model', "play_sound_if_no_flag", "play_mario_jump_sound", "adjust_sound_for_speed",
                  "play_sound_and_spawn_particles", "play_mario_action_sound", "play_mario_landing_sound",
                  "play_mario_landing_sound_once", "play_mario_heavy_landing_sound",
                  "play_mario_heavy_landing_sound_once", "play_mario_sound",

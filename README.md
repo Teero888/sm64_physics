@@ -280,8 +280,8 @@ context. Hosts supply distinct resolved carry scripts through
 `sm64_objects_bind_carry_assets`; non-holdable objects switch to those scripts
 when grabbed, dropped or thrown. `native_mario_transitions` checks held-state
 changes, original drop/throw placement, script replacement, ride release,
-input priority, triple jumps and quicksand overrides. Camera-dependent water
-transitions and the complete action dispatcher remain unconnected. The test
+input priority, triple jumps and quicksand overrides. The complete action
+dispatcher remains unconnected. The test
 uses the owning object context's animation clock.
 
 The 16-bit area animation counter is now owned by each object context. The
@@ -299,8 +299,17 @@ floor snapping, wall reflection and Bully speed transfer are independently
 linked, with wind gust timing bound to the owned frame counter.
 `native_mario_environment` exercises stationary downwarping, sand force speed
 and direction, wind movement, velocity reset, bonking and collision speed
-transfer. Quicksand sinking/death still depends on the remaining Mario
-sound/camera transition boundary; full action dispatch is still outstanding.
+transfer. Full action dispatch is still outstanding.
+
+`host/camera.h` supplies a synchronous host callback for camera mode requests.
+The host owns camera transitions, including headless mode bookkeeping; it must
+bind the callback before any action requests a camera change. There is no
+default no-op because Mario reads camera modes during simulation. Original
+water entry/exit, first-person sound/camera cleanup and quicksand sinking/death
+now link through this boundary. `native_mario_camera` checks the physics and
+requests with a test camera observer. It does not implement or validate the
+future FrameTee camera controller, which must also preserve its state across
+world snapshots.
 
 To reproduce the source import from a checkout of the recorded revision:
 
