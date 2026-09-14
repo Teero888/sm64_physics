@@ -63,9 +63,6 @@ typedef struct sm64_terrain_region sm64_terrain_region;
 #endif
 
 typedef struct sm64_sim_world sm64_sim_world;
-#ifndef SM64_PHYSICS_NO_WORLD_TYPEDEF
-typedef struct sm64_sim_world sm64_world;
-#endif
 typedef struct sm64_physics sm64_physics;
 typedef struct sm64_checkpoint sm64_checkpoint;
 

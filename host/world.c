@@ -175,7 +175,7 @@ static void objects_from_relative(struct sm64_objects *o) {
     }
 }
 
-sm64_world *sm64_world_create(
+sm64_sim_world *sm64_world_create(
     const sm64_terrain_triangle *triangles, size_t triangle_count,
     const sm64_terrain_region *regions, size_t region_count,
     int16_t level_num,
@@ -211,7 +211,7 @@ sm64_world *sm64_world_create(
         return NULL;
     }
 
-    sm64_world *world = calloc(1, sizeof(*world));
+    sm64_sim_world *world = calloc(1, sizeof(*world));
     if (!world) {
         sm64_terrain_destroy(terrain);
         sm64_animation_bank_destroy(anim_bank);
@@ -295,7 +295,7 @@ sm64_world *sm64_world_create(
     return world;
 }
 
-void sm64_world_destroy(sm64_world *world) {
+void sm64_world_destroy(sm64_sim_world *world) {
     if (!world) return;
     if (world->objects) sm64_objects_destroy(world->objects);
     if (world->terrain) sm64_terrain_destroy(world->terrain);
@@ -304,11 +304,11 @@ void sm64_world_destroy(sm64_world *world) {
     free(world);
 }
 
-void sm64_world_set_scratch(sm64_world *world, bool scratch) {
+void sm64_world_set_scratch(sm64_sim_world *world, bool scratch) {
     if (world) world->is_scratch = scratch;
 }
 
-void sm64_world_copy(sm64_world *dst, const sm64_world *src) {
+void sm64_world_copy(sm64_sim_world *dst, const sm64_sim_world *src) {
     if (!dst || !src || dst == src) return;
 
     dst->frame = src->frame;
@@ -363,15 +363,15 @@ void sm64_world_copy(sm64_world *dst, const sm64_world *src) {
     sm64_terrain_set_query_state(dst->terrain, false, dst->objects->current, dst->mario_obj, &dst->mario);
 }
 
-sm64_world *sm64_world_clone(const sm64_world *src) {
+sm64_sim_world *sm64_world_clone(const sm64_sim_world *src) {
     if (!src) return NULL;
-    sm64_world *dst = calloc(1, sizeof(*dst));
+    sm64_sim_world *dst = calloc(1, sizeof(*dst));
     if (!dst) return NULL;
     sm64_world_copy(dst, src);
     return dst;
 }
 
-bool sm64_world_step(sm64_world *world, sm64_input input, char *error, size_t error_size) {
+bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_t error_size) {
     if (!world) {
         if (error && error_size) snprintf(error, error_size, "Missing SM64 world");
         return false;
@@ -426,7 +426,7 @@ bool sm64_world_step(sm64_world *world, sm64_input input, char *error, size_t er
     return true;
 }
 
-uint32_t sm64_world_view(const sm64_world *world, sm64_view *out) {
+uint32_t sm64_world_view(const sm64_sim_world *world, sm64_view *out) {
     if (!world || !out) return 0;
     out->pos[0] = world->mario.pos[0];
     out->pos[1] = world->mario.pos[1];
@@ -441,7 +441,7 @@ uint32_t sm64_world_view(const sm64_world *world, sm64_view *out) {
     return world->frame;
 }
 
-bool sm64_world_pose(const sm64_world *world, sm64_scene_mario *out) {
+bool sm64_world_pose(const sm64_sim_world *world, sm64_scene_mario *out) {
     if (!world || !out) return false;
     out->pos[0] = world->mario.pos[0];
     out->pos[1] = world->mario.pos[1];
@@ -500,7 +500,7 @@ static void mat4_multiply(float out[16], const float a[16], const float b[16]) {
     memcpy(out, res, sizeof(res));
 }
 
-bool sm64_world_camera(const sm64_world *world, float aspect, sm64_camera *out) {
+bool sm64_world_camera(const sm64_sim_world *world, float aspect, sm64_camera *out) {
     if (!world || !out || aspect <= 0.0f || !isfinite(aspect)) return false;
 
     float target[3] = {
@@ -560,15 +560,15 @@ bool sm64_world_camera(const sm64_world *world, float aspect, sm64_camera *out) 
     return true;
 }
 
-uint64_t sm64_world_revision(const sm64_world *world) {
+uint64_t sm64_world_revision(const sm64_sim_world *world) {
     return world ? world->revision : 0;
 }
 
-void *sm64_world_mario_state(sm64_world *world) {
+void *sm64_world_mario_state(sm64_sim_world *world) {
     return world ? &world->mario : NULL;
 }
 
-bool sm64_world_set(sm64_world *world, uint32_t property, const sm64_view *value, char *error, size_t error_size) {
+bool sm64_world_set(sm64_sim_world *world, uint32_t property, const sm64_view *value, char *error, size_t error_size) {
     if (!world || !value) {
         if (error && error_size) snprintf(error, error_size, "Missing SM64 state edit");
         return false;
@@ -619,7 +619,7 @@ bool sm64_world_set(sm64_world *world, uint32_t property, const sm64_view *value
     return true;
 }
 
-size_t sm64_world_save(const sm64_world *world, uint8_t *out, size_t size, char *error, size_t error_size) {
+size_t sm64_world_save(const sm64_sim_world *world, uint8_t *out, size_t size, char *error, size_t error_size) {
     if (!world) {
         if (error && error_size) snprintf(error, error_size, "Missing SM64 world");
         return 0;
@@ -659,7 +659,7 @@ size_t sm64_world_save(const sm64_world *world, uint8_t *out, size_t size, char 
     return needed;
 }
 
-bool sm64_world_load(sm64_world *world, const uint8_t *data, size_t size, char *error, size_t error_size) {
+bool sm64_world_load(sm64_sim_world *world, const uint8_t *data, size_t size, char *error, size_t error_size) {
     if (!world || !data) {
         if (error && error_size) snprintf(error, error_size, "Missing SM64 world or data");
         return false;
@@ -718,7 +718,7 @@ bool sm64_world_load(sm64_world *world, const uint8_t *data, size_t size, char *
 
 struct sm64_physics_worker {
     sm64_physics api;
-    sm64_world *world;
+    sm64_sim_world *world;
     sm64_view view;
     int slot;
 };
@@ -808,7 +808,7 @@ static void worker_destroy(sm64_physics *physics) {
     free(w);
 }
 
-sm64_physics *sm64_world_physics_create(const sm64_world *world, char *error, size_t error_size) {
+sm64_physics *sm64_world_physics_create(const sm64_sim_world *world, char *error, size_t error_size) {
     if (!world) {
         if (error && error_size) snprintf(error, error_size, "Missing source world");
         return NULL;

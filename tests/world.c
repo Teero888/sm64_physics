@@ -16,7 +16,7 @@ int main(void) {
     };
 
     /* 1. Test sm64_world_create */
-    sm64_world *world = sm64_world_create(triangles, 2, NULL, 0, 0, 0.0f, 500.0f, 0.0f, 0);
+    sm64_sim_world *world = sm64_world_create(triangles, 2, NULL, 0, 0, 0.0f, 500.0f, 0.0f, 0);
     CHECK(world != NULL);
 
     sm64_view view;
@@ -64,7 +64,7 @@ int main(void) {
     CHECK(cam.far_z > cam.near_z);
 
     /* 6. Test sm64_world_clone */
-    sm64_world *clone = sm64_world_clone(world);
+    sm64_sim_world *clone = sm64_world_clone(world);
     CHECK(clone != NULL);
 
     /* Step world with right turn, step clone with left turn */
