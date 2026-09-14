@@ -26,9 +26,12 @@ static const BehaviorScript sMarioBehavior[] = {
 };
 
 #include <math.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static pthread_mutex_t s_sim_step_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -378,6 +381,8 @@ bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_
     }
     if (world->failed) return false;
 
+    pthread_mutex_lock(&s_sim_step_mutex);
+
     sm64_controller_update(&world->controller, input.buttons, input.stick_x, input.stick_y);
     world->mario.input = 0;
     update_mario_button_inputs(&world->mario);
@@ -423,6 +428,8 @@ bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_
     sm64_objects_activate(prev_objects);
     sm64_terrain_activate(prev_terrain);
     sm64_audio_activate(prev_audio);
+
+    pthread_mutex_unlock(&s_sim_step_mutex);
     return true;
 }
 
