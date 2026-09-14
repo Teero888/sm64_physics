@@ -22,6 +22,7 @@ void sm64_objects_bind_behavior_assets(struct sm64_objects *objects, struct Grap
 void sm64_objects_update_behavior(struct Object *object, u32 frame) {
     assert(sm64_active_objects && object);
     sm64_active_objects->current = object;
+    gCurrentObject = object;
     sm64_active_objects->global_timer = frame;
     cur_obj_update();
 }

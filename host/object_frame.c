@@ -31,7 +31,7 @@ void sm64_objects_step(struct sm64_objects *objects, struct sm64_terrain *terrai
     struct Object **previous_mario_object = terrain->mario_object_ref;
     struct MarioState **previous_mario = terrain->mario_ref;
     u32 *previous_stop = terrain->time_stop_ref;
-    terrain->current_ref = &objects->current;
+    terrain->current_ref = &gCurrentObject;
     terrain->mario_object_ref = &objects->mario;
     terrain->mario_ref = &objects->mario_state;
     terrain->time_stop_ref = &objects->time_stop;
