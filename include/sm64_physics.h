@@ -31,6 +31,24 @@ typedef struct sm64_view {
     bool valid;
 } sm64_view;
 
+typedef struct sm64_scene_mario {
+    float pos[3], scale[3];
+    int16_t angle[3], anim_id, anim_frame;
+    int32_t anim_accel;
+    uint8_t area;
+    bool valid;
+} sm64_scene_mario;
+
+typedef struct sm64_camera {
+    float eye[3];
+    float target[3];
+    float up[3];
+    float view_proj[16];
+    float fov_y;
+    float near_z;
+    float far_z;
+} sm64_camera;
+
 typedef struct sm64_physics sm64_physics;
 typedef struct sm64_checkpoint sm64_checkpoint;
 
@@ -49,24 +67,6 @@ struct sm64_physics {
 };
 
 #endif /* SM64_PHYSICS_TYPES_DEFINED */
-
-typedef struct sm64_scene_mario {
-    float pos[3], scale[3];
-    int16_t angle[3], anim_id, anim_frame;
-    int32_t anim_accel;
-    uint8_t area;
-    bool valid;
-} sm64_scene_mario;
-
-typedef struct sm64_camera {
-    float eye[3];
-    float target[3];
-    float up[3];
-    float view_proj[16];
-    float fov_y;
-    float near_z;
-    float far_z;
-} sm64_camera;
 
 #ifndef SM64_TERRAIN_TRIANGLE_DECLARED
 #define SM64_TERRAIN_TRIANGLE_DECLARED
