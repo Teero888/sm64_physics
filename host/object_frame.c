@@ -16,6 +16,8 @@ void sm64_frame_reset_diagnostics(void) {
 }
 /* There is no on-screen N64 debug overlay in this physics library. */
 void sm64_frame_debug_output(void) {}
+void try_print_debug_mario_level_info(void) {}
+void try_do_mario_debug_object_spawn(void) {}
 
 u32 sm64_objects_time_stop(const struct sm64_objects *objects) { assert(objects); return objects->time_stop; }
 void sm64_objects_set_time_stop(struct sm64_objects *objects, u32 flags) { assert(objects); objects->time_stop = flags; }
