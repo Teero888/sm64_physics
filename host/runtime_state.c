@@ -224,3 +224,52 @@ const BehaviorScript bhvBlueCoinJumping[] = DUMMY_BHV;
 const BehaviorScript bhvWhitePuffExplosion[] = DUMMY_BHV;
 const BehaviorScript bhvSingleCoinGetsSpawned[] = DUMMY_BHV;
 const BehaviorScript bhvSoundSpawner[] = DUMMY_BHV;
+
+#include "host/objects_state.h"
+
+static s16 *s_sub_swim_strength = NULL;
+static s16 *s_sub_was_at_surface = NULL;
+static s16 *s_sub_bob_timer = NULL;
+static s16 *s_sub_bob_increment = NULL;
+static f32 *s_sub_bob_height = NULL;
+
+void sm64_bind_submerged_vars(s16 *swim_strength, s16 *was_at_surface, s16 *bob_timer, s16 *bob_increment, f32 *bob_height) {
+    s_sub_swim_strength = swim_strength;
+    s_sub_was_at_surface = was_at_surface;
+    s_sub_bob_timer = bob_timer;
+    s_sub_bob_increment = bob_increment;
+    s_sub_bob_height = bob_height;
+}
+
+void sm64_init_submerged_ptrs(void);
+s32 sm64_execute_submerged_action_impl(struct MarioState *m);
+
+s32 mario_execute_submerged_action(struct MarioState *m) {
+    if (!s_sub_swim_strength) {
+        sm64_init_submerged_ptrs();
+    }
+    if (sm64_active_objects && s_sub_swim_strength) {
+        if (!sm64_active_objects->submerged_init) {
+            sm64_active_objects->swim_strength = 160;
+            sm64_active_objects->was_at_surface = 0;
+            sm64_active_objects->bob_timer = 0;
+            sm64_active_objects->bob_increment = 0;
+            sm64_active_objects->bob_height = 0.0f;
+            sm64_active_objects->submerged_init = 1;
+        }
+        *s_sub_swim_strength = sm64_active_objects->swim_strength;
+        *s_sub_was_at_surface = sm64_active_objects->was_at_surface;
+        *s_sub_bob_timer = sm64_active_objects->bob_timer;
+        *s_sub_bob_increment = sm64_active_objects->bob_increment;
+        *s_sub_bob_height = sm64_active_objects->bob_height;
+    }
+    s32 res = sm64_execute_submerged_action_impl(m);
+    if (sm64_active_objects && s_sub_swim_strength) {
+        sm64_active_objects->swim_strength = *s_sub_swim_strength;
+        sm64_active_objects->was_at_surface = *s_sub_was_at_surface;
+        sm64_active_objects->bob_timer = *s_sub_bob_timer;
+        sm64_active_objects->bob_increment = *s_sub_bob_increment;
+        sm64_active_objects->bob_height = *s_sub_bob_height;
+    }
+    return res;
+}

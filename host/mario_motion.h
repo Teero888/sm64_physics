@@ -16,4 +16,19 @@ void debug_print_speed_action_normal(struct MarioState *mario);
 void update_terrain_objects(void);
 void update_non_terrain_objects(void);
 void unload_deactivated_objects(void);
+
+#ifdef SM64_PHYSICS_SUBMERGED_IMPLEMENTATION
+#include <PR/ultratypes.h>
+struct MarioState;
+void sm64_bind_submerged_vars(s16 *swim_strength, s16 *was_at_surface, s16 *bob_timer, s16 *bob_increment, f32 *bob_height);
+s32 sm64_execute_submerged_action_impl(struct MarioState *m);
+
+#define mario_execute_submerged_action(arg) \
+    sm64_execute_submerged_action_impl(arg); \
+    void sm64_init_submerged_ptrs(void) { \
+        sm64_bind_submerged_vars(&sSwimStrength, &sWasAtSurface, &sBobTimer, &sBobIncrement, &sBobHeight); \
+    } \
+    s32 sm64_execute_submerged_action_impl(arg)
+#endif
+
 #endif

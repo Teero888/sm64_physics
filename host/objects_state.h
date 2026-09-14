@@ -36,6 +36,12 @@ struct sm64_objects {
     RoomData adjacent_rooms[60][2];
     s16 mario_room, roomed_near, roomed_far;
     s16 level;
+    s16 swim_strength;
+    s16 was_at_surface;
+    s16 bob_timer;
+    s16 bob_increment;
+    f32 bob_height;
+    u8 submerged_init;
 };
 extern _Thread_local struct sm64_objects *sm64_active_objects;
 #define gObjectPool (sm64_active_objects->pool)

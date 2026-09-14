@@ -83,6 +83,8 @@ set_source_files_properties(extracted/terrain_load.c extracted/terrain_queries.c
     extracted/mario_ground.c extracted/mario_collision_helpers.c
     extracted/mario_geometry_input.c
     PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_TERRAIN_IMPLEMENTATION)
+set_source_files_properties(upstream/src/game/mario_actions_submerged.c
+    PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_SUBMERGED_IMPLEMENTATION)
 target_compile_definitions(sm64_physics_core PUBLIC VERSION_US _LANGUAGE_C NON_MATCHING AVOID_UB NO_SEGMENTED_MEMORY)
 set_target_properties(sm64_physics_core PROPERTIES C_STANDARD 11 POSITION_INDEPENDENT_CODE ON)
 if(NOT MSVC)

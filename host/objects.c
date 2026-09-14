@@ -19,6 +19,8 @@ static struct GraphNode *sDefaultEmptyGraphNodes[256];
 struct sm64_objects *sm64_objects_create(void) {
     struct sm64_objects *objects = calloc(1, sizeof(*objects));
     if (!objects) return NULL;
+    objects->swim_strength = 160;
+    objects->submerged_init = 1;
     objects->models = sDefaultEmptyGraphNodes;
     struct sm64_objects *previous = sm64_objects_activate(objects);
     objects->level = LEVEL_BOB;
