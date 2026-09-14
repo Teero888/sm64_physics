@@ -574,6 +574,10 @@ bool sm64_world_set(sm64_world *world, uint32_t property, const sm64_view *value
         return false;
     }
     if (property == 0) {
+        if (!isfinite(value->pos[0]) || !isfinite(value->pos[1]) || !isfinite(value->pos[2])) {
+            if (error && error_size) snprintf(error, error_size, "Position values must be finite");
+            return false;
+        }
         world->mario.pos[0] = value->pos[0];
         world->mario.pos[1] = value->pos[1];
         world->mario.pos[2] = value->pos[2];
@@ -586,6 +590,10 @@ bool sm64_world_set(sm64_world *world, uint32_t property, const sm64_view *value
             world->mario_obj->oPosZ = value->pos[2];
         }
     } else if (property == 1) {
+        if (!isfinite(value->vel[0]) || !isfinite(value->vel[1]) || !isfinite(value->vel[2])) {
+            if (error && error_size) snprintf(error, error_size, "Velocity values must be finite");
+            return false;
+        }
         world->mario.vel[0] = value->vel[0];
         world->mario.vel[1] = value->vel[1];
         world->mario.vel[2] = value->vel[2];
