@@ -62,7 +62,10 @@ struct sm64_terrain_region {
 typedef struct sm64_terrain_region sm64_terrain_region;
 #endif
 
-typedef struct sm64_world sm64_world;
+typedef struct sm64_sim_world sm64_sim_world;
+#ifndef SM64_PHYSICS_NO_WORLD_TYPEDEF
+typedef struct sm64_sim_world sm64_world;
+#endif
 typedef struct sm64_physics sm64_physics;
 typedef struct sm64_checkpoint sm64_checkpoint;
 
@@ -81,37 +84,37 @@ struct sm64_physics {
 };
 
 /* World lifecycle */
-sm64_world *sm64_world_create(
+sm64_sim_world *sm64_world_create(
     const sm64_terrain_triangle *triangles, size_t triangle_count,
     const sm64_terrain_region *regions, size_t region_count,
     int16_t level_num,
     float spawn_x, float spawn_y, float spawn_z,
     int16_t spawn_yaw);
 
-void sm64_world_destroy(sm64_world *world);
-sm64_world *sm64_world_clone(const sm64_world *src);
-void sm64_world_copy(sm64_world *dst, const sm64_world *src);
-void sm64_world_set_scratch(sm64_world *world, bool scratch);
+void sm64_world_destroy(sm64_sim_world *world);
+sm64_sim_world *sm64_world_clone(const sm64_sim_world *src);
+void sm64_world_copy(sm64_sim_world *dst, const sm64_sim_world *src);
+void sm64_world_set_scratch(sm64_sim_world *world, bool scratch);
 
 /* Simulation stepping */
-bool sm64_world_step(sm64_world *world, sm64_input input, char *error, size_t error_size);
+bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_t error_size);
 
 /* Queries */
-uint32_t sm64_world_view(const sm64_world *world, sm64_view *out);
-bool sm64_world_pose(const sm64_world *world, sm64_scene_mario *out);
-bool sm64_world_camera(const sm64_world *world, float aspect, sm64_camera *out);
-uint64_t sm64_world_revision(const sm64_world *world);
-void *sm64_world_mario_state(sm64_world *world);
+uint32_t sm64_world_view(const sm64_sim_world *world, sm64_view *out);
+bool sm64_world_pose(const sm64_sim_world *world, sm64_scene_mario *out);
+bool sm64_world_camera(const sm64_sim_world *world, float aspect, sm64_camera *out);
+uint64_t sm64_world_revision(const sm64_sim_world *world);
+void *sm64_world_mario_state(sm64_sim_world *world);
 
 /* Property editing: 0 = pos, 1 = vel, 2 = action (read-only), 3 = health */
-bool sm64_world_set(sm64_world *world, uint32_t property, const sm64_view *value, char *error, size_t error_size);
+bool sm64_world_set(sm64_sim_world *world, uint32_t property, const sm64_view *value, char *error, size_t error_size);
 
 /* State serialization */
-size_t sm64_world_save(const sm64_world *world, uint8_t *out, size_t size, char *error, size_t error_size);
-bool sm64_world_load(sm64_world *world, const uint8_t *data, size_t size, char *error, size_t error_size);
+size_t sm64_world_save(const sm64_sim_world *world, uint8_t *out, size_t size, char *error, size_t error_size);
+bool sm64_world_load(sm64_sim_world *world, const uint8_t *data, size_t size, char *error, size_t error_size);
 
 /* Isolated physics worker for predictions / TAS plugins */
-sm64_physics *sm64_world_physics_create(const sm64_world *world, char *error, size_t error_size);
+sm64_physics *sm64_world_physics_create(const sm64_sim_world *world, char *error, size_t error_size);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@
 #include "game/camera.h"
 #include "game/area.h"
 
-struct sm64_world {
+struct sm64_sim_world {
     struct sm64_terrain *terrain;
     struct sm64_objects *objects;
     struct sm64_audio_state *audio;
