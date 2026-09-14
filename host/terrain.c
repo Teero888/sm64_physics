@@ -21,9 +21,10 @@ void sm64_terrain_destroy(struct sm64_terrain *terrain) {
     free(terrain);
 }
 
-struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *triangles,
-    size_t count, const struct sm64_terrain_region *regions, size_t region_count) {
-    if (count > 2300 || region_count > 20 || (count && !triangles) || (region_count && !regions)) return NULL;
+struct sm64_terrain *sm64_terrain_create_extended(const struct sm64_terrain_triangle *triangles,
+    size_t count, const struct sm64_terrain_region *regions, size_t region_count,
+    size_t max_surfaces, size_t max_nodes) {
+    if (count > max_surfaces || region_count > 256 || (count && !triangles) || (region_count && !regions)) return NULL;
     size_t nodes = 0;
     for (size_t i = 0; i < count; ++i) {
         const int16_t (*v)[3] = triangles[i].vertices;
@@ -33,11 +34,15 @@ struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *tri
         int high_z = upper_cell_index(max_3(v[0][2], v[1][2], v[2][2]));
         if (high_x >= low_x && high_z >= low_z) nodes += (size_t)(high_x - low_x + 1) * (high_z - low_z + 1);
     }
-    if (nodes > 7000) return NULL;
+    if (nodes > max_nodes) return NULL;
     struct sm64_terrain *terrain = calloc(1, sizeof(*terrain));
     if (!terrain) return NULL;
-    terrain->surfaces = calloc(2300, sizeof(*terrain->surfaces));
-    terrain->nodes = calloc(7000, sizeof(*terrain->nodes));
+    size_t surface_cap = count + 4096;
+    if (surface_cap < max_surfaces) surface_cap = max_surfaces;
+    size_t node_cap = nodes + 16384;
+    if (node_cap < max_nodes) node_cap = max_nodes;
+    terrain->surfaces = calloc(surface_cap, sizeof(*terrain->surfaces));
+    terrain->nodes = calloc(node_cap, sizeof(*terrain->nodes));
     terrain->triangles = calloc(count ? count : 1, sizeof(*triangles));
     terrain->regions = calloc(region_count ? region_count : 1, sizeof(*regions));
     terrain->environment = calloc(1 + 6 * region_count, sizeof(TerrainData));
@@ -49,7 +54,8 @@ struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *tri
     if (region_count) memcpy(terrain->regions, regions, region_count * sizeof(*regions));
     terrain->triangle_count = count;
     terrain->region_count = region_count;
-    terrain->surface_capacity = 2300;
+    terrain->surface_capacity = (s32) surface_cap;
+    terrain->node_capacity = (s32) node_cap;
     terrain->water_floor.type = SURFACE_VERY_SLIPPERY;
     terrain->water_floor.normal.y = 1.0f;
     terrain->environment[0] = (s16) region_count;
@@ -83,6 +89,11 @@ struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *tri
     return terrain;
 }
 
+struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *triangles,
+    size_t count, const struct sm64_terrain_region *regions, size_t region_count) {
+    return sm64_terrain_create_extended(triangles, count, regions, region_count, 2300, 7000);
+}
+
 struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain) {
     if (!terrain) return NULL;
     size_t count = (size_t)terrain->surface_count;
@@ -98,7 +109,9 @@ struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain) {
         triangles[i].room = surface->room;
         triangles[i].dynamic = (surface->flags & SURFACE_FLAG_DYNAMIC) != 0;
     }
-    struct sm64_terrain *copy = sm64_terrain_create(triangles, count, terrain->regions, terrain->region_count);
+    struct sm64_terrain *copy = sm64_terrain_create_extended(triangles, count, terrain->regions, terrain->region_count,
+        terrain->surface_capacity ? (size_t)terrain->surface_capacity : 2300,
+        terrain->node_capacity ? (size_t)terrain->node_capacity : 7000);
     free(triangles);
     if (!copy) return NULL;
     memcpy(copy->surfaces, terrain->surfaces, count * sizeof(*terrain->surfaces));
@@ -172,7 +185,7 @@ bool sm64_terrain_load_object(struct sm64_terrain *terrain, struct Object *objec
         surfaces += (size_t)count;
         cursor += (size_t)count * stride;
     }
-    if (cursor == word_count || surfaces > (size_t)(2300 - terrain->surface_count)) return false;
+    if (cursor == word_count || surfaces > (size_t)(terrain->surface_capacity - terrain->surface_count)) return false;
     /* The original transform is evaluated on a copy for admission checking.
      * Failed admission must not alter the live object or active query state. */
     struct sm64_terrain *previous = sm64_terrain_activate(terrain);
@@ -200,7 +213,7 @@ bool sm64_terrain_load_object(struct sm64_terrain *terrain, struct Object *objec
             if (hx >= lx && hz >= lz) nodes += (size_t)(hx - lx + 1) * (hz - lz + 1);
         }
     }
-    if (nodes > (size_t)(7000 - terrain->node_count)) return false;
+    if (nodes > (size_t)(terrain->node_capacity - terrain->node_count)) return false;
     previous = sm64_terrain_activate(terrain);
     terrain->current_object = object;
     load_object_collision_model();

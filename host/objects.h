@@ -24,4 +24,8 @@ void sm64_objects_set_motion_state(struct sm64_objects *objects, struct MarioSta
  * eviction/deletion requires an active audio context. */
 struct Object *sm64_objects_spawn(const BehaviorScript *behavior);
 struct ObjectNode *sm64_objects_list(struct sm64_objects *objects, unsigned list);
+/* Copies state from src to dst, rebasing internal pool/list/node pointers. */
+void sm64_objects_copy(struct sm64_objects *dst, const struct sm64_objects *src);
+/* Creates a deep copy of objects with independent pool and lists. */
+struct sm64_objects *sm64_objects_clone(const struct sm64_objects *src);
 #endif

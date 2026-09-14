@@ -9,6 +9,7 @@
 #include "game/object_helpers.h"
 #include "game/object_list_processor.h"
 #include "level_table.h"
+#include "game/level_update.h"
 struct sm64_objects {
     struct Object pool[OBJECT_POOL_CAPACITY];
     struct ObjectNode lists[NUM_OBJ_LISTS], free_list;
@@ -41,8 +42,8 @@ extern _Thread_local struct sm64_objects *sm64_active_objects;
 #define gObjectLists (sm64_active_objects->active_lists)
 #define gFreeObjectList (sm64_active_objects->free_list)
 #define gObjParentGraphNode (sm64_active_objects->parent)
-#define gCurrentObject (sm64_active_objects->current)
-#define gMarioObject (sm64_active_objects->mario)
+extern struct Object *gCurrentObject;
+extern struct Object *gMarioObject;
 #define gMarioPlatform (sm64_active_objects->mario_platform)
 #define gMarioStates (sm64_active_objects->mario_state)
 #define gTimeStopState (sm64_active_objects->time_stop)

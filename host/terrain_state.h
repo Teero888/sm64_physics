@@ -27,7 +27,7 @@ struct sm64_terrain {
     struct Surface water_floor;
     u32 time_stop;
     const BehaviorScript *ddd_warp_behavior;
-    s16 surface_capacity;
+    s32 surface_capacity, node_capacity;
     struct NumTimesCalled calls;
     s32 floor_misses;
     s16 camera, include_intangible;

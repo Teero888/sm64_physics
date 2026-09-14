@@ -6,20 +6,30 @@
 #include "engine/surface_collision.h"
 
 struct sm64_terrain;
+
+#ifndef SM64_TERRAIN_TRIANGLE_DECLARED
+#define SM64_TERRAIN_TRIANGLE_DECLARED
 struct sm64_terrain_triangle {
     int16_t vertices[3][3];
     int16_t type, force;
     int8_t room;
     bool dynamic;
 };
+typedef struct sm64_terrain_triangle sm64_terrain_triangle;
+
 struct sm64_terrain_region {
     int16_t kind, low_x, low_z, high_x, high_z, height;
 };
+typedef struct sm64_terrain_region sm64_terrain_region;
+#endif
 
 /* Input is decoded host data, not a ROM or graphics asset. Creation copies it.
  * The original surface and partition limits are enforced before loading. */
 struct sm64_terrain *sm64_terrain_create(const struct sm64_terrain_triangle *triangles,
     size_t count, const struct sm64_terrain_region *regions, size_t region_count);
+struct sm64_terrain *sm64_terrain_create_extended(const struct sm64_terrain_triangle *triangles,
+    size_t count, const struct sm64_terrain_region *regions, size_t region_count,
+    size_t max_surfaces, size_t max_nodes);
 /* Copies current static/dynamic geometry. Object/Mario/behavior references are
  * borrowed, not cloned; a full-world clone must rebind those references. */
 struct sm64_terrain *sm64_terrain_clone(const struct sm64_terrain *terrain);

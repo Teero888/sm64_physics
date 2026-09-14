@@ -25,6 +25,7 @@ add_library(sm64_physics_core STATIC
     extracted/animation_loader.c
     extracted/mario_animation.c
     host/animation_bank.c
+    host/mario_anims.c
     extracted/controller.c
     extracted/mario_input.c
     host/controller.c
@@ -63,11 +64,7 @@ add_library(sm64_physics_core STATIC
     extracted/debug_stub.c
     host/object_frame.c
     extracted/platform_displacement.c
-    upstream/src/game/macro_special_objects.c
-    upstream/src/game/obj_behaviors.c
-    upstream/src/game/obj_behaviors_2.c
-    upstream/src/game/behavior_actions.c
-    upstream/data/behavior_data.c
+    host/runtime_state.c
     upstream/src/game/mario_actions_airborne.c
     upstream/src/game/mario_actions_automatic.c
     upstream/src/game/mario_actions_cutscene.c
@@ -75,10 +72,12 @@ add_library(sm64_physics_core STATIC
     upstream/src/game/mario_actions_object.c
     upstream/src/game/mario_actions_stationary.c
     upstream/src/game/mario_actions_submerged.c
+    host/world.c
 )
-target_include_directories(sm64_physics_core PUBLIC upstream/include upstream/src upstream)
+target_include_directories(sm64_physics_core PUBLIC include upstream/include upstream/src upstream)
 target_include_directories(sm64_physics_core PRIVATE upstream/src/engine upstream/src/game)
 target_include_directories(sm64_physics_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+add_library(sm64_physics ALIAS sm64_physics_core)
 set_source_files_properties(extracted/main_pool.c PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_POOL_IMPLEMENTATION)
 set_source_files_properties(extracted/terrain_load.c extracted/terrain_queries.c
     extracted/mario_ground.c extracted/mario_collision_helpers.c
@@ -180,4 +179,7 @@ if(BUILD_TESTING)
         target_link_libraries(sm64_terrain_threads_test PRIVATE sm64_physics_core Threads::Threads)
         add_test(NAME native_terrain_threads COMMAND sm64_terrain_threads_test)
     endif()
+    add_executable(sm64_world_test tests/world.c)
+    target_link_libraries(sm64_world_test PRIVATE sm64_physics_core m)
+    add_test(NAME native_world COMMAND sm64_world_test)
 endif()

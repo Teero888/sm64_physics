@@ -13,10 +13,17 @@ void dma_read(u8 *destination, u8 *start, u8 *end) {
     memcpy(destination, start, (size_t)(end - start));
 }
 
+struct MarioAnimsObj {
+    u32 numEntries;
+    const struct Animation *addrPlaceholder;
+    struct OffsetSizePair entries[209];
+};
+extern const struct MarioAnimsObj gMarioAnims;
+
 void sm64_animation_bank_destroy(struct sm64_animation_bank *bank) {
     if (!bank) return;
     free(bank->table);
-    free(bank->data);
+    if (bank->data != (const u8 *)&gMarioAnims) free(bank->data);
     free(bank->buffer);
     free(bank);
 }
@@ -74,4 +81,80 @@ struct sm64_animation_bank *sm64_animation_bank_create(const struct sm64_animati
         offset += size;
     }
     return bank;
+}
+
+struct sm64_animation_bank *sm64_animation_bank_default(void) {
+    struct sm64_animation_bank *bank = calloc(1, sizeof(*bank));
+    if (!bank) return NULL;
+    u32 count = gMarioAnims.numEntries;
+    size_t table_size = offsetof(struct DmaTable, anim) + count * sizeof(struct OffsetSizePair);
+    bank->table = calloc(1, table_size);
+    bank->data = (u8 *)&gMarioAnims;
+    bank->buffer = calloc(1, 0x4000);
+    if (!bank->table || !bank->buffer) {
+        sm64_animation_bank_destroy(bank);
+        return NULL;
+    }
+    bank->table->count = count;
+    bank->table->srcAddr = (u8 *)&gMarioAnims;
+    memcpy(bank->table->anim, gMarioAnims.entries, count * sizeof(struct OffsetSizePair));
+    bank->handler.dmaTable = bank->table;
+    bank->handler.bufTarget = bank->buffer;
+    return bank;
+}
+
+struct sm64_animation_bank *sm64_animation_bank_clone(const struct sm64_animation_bank *src) {
+    if (!src || !src->table) return NULL;
+    if (src->data == (const u8 *)&gMarioAnims) {
+        struct sm64_animation_bank *dst = sm64_animation_bank_default();
+        if (!dst) return NULL;
+        if (src->buffer) {
+            memcpy(dst->buffer, src->buffer, 0x4000);
+            dst->handler.currentAddr = src->handler.currentAddr;
+            struct Animation *anim = (struct Animation *)dst->buffer;
+            if ((const u8 *)anim->values >= src->buffer && (const u8 *)anim->values < src->buffer + 0x4000) {
+                anim->values = (const s16 *)(dst->buffer + ((const u8 *)anim->values - src->buffer));
+            }
+            if ((const u8 *)anim->index >= src->buffer && (const u8 *)anim->index < src->buffer + 0x4000) {
+                anim->index = (const u16 *)(dst->buffer + ((const u8 *)anim->index - src->buffer));
+            }
+        }
+        return dst;
+    }
+    u32 count = src->table->count;
+    size_t table_size = offsetof(struct DmaTable, anim) + count * sizeof(struct OffsetSizePair);
+    struct sm64_animation_bank *dst = calloc(1, sizeof(*dst));
+    if (!dst) return NULL;
+    dst->table = calloc(1, table_size);
+    if (!dst->table) { free(dst); return NULL; }
+    memcpy(dst->table, src->table, table_size);
+
+    size_t data_size = 0, largest = 0;
+    for (u32 i = 0; i < count; ++i) {
+        size_t end = (size_t)src->table->anim[i].offset + src->table->anim[i].size;
+        if (end > data_size) data_size = end;
+        if (src->table->anim[i].size > largest) largest = src->table->anim[i].size;
+    }
+    dst->data = calloc(1, data_size ? data_size : 1);
+    dst->buffer = calloc(1, largest ? largest : 1);
+    if (!dst->data || !dst->buffer) {
+        sm64_animation_bank_destroy(dst);
+        return NULL;
+    }
+    if (data_size) memcpy(dst->data, src->data, data_size);
+    if (largest && src->buffer) {
+        memcpy(dst->buffer, src->buffer, largest);
+        struct Animation *anim = (struct Animation *)dst->buffer;
+        if ((const u8 *)anim->values >= src->buffer && (const u8 *)anim->values < src->buffer + largest) {
+            anim->values = (const s16 *)(dst->buffer + ((const u8 *)anim->values - src->buffer));
+        }
+        if ((const u8 *)anim->index >= src->buffer && (const u8 *)anim->index < src->buffer + largest) {
+            anim->index = (const u16 *)(dst->buffer + ((const u8 *)anim->index - src->buffer));
+        }
+    }
+    dst->table->srcAddr = dst->data;
+    dst->handler.dmaTable = dst->table;
+    dst->handler.bufTarget = dst->buffer;
+    dst->handler.currentAddr = src->handler.currentAddr;
+    return dst;
 }

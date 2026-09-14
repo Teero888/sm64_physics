@@ -37,9 +37,11 @@ void sm64_objects_step(struct sm64_objects *objects, struct sm64_terrain *terrai
     terrain->time_stop_ref = &objects->time_stop;
     objects->global_timer = frame;
     terrain->level_num = objects->level;
+    gMarioObject = objects->mario;
     /* Original area_update_objects increments this before update_objects. */
     ++objects->animation_tick;
     update_objects(0);
+    objects->current = gCurrentObject;
     /* Animation state used by the next behavior tick must progress without
      * invoking a renderer. Frozen objects have HAS_ANIMATION cleared by the
      * original scheduler; the helper still stamps their animation timer. */
