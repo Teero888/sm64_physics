@@ -426,7 +426,7 @@ bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_
     return true;
 }
 
-uint32_t sm64_world_view(const sm64_sim_world *world, sm64_view *out) {
+uint32_t sm64_sim_world_view(const sm64_sim_world *world, sm64_view *out) {
     if (!world || !out) return 0;
     out->pos[0] = world->mario.pos[0];
     out->pos[1] = world->mario.pos[1];
@@ -730,7 +730,7 @@ static void worker_do_step(int slot, sm64_input input) {
     struct sm64_physics_worker *w = g_workers[slot];
     if (!w || !w->world) return;
     sm64_world_step(w->world, input, NULL, 0);
-    sm64_world_view(w->world, &w->view);
+    sm64_sim_world_view(w->world, &w->view);
     w->api.mario = &w->world->mario;
 }
 
@@ -785,7 +785,7 @@ static bool worker_restore(sm64_physics *physics, const sm64_checkpoint *cp, cha
     }
     bool ok = sm64_world_load(w->world, cp->data, cp->size, error, error_size);
     if (ok) {
-        sm64_world_view(w->world, &w->view);
+        sm64_sim_world_view(w->world, &w->view);
         w->api.mario = &w->world->mario;
     }
     return ok;
@@ -837,6 +837,6 @@ sm64_physics *sm64_world_physics_create(const sm64_sim_world *world, char *error
     w->api.owner = w;
 
     g_workers[slot] = w;
-    sm64_world_view(w->world, &w->view);
+    sm64_sim_world_view(w->world, &w->view);
     return &w->api;
 }

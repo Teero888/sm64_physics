@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+#ifndef SM64_PHYSICS_TYPES_DEFINED
+#define SM64_PHYSICS_TYPES_DEFINED
+
 /* SM64 runs at 30 ticks per second. Max health is 0x880 (8 wedges of 0x100). */
 enum {
     SM64_TICKS_PER_SECOND = 30,
@@ -27,6 +30,25 @@ typedef struct sm64_view {
     uint32_t frame;
     bool valid;
 } sm64_view;
+
+typedef struct sm64_physics sm64_physics;
+typedef struct sm64_checkpoint sm64_checkpoint;
+
+/* Each isolated physics instance owns a separate native image / world.
+ * One thread owns an instance; different instances can step concurrently.
+ * step updates the live view without any graphics or locks. */
+struct sm64_physics {
+    void (*step)(sm64_input input);
+    const sm64_view *view;
+    void *mario;
+    sm64_checkpoint *(*capture)(sm64_physics *physics, char *error, size_t error_size);
+    bool (*restore)(sm64_physics *physics, const sm64_checkpoint *checkpoint, char *error, size_t error_size);
+    void (*free_checkpoint)(sm64_checkpoint *checkpoint);
+    void (*destroy)(sm64_physics *physics);
+    void *owner;
+};
+
+#endif /* SM64_PHYSICS_TYPES_DEFINED */
 
 typedef struct sm64_scene_mario {
     float pos[3], scale[3];
@@ -63,22 +85,6 @@ typedef struct sm64_terrain_region sm64_terrain_region;
 #endif
 
 typedef struct sm64_sim_world sm64_sim_world;
-typedef struct sm64_physics sm64_physics;
-typedef struct sm64_checkpoint sm64_checkpoint;
-
-/* Each isolated physics instance owns a separate native image / world.
- * One thread owns an instance; different instances can step concurrently.
- * step updates the live view without any graphics or locks. */
-struct sm64_physics {
-    void (*step)(sm64_input input);
-    const sm64_view *view;
-    void *mario;
-    sm64_checkpoint *(*capture)(sm64_physics *physics, char *error, size_t error_size);
-    bool (*restore)(sm64_physics *physics, const sm64_checkpoint *checkpoint, char *error, size_t error_size);
-    void (*free_checkpoint)(sm64_checkpoint *checkpoint);
-    void (*destroy)(sm64_physics *physics);
-    void *owner;
-};
 
 /* World lifecycle */
 sm64_sim_world *sm64_world_create(
@@ -97,7 +103,7 @@ void sm64_world_set_scratch(sm64_sim_world *world, bool scratch);
 bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_t error_size);
 
 /* Queries */
-uint32_t sm64_world_view(const sm64_sim_world *world, sm64_view *out);
+uint32_t sm64_sim_world_view(const sm64_sim_world *world, sm64_view *out);
 bool sm64_world_pose(const sm64_sim_world *world, sm64_scene_mario *out);
 bool sm64_world_camera(const sm64_sim_world *world, float aspect, sm64_camera *out);
 uint64_t sm64_world_revision(const sm64_sim_world *world);

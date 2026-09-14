@@ -20,7 +20,7 @@ int main(void) {
     CHECK(world != NULL);
 
     sm64_view view;
-    CHECK(sm64_world_view(world, &view) == 0);
+    CHECK(sm64_sim_world_view(world, &view) == 0);
     CHECK(view.pos[1] == 500.0f);
 
     /* 2. Step without input: Mario falls to ground */
@@ -29,7 +29,7 @@ int main(void) {
     for (int i = 0; i < 60; ++i) {
         CHECK(sm64_world_step(world, neutral, err, sizeof(err)));
     }
-    sm64_world_view(world, &view);
+    sm64_sim_world_view(world, &view);
     printf("After 60 frames: pos=(%f, %f, %f) vel=(%f, %f, %f) action=0x%x\n",
            view.pos[0], view.pos[1], view.pos[2],
            view.vel[0], view.vel[1], view.vel[2], view.action);
@@ -42,13 +42,13 @@ int main(void) {
     for (int i = 0; i < 30; ++i) {
         CHECK(sm64_world_step(world, walk, err, sizeof(err)));
     }
-    sm64_world_view(world, &view);
+    sm64_sim_world_view(world, &view);
     CHECK(view.action == ACT_WALKING);
 
     /* 4. Step with jump input */
     sm64_input jump = {.buttons = A_BUTTON, .stick_y = 64};
     CHECK(sm64_world_step(world, jump, err, sizeof(err)));
-    sm64_world_view(world, &view);
+    sm64_sim_world_view(world, &view);
     CHECK(view.action == ACT_JUMP);
     CHECK(view.vel[1] > 0.0f);
 
@@ -75,8 +75,8 @@ int main(void) {
         CHECK(sm64_world_step(clone, left, err, sizeof(err)));
     }
     sm64_view v1, v2;
-    sm64_world_view(world, &v1);
-    sm64_world_view(clone, &v2);
+    sm64_sim_world_view(world, &v1);
+    sm64_sim_world_view(clone, &v2);
     /* Positions or velocities should diverge */
     CHECK(v1.pos[0] != v2.pos[0] || v1.pos[2] != v2.pos[2]);
 
@@ -95,7 +95,7 @@ int main(void) {
         CHECK(sm64_world_step(world, walk, err, sizeof(err)));
     }
     sm64_view v_stepped;
-    sm64_world_view(world, &v_stepped);
+    sm64_sim_world_view(world, &v_stepped);
     CHECK(v_stepped.pos[0] != v1.pos[0] || v_stepped.pos[2] != v1.pos[2]);
 
     /* Load state back */
@@ -103,7 +103,7 @@ int main(void) {
     free(state);
 
     sm64_view v_restored;
-    sm64_world_view(world, &v_restored);
+    sm64_sim_world_view(world, &v_restored);
     CHECK(fabsf(v_restored.pos[0] - v1.pos[0]) < 0.001f);
     CHECK(fabsf(v_restored.pos[1] - v1.pos[1]) < 0.001f);
     CHECK(fabsf(v_restored.pos[2] - v1.pos[2]) < 0.001f);
