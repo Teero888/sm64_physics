@@ -35,6 +35,7 @@ struct sm64_sim_world {
     int16_t cam_yaw;
     int16_t cam_pitch;
     float cam_dist;
+    uint32_t edit_count;
 };
 
 #endif /* SM64_PHYSICS_HOST_WORLD_H */

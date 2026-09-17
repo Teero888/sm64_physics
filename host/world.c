@@ -38,13 +38,27 @@ static pthread_mutex_t s_sim_step_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #define SM64_STATE_MAGIC 0x34364D53
-#define SM64_STATE_VERSION 1
+#define SM64_STATE_VERSION_3 0x33415453
+#define SM64_STATE_VERSION_2 0x32415453
 
-struct sm64_saved_state {
+#pragma pack(push, 1)
+struct sm64_saved_header_v3 {
     uint32_t magic;
     uint32_t version;
     uint32_t frame;
     uint64_t revision;
+    uint32_t edit_count;
+};
+
+struct sm64_saved_header_v2 {
+    uint32_t magic;
+    uint32_t version;
+    uint32_t frame;
+    uint64_t revision;
+};
+#pragma pack(pop)
+
+struct sm64_saved_state_payload {
     int16_t cam_yaw, cam_pitch;
     float cam_dist;
     int16_t level_num;
@@ -326,6 +340,7 @@ void sm64_world_copy(sm64_sim_world *dst, const sm64_sim_world *src) {
     dst->cam_yaw = src->cam_yaw;
     dst->cam_pitch = src->cam_pitch;
     dst->cam_dist = src->cam_dist;
+    dst->edit_count = src->edit_count;
 
     dst->body_state = src->body_state;
     dst->camera_state = src->camera_state;
@@ -383,19 +398,24 @@ bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_
 
     pthread_mutex_lock(&s_sim_step_mutex);
 
+    if (input.buttons & 0x0202) world->cam_yaw += 0x0800;
+    if (input.buttons & 0x0101) world->cam_yaw -= 0x0800;
+    if (input.buttons & 0x0808) {
+        if (world->cam_dist > 400.0f) world->cam_dist -= 50.0f;
+    }
+    if (input.buttons & 0x0404) {
+        if (world->cam_dist < 2000.0f) world->cam_dist += 50.0f;
+    }
+    if (input.buttons & 0x0010) {
+        world->cam_yaw = world->mario.faceAngle[1] + 0x8000;
+    }
+
+    world->camera.yaw = world->cam_yaw;
+
     sm64_controller_update(&world->controller, input.buttons, input.stick_x, input.stick_y);
     world->mario.input = 0;
     update_mario_button_inputs(&world->mario);
     update_mario_joystick_inputs(&world->mario);
-
-    if (input.buttons & 0x0200) world->cam_yaw += 0x0800;
-    if (input.buttons & 0x0100) world->cam_yaw -= 0x0800;
-    if (input.buttons & 0x0800) {
-        if (world->cam_dist > 400.0f) world->cam_dist -= 50.0f;
-    }
-    if (input.buttons & 0x0400) {
-        if (world->cam_dist < 2000.0f) world->cam_dist += 50.0f;
-    }
 
     struct sm64_audio_state *prev_audio = sm64_audio_activate(world->audio);
     struct sm64_terrain *prev_terrain = sm64_terrain_activate(world->terrain);
@@ -421,6 +441,13 @@ bool sm64_world_step(sm64_sim_world *world, sm64_input input, char *error, size_
     sm64_objects_step(world->objects, world->terrain, world->frame);
 
     world->mario = gMarioStates[0];
+
+    if (world->mario.forwardVel > 1.0f) {
+        int16_t target_yaw = world->mario.faceAngle[1] + 0x8000;
+        int16_t diff = target_yaw - world->cam_yaw;
+        world->cam_yaw += diff / 16;
+    }
+    world->camera.yaw = world->cam_yaw;
 
     ++world->frame;
     ++world->revision;
@@ -623,7 +650,12 @@ bool sm64_world_set(sm64_sim_world *world, uint32_t property, const sm64_view *v
         return false;
     }
     ++world->revision;
+    ++world->edit_count;
     return true;
+}
+
+uint32_t sm64_world_edit_count(const sm64_sim_world *world) {
+    return world ? world->edit_count : 0;
 }
 
 size_t sm64_world_save(const sm64_sim_world *world, uint8_t *out, size_t size, char *error, size_t error_size) {
@@ -631,38 +663,42 @@ size_t sm64_world_save(const sm64_sim_world *world, uint8_t *out, size_t size, c
         if (error && error_size) snprintf(error, error_size, "Missing SM64 world");
         return 0;
     }
-    size_t needed = sizeof(struct sm64_saved_state);
+    size_t needed = sizeof(struct sm64_saved_header_v3) + sizeof(struct sm64_saved_state_payload);
     if (!out) return needed;
     if (size < needed) {
         if (error && error_size) snprintf(error, error_size, "State buffer is too small");
         return 0;
     }
 
-    struct sm64_saved_state saved = {0};
-    saved.magic = SM64_STATE_MAGIC;
-    saved.version = SM64_STATE_VERSION;
-    saved.frame = world->frame;
-    saved.revision = world->revision;
-    saved.cam_yaw = world->cam_yaw;
-    saved.cam_pitch = world->cam_pitch;
-    saved.cam_dist = world->cam_dist;
-    saved.level_num = world->level_num;
+    struct sm64_saved_header_v3 hdr = {0};
+    hdr.magic = SM64_STATE_MAGIC;
+    hdr.version = SM64_STATE_VERSION_3;
+    hdr.frame = world->frame;
+    hdr.revision = world->revision;
+    hdr.edit_count = world->edit_count;
 
-    saved.mario_obj_idx = world->mario_obj ? (uint32_t)(world->mario_obj - world->objects->pool) : 0;
-    saved.mario = world->mario;
-    saved.mario.marioObj = NULL;
-    saved.mario.area = NULL;
-    saved.mario.marioBodyState = NULL;
-    saved.mario.statusForCamera = NULL;
-    saved.mario.controller = NULL;
-    saved.mario.animList = NULL;
-    saved.body = world->body_state;
-    saved.controller = world->controller;
+    struct sm64_saved_state_payload payload = {0};
+    payload.cam_yaw = world->cam_yaw;
+    payload.cam_pitch = world->cam_pitch;
+    payload.cam_dist = world->cam_dist;
+    payload.level_num = world->level_num;
 
-    sm64_objects_copy(&saved.objects, world->objects);
-    objects_to_relative(&saved.objects);
+    payload.mario_obj_idx = world->mario_obj ? (uint32_t)(world->mario_obj - world->objects->pool) : 0;
+    payload.mario = world->mario;
+    payload.mario.marioObj = NULL;
+    payload.mario.area = NULL;
+    payload.mario.marioBodyState = NULL;
+    payload.mario.statusForCamera = NULL;
+    payload.mario.controller = NULL;
+    payload.mario.animList = NULL;
+    payload.body = world->body_state;
+    payload.controller = world->controller;
 
-    memcpy(out, &saved, sizeof(saved));
+    sm64_objects_copy(&payload.objects, world->objects);
+    objects_to_relative(&payload.objects);
+
+    memcpy(out, &hdr, sizeof(hdr));
+    memcpy(out + sizeof(hdr), &payload, sizeof(payload));
     return needed;
 }
 
@@ -671,33 +707,67 @@ bool sm64_world_load(sm64_sim_world *world, const uint8_t *data, size_t size, ch
         if (error && error_size) snprintf(error, error_size, "Missing SM64 world or data");
         return false;
     }
-    if (size < sizeof(struct sm64_saved_state)) {
+    if (size < sizeof(struct sm64_saved_header_v2) + sizeof(struct sm64_saved_state_payload)) {
         if (error && error_size) snprintf(error, error_size, "State buffer size invalid");
         return false;
     }
 
-    struct sm64_saved_state saved;
-    memcpy(&saved, data, sizeof(saved));
-    if (saved.magic != SM64_STATE_MAGIC || saved.version != SM64_STATE_VERSION) {
+    uint32_t magic = 0, version = 0;
+    memcpy(&magic, data, 4);
+    memcpy(&version, data + 4, 4);
+
+    if (magic != SM64_STATE_MAGIC) {
         if (error && error_size) snprintf(error, error_size, "Invalid SM64 state header");
         return false;
     }
 
-    world->frame = saved.frame;
-    world->revision = saved.revision;
-    world->cam_yaw = saved.cam_yaw;
-    world->cam_pitch = saved.cam_pitch;
-    world->cam_dist = saved.cam_dist;
-    world->level_num = saved.level_num;
-    world->body_state = saved.body;
-    world->controller = saved.controller;
-    world->mario = saved.mario;
+    uint32_t frame = 0;
+    uint64_t revision = 0;
+    uint32_t edit_count = 0;
+    const uint8_t *payload_ptr = NULL;
 
-    objects_from_relative(&saved.objects);
-    sm64_objects_copy(world->objects, &saved.objects);
+    if (version == SM64_STATE_VERSION_3) {
+        if (size < sizeof(struct sm64_saved_header_v3) + sizeof(struct sm64_saved_state_payload)) {
+            if (error && error_size) snprintf(error, error_size, "State buffer size invalid");
+            return false;
+        }
+        struct sm64_saved_header_v3 hdr;
+        memcpy(&hdr, data, sizeof(hdr));
+        frame = hdr.frame;
+        revision = hdr.revision;
+        edit_count = hdr.edit_count;
+        payload_ptr = data + sizeof(struct sm64_saved_header_v3);
+    } else if (version == SM64_STATE_VERSION_2 || version == 1) {
+        struct sm64_saved_header_v2 hdr;
+        memcpy(&hdr, data, sizeof(hdr));
+        frame = hdr.frame;
+        revision = hdr.revision;
+        edit_count = 0;
+        payload_ptr = data + sizeof(struct sm64_saved_header_v2);
+    } else {
+        if (error && error_size) snprintf(error, error_size, "Invalid SM64 state header");
+        return false;
+    }
 
-    if (saved.mario_obj_idx < OBJECT_POOL_CAPACITY) {
-        world->mario_obj = &world->objects->pool[saved.mario_obj_idx];
+    struct sm64_saved_state_payload payload;
+    memcpy(&payload, payload_ptr, sizeof(payload));
+
+    world->frame = frame;
+    world->revision = (revision > world->revision ? revision : world->revision) + 1;
+    world->edit_count = edit_count;
+    world->cam_yaw = payload.cam_yaw;
+    world->cam_pitch = payload.cam_pitch;
+    world->cam_dist = payload.cam_dist;
+    world->level_num = payload.level_num;
+    world->body_state = payload.body;
+    world->controller = payload.controller;
+    world->mario = payload.mario;
+
+    objects_from_relative(&payload.objects);
+    sm64_objects_copy(world->objects, &payload.objects);
+
+    if (payload.mario_obj_idx < OBJECT_POOL_CAPACITY) {
+        world->mario_obj = &world->objects->pool[payload.mario_obj_idx];
     } else {
         world->mario_obj = NULL;
     }

@@ -111,6 +111,7 @@ void *sm64_world_mario_state(sm64_sim_world *world);
 
 /* Property editing: 0 = pos, 1 = vel, 2 = action (read-only), 3 = health */
 bool sm64_world_set(sm64_sim_world *world, uint32_t property, const sm64_view *value, char *error, size_t error_size);
+uint32_t sm64_world_edit_count(const sm64_sim_world *world);
 
 /* State serialization */
 size_t sm64_world_save(const sm64_sim_world *world, uint8_t *out, size_t size, char *error, size_t error_size);
