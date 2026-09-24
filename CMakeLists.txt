@@ -67,9 +67,13 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${SM64_PATCHES})
 string(REPLACE "\n" ";" SM64_PATCHED "${SM64_PATCHED}")
 # A patched header is included before everything else in every game source;
 # its include guard then skips the original wherever it is included.
+# Headers from include/ go first: the others include them.
 set(SM64_PATCHED_HEADERS)
 foreach(relative ${SM64_PATCHED})
-  if(relative MATCHES "\\.h$")
+  if(relative MATCHES "^include/.*\\.h$")
+    list(PREPEND SM64_PATCHED_HEADERS "${SM64_OVERLAY}/${relative}")
+    continue()
+  elseif(relative MATCHES "\\.h$")
     list(APPEND SM64_PATCHED_HEADERS "${SM64_OVERLAY}/${relative}")
     continue()
   endif()

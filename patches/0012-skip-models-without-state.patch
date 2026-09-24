@@ -1,0 +1,199 @@
+Subject: Skip the models that change no game state when not drawing
+
+Most objects' models only draw: walking them computes matrices for every
+part and changes nothing the game reads. Each graph node now caches (in
+padding) whether its subtree holds anything that changes state (geo
+functions other than the drawing-only ones, cameras, held and nested
+objects) or a shadow. Without drawing, an object whose model has neither
+gets only what the walk leaves in it: cameraToObject, which is the
+translation row of its matrix computed with the same operations, and its
+animation. A shadow that every walk of the model reaches only needs the
+object's view test.
+
+--- a/include/types.h
++++ b/include/types.h
+@@ -103,6 +103,9 @@
+ struct GraphNode {
+     /*0x00*/ s16 type; // structure type
+     /*0x02*/ s16 flags; // hi = drawing layer, lo = rendering modes
++    // Library: what the render walk without drawing needs to know of the node
++    // and its children (patches/0012). In the padding before prev.
++    u16 hostWalk;
+     /*0x04*/ struct GraphNode *prev;
+     /*0x08*/ struct GraphNode *next;
+     /*0x0C*/ struct GraphNode *parent;
+--- a/src/engine/graph_node.c
++++ b/src/engine/graph_node.c
+@@ -29,6 +29,7 @@
+     graphNode->next = graphNode;
+     graphNode->parent = NULL;
+     graphNode->children = NULL;
++    graphNode->hostWalk = 0;
+ }
+ 
+ /**
+--- a/src/game/rendering_graph_node.c
++++ b/src/game/rendering_graph_node.c
+@@ -9,6 +9,13 @@
+ #include "print.h"
+ #include "rendering_graph_node.h"
+ #include "object_list_processor.h"
++#include "behavior_actions.h"
++#include "geo_misc.h"
++#include "level_geo.h"
++#include "mario_misc.h"
++#include "moving_texture.h"
++#include "screen_transition.h"
++#include <stddef.h>
+ #include "shadow.h"
+ #include "sm64.h"
+ 
+@@ -833,6 +840,138 @@
+ }
+ 
+ /**
++ * Library: what the render walk without drawing needs to know of a node and
++ * its children, worked out on first use and kept in the node (patches/0012).
++ * The shape of a model does not change once its geo layout is processed.
++ */
++#define HOST_WALK_KNOWN 0x01
++// A node whose processing changes game state.
++#define HOST_WALK_STATE 0x02
++// A shadow: building one clears gFindFloorIncludeSurfaceIntangible.
++#define HOST_WALK_SHADOW 0x04
++// A shadow that every walk reaches (not below a switch or level of detail).
++#define HOST_WALK_SHADOW_ALWAYS 0x08
++
++_Static_assert(offsetof(struct GraphNode, prev) >= offsetof(struct GraphNode, hostWalk) + sizeof(u16),
++               "hostWalk is in the padding");
++
++/**
++ * Library: geo functions that only draw (patches/0011).
++ */
++static s32 geo_func_only_draws(GraphNodeFunc func) {
++    return func == NULL || func == (GraphNodeFunc) geo_skybox_main
++           || func == (GraphNodeFunc) geo_mirror_mario_set_alpha
++           || func == (GraphNodeFunc) geo_mirror_mario_backface_culling
++           || func == (GraphNodeFunc) geo_cannon_circle_base
++           || func == (GraphNodeFunc) geo_exec_inside_castle_light
++           || func == (GraphNodeFunc) geo_exec_cake_end_screen
++           || func == (GraphNodeFunc) geo_bits_bowser_coloring
++           || func == (GraphNodeFunc) geo_movtex_draw_colored_no_update
++           || func == (GraphNodeFunc) geo_movtex_draw_colored_2_no_update;
++}
++
++static u16 geo_walk_flags(struct GraphNode *node);
++
++static u16 geo_walk_flags_of_siblings(struct GraphNode *first) {
++    struct GraphNode *node = first;
++    u16 flags = 0;
++
++    if (first != NULL) {
++        do {
++            flags |= geo_walk_flags(node);
++        } while ((node = node->next) != first);
++    }
++    return flags;
++}
++
++static u16 geo_walk_flags(struct GraphNode *node) {
++    u16 own = 0;
++    u16 children;
++
++    if (node->hostWalk & HOST_WALK_KNOWN) {
++        return node->hostWalk;
++    }
++    if (!(node->flags & GRAPH_RENDER_CHILDREN_FIRST)) {
++        switch (node->type) {
++            case GRAPH_NODE_TYPE_CAMERA:
++            case GRAPH_NODE_TYPE_OBJECT:
++            case GRAPH_NODE_TYPE_OBJECT_PARENT:
++            case GRAPH_NODE_TYPE_HELD_OBJ:
++                own = HOST_WALK_STATE;
++                break;
++            case GRAPH_NODE_TYPE_PERSPECTIVE:
++            case GRAPH_NODE_TYPE_SWITCH_CASE:
++            case GRAPH_NODE_TYPE_GENERATED_LIST:
++            case GRAPH_NODE_TYPE_BACKGROUND:
++                if (!geo_func_only_draws(((struct FnGraphNode *) node)->func)) {
++                    own = HOST_WALK_STATE;
++                }
++                break;
++            case GRAPH_NODE_TYPE_SHADOW:
++                own = HOST_WALK_SHADOW | HOST_WALK_SHADOW_ALWAYS;
++                break;
++        }
++    }
++    children = geo_walk_flags_of_siblings(node->children);
++    if (node->type == GRAPH_NODE_TYPE_SWITCH_CASE || node->type == GRAPH_NODE_TYPE_LEVEL_OF_DETAIL) {
++        children &= ~HOST_WALK_SHADOW_ALWAYS;
++    }
++    node->hostWalk = own | children | HOST_WALK_KNOWN;
++    // Not walked while inactive; only Mario's model changes that at run time.
++    if (!(node->flags & GRAPH_RENDER_ACTIVE)) {
++        node->hostWalk &= ~HOST_WALK_SHADOW_ALWAYS;
++    }
++    return node->hostWalk;
++}
++
++/**
++ * Library: without drawing, an object whose model is not walked (out of view)
++ * or changes no game state needs only what the walk leaves in it: its
++ * position in camera space and its animation, and for a shadow in its model,
++ * the flag that building the shadow clears. Returns FALSE if the object needs
++ * the whole walk. A model is only looked at in view: out of view, it may be
++ * one that is no longer loaded.
++ */
++static s32 geo_process_object_state(struct Object *node, s32 hasAnimation) {
++    Mat4 *camera = &gMatStack[gMatStackIndex];
++    Mat4 mtxf;
++    f32 *position;
++    s32 i;
++    u16 flags = 0;
++
++    if (node->header.gfx.node.children != NULL) {
++        return FALSE;
++    }
++    // The translation row of the object's matrix as mtxf_mul (or
++    // mtxf_billboard, the same operations) computes it; scaling keeps it.
++    // obj_is_in_view only reads that row.
++    position = node->header.gfx.throwMatrix != NULL ? (*node->header.gfx.throwMatrix)[3]
++                                                    : node->header.gfx.pos;
++    for (i = 0; i < 3; i++) {
++        mtxf[3][i] = position[0] * (*camera)[0][i] + position[1] * (*camera)[1][i]
++                     + position[2] * (*camera)[2][i] + (*camera)[3][i];
++    }
++    if (node->header.gfx.sharedChild != NULL && obj_is_in_view(&node->header.gfx, mtxf)) {
++        flags = geo_walk_flags_of_siblings(node->header.gfx.sharedChild);
++        if ((flags & HOST_WALK_STATE) || ((flags & HOST_WALK_SHADOW) && !(flags & HOST_WALK_SHADOW_ALWAYS))) {
++            return FALSE;
++        }
++    }
++    for (i = 0; i < 3; i++) {
++        node->header.gfx.cameraToObject[i] = mtxf[3][i];
++    }
++    if (node->header.gfx.animInfo.curAnim != NULL) {
++        geo_set_animation_globals(&node->header.gfx.animInfo, hasAnimation);
++    }
++    if ((flags & HOST_WALK_SHADOW_ALWAYS) && gCurGraphNodeCamera != NULL) {
++        gFindFloorIncludeSurfaceIntangible = FALSE;
++    }
++    gCurrAnimType = ANIM_TYPE_NONE;
++    node->header.gfx.throwMatrix = NULL;
++    return TRUE;
++}
++
++/**
+  * Process an object node.
+  */
+ static void geo_process_object(struct Object *node) {
+@@ -840,6 +979,9 @@
+     s32 hasAnimation = (node->header.gfx.node.flags & GRAPH_RENDER_HAS_ANIMATION) != 0;
+ 
+     if (node->header.gfx.areaIndex == gCurGraphNodeRoot->areaIndex) {
++        if (!SM64_DRAW && geo_process_object_state(node, hasAnimation)) {
++            return;
++        }
+         if (node->header.gfx.throwMatrix != NULL) {
+             mtxf_mul(gMatStack[gMatStackIndex + 1], *node->header.gfx.throwMatrix,
+                      gMatStack[gMatStackIndex]);
