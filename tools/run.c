@@ -153,10 +153,13 @@ static void write_record(FILE *out, uint32_t frame, uint32_t input) {
 
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
+    bool audio = false;
     long limit = -1;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
             trace_path = argv[++i];
+        } else if (strcmp(argv[i], "--audio") == 0) {
+            audio = true;
         } else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc) {
             limit = atol(argv[++i]);
         } else {
@@ -190,6 +193,7 @@ int main(int argc, char **argv) {
     // boot first, then record before every step. Its first poll is a
     // controller read during boot, before the game loop; game frame N reads
     // poll N + 1, and records carry the poll number to line up.
+    sm64_set_audio(audio);
     sm64_boot();
     uint32_t input;
     if (fread(&input, 4, 1, polls) != 1) {

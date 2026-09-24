@@ -19,6 +19,10 @@ void sm64_boot(void);
 // in bits 16-23 and stick Y in bits 24-31.
 void sm64_step(uint32_t input);
 
+// Whether the sound thread runs: off by default. The game state does not
+// depend on it; it only mixes the music and sound effects.
+void sm64_set_audio(bool enabled);
+
 #ifdef __cplusplus
 }
 #endif

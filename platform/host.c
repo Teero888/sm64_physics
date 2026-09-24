@@ -133,9 +133,26 @@ static void latch_input(uint32_t value) {
     gHostPad.errnum = 0;
 }
 
-// One iteration of thread4_sound's loop (patches/0002).
+extern volatile s32 gAudioFrameCount;
+
+// The sound thread's work (thread4_sound) only produces sound: the game reads
+// nothing back from it. It mixes the sequences and moves the game's sound
+// requests into sound banks that only the sound thread uses. A simulation
+// skips it; sm64_set_audio turns it on for sound output.
+static bool sRunAudio;
+
+void sm64_set_audio(bool enabled) {
+    sRunAudio = enabled;
+}
+
+// One iteration of thread4_sound's loop. The game waits for one in
+// sound_reset (patches/0002): without sound, the frame just counts.
 void host_run_audio_frame(void) {
-    create_next_audio_frame_task();
+    if (sRunAudio) {
+        create_next_audio_frame_task();
+    } else {
+        gAudioFrameCount++;
+    }
 }
 
 void sm64_step(uint32_t input) {
@@ -155,9 +172,10 @@ void sm64_step(uint32_t input) {
     gN64StackPointer = N64_GAME_LOOP_SP;
     sLevelAddress = level_script_execute(sLevelAddress);
     display_and_vsync();
-    // thread4_sound runs once per vertical interrupt, two per game frame. It
-    // moves the game's sound requests into the sound banks the game reads.
-    for (int vi = 0; vi < 2; ++vi) {
-        host_run_audio_frame();
+    // thread4_sound runs once per vertical interrupt, two per game frame.
+    if (sRunAudio) {
+        for (int vi = 0; vi < 2; ++vi) {
+            host_run_audio_frame();
+        }
     }
 }
