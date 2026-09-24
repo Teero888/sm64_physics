@@ -31,46 +31,68 @@ void draw_reset_bars(void);
 // The input osContGetReadData hands the game (platform/ultra.c).
 OSContPad gHostPad;
 
-// The variables of src/menu and src/goddard, linked into their own sections
-// (CMakeLists.txt). The linker provides their bounds.
-extern char __start_sm64ovl_data[], __stop_sm64ovl_data[];
-extern char __start_sm64ovl_datarel[], __stop_sm64ovl_datarel[];
-extern char __start_sm64ovl_datarel2[], __stop_sm64ovl_datarel2[];
-extern char __start_sm64ovl_bss[], __stop_sm64ovl_bss[];
+// Variables the N64 resets by loading their segment from ROM again, linked
+// into their own sections (sm64_section_group in CMakeLists.txt). The linker
+// provides the sections' bounds.
+#define SECTION_BOUNDS(prefix)                                                                         \
+    extern char __start_##prefix##_data[], __stop_##prefix##_data[];                                   \
+    extern char __start_##prefix##_datarel[], __stop_##prefix##_datarel[];                             \
+    extern char __start_##prefix##_datarel2[], __stop_##prefix##_datarel2[];                           \
+    extern char __start_##prefix##_bss[], __stop_##prefix##_bss[];
+SECTION_BOUNDS(sm64ovl)
+SECTION_BOUNDS(sm64lvl)
 
 typedef struct {
     char *start, *stop, *initial;
-} overlay_section;
+} saved_section;
 
-static overlay_section sOverlaySections[] = {
-    { __start_sm64ovl_data, __stop_sm64ovl_data, NULL },
-    { __start_sm64ovl_datarel, __stop_sm64ovl_datarel, NULL },
-    { __start_sm64ovl_datarel2, __stop_sm64ovl_datarel2, NULL },
-};
+typedef struct {
+    saved_section data[3];
+    char *bss_start, *bss_stop;
+} section_group;
 
-// FIXED_LOAD (patches/0006): on the N64 the segment is read from ROM again,
-// so its initialized variables return to their initial values and its bss
-// to zero.
-// How many times the segment was loaded: the lockstep comparator only reads
-// the menus' variables in the emulator while the segment is there.
-unsigned gHostOverlayLoads;
+#define SECTION_GROUP(prefix)                                                                          \
+    { { { __start_##prefix##_data, __stop_##prefix##_data, NULL },                                     \
+        { __start_##prefix##_datarel, __stop_##prefix##_datarel, NULL },                               \
+        { __start_##prefix##_datarel2, __stop_##prefix##_datarel2, NULL } },                           \
+      __start_##prefix##_bss, __stop_##prefix##_bss }
 
-void host_reload_overlay(void) {
-    gHostOverlayLoads++;
-    for (size_t i = 0; i < sizeof(sOverlaySections) / sizeof(sOverlaySections[0]); ++i) {
-        overlay_section *section = &sOverlaySections[i];
-        memcpy(section->start, section->initial, section->stop - section->start);
-    }
-    memset(__start_sm64ovl_bss, 0, __stop_sm64ovl_bss - __start_sm64ovl_bss);
-}
+// src/menu and src/goddard, and every level's data.
+static section_group sOverlay = SECTION_GROUP(sm64ovl);
+static section_group sLevelData = SECTION_GROUP(sm64lvl);
 
-static void save_overlay_initial_values(void) {
-    for (size_t i = 0; i < sizeof(sOverlaySections) / sizeof(sOverlaySections[0]); ++i) {
-        overlay_section *section = &sOverlaySections[i];
+static void save_initial_values(section_group *group) {
+    for (int i = 0; i < 3; ++i) {
+        saved_section *section = &group->data[i];
         const size_t size = section->stop - section->start;
         section->initial = malloc(size ? size : 1);
         memcpy(section->initial, section->start, size);
     }
+}
+
+static void restore_initial_values(section_group *group) {
+    for (int i = 0; i < 3; ++i) {
+        saved_section *section = &group->data[i];
+        memcpy(section->start, section->initial, section->stop - section->start);
+    }
+    memset(group->bss_start, 0, group->bss_stop - group->bss_start);
+}
+
+// How many times the Goddard/menu segment was loaded: the lockstep comparator
+// only reads the menus' variables in the emulator while the segment is there.
+unsigned gHostOverlayLoads;
+
+// FIXED_LOAD (patches/0006): the Goddard/menu segment is read from ROM again.
+void host_reload_overlay(void) {
+    gHostOverlayLoads++;
+    restore_initial_values(&sOverlay);
+}
+
+// LOAD_MIO0 of segment 7 (patches/0008): the level's data is decompressed
+// from ROM again. The other levels' data is not in use, so restoring all of it
+// is the same.
+void host_reload_level_data(void) {
+    restore_initial_values(&sLevelData);
 }
 
 static struct LevelCommand *sLevelAddress;
@@ -80,7 +102,8 @@ static bool sBooted;
 static u8 sPoolMemory[DOUBLE_SIZE_ON_64_BIT(SEG_POOL_SIZE)] __attribute__((aligned(16)));
 
 void sm64_boot(void) {
-    save_overlay_initial_values();
+    save_initial_values(&sOverlay);
+    save_initial_values(&sLevelData);
     // thread3_main
     setup_mesg_queues();
     main_pool_init(sPoolMemory, sPoolMemory + sizeof(sPoolMemory));

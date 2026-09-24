@@ -65,9 +65,13 @@ if(NOT overlay_result EQUAL 0)
 endif()
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${SM64_PATCHES})
 string(REPLACE "\n" ";" SM64_PATCHED "${SM64_PATCHED}")
+# A patched header is included before everything else in every game source;
+# its include guard then skips the original wherever it is included.
+set(SM64_PATCHED_HEADERS)
 foreach(relative ${SM64_PATCHED})
   if(relative MATCHES "\\.h$")
-    message(FATAL_ERROR "${relative}: header patches need their includers overlaid too")
+    list(APPEND SM64_PATCHED_HEADERS "${SM64_OVERLAY}/${relative}")
+    continue()
   endif()
   list(TRANSFORM SM64_SOURCES REPLACE "^${D}/${relative}$" "${SM64_OVERLAY}/${relative}")
   # Its quoted includes still name neighbours in the original directory.
@@ -132,32 +136,49 @@ function(sm64_game_settings target visibility)
   # wrapping signed integers as on the N64, signed chars as IDO's -signed.
   target_compile_options(${target} PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
     -ffp-contract=off -fno-fast-math -fPIC -w
-    -include "${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h")
+    "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h\"")
+  foreach(header ${SM64_PATCHED_HEADERS})
+    target_compile_options(${target} PRIVATE "SHELL:-include \"${header}\"")
+  endforeach()
 endfunction()
 
-# The N64 loads src/menu and src/goddard as one segment, from ROM, every time
-# a menu or the title screen starts, which resets all of their variables. They
-# are linked as one object whose data and bss sections have their own names,
-# so the host finds and resets exactly those variables (host_reload_overlay).
+# Sources whose variables the N64 resets when it loads their segment from ROM
+# again: linked as one object whose data and bss sections have their own
+# names (PREFIX_data, PREFIX_datarel, PREFIX_datarel2, PREFIX_bss), so the
+# host finds and restores exactly those variables. Sets <NAME>_OBJECT.
+function(sm64_section_group name prefix)
+  add_library(${name}_objects OBJECT ${ARGN})
+  sm64_game_settings(${name}_objects PRIVATE)
+  set(object "${CMAKE_CURRENT_BINARY_DIR}/${name}.o")
+  add_custom_command(OUTPUT "${object}"
+    COMMAND ${CMAKE_LINKER} -r -o "${object}.tmp" $<TARGET_OBJECTS:${name}_objects>
+    COMMAND ${CMAKE_OBJCOPY} --rename-section .data=${prefix}_data --rename-section .data.rel.local=${prefix}_datarel
+            --rename-section .data.rel=${prefix}_datarel2 --rename-section .bss=${prefix}_bss "${object}.tmp" "${object}"
+    DEPENDS $<TARGET_OBJECTS:${name}_objects> COMMAND_EXPAND_LISTS VERBATIM)
+  set_source_files_properties("${object}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
+  set(${name}_OBJECT "${object}" PARENT_SCOPE)
+endfunction()
+
+# src/menu and src/goddard are one segment, loaded by FIXED_LOAD every time a
+# menu or the title screen starts (host_reload_overlay, patches/0006).
 set(SM64_OVERLAY_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_OVERLAY_SOURCES INCLUDE REGEX "/src/(menu|goddard)/")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_OVERLAY_SOURCES})
-add_library(sm64_overlay_objects OBJECT ${SM64_OVERLAY_SOURCES})
-sm64_game_settings(sm64_overlay_objects PRIVATE)
-set(SM64_OVERLAY_OBJECT "${CMAKE_CURRENT_BINARY_DIR}/sm64_overlay.o")
-add_custom_command(OUTPUT "${SM64_OVERLAY_OBJECT}"
-  COMMAND ${CMAKE_LINKER} -r -o "${SM64_OVERLAY_OBJECT}.tmp" $<TARGET_OBJECTS:sm64_overlay_objects>
-  COMMAND ${CMAKE_OBJCOPY} --rename-section .data=sm64ovl_data --rename-section .data.rel.local=sm64ovl_datarel
-          --rename-section .data.rel=sm64ovl_datarel2 --rename-section .bss=sm64ovl_bss
-          "${SM64_OVERLAY_OBJECT}.tmp" "${SM64_OVERLAY_OBJECT}"
-  DEPENDS $<TARGET_OBJECTS:sm64_overlay_objects> COMMAND_EXPAND_LISTS VERBATIM)
-set_source_files_properties("${SM64_OVERLAY_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
+sm64_section_group(sm64_overlay sm64ovl ${SM64_OVERLAY_SOURCES})
+set(SM64_OVERLAY_OBJECT "${sm64_overlay_OBJECT}")
+
+# Each level's data is segment 7, decompressed by LOAD_MIO0 on every level load
+# (host_reload_level_data, patches/0008).
+set(SM64_LEVEL_DATA_SOURCES ${SM64_SOURCES})
+list(FILTER SM64_LEVEL_DATA_SOURCES INCLUDE REGEX "/levels/[^/]+/leveldata\\.c$")
+list(REMOVE_ITEM SM64_SOURCES ${SM64_LEVEL_DATA_SOURCES})
+sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 
 add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c platform/n64stack.c
             $<TARGET_OBJECTS:sm64_ultra_math>
-            "${SM64_OVERLAY_OBJECT}")
+            "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}")
 sm64_game_settings(sm64_game PUBLIC)
-add_dependencies(sm64_game sm64_overlay_objects)
+add_dependencies(sm64_game sm64_overlay_objects sm64_level_data_objects)
 target_link_libraries(sm64_game PUBLIC m)
 
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)

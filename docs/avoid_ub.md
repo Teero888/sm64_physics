@@ -32,6 +32,8 @@ sites only affect sound and the title screen's Mario head and are not audited.
 | Goddard/menu segment reloads (`FIXED_LOAD`) | all of src/menu's and src/goddard's variables return to their initial values | kept their values | **patch 0006** and `host_reload_overlay` |
 | `GraphNodeCamera.config` union | pointer and mode are both 32 bits | pointer's upper half uninitialized | **patch 0003** |
 | `load_to_fixed_pool_addr` | allocates the segment at the right end of the main pool | nothing | pool addresses differ anyway; only matters if the pool runs out |
+| Level data (segment 7) | decompressed from ROM on every level load | linked in; the decomp copies terrain and macro objects per load, the rest (paintings) kept its values | **patch 0008** and `host_reload_level_data` |
+| Float to unsigned conversions | IDO's code: negative values become 0xFFFFFFFF, 2^31 and up take a second conversion | x86 wraps | `platform/ido.h`; **patch 0009** for `sins`/`coss` with float angles |
 | Object fields used as two s16 | `asS16[i][0]` is the upper half of the slot | the lower half | each side reads its own layout; only the comparator cares |
 
 ## The N64 stack pointer model
@@ -51,3 +53,13 @@ Instrumented: `level_script.c`, `level_update.c`, `area.c`,
 `object_list_processor.c`, `behavior_script.c`, `mario.c`, `interaction.c`,
 `mario_actions_*.c`. A function missing from that path would show up as a
 wrong value in the lockstep comparison.
+
+## Float conversions
+
+`-fsanitize=float-cast-overflow` over the corpus finds every conversion of a
+floating point value that does not fit its integer type. Negative values to
+unsigned types differ (IDO makes them 0xFFFFFFFF, x86 wraps) and are patched;
+so far only `sins`/`coss` with float arguments reach them. Values to `s16`
+that fit in 32 bits are truncated to 32 bits and then wrap on both. Values
+beyond 32 bits would differ (and trap on the R4300) but the corpus does not
+reach any.

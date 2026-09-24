@@ -1,0 +1,28 @@
+Subject: Convert float angles for sins/coss as IDO did
+
+sins and coss index their tables with (u16)(x) >> 4, and are called with
+float expressions too (e.g. the Piranha Plant's bubble, coss(animFrame /
+doneShrinkingFrame * 0x4000) with animFrame -1). Converting a negative float
+to an unsigned integer is undefined in C: x86 wraps it, IDO's code makes it
+0xFFFFFFFF. Found by the lockstep comparator (US 16 and 70 stars TASes, the
+bubble's scale). platform/ido.h models IDO's conversion.
+
+--- a/src/engine/math_util.h
++++ b/src/engine/math_util.h
+@@ -24,8 +24,16 @@
+ extern f32 gCosineTable[];
+ #endif
+ 
++#ifdef TARGET_N64
+ #define sins(x) gSineTable[(u16) (x) >> 4]
+ #define coss(x) gCosineTable[(u16) (x) >> 4]
++#else
++// Called with float arguments too: those convert to u16 as IDO compiled it
++// (negative values become 0xFFFF), not as the host does.
++#include "ido.h"
++#define sins(x) gSineTable[IDO_U16(x) >> 4]
++#define coss(x) gCosineTable[IDO_U16(x) >> 4]
++#endif
+ 
+ #define min(a, b) ((a) <= (b) ? (a) : (b))
+ #define max(a, b) ((a) > (b) ? (a) : (b))

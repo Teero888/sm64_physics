@@ -4,7 +4,8 @@
 //   sm64_oracle --rom ROM --movie MOVIE [--symbols syms.tsv --fields fields.txt]
 //               [--trace out.trace] [--polls out.polls] [--dump-at POLL]...
 //
-// MOVIE is an .m64, or the "Input Log.txt" of a .bk2.
+// MOVIE is an .m64, or the "Input Log.txt" of a .bk2. --skip POLL:COUNT drops
+// COUNT movie samples from POLL on (for finding where a movie desyncs).
 //
 // Trace format (little endian): "SM64ORC1", u32 field count, then per field
 // u16 name length, name, u32 address, u32 size, u32 stride; then one record
@@ -56,6 +57,9 @@ typedef struct oracle {
   int vi_offset;   // .bk2: which movie frame a poll reads, relative to the interrupt count
   int poll_offset; // .m64: which sample a poll reads, relative to the poll count
   uint32_t max_polls;
+  // Movie samples dropped at a poll: (poll, count).
+  uint32_t skip_at[64], skip_count[64];
+  int skips;
   bool stopping, failed;
 } oracle;
 
@@ -102,7 +106,11 @@ static void on_vi(void *user) {
 static uint32_t on_poll(void *user, int controller) {
   oracle *o = user;
   if (controller != 0 || o->stopping) return 0;
-  const long long at = o->movie.per_vi ? (long long)o->vi + o->vi_offset : (long long)o->poll + o->poll_offset;
+  long long skipped = 0;
+  for (int k = 0; k < o->skips; ++k)
+    if (o->skip_at[k] <= o->poll) skipped += o->skip_count[k];
+  const long long at = o->movie.per_vi ? (long long)o->vi + o->vi_offset
+                                       : (long long)o->poll + o->poll_offset + skipped;
   // Polls before the movie's first input read a neutral controller.
   if (at >= (long long)o->movie.count) {
     stop(o);
@@ -148,7 +156,7 @@ static uint32_t on_poll(void *user, int controller) {
     if (o->dump_at[d] == o->poll) write_dump(o, ram, ram_size);
   ++o->poll;
   if (o->max_polls && o->poll >= o->max_polls) stop(o);
-  if (!o->movie.per_vi && (long long)o->poll + o->poll_offset >= (long long)o->movie.count) stop(o);
+  if (!o->movie.per_vi && at + 1 >= (long long)o->movie.count) stop(o);
   return input;
 }
 
@@ -300,6 +308,11 @@ int main(int argc, char **argv) {
     if (strcmp(arg, "--cpu") == 0 && value) { cpu = atoi(value); ++i; continue; }
     if (strcmp(arg, "--vi-offset") == 0 && value) { o.vi_offset = atoi(value); ++i; continue; }
     if (strcmp(arg, "--poll-offset") == 0 && value) { o.poll_offset = atoi(value); ++i; continue; }
+    if (strcmp(arg, "--skip") == 0 && value && o.skips < 64) {
+      if (sscanf(value, "%u:%u", &o.skip_at[o.skips], &o.skip_count[o.skips]) == 2) ++o.skips;
+      ++i;
+      continue;
+    }
     if (strcmp(arg, "--max-polls") == 0 && value) { o.max_polls = (uint32_t)atoi(value); ++i; continue; }
     if (strcmp(arg, "--dump-at") == 0 && value && o.dump_count < MAX_DUMPS) {
       o.dump_at[o.dump_count++] = (uint32_t)strtoul(value, NULL, 0);
