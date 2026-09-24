@@ -77,6 +77,8 @@ uintptr_t osVirtualToPhysical(void *addr) {
 }
 
 u64 osClockRate = 62500000;
+// An NTSC console, as the JP and US movies are recorded on.
+u32 osTvType = 1;
 static OSTime sTime;
 // Counts calls, so anything that reads it is deterministic.
 OSTime osGetTime(void) {

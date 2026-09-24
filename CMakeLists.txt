@@ -6,8 +6,8 @@ project(sm64_physics LANGUAGES C)
 # SM64_VERSION from the user's ROM: that build generates the assets the game
 # data includes (animations, demo inputs, text, textures, sound banks).
 set(SM64_DECOMP_DIR "$ENV{HOME}/software/sm64-decomp" CACHE PATH "n64decomp/sm64 checkout built for SM64_VERSION")
-set(SM64_VERSION jp CACHE STRING "Game version: jp")
-set_property(CACHE SM64_VERSION PROPERTY STRINGS jp)
+set(SM64_VERSION jp CACHE STRING "Game version: jp or us")
+set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(D "${SM64_DECOMP_DIR}")

@@ -13,7 +13,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-DEFINES = {"jp": ["-DVERSION_JP=1", "-DF3D_OLD=1", "-D_FINALROM=1"]}
+DEFINES = {
+    "jp": ["-DVERSION_JP=1", "-DF3D_OLD=1", "-D_FINALROM=1"],
+    "us": ["-DVERSION_US=1", "-DF3D_OLD=1", "-D_FINALROM=1"],
+}
 
 
 def to_inc_c(binary, inc):

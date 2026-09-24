@@ -19,9 +19,19 @@ This is the rewrite. Where it is headed:
 
 ## Status
 
-JP only. The JP 1-key TAS matches the oracle over all 7431 frames on every
-field compared so far (global timer, RNG, level/area/course/act, Mario's state
-without pointers, HUD, dialog).
+JP and US. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
+all objects, the camera and its internal state, cutscene and menu state,
+controllers, areas and the save file every frame, these TASes are identical
+from power-on to their last frame:
+
+| Movie | Version | Frames |
+|---|---|---|
+| 1 key (TASVideos 4490M) | JP | 7431 |
+| all trees (7239M) | JP | 14609 |
+| 0 stars (2016M) | US | 8827 |
+
+`docs/avoid_ub.md` lists where a native build of the decomp differs from the
+N64 and how each difference is handled.
 
 ## Building
 
@@ -30,7 +40,7 @@ ROM: that build generates the assets the game data includes (animations, demo
 inputs, text, textures, sound). See `oracle/README.md` for building it.
 
 ```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSM64_DECOMP_DIR=~/software/sm64-decomp
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSM64_DECOMP_DIR=~/software/sm64-decomp -DSM64_VERSION=jp
 cmake --build build
 ./build/sm64_run oracle/out/jp-1key.polls --trace build/jp-1key.native.trace
 python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.trace
