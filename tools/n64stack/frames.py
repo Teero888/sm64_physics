@@ -1,83 +1,95 @@
 #!/usr/bin/env python3
-"""Generate the N64 stack model's frame tables.
+"""Generate the N64 stack model's hooks.
 
-  frames.py BUILD_DIR SYMBOLS_TSV OUT_DIR SOURCE[=COMPILED]...
+  frames.py BUILD_DIR TARGET SYMBOLS_TSV OUT_DIR RELATIVE=COMPILED...
 
-BUILD_DIR is the decomp's matching build (build/jp): each SOURCE's object
-there holds, in its .mdebug data, a procedure descriptor for every function,
-static ones included, with the size of its stack frame. For each SOURCE this
-writes OUT_DIR/n64stack_<name>.c, which includes the source (or COMPILED, a
-patched copy of it) and registers its functions' frame sizes with the host
-(platform/n64stack.c). It also writes OUT_DIR/n64_frames.h with the game
-thread's stack pointer and the frames of functions patches refer to.
+BUILD_DIR/TARGET is the decomp's matching build (build/jp, sm64.jp). The
+model has to be right wherever the original leaks a stack address: inside
+set_camera_mode (patches/0007). So every function from which the N64 can call
+set_camera_mode, and set_camera_mode itself, moves the modelled stack pointer
+by its N64 frame; nothing else does.
+
+For each native game source RELATIVE (src/game/mario.c) compiled from COMPILED
+(the decomp's file or a patched copy) that holds such functions, this writes
+OUT_DIR/RELATIVE, a wrapper that includes COMPILED and registers those
+functions' frame sizes with the host (platform/n64stack.c), and prints
+
+  RELATIVE<TAB>OUT_DIR/RELATIVE<TAB>comma separated functions not to hook
+
+for CMake to compile the wrapper with -finstrument-functions instead. It also
+writes OUT_DIR/n64_frames.h with the game thread's stack pointer.
 """
-import struct
+import re
 import sys
 from pathlib import Path
 
-ST_PROC, ST_STATIC_PROC = 6, 14
+sys.path.insert(0, str(Path(__file__).parent))
+import callgraph  # noqa: E402
+
+TARGET = "set_camera_mode"
+
+# Goddard's function pointers only lead to goddard: its indirect calls do not
+# reach the game.
+GODDARD = "/src/goddard/"
 
 
-def procedures(obj_path):
-    """[(name, frame size)] of the functions in an IDO object."""
-    data = Path(obj_path).read_bytes()
-    shoff, = struct.unpack_from(">I", data, 0x20)
-    shentsize, shnum, shstrndx = struct.unpack_from(">HHH", data, 0x2e)
-    sections = [struct.unpack_from(">IIIIIIIIII", data, shoff + i * shentsize) for i in range(shnum)]
-    names = sections[shstrndx]
-
-    def section_name(header):
-        start = names[4] + header[0]
-        return data[start:data.index(b"\0", start)].decode()
-
-    mdebug = next(s for s in sections if section_name(s) == ".mdebug")
-    header = struct.unpack_from(">HH" + "I" * 23, data, mdebug[4])
-    cb_pd, cb_sym, cb_ss, ifd_max, cb_fd = header[8], header[10], header[16], header[19], header[20]
-    result = []
-    for f in range(ifd_max):
-        fdr = struct.unpack_from(">IIIIIIIIIIHHIIIIIII", data, cb_fd + f * 72)
-        iss_base, isym_base, ipd_first, cpd = fdr[2], fdr[4], fdr[10], fdr[11]
-        for p in range(cpd):
-            pdr = struct.unpack_from(">IiiiiiiiihhiiI", data, cb_pd + (ipd_first + p) * 52)
-            isym, frame = pdr[1], pdr[8]
-            iss, _, bits = struct.unpack_from(">IiI", data, cb_sym + (isym_base + isym) * 12)
-            if bits >> 26 not in (ST_PROC, ST_STATIC_PROC):
-                continue
-            start = cb_ss + iss_base + iss
-            result.append((data[start:data.index(b"\0", start)].decode(), frame))
-    return result
+def defined_functions(path, seen=None):
+    """Names of the functions a C file defines, with the .c files it includes."""
+    seen = seen if seen is not None else set()
+    path = Path(path)
+    if path in seen or not path.exists():
+        return set()
+    seen.add(path)
+    text = re.sub(r"\bBAD_RETURN\((\w+)\)", r"\1", path.read_text(errors="replace"))
+    names = set(re.findall(r"^[A-Za-z_][\w \t\*]*?\b(\w+)\s*\([^;{}]*\)\s*\{", text, re.M))
+    for include in re.findall(r'^#include\s+"([^"]+\.c)"', text, re.M):
+        names |= defined_functions(path.parent / include, seen)
+    return names
 
 
 def main():
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 6:
         sys.exit(__doc__)
-    build, symbols, out = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
-    out.mkdir(parents=True, exist_ok=True)
-    frames = {}
-    for spec in sys.argv[4:]:
-        source, _, compiled = spec.partition("=")
-        compiled = compiled or source
-        # src/game/mario.c -> build/jp/src/game/mario.o
-        relative = source.split("/src/", 1)[1]
-        procs = procedures(build / "src" / relative.replace(".c", ".o"))
-        name = Path(source).stem
+    build, target, symbols, out = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]), Path(sys.argv[4])
+    sources = dict(spec.split("=", 1) for spec in sys.argv[5:])
+
+    funcs, graph = callgraph.call_graph(
+        build, target, lambda caller, callee: GODDARD not in caller.object or GODDARD in callee.object)
+    targets = [f for f in funcs if f.name == TARGET]
+    hooked = callgraph.ancestors(graph, targets) | set(targets)
+
+    by_object = {}
+    for f in hooked:
+        by_object.setdefault(f.object, []).append(f)
+    for relative, compiled in sorted(sources.items()):
+        obj = f"{build.relative_to(build.parent.parent)}/{relative[:-2]}.o"
+        functions = sorted(by_object.pop(obj, []), key=lambda f: f.address)
+        if not functions:
+            continue
+        wrapper = out / relative
+        wrapper.parent.mkdir(parents=True, exist_ok=True)
+        table = "sN64Frames_" + re.sub(r"\W", "_", relative[:-2])
         lines = [
             "// Generated by tools/n64stack/frames.py. Do not edit.",
             f'#include "{compiled}"',
             '#include "n64stack.h"',
             "",
-            f"static const struct n64_frame sN64Frames_{name}[] = {{",
+            f"static const struct n64_frame {table}[] = {{",
         ]
-        for proc, frame in procs:
-            lines.append(f"    {{ (const void *) {proc}, {frame} }},")
-            frames[proc] = frame
-        lines += [
-            "};",
-            "",
-            f"N64STACK_REGISTER({name}, sN64Frames_{name})",
-            "",
-        ]
-        (out / f"n64stack_{name}.c").write_text("\n".join(lines))
+        lines += [f"    {{ (const void *) {f.name}, {f.frame} }}," for f in functions]
+        lines += ["};", "", f"N64STACK_REGISTER({table[11:]}, {table})", ""]
+        text = "\n".join(lines)
+        if not wrapper.exists() or wrapper.read_text() != text:
+            wrapper.write_text(text)
+        names = {f.name for f in functions}
+        # GCC excludes every function whose name contains one of the list's:
+        # names inside a hooked one's stay hooked, with no frame (a lookup).
+        excluded = sorted(e for e in defined_functions(compiled) - names if not any(e in n for n in names))
+        print(f"{relative}\t{wrapper}\t{','.join(excluded)}")
+    for obj, functions in sorted(by_object.items()):
+        if "/lib/" not in obj:
+            print(f"frames.py: {obj} has functions on the path to {TARGET} but no native source",
+                  file=sys.stderr)
 
     # The game thread's stack: osCreateThread starts it 16 bytes below the top
     # given by create_thread (gThread5Stack + 0x2000).
@@ -86,13 +98,13 @@ def main():
         parts = line.split("\t")
         if parts[0] == "gThread5Stack":
             stack = int(parts[1], 16) + int(parts[2])
-    game_init = dict(procedures(build / "src" / "game" / "game_init.o"))
-    camera = dict(procedures(build / "src" / "game" / "camera.o"))
-    (out / "n64_frames.h").write_text(
-        "// Generated by tools/n64stack/frames.py. Do not edit.\n#pragma once\n"
-        f"// The N64 stack pointer inside thread5_game_loop.\n"
-        f"#define N64_GAME_LOOP_SP 0x{stack - 16 - game_init['thread5_game_loop']:08x}u\n"
-        f"#define N64_FRAME_set_camera_mode {camera['set_camera_mode']}\n")
+    loop = next(f for f in funcs if f.name == "thread5_game_loop")
+    header = ("// Generated by tools/n64stack/frames.py. Do not edit.\n#pragma once\n"
+              "// The N64 stack pointer inside thread5_game_loop.\n"
+              f"#define N64_GAME_LOOP_SP 0x{stack - 16 - loop.frame:08x}u\n")
+    path = out / "n64_frames.h"
+    if not path.exists() or path.read_text() != header:
+        path.write_text(header)
 
 
 if __name__ == "__main__":

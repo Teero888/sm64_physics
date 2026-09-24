@@ -234,13 +234,40 @@ static bool same_target(target n64, target native) {
 // A native symbol that the N64 loads into a segment: where it is in the
 // emulator's RAM now, from the segment table. 0 if it is not segmented or its
 // segment is not loaded.
+static const char *base_name(const n64_symbol *s) {
+    const char *base = strrchr(s->name, ':');
+    return base ? base + 1 : s->name;
+}
+
+// Segmented symbols by name, then address: the first of equal names is the
+// lowest address.
+static const n64_symbol **sSegmentedByName;
+
+static int by_name(const void *a, const void *b) {
+    const n64_symbol *x = *(const n64_symbol *const *) a, *y = *(const n64_symbol *const *) b;
+    const int c = strcmp(base_name(x), base_name(y));
+    return c ? c : (x->address < y->address ? -1 : x->address > y->address);
+}
+
 static uint32_t n64_segmented_address(const char *name, size_t offset) {
-    for (size_t i = 0; i < sSegmented.count; ++i) {
-        const n64_symbol *s = &sSegmented.symbols[i];
-        const char *base = strrchr(s->name, ':');
-        if (strcmp(base ? base + 1 : s->name, name) != 0) {
-            continue;
+    if (!sSegmentedByName) {
+        sSegmentedByName = malloc(sSegmented.count * sizeof(*sSegmentedByName));
+        for (size_t i = 0; i < sSegmented.count; ++i) {
+            sSegmentedByName[i] = &sSegmented.symbols[i];
         }
+        qsort(sSegmentedByName, sSegmented.count, sizeof(*sSegmentedByName), by_name);
+    }
+    size_t low = 0, high = sSegmented.count;
+    while (low < high) {
+        const size_t mid = (low + high) / 2;
+        if (strcmp(base_name(sSegmentedByName[mid]), name) < 0) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    if (low < sSegmented.count && strcmp(base_name(sSegmentedByName[low]), name) == 0) {
+        const n64_symbol *s = sSegmentedByName[low];
         const uint32_t segment = s->address >> 24;
         const uint32_t physical = n64_u32(sN64SegmentTable + 4 * segment);
         if (physical == 0) {

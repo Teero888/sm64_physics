@@ -1,10 +1,10 @@
 // A model of the N64 game thread's stack pointer, for the places where the
 // original lets a stack address leak into game state (docs/avoid_ub.md).
 //
-// The files on the call path to those places are compiled with
+// The functions on the N64's call paths to those places are compiled with
 // -finstrument-functions through generated wrappers (tools/n64stack), which
-// register each function's N64 frame size. Entering a function moves the
-// modelled stack pointer down by its frame, returning moves it back up.
+// register each one's N64 frame size. Entering one moves the modelled stack
+// pointer down by its frame, returning moves it back up.
 #pragma once
 #include <stdint.h>
 

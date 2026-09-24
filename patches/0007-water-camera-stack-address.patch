@@ -10,13 +10,12 @@ stack pointer.
 
 --- a/src/game/camera.c
 +++ b/src/game/camera.c
-@@ -2027,9 +2027,20 @@
+@@ -2027,9 +2027,19 @@
      c->nextYaw = mode_behind_mario(c);
  }
  
 +#ifdef AVOID_UB
 +#include "n64stack.h"
-+#include "n64_frames.h"
 +#endif
 +
  s32 nop_update_water_camera(UNUSED struct Camera *c, UNUSED Vec3f focus, UNUSED Vec3f pos) {
@@ -26,9 +25,9 @@ stack pointer.
 +    // set_camera_mode, its only caller, which stores it into sAreaYaw. That is
 +    // vec3f_copy's result, &dest: the address of its argument slot, i.e.
 +    // set_camera_mode's stack pointer. The host models the N64 stack pointer
-+    // (platform/n64stack.h); set_camera_mode is not instrumented, so the model
-+    // is at its caller.
-+    return (s32) (gN64StackPointer - N64_FRAME_set_camera_mode);
++    // (platform/n64stack.h), with set_camera_mode's frame and those of every
++    // function on the way to it.
++    return (s32) gN64StackPointer;
  #endif
  }
  

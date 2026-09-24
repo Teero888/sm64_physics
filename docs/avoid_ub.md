@@ -38,21 +38,28 @@ sites only affect sound and the title screen's Mario head and are not audited.
 
 ## The N64 stack pointer model
 
-Where the original leaks a stack address into game state, the value depends
-on how deep the call path is. `platform/n64stack.c` keeps the N64 game
-thread's stack pointer: the files on the call path from the game loop to such
-a place are compiled with `-finstrument-functions` through wrappers generated
-by `tools/n64stack/frames.py`, which register every function's N64 frame size
-read from the procedure descriptors in the matching build's `.mdebug` data.
+Where the original leaks a stack address into game state (only
+`set_camera_mode`, patches/0007), the value depends on how deep the call path
+is. `platform/n64stack.c` keeps the N64 game thread's stack pointer: every
+function from which the N64 can call `set_camera_mode`, and that function
+itself, moves it by its N64 frame size on entry and back on return.
+
+`tools/n64stack/callgraph.py` finds those functions in the matching build:
+every function, static ones included, with its frame size, from the procedure
+descriptors in each object's `.mdebug` data, placed by the linker map; direct
+calls from `jal` (and `j` to another function: a tail call); an indirect call
+(`jalr`) may reach any function whose address appears in the ROM's data or is
+built in code with `lui` and `addiu`/`ori`, except that goddard's indirect
+calls stay in goddard. That over-approximates the real graph, which only
+costs time. `tools/n64stack/frames.py` then writes, at configure time, a
+wrapper for each native source that has such functions: it includes the
+source and registers their frame sizes, and the source is compiled with
+`-finstrument-functions` and every other function of it excluded.
+
 The host sets the pointer to its value inside `thread5_game_loop` (the game
 thread's stack top, less 16 as `osCreateThread` does, less that function's
 frame) before running the level script. Both values seen in the JP 1-key TAS
 come out exactly, without calibration.
-
-Instrumented: `level_script.c`, `level_update.c`, `area.c`,
-`object_list_processor.c`, `behavior_script.c`, `mario.c`, `interaction.c`,
-`mario_actions_*.c`. A function missing from that path would show up as a
-wrong value in the lockstep comparison.
 
 ## Float conversions
 
