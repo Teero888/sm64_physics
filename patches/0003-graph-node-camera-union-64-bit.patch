@@ -1,0 +1,26 @@
+Subject: Keep the N64's camera union aliasing on 64-bit hosts
+
+GraphNodeCamera.config is a union of a struct Camera pointer and an s32 mode.
+Cameras whose geo layout gives no function (the intro's and the menus') only
+ever get the mode written, and level_cmd_begin_area then reads the pointer:
+on the N64 it is the mode's 32 bits, NULL for these cameras. With 64-bit
+pointers the upper half was uninitialized pool memory and the pointer came
+out non-NULL. Found by the lockstep comparator (gAreaData[1].camera, file
+select). No change for 32-bit builds.
+
+--- a/src/engine/graph_node.c
++++ b/src/engine/graph_node.c
+@@ -198,6 +198,13 @@
+         vec3f_copy(graphNode->pos, pos);
+         vec3f_copy(graphNode->focus, focus);
+         graphNode->fnNode.func = func;
++#if IS_64_BIT
++        // config is a union of the Camera pointer and the mode. On the N64 both
++        // are 32 bits, so a camera without a create function (the intro's and
++        // the menus') reads the mode as its pointer. Keep that when pointers
++        // are wider instead of leaving the upper half uninitialized.
++        graphNode->config.camera = (struct Camera *) (uintptr_t) (u32) mode;
++#endif
+         graphNode->config.mode = mode;
+         graphNode->roll = 0;
+         graphNode->rollScreen = 0;

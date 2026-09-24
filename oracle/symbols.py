@@ -20,7 +20,9 @@ STATIC_CLASSES = {2: ".data", 3: ".bss", 13: ".data", 14: ".bss", 15: ".rodata"}
 ST_STATIC = 2
 
 
-def elf_globals(elf):
+def elf_globals(elf, segmented=None):
+    """KSEG0 symbols; segmented ones (level data, behavior scripts) go to
+    `segmented` as (name, address, size), duplicates included."""
     listing = subprocess.run(["readelf", "-sW", str(elf)], check=True, capture_output=True, text=True).stdout
     symbols = {}
     for line in listing.splitlines():
@@ -28,6 +30,8 @@ def elf_globals(elf):
         if len(parts) != 8 or not parts[0].endswith(":") or parts[3] not in ("OBJECT", "FUNC", "NOTYPE"):
             continue
         name, address, size = parts[7], int(parts[1], 16), int(parts[2], 0)
+        if segmented is not None and 0x01000000 <= address < 0x20000000 and size and not name.startswith("."):
+            segmented.append((name, address, size))
         if address >= 0x80000000 and not name.startswith("."):
             symbols.setdefault(name, (address, size))
     return symbols
@@ -88,7 +92,8 @@ def main():
         sys.exit("usage: symbols.py BUILD_DIR TARGET out.tsv   (e.g. build/jp sm64.jp symbols/jp.tsv)")
     build, target, out_path = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
     root = build.parent.parent
-    symbols = elf_globals(build / f"{target}.elf")
+    segmented = []
+    symbols = elf_globals(build / f"{target}.elf", segmented)
     bases = section_bases(build / f"{target}.map")
 
     found = []  # (name, file, address)
@@ -117,7 +122,11 @@ def main():
     with open(out_path, "w") as out:
         for name, (address, size) in sorted(symbols.items(), key=lambda item: (item[1][0], item[0])):
             out.write(f"{name}\t{address:08x}\t{size}\n")
-    print(f"{len(symbols)} symbols, {len(found)} of them statics from .mdebug")
+    # Data the game loads into memory segments: segment number in the top byte.
+    with open(out_path.replace(".tsv", "") + "_segments.tsv", "w") as out:
+        for name, address, size in sorted(set(segmented), key=lambda item: (item[1], item[0])):
+            out.write(f"{name}\t{address:08x}\t{size}\n")
+    print(f"{len(symbols)} symbols, {len(found)} of them statics from .mdebug; {len(set(segmented))} segmented")
 
 
 if __name__ == "__main__":

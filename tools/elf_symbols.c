@@ -84,3 +84,70 @@ void *elf_symbol(const char *name, size_t *size) {
     }
     return NULL;
 }
+
+typedef struct {
+    uintptr_t address;
+    size_t size;
+    const char *name;
+} sorted_symbol;
+
+static sorted_symbol *sSorted;
+static size_t sSortedCount;
+
+static int compare_symbols(const void *a, const void *b) {
+    const sorted_symbol *x = a, *y = b;
+    return x->address < y->address ? -1 : x->address > y->address;
+}
+
+static void build_sorted(void) {
+    const Elf64_Ehdr *header = (const Elf64_Ehdr *) sImage;
+    const Elf64_Shdr *sections = (const Elf64_Shdr *) (sImage + header->e_shoff);
+    for (int s = 0; s < header->e_shnum; ++s) {
+        if (sections[s].sh_type != SHT_SYMTAB) {
+            continue;
+        }
+        const Elf64_Sym *symbols = (const Elf64_Sym *) (sImage + sections[s].sh_offset);
+        const char *strings = (const char *) (sImage + sections[sections[s].sh_link].sh_offset);
+        const size_t count = sections[s].sh_size / sizeof(Elf64_Sym);
+        sSorted = calloc(count, sizeof(*sSorted));
+        for (size_t i = 0; i < count; ++i) {
+            const int type = ELF64_ST_TYPE(symbols[i].st_info);
+            if ((type != STT_OBJECT && type != STT_FUNC) || symbols[i].st_size == 0) {
+                continue;
+            }
+            sSorted[sSortedCount++] = (sorted_symbol) { sLoadBase + symbols[i].st_value, symbols[i].st_size,
+                                                        strings + symbols[i].st_name };
+        }
+        qsort(sSorted, sSortedCount, sizeof(*sSorted), compare_symbols);
+        return;
+    }
+}
+
+const char *elf_symbol_containing(const void *addr, size_t *offset, size_t *size) {
+    if (!load_image()) {
+        return NULL;
+    }
+    if (!sSorted) {
+        build_sorted();
+    }
+    const uintptr_t a = (uintptr_t) addr;
+    size_t low = 0, high = sSortedCount;
+    while (low < high) {
+        const size_t mid = (low + high) / 2;
+        if (sSorted[mid].address <= a) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    if (low == 0) {
+        return NULL;
+    }
+    const sorted_symbol *found = &sSorted[low - 1];
+    if (a >= found->address + found->size) {
+        return NULL;
+    }
+    *offset = a - found->address;
+    *size = found->size;
+    return found->name;
+}

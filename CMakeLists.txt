@@ -101,3 +101,39 @@ target_link_libraries(sm64_game PUBLIC m)
 
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)
 target_link_libraries(sm64_run PRIVATE sm64_game)
+
+# The lockstep comparator: the oracle's emulator frontend with the native game
+# linked in, compared member by member at every frame. Needs mupen64plus.
+find_path(MUPEN64PLUS_INCLUDE_DIR m64p_frontend.h PATH_SUFFIXES mupen64plus)
+if(MUPEN64PLUS_INCLUDE_DIR)
+  # Struct layouts on the N64 (32-bit, 8-byte alignment for 64-bit types) and
+  # natively, read back out of DWARF.
+  set(SM64_LAYOUT "${CMAKE_CURRENT_BINARY_DIR}/layout")
+  set(SM64_LAYOUT_FLAGS -D_LANGUAGE_C -DVERSION_${SM64_VERSION_UPPER}=1 -DF3D_OLD=1 -D_FINALROM=1 -DNON_MATCHING
+      -DAVOID_UB -I${D}/include -I${GEN} -I${GEN}/include -I${D}/src -I${D} -g -gdwarf-4
+      -fno-eliminate-unused-debug-types -c)
+  set(SM64_LAYOUT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/tools/layout/layout_types.c")
+  add_custom_command(OUTPUT "${SM64_LAYOUT}/layout_tables.h"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${SM64_LAYOUT}"
+    COMMAND ${CMAKE_C_COMPILER} -m32 -malign-double -nostdinc -DTARGET_N64 -I${D}/include/libc ${SM64_LAYOUT_FLAGS}
+            "${SM64_LAYOUT_SOURCE}" -o "${SM64_LAYOUT}/n64.o"
+    COMMAND ${CMAKE_C_COMPILER} -DNO_SEGMENTED_MEMORY ${SM64_LAYOUT_FLAGS} "${SM64_LAYOUT_SOURCE}" -o "${SM64_LAYOUT}/native.o"
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/layout/layout.py" "${SM64_LAYOUT}/n64.o"
+            "${SM64_LAYOUT}/native.o" "${SM64_LAYOUT}/layout_tables.h"
+    DEPENDS "${SM64_LAYOUT_SOURCE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/layout/layout.py" VERBATIM)
+
+  add_library(oracle_video MODULE oracle/plugin_video.c)
+  add_library(oracle_input MODULE oracle/plugin_input.c)
+  set_target_properties(oracle_video oracle_input PROPERTIES PREFIX "" C_VISIBILITY_PRESET hidden)
+  add_executable(sm64_lockstep oracle/oracle.c oracle/movie.c tools/lockstep/lockstep.c tools/elf_symbols.c
+                 "${SM64_LAYOUT}/layout_tables.h")
+  foreach(target oracle_video oracle_input sm64_lockstep)
+    target_include_directories(${target} PRIVATE "${MUPEN64PLUS_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/oracle")
+  endforeach()
+  target_include_directories(sm64_lockstep PRIVATE "${SM64_LAYOUT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools"
+                             "${CMAKE_CURRENT_SOURCE_DIR}/tools/lockstep")
+  target_compile_definitions(sm64_lockstep PRIVATE SM64_LOCKSTEP
+    SM64_ORACLE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/oracle" SM64_VERSION_NAME="${SM64_VERSION}")
+  target_link_libraries(sm64_lockstep PRIVATE sm64_game ${CMAKE_DL_LIBS})
+  add_dependencies(sm64_lockstep oracle_video oracle_input)
+endif()

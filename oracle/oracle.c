@@ -72,6 +72,12 @@ static void die(const char *format, ...) {
 // mupen64plus keeps RDRAM as host-order 32-bit words.
 static uint8_t ram_byte(const uint8_t *ram, uint32_t address) { return ram[(address & 0x7fffff) ^ 3]; }
 
+#ifdef SM64_LOCKSTEP
+// The native library's comparator (tools/lockstep): compares this poll's RAM
+// with the native state and steps the native game. Nonzero stops the run.
+int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input);
+#endif
+
 static void stop(oracle *o) {
   if (o->stopping) return;
   o->stopping = true;
@@ -132,6 +138,12 @@ static uint32_t on_poll(void *user, int controller) {
     fwrite(o->record, 1, o->record_size, o->trace);
   }
   if (o->polls) fwrite(&input, 4, 1, o->polls);
+#ifdef SM64_LOCKSTEP
+  if (lockstep_poll(ram, o->poll, input)) {
+    o->failed = true;
+    stop(o);
+  }
+#endif
   for (int d = 0; d < o->dump_count; ++d)
     if (o->dump_at[d] == o->poll) write_dump(o, ram, ram_size);
   ++o->poll;
