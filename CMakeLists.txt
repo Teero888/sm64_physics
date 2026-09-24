@@ -83,11 +83,45 @@ target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_co
 target_include_directories(sm64_ultra_math PRIVATE "${D}/include" "${D}/lib/src")
 target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -w)
 
+# The N64 stack pointer model (platform/n64stack.h): the files on the call
+# path from the game loop to where the original leaks a stack address are
+# compiled with function hooks, through wrappers that register each function's
+# N64 frame size, read from the matching build's debug data.
+set(SM64_N64STACK_FILES src/engine/level_script.c src/game/level_update.c src/game/area.c
+    src/game/object_list_processor.c src/engine/behavior_script.c src/game/mario.c src/game/interaction.c
+    src/game/mario_actions_airborne.c src/game/mario_actions_automatic.c src/game/mario_actions_cutscene.c
+    src/game/mario_actions_moving.c src/game/mario_actions_object.c src/game/mario_actions_stationary.c
+    src/game/mario_actions_submerged.c)
+set(SM64_N64STACK_DIR "${CMAKE_CURRENT_BINARY_DIR}/n64stack")
+set(n64stack_specs)
+set(n64stack_outputs "${SM64_N64STACK_DIR}/n64_frames.h")
+foreach(relative ${SM64_N64STACK_FILES})
+  if(relative IN_LIST SM64_PATCHED)
+    set(compiled "${SM64_OVERLAY}/${relative}")
+  else()
+    set(compiled "${D}/${relative}")
+  endif()
+  get_filename_component(stem "${relative}" NAME_WE)
+  get_filename_component(original_dir "${D}/${relative}" DIRECTORY)
+  set(wrapper "${SM64_N64STACK_DIR}/n64stack_${stem}.c")
+  list(APPEND n64stack_specs "${D}/${relative}=${compiled}")
+  list(APPEND n64stack_outputs "${wrapper}")
+  list(REMOVE_ITEM SM64_SOURCES "${compiled}")
+  list(APPEND SM64_SOURCES "${wrapper}")
+  set_source_files_properties("${wrapper}" PROPERTIES COMPILE_OPTIONS "-finstrument-functions"
+                              INCLUDE_DIRECTORIES "${original_dir}")
+endforeach()
+add_custom_command(OUTPUT ${n64stack_outputs}
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/frames.py" "${GEN}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/oracle/symbols/${SM64_VERSION}.tsv" "${SM64_N64STACK_DIR}" ${n64stack_specs}
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/frames.py" VERBATIM)
+
 string(TOUPPER "${SM64_VERSION}" SM64_VERSION_UPPER)
 # How every game source is compiled.
 function(sm64_game_settings target visibility)
   target_include_directories(${target} ${visibility} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}"
-                             "${GEN}/include" "${D}/include" "${D}/src")
+                             "${GEN}/include" "${D}/include" "${D}/src"
+                             "${CMAKE_CURRENT_SOURCE_DIR}/platform" "${SM64_N64STACK_DIR}")
   target_compile_definitions(${target} ${visibility}
     VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
     # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
@@ -119,7 +153,8 @@ add_custom_command(OUTPUT "${SM64_OVERLAY_OBJECT}"
   DEPENDS $<TARGET_OBJECTS:sm64_overlay_objects> COMMAND_EXPAND_LISTS VERBATIM)
 set_source_files_properties("${SM64_OVERLAY_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
 
-add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c $<TARGET_OBJECTS:sm64_ultra_math>
+add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c platform/n64stack.c
+            $<TARGET_OBJECTS:sm64_ultra_math>
             "${SM64_OVERLAY_OBJECT}")
 sm64_game_settings(sm64_game PUBLIC)
 add_dependencies(sm64_game sm64_overlay_objects)

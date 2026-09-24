@@ -360,8 +360,7 @@ static const global sGlobals[] = {
     SCALAR("sSelectionFlags", LEAF_U16),
     SCALAR("gCutsceneTimer", LEAF_S16),
     SCALAR("sCutsceneShot", LEAF_S16),
-    // sAreaYaw is not compared yet: entering the water surface camera mode
-    // sets it to the low half of the N64 stack pointer (docs/avoid_ub.md).
+    SCALAR("sAreaYaw", LEAF_S16),
     SCALAR("sAreaYawChange", LEAF_S16),
     SCALAR("sLakituDist", LEAF_S16),
     SCALAR("sLakituPitch", LEAF_S16),

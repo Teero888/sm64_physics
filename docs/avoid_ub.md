@@ -10,7 +10,7 @@ sites only affect sound and the title screen's Mario head and are not audited.
 |---|---|---|---|
 | `object_collision.c` `detect_object_hitbox_overlap`, `detect_object_hurtbox_overlap` | missing return is 0 | returns v0: the previous result of either in the collision pass | **patch 0004** |
 | `wiggler.inc.c` init | sets health to 4 | JP/US read 0 (fields are zeroed at spawn); only EU sets 4 | **patch 0005** |
-| `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode. Values seen in the JP 1-key TAS: `0x6e78`, `0x6eb0` | **open**: needs a model of the N64 stack pointer |
+| `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode (`0x6e78`, `0x6eb0` in the JP 1-key TAS, depending on the call path) | **patch 0007**, from the N64 stack pointer model (`platform/n64stack.h`) |
 | `camera_lakitu.inc.c` intro dialog | target pitch/yaw start at 0 | uninitialized registers, read while Lakitu hovers during his dialog | matches the emulator in the JP 1-key TAS (new file, full intro) |
 | `mario_actions_airborne.c` wall kick | returns `set_mario_animation`'s result | same value is in v0 | faithful |
 | `shadow.c` water shadow height | returns `waterLevel` | same | faithful (rendering) |
@@ -33,3 +33,21 @@ sites only affect sound and the title screen's Mario head and are not audited.
 | `GraphNodeCamera.config` union | pointer and mode are both 32 bits | pointer's upper half uninitialized | **patch 0003** |
 | `load_to_fixed_pool_addr` | allocates the segment at the right end of the main pool | nothing | pool addresses differ anyway; only matters if the pool runs out |
 | Object fields used as two s16 | `asS16[i][0]` is the upper half of the slot | the lower half | each side reads its own layout; only the comparator cares |
+
+## The N64 stack pointer model
+
+Where the original leaks a stack address into game state, the value depends
+on how deep the call path is. `platform/n64stack.c` keeps the N64 game
+thread's stack pointer: the files on the call path from the game loop to such
+a place are compiled with `-finstrument-functions` through wrappers generated
+by `tools/n64stack/frames.py`, which register every function's N64 frame size
+read from the procedure descriptors in the matching build's `.mdebug` data.
+The host sets the pointer to its value inside `thread5_game_loop` (the game
+thread's stack top, less 16 as `osCreateThread` does, less that function's
+frame) before running the level script. Both values seen in the JP 1-key TAS
+come out exactly, without calibration.
+
+Instrumented: `level_script.c`, `level_update.c`, `area.c`,
+`object_list_processor.c`, `behavior_script.c`, `mario.c`, `interaction.c`,
+`mario_actions_*.c`. A function missing from that path would show up as a
+wrong value in the lockstep comparison.

@@ -7,6 +7,8 @@
 #include <string.h>
 
 #include "sm64_physics.h"
+#include "n64stack.h"
+#include "n64_frames.h"
 
 #include "audio/external.h"
 #include "engine/level_script.h"
@@ -126,6 +128,8 @@ void sm64_step(uint32_t input) {
     audio_game_loop_tick();
     select_gfx_pool();
     read_controller_inputs();
+    // The level script runs from thread5_game_loop's frame on the N64.
+    gN64StackPointer = N64_GAME_LOOP_SP;
     sLevelAddress = level_script_execute(sLevelAddress);
     display_and_vsync();
     // thread4_sound runs once per vertical interrupt, two per game frame. It
