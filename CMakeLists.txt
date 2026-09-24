@@ -7,6 +7,10 @@ project(sm64_physics LANGUAGES C)
 # data includes (animations, demo inputs, text, textures, sound banks).
 set(SM64_DECOMP_DIR "$ENV{HOME}/software/sm64-decomp" CACHE PATH "n64decomp/sm64 checkout built for SM64_VERSION")
 set(SM64_VERSION jp CACHE STRING "Game version: jp or us")
+# The library simulates: the parts of the original rendering path that change
+# game state run, nothing is drawn. The reference build keeps the original
+# rendering path, as a check that the simulation changes nothing.
+option(SM64_REFERENCE "Build the original, drawing game instead of the simulation" OFF)
 set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
@@ -131,7 +135,8 @@ function(sm64_game_settings target visibility)
     # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
     # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
     NON_MATCHING AVOID_UB
-    NO_SEGMENTED_MEMORY)
+    NO_SEGMENTED_MEMORY
+    $<$<NOT:$<BOOL:${SM64_REFERENCE}>>:SM64_SIMULATION>)
   # Bit parity: IEEE single precision without fused or reordered arithmetic,
   # wrapping signed integers as on the N64, signed chars as IDO's -signed.
   target_compile_options(${target} PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing

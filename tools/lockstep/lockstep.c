@@ -231,6 +231,26 @@ static bool same_target(target n64, target native) {
     return true;
 }
 
+// A native symbol that the N64 loads into a segment: where it is in the
+// emulator's RAM now, from the segment table. 0 if it is not segmented or its
+// segment is not loaded.
+static uint32_t n64_segmented_address(const char *name, size_t offset) {
+    for (size_t i = 0; i < sSegmented.count; ++i) {
+        const n64_symbol *s = &sSegmented.symbols[i];
+        const char *base = strrchr(s->name, ':');
+        if (strcmp(base ? base + 1 : s->name, name) != 0) {
+            continue;
+        }
+        const uint32_t segment = s->address >> 24;
+        const uint32_t physical = n64_u32(sN64SegmentTable + 4 * segment);
+        if (physical == 0) {
+            return 0;
+        }
+        return (physical | 0x80000000) + (s->address & 0xffffff) + (uint32_t) offset;
+    }
+    return 0;
+}
+
 static void describe(char *out, size_t size, target t) {
     switch (t.type) {
         case TARGET_NULL: snprintf(out, size, "NULL"); break;
@@ -275,8 +295,17 @@ static void compare_value(const char *where, const char *path, uint32_t index, i
             actual = *(const uint64_t *) native;
             break;
         case LEAF_PTR: {
-            const target n64 = n64_target(n64_u32(n64_address));
+            const uint32_t raw = n64_u32(n64_address);
+            const target n64 = n64_target(raw);
             const target mine = native_target(*(void *const *) native);
+            // Data the N64 loads into a segment (level and actor data): its
+            // address follows from the segment table.
+            if (mine.type == TARGET_SYMBOL && raw != 0) {
+                const uint32_t expected = n64_segmented_address(mine.name, mine.offset);
+                if (expected != 0 && expected == raw) {
+                    return;
+                }
+            }
             if (!same_target(n64, mine)) {
                 char a[128], b[128];
                 describe(a, sizeof(a), n64);
