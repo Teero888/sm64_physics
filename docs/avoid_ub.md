@@ -69,4 +69,6 @@ unsigned types differ (IDO makes them 0xFFFFFFFF, x86 wraps) and are patched;
 so far only `sins`/`coss` with float arguments reach them. Values to `s16`
 that fit in 32 bits are truncated to 32 bits and then wrap on both. Values
 beyond 32 bits would differ (and trap on the R4300) but the corpus does not
-reach any.
+reach any. Scanned: JP 1-key and all trees, US 0-star, 16-star, 70-star and
+120-star (TASVideos publications 2016, 6943, 2062, 7310); the US ones only
+reach float to s16 in Mario's actions and intro Lakitu.
