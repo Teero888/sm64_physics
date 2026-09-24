@@ -1,0 +1,16 @@
+Subject: Include only ultra64.h in the audio loader
+
+PR/os.h is the SDK's old all-in-one header. Next to ultra64.h it redeclares the
+DMA functions and osVirtualToPhysical with 32-bit address types, which conflict
+with PR/os_misc.h on a 64-bit host. ultra64.h already declares everything
+load.c uses. No behavior change.
+
+--- a/src/audio/load.c
++++ b/src/audio/load.c
+@@ -1,6 +1,5 @@
+ #if !defined(VERSION_SH) && !defined(VERSION_CN)
+ #include <ultra64.h>
+-#include <PR/os.h>
+ 
+ #include "data.h"
+ #include "external.h"

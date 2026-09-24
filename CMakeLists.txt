@@ -1,195 +1,103 @@
 cmake_minimum_required(VERSION 3.22)
 project(sm64_physics LANGUAGES C)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+# The game is the n64decomp/sm64 source compiled natively. SM64_DECOMP_DIR is
+# a checkout of it (at the pinned commit) that has been built once for
+# SM64_VERSION from the user's ROM: that build generates the assets the game
+# data includes (animations, demo inputs, text, textures, sound banks).
+set(SM64_DECOMP_DIR "$ENV{HOME}/software/sm64-decomp" CACHE PATH "n64decomp/sm64 checkout built for SM64_VERSION")
+set(SM64_VERSION jp CACHE STRING "Game version: jp")
+set_property(CACHE SM64_VERSION PROPERTY STRINGS jp)
 
-# The source files in upstream/ are never patched for the host build.
-add_library(sm64_physics_core STATIC
-    extracted/object_lifetime.c
-    extracted/behavior_helpers.c
-    host/behavior.c
-    host/camera.c
-    extracted/mario_camera.c
-    extracted/mario_quicksand.c
-    extracted/object_math.c
-    extracted/object_slots.c
-    host/objects.c
-    extracted/memory_pool.c
-    extracted/save.c
-    host/save.c
-    extracted/sound_control.c
-    extracted/mario_sound.c
-    extracted/mario_status.c
-    extracted/object_sound.c
-    extracted/object_animation_query.c
-    extracted/sound_spawner.c
-    host/audio.c
-    extracted/animation_loader.c
-    extracted/mario_animation.c
-    host/animation_bank.c
-    host/mario_anims.c
-    extracted/controller.c
-    extracted/mario_input.c
-    host/controller.c
-    extracted/animation.c
-    extracted/math_util.c
-    extracted/object_nodes.c
-    extracted/main_pool.c
-    extracted/terrain_load.c
-    extracted/terrain_queries.c
-    extracted/object_transforms.c
-    extracted/object_helpers.c
-    host/animation.c
-    host/address.c
-    host/object_nodes.c
-    host/pool.c
-    host/main_pool.c
-    extracted/area_terrain.c
-    extracted/mario.c
-    extracted/mario_environment.c
-    extracted/mario_step.c
-    extracted/mario_ground.c
-    extracted/mario_collision_helpers.c
-    extracted/mario_geometry_input.c
-    extracted/mario_action_setup.c
-    extracted/mario_surface_class.c
-    extracted/interaction.c
-    extracted/mario_holding.c
-    extracted/object_held_state.c
-    extracted/mario_transitions.c
-    extracted/behavior_script.c
-    extracted/random.c
-    extracted/object_collision.c
-    extracted/object_list_processor.c
-    extracted/object_scheduler.c
-    extracted/object_frame.c
-    extracted/debug_stub.c
-    host/object_frame.c
-    extracted/platform_displacement.c
-    host/runtime_state.c
-    upstream/src/game/mario_actions_airborne.c
-    upstream/src/game/mario_actions_automatic.c
-    upstream/src/game/mario_actions_cutscene.c
-    upstream/src/game/mario_actions_moving.c
-    upstream/src/game/mario_actions_object.c
-    upstream/src/game/mario_actions_stationary.c
-    upstream/src/game/mario_actions_submerged.c
-    host/world.c
-)
-target_include_directories(sm64_physics_core PUBLIC include upstream/include upstream/src upstream)
-target_include_directories(sm64_physics_core PRIVATE upstream/src/engine upstream/src/game)
-target_include_directories(sm64_physics_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-add_library(sm64_physics ALIAS sm64_physics_core)
-set_source_files_properties(extracted/main_pool.c PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_POOL_IMPLEMENTATION)
-set_source_files_properties(extracted/terrain_load.c extracted/terrain_queries.c
-    extracted/mario_ground.c extracted/mario_collision_helpers.c
-    extracted/mario_geometry_input.c
-    PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_TERRAIN_IMPLEMENTATION)
-set_source_files_properties(upstream/src/game/mario_actions_submerged.c
-    PROPERTIES COMPILE_DEFINITIONS SM64_PHYSICS_SUBMERGED_IMPLEMENTATION)
-target_compile_definitions(sm64_physics_core PUBLIC VERSION_US _LANGUAGE_C NON_MATCHING AVOID_UB NO_SEGMENTED_MEMORY)
-set_target_properties(sm64_physics_core PROPERTIES C_STANDARD 11 POSITION_INDEPENDENT_CODE ON)
-if(NOT MSVC)
-    target_compile_options(sm64_physics_core PRIVATE -include "${CMAKE_CURRENT_SOURCE_DIR}/host/mario_motion.h")
-    target_compile_options(sm64_physics_core PRIVATE -fno-strict-aliasing -ffp-contract=off)
-    target_link_libraries(sm64_physics_core PUBLIC m)
-else()
-    target_compile_options(sm64_physics_core PRIVATE "/FI${CMAKE_CURRENT_SOURCE_DIR}/host/mario_motion.h")
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(D "${SM64_DECOMP_DIR}")
+set(GEN "${D}/build/${SM64_VERSION}")
+if(NOT EXISTS "${GEN}/assets/mario_anim_data.c")
+  message(FATAL_ERROR "${GEN} has no generated assets: build the decomp with `make VERSION=${SM64_VERSION}` first")
 endif()
 
-include(CTest)
-if(BUILD_TESTING)
-    if(MSVC)
-        add_compile_options(/UNDEBUG)
-    else()
-        add_compile_options(-UNDEBUG)
-    endif()
-    find_package(Python3 REQUIRED COMPONENTS Interpreter)
-    add_executable(sm64_mario_camera_test tests/mario_camera.c)
-    target_link_libraries(sm64_mario_camera_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_camera COMMAND sm64_mario_camera_test)
-    add_executable(sm64_mario_environment_test tests/mario_environment.c)
-    target_link_libraries(sm64_mario_environment_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_environment COMMAND sm64_mario_environment_test)
-    add_executable(sm64_mario_transitions_test tests/mario_transitions.c)
-    target_link_libraries(sm64_mario_transitions_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_transitions COMMAND sm64_mario_transitions_test)
-    add_executable(sm64_mario_status_test tests/mario_status.c)
-    target_link_libraries(sm64_mario_status_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_status COMMAND sm64_mario_status_test)
-    add_executable(sm64_object_frame_test tests/object_frame.c)
-    target_link_libraries(sm64_object_frame_test PRIVATE sm64_physics_core)
-    add_test(NAME native_object_frame COMMAND sm64_object_frame_test)
-    add_executable(sm64_scheduler_test tests/scheduler.c)
-    target_link_libraries(sm64_scheduler_test PRIVATE sm64_physics_core)
-    add_test(NAME native_object_scheduler COMMAND sm64_scheduler_test)
-    add_executable(sm64_behavior_test tests/behavior.c)
-    target_link_libraries(sm64_behavior_test PRIVATE sm64_physics_core)
-    add_test(NAME native_behavior_execution COMMAND sm64_behavior_test)
-    add_executable(sm64_random_test tests/random.c)
-    target_link_libraries(sm64_random_test PRIVATE sm64_physics_core)
-    add_test(NAME native_random_state COMMAND sm64_random_test)
-    add_executable(sm64_platform_test tests/platform.c)
-    target_link_libraries(sm64_platform_test PRIVATE sm64_physics_core)
-    add_test(NAME native_platform_displacement COMMAND sm64_platform_test)
-    add_executable(sm64_object_collision_test tests/object_collision.c)
-    target_link_libraries(sm64_object_collision_test PRIVATE sm64_physics_core)
-    add_test(NAME native_object_collision COMMAND sm64_object_collision_test)
-    add_executable(sm64_objects_test tests/objects.c)
-    target_link_libraries(sm64_objects_test PRIVATE sm64_physics_core)
-    add_test(NAME native_object_lifetime COMMAND sm64_objects_test)
-    add_executable(sm64_memory_pool_test tests/memory_pool.c)
-    target_link_libraries(sm64_memory_pool_test PRIVATE sm64_physics_core)
-    add_test(NAME native_memory_pool COMMAND sm64_memory_pool_test)
-    add_executable(sm64_save_test tests/save.c)
-    target_link_libraries(sm64_save_test PRIVATE sm64_physics_core)
-    add_test(NAME native_save_progress COMMAND sm64_save_test)
-    add_executable(sm64_audio_test tests/audio.c)
-    target_link_libraries(sm64_audio_test PRIVATE sm64_physics_core)
-    add_test(NAME native_audio_events COMMAND sm64_audio_test)
-    add_test(NAME upstream_fidelity COMMAND ${Python3_EXECUTABLE}
-        ${CMAKE_CURRENT_SOURCE_DIR}/tools/verify_upstream.py)
-    add_executable(sm64_collision_test tests/collision.c)
-    target_link_libraries(sm64_collision_test PRIVATE sm64_physics_core)
-    add_test(NAME native_collision COMMAND sm64_collision_test)
-    add_executable(sm64_animation_test tests/animation.c)
-    target_link_libraries(sm64_animation_test PRIVATE sm64_physics_core)
-    add_test(NAME native_animation COMMAND sm64_animation_test)
-    add_executable(sm64_animation_bank_test tests/animation_bank.c)
-    target_link_libraries(sm64_animation_bank_test PRIVATE sm64_physics_core)
-    add_test(NAME native_animation_bank COMMAND sm64_animation_bank_test)
-    add_executable(sm64_object_nodes_test tests/object_nodes.c)
-    target_link_libraries(sm64_object_nodes_test PRIVATE sm64_physics_core)
-    add_test(NAME native_object_nodes COMMAND sm64_object_nodes_test)
-    add_executable(sm64_main_pool_test tests/main_pool.c)
-    target_link_libraries(sm64_main_pool_test PRIVATE sm64_physics_core)
-    add_test(NAME native_main_pool COMMAND sm64_main_pool_test)
-    add_executable(sm64_moving_surfaces_test tests/moving_surfaces.c)
-    target_link_libraries(sm64_moving_surfaces_test PRIVATE sm64_physics_core)
-    add_test(NAME native_moving_surfaces COMMAND sm64_moving_surfaces_test)
-    add_executable(sm64_mario_ground_test tests/mario_ground.c)
-    target_link_libraries(sm64_mario_ground_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_ground COMMAND sm64_mario_ground_test)
-    add_executable(sm64_mario_air_test tests/mario_air.c)
-    target_link_libraries(sm64_mario_air_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_air COMMAND sm64_mario_air_test)
-    add_executable(sm64_controller_test tests/controller.c)
-    target_link_libraries(sm64_controller_test PRIVATE sm64_physics_core)
-    add_test(NAME native_controller COMMAND sm64_controller_test)
-    add_executable(sm64_mario_geometry_input_test tests/mario_geometry_input.c)
-    target_link_libraries(sm64_mario_geometry_input_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_geometry_input COMMAND sm64_mario_geometry_input_test)
-    add_executable(sm64_mario_action_setup_test tests/mario_action_setup.c)
-    target_link_libraries(sm64_mario_action_setup_test PRIVATE sm64_physics_core)
-    add_test(NAME native_mario_action_setup COMMAND sm64_mario_action_setup_test)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        find_package(Threads REQUIRED)
-        add_executable(sm64_terrain_threads_test tests/terrain_threads.c)
-        target_link_libraries(sm64_terrain_threads_test PRIVATE sm64_physics_core Threads::Threads)
-        add_test(NAME native_terrain_threads COMMAND sm64_terrain_threads_test)
-    endif()
-    add_executable(sm64_world_test tests/world.c)
-    target_link_libraries(sm64_world_test PRIVATE sm64_physics_core m)
-    add_test(NAME native_world COMMAND sm64_world_test)
+set(SM64_SOURCE_DIRS src/engine src/game src/menu src/audio src/buffers src/goddard src/goddard/dynlists actors bin data sound)
+set(SM64_SOURCES)
+foreach(dir ${SM64_SOURCE_DIRS})
+  file(GLOB found "${D}/${dir}/*.c")
+  list(APPEND SM64_SOURCES ${found})
+endforeach()
+file(GLOB level_dirs LIST_DIRECTORIES true "${D}/levels/*")
+foreach(level ${level_dirs})
+  if(EXISTS "${level}/header.h")
+    foreach(part leveldata script geo)
+      if(EXISTS "${level}/${part}.c")
+        list(APPEND SM64_SOURCES "${level}/${part}.c")
+      endif()
+    endforeach()
+  endif()
+endforeach()
+list(APPEND SM64_SOURCES "${D}/levels/entry.c" "${D}/levels/scripts.c"
+     "${GEN}/assets/mario_anim_data.c" "${GEN}/assets/demo_data.c")
+# Sound banks and sequences in the host's layout, in place of the N64's.
+set(SM64_NATIVE_SOUND "${CMAKE_CURRENT_BINARY_DIR}/native_sound")
+add_custom_command(OUTPUT "${SM64_NATIVE_SOUND}/sound_data.c"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/native_sound.py" "${D}" ${SM64_VERSION}
+          "${SM64_NATIVE_SOUND}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tools/native_sound.py" VERBATIM)
+list(REMOVE_ITEM SM64_SOURCES "${D}/sound/sound_data.c")
+list(APPEND SM64_SOURCES "${SM64_NATIVE_SOUND}/sound_data.c")
+file(GLOB skyboxes "${GEN}/bin/*_skybox.c")
+list(APPEND SM64_SOURCES ${skyboxes})
+# The SDK's own C: matrix helpers and the audio bank loader.
+foreach(ultra guMtxF2L guOrthoF guPerspectiveF guRotateF guScaleF guTranslateF guLookAtRef guNormalize alBnkfNew)
+  list(APPEND SM64_SOURCES "${D}/lib/src/${ultra}.c")
+endforeach()
+# Other versions' files and the iQue's.
+list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints|port_eu)\\.c$")
+
+# Every change to the decomp is a patch in patches/, applied to copies of the
+# touched files in the build tree. The patched copies are compiled instead.
+file(GLOB SM64_PATCHES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/patches/*.patch")
+set(SM64_OVERLAY "${CMAKE_CURRENT_BINARY_DIR}/overlay")
+execute_process(
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/overlay.py" "${D}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/patches" "${SM64_OVERLAY}"
+  OUTPUT_VARIABLE SM64_PATCHED OUTPUT_STRIP_TRAILING_WHITESPACE
+  RESULT_VARIABLE overlay_result)
+if(NOT overlay_result EQUAL 0)
+  message(FATAL_ERROR "patches/ does not apply to ${D}")
 endif()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${SM64_PATCHES})
+string(REPLACE "\n" ";" SM64_PATCHED "${SM64_PATCHED}")
+foreach(relative ${SM64_PATCHED})
+  if(relative MATCHES "\\.h$")
+    message(FATAL_ERROR "${relative}: header patches need their includers overlaid too")
+  endif()
+  list(TRANSFORM SM64_SOURCES REPLACE "^${D}/${relative}$" "${SM64_OVERLAY}/${relative}")
+  # Its quoted includes still name neighbours in the original directory.
+  get_filename_component(original_dir "${D}/${relative}" DIRECTORY)
+  set_source_files_properties("${SM64_OVERLAY}/${relative}" PROPERTIES INCLUDE_DIRECTORIES "${original_dir}")
+endforeach()
+
+# libultra's sinf and cosf, which the game called and whose results differ from
+# the host's libm, under other names (see platform/ultra_math.h). Built apart:
+# they must not see the host's <math.h>, whose NAN they would clash with.
+add_library(sm64_ultra_math OBJECT "${D}/lib/src/math/sinf.c" "${D}/lib/src/math/cosf.c" "${D}/lib/src/NaN.c")
+target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_cosf NAN=ultra_nan)
+target_include_directories(sm64_ultra_math PRIVATE "${D}/include" "${D}/lib/src")
+target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -w)
+
+add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c $<TARGET_OBJECTS:sm64_ultra_math>)
+target_include_directories(sm64_game PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}" "${GEN}/include" "${D}/include" "${D}/src")
+string(TOUPPER "${SM64_VERSION}" SM64_VERSION_UPPER)
+target_compile_definitions(sm64_game PUBLIC
+  VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
+  # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
+  # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
+  NON_MATCHING AVOID_UB
+  NO_SEGMENTED_MEMORY)
+# Bit parity: IEEE single precision without fused or reordered arithmetic,
+# wrapping signed integers as on the N64, signed chars as IDO's -signed.
+target_compile_options(sm64_game PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
+  -ffp-contract=off -fno-fast-math -fPIC -w
+  -include "${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h")
+target_link_libraries(sm64_game PUBLIC m)
+
+add_executable(sm64_run tools/run.c tools/elf_symbols.c)
+target_link_libraries(sm64_run PRIVATE sm64_game)

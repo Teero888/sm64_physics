@@ -45,6 +45,19 @@ class Trace:
         sys.exit(f"no field {name}")
 
 
+# Pointer members, (offset, length) in the N64 layout. They hold addresses,
+# which only mean something within one run, so diffs ignore them.
+POINTERS = {
+    "gMarioStates": [(0x60, 0x0C), (0x78, 0x2C)],
+}
+
+
+def masked(name, data):
+    for offset, length in POINTERS.get(name, []):
+        data = data[:offset] + bytes(length) + data[offset + length:]
+    return data
+
+
 def hexdump(data, base=0, width=16):
     return "\n".join(f"  +{base + i:05x}: {data[i:i + width].hex(' ')}" for i in range(0, len(data), width))
 
@@ -103,21 +116,30 @@ def main():
         other = Trace(sys.argv[3])
         names = [f[0] for f in trace.fields]
         shared = [f for f in other.fields if f[0] in names]
-        for index in range(min(trace.count, other.count)):
-            if trace.header(index)[2] != other.header(index)[2]:
-                sys.exit(f"inputs differ at poll {index}: the traces are not of the same run")
+        # Records line up by poll number: a native trace starts at the first
+        # game frame, after the oracle's boot-time poll.
+        by_poll = {trace.header(i)[0]: i for i in range(trace.count)}
+        compared = 0
+        for index in range(other.count):
+            poll = other.header(index)[0]
+            if poll not in by_poll:
+                continue
+            mine = by_poll[poll]
+            if trace.header(mine)[2] != other.header(index)[2]:
+                sys.exit(f"inputs differ at poll {poll}: the traces are not of the same run")
             bad = []
             for field in shared:
-                _, expected = trace.field(index, field[0])
-                _, actual = other.field(index, field[0])
+                expected = masked(field[0], trace.field(mine, field[0])[1])
+                actual = masked(field[0], other.field(index, field[0])[1])
                 if expected != actual:
                     bad += [f"  {field[0]}:"] + diff_bytes(field[0], field[3], expected, actual)
             if bad:
-                print(f"first difference at poll {index} (vertical interrupt {trace.header(index)[1]}):")
+                print(f"first difference at poll {poll} (vertical interrupt {trace.header(mine)[1]}), "
+                      f"after {compared} identical polls:")
                 print("\n".join(bad))
                 sys.exit(1)
-        print(f"identical over {min(trace.count, other.count)} polls"
-              + ("" if trace.count == other.count else f" (lengths {trace.count} and {other.count})"))
+            compared += 1
+        print(f"identical over {compared} polls ({', '.join(f[0] for f in shared)})")
     elif command == "mario":
         start = int(sys.argv[3], 0)
         if start < 0:
