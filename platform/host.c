@@ -145,6 +145,13 @@ void sm64_set_audio(bool enabled) {
     sRunAudio = enabled;
 }
 
+// platform/draw.h
+int gHostDraw;
+
+void sm64_set_draw(bool enabled) {
+    gHostDraw = enabled;
+}
+
 // One iteration of thread4_sound's loop. The game waits for one in
 // sound_reset (patches/0002): without sound, the frame just counts.
 void host_run_audio_frame(void) {

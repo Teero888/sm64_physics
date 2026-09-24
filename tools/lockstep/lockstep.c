@@ -541,6 +541,9 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         for (size_t i = 0; i < sizeof(sNamedSegments) / sizeof(sNamedSegments[0]); ++i) {
             sNamedSegmentSize[i] = segment_size(sNamedSegments[i]);
         }
+        // SM64_LOCKSTEP_DRAW=1: the game step also draws, as on the N64.
+        const char *draw = getenv("SM64_LOCKSTEP_DRAW");
+        sm64_set_draw(draw && strcmp(draw, "0") != 0);
         sm64_boot();
         return 0;
     }

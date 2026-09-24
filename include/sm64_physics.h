@@ -23,6 +23,11 @@ void sm64_step(uint32_t input);
 // depend on it; it only mixes the music and sound effects.
 void sm64_set_audio(bool enabled);
 
+// Whether sm64_step also builds the frame's display lists, as the N64 does:
+// off by default. The game state does not depend on it; turning it on checks
+// exactly that.
+void sm64_set_draw(bool enabled);
+
 #ifdef __cplusplus
 }
 #endif

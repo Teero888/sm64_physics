@@ -1,0 +1,422 @@
+Subject: Geo functions without drawing
+
+The geo functions that the render walk calls, with SM64_DRAW false:
+- only drawing, skipped: skybox, mirror Mario's alpha and backface culling,
+  cannon circle, castle lobby light, cake end screen, Bowser's coloring
+- drawing and state, only the state: the flying carpet (gFlyingCarpetState),
+  layer transparency (oAnimState), paintings (ripples, floors, the DDD
+  painting's position), environment effects (particles move with the game's
+  random numbers), moving textures (texture offsets and rotations)
+- the rest only change state (camera, switch cases, Mario's body and hands,
+  held objects, water levels) and run as before
+
+The painting mesh comes from gEffectsMemoryPool and is freed in the same
+call: that allocation and free leave the pool's free list as it was.
+
+--- a/src/game/level_geo.c
++++ b/src/game/level_geo.c
+@@ -65,7 +65,7 @@
+ 
+     if (callContext == GEO_CONTEXT_AREA_LOAD) {
+         backgroundNode->unused = 0;
+-    } else if (callContext == GEO_CONTEXT_RENDER) {
++    } else if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
+         struct GraphNodeCamera *camNode = (struct GraphNodeCamera *) gCurGraphNodeRoot->views[0];
+         struct GraphNodePerspective *camFrustum =
+             (struct GraphNodePerspective *) camNode->fnNode.node.parent;
+--- a/src/game/mario_misc.c
++++ b/src/game/mario_misc.c
+@@ -329,7 +329,7 @@
+     s16 alpha;
+     UNUSED u8 filler2[4];
+ 
+-    if (callContext == GEO_CONTEXT_RENDER) {
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
+         alpha = (bodyState->modelState & 0x100) ? (bodyState->modelState & 0xFF) : 255;
+         gfx = make_gfx_mario_alpha(asGenerated, alpha);
+     }
+@@ -631,7 +631,7 @@
+     struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+     Gfx *gfx = NULL;
+ 
+-    if (callContext == GEO_CONTEXT_RENDER && gCurGraphNodeObject == &gMirrorMario) {
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW && gCurGraphNodeObject == &gMirrorMario) {
+         gfx = alloc_display_list(3 * sizeof(*gfx));
+ 
+         if (asGenerated->parameter == 0) {
+--- a/src/game/screen_transition.c
++++ b/src/game/screen_transition.c
+@@ -295,7 +295,7 @@
+     struct GraphNodeGenerated *graphNode = (struct GraphNodeGenerated *) node;
+     Gfx *dlist = NULL;
+ 
+-    if (callContext == GEO_CONTEXT_RENDER && gCurrentArea != NULL
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW && gCurrentArea != NULL
+         && gCurrentArea->camera->mode == CAMERA_MODE_INSIDE_CANNON) {
+         graphNode->fnNode.node.flags = (graphNode->fnNode.node.flags & 0xFF) | 0x500;
+         dlist = render_cannon_circle_base();
+--- a/src/game/behaviors/bowser.inc.c
++++ b/src/game/behaviors/bowser.inc.c
+@@ -1947,7 +1947,7 @@
+     Gfx *gfxHead = NULL;
+     Gfx *gfx;
+ 
+-    if (callContext == GEO_CONTEXT_RENDER) {
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
+         struct Object *obj = (struct Object *) gCurGraphNodeObject;
+         struct GraphNodeGenerated *graphNode = (struct GraphNodeGenerated *) node;
+ 
+--- a/src/game/geo_misc.c
++++ b/src/game/geo_misc.c
+@@ -85,7 +85,7 @@
+     Gfx *displayListHead = NULL;
+     Gfx *displayList = NULL;
+ 
+-    if (callContext == GEO_CONTEXT_RENDER) {
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
+         flags = save_file_get_flags();
+         if (gHudDisplay.stars >= 10 && !(flags & SAVE_FLAG_HAVE_WING_CAP)) {
+             displayList = alloc_display_list(2 * sizeof(*displayList));
+@@ -142,41 +142,43 @@
+     struct Object *curGraphNodeObject;
+ 
+     if (callContext == GEO_CONTEXT_RENDER) {
+-        verts = alloc_display_list(NUM_FLYING_CARPET_VERTICES * sizeof(*verts));
+-        displayList = alloc_display_list(7 * sizeof(*displayList));
+-        displayListHead = displayList;
+-
+-        if (verts == NULL || displayList == NULL) {
+-            return NULL;
+-        }
+-
+-        generatedNode->fnNode.node.flags = (generatedNode->fnNode.node.flags & 0xFF) | 0x100;
+-
+-        for (n = 0; n <= 20; n++) {
+-            row = n / 3;
+-            col = n % 3;
+-
+-            x = sp64[n * 4 + 0];
+-            y = round_float(sins(sFlyingCarpetRippleTimer + (row << 12) + (col << 14)) * 20.0);
+-            z = sp64[n * 4 + 1];
+-            tx = sp64[n * 4 + 2];
+-            ty = sp64[n * 4 + 3];
+-
+-            make_vertex(verts, n, x, y, z, tx, ty, 0, 127, 0, 255);
+-        }
+-
+-        gSPDisplayList(displayListHead++, dl_flying_carpet_begin);
+-
+-        // The forward half.
+-        gSPVertex(displayListHead++, verts, 12, 0);
+-        gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
+-
+-        // The back half.
+-        gSPVertex(displayListHead++, verts + 9, 12, 0);
+-        gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
+-
+-        gSPDisplayList(displayListHead++, dl_flying_carpet_end);
+-        gSPEndDisplayList(displayListHead);
++        if (SM64_DRAW) {
++            verts = alloc_display_list(NUM_FLYING_CARPET_VERTICES * sizeof(*verts));
++            displayList = alloc_display_list(7 * sizeof(*displayList));
++            displayListHead = displayList;
++
++            if (verts == NULL || displayList == NULL) {
++                return NULL;
++            }
++
++            generatedNode->fnNode.node.flags = (generatedNode->fnNode.node.flags & 0xFF) | 0x100;
++
++            for (n = 0; n <= 20; n++) {
++                row = n / 3;
++                col = n % 3;
++
++                x = sp64[n * 4 + 0];
++                y = round_float(sins(sFlyingCarpetRippleTimer + (row << 12) + (col << 14)) * 20.0);
++                z = sp64[n * 4 + 1];
++                tx = sp64[n * 4 + 2];
++                ty = sp64[n * 4 + 3];
++
++                make_vertex(verts, n, x, y, z, tx, ty, 0, 127, 0, 255);
++            }
++
++            gSPDisplayList(displayListHead++, dl_flying_carpet_begin);
++
++            // The forward half.
++            gSPVertex(displayListHead++, verts, 12, 0);
++            gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
++
++            // The back half.
++            gSPVertex(displayListHead++, verts + 9, 12, 0);
++            gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
++
++            gSPDisplayList(displayListHead++, dl_flying_carpet_end);
++            gSPEndDisplayList(displayListHead);
++        }
+ 
+         curGraphNodeObject = (struct Object *) gCurGraphNodeObject;
+         if (gMarioObject->platform == curGraphNodeObject) {
+@@ -199,7 +201,7 @@
+     Gfx *displayList = NULL;
+     Gfx *displayListHead = NULL;
+ 
+-    if (callContext == GEO_CONTEXT_RENDER) {
++    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
+         displayList = alloc_display_list(3 * sizeof(*displayList));
+         displayListHead = displayList;
+ 
+--- a/src/game/object_helpers.c
++++ b/src/game/object_helpers.c
+@@ -68,7 +68,9 @@
+         }
+ 
+         objectOpacity = objectGraphNode->oOpacity;
+-        dlStart = alloc_display_list(sizeof(Gfx) * 3);
++        if (SM64_DRAW) {
++            dlStart = alloc_display_list(sizeof(Gfx) * 3);
++        }
+ 
+         dlHead = dlStart;
+ 
+@@ -95,11 +97,11 @@
+ 
+ #ifdef VERSION_JP
+             if (currentGraphNode->parameter == 10) {
+-                if (gDebugInfo[DEBUG_PAGE_ENEMYINFO][3]) {
++                if (gDebugInfo[DEBUG_PAGE_ENEMYINFO][3] && SM64_DRAW) {
+                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
+                 }
+             } else {
+-                if (objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) {
++                if ((objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) && SM64_DRAW) {
+                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
+                 }
+             }
+@@ -110,7 +112,7 @@
+             // the debug info check was removed in US. so we need to
+             // perform the only necessary check instead of the debuginfo
+             // one.
+-            if (currentGraphNode->parameter != 10) {
++            if (currentGraphNode->parameter != 10 && SM64_DRAW) {
+                 if (objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) {
+                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
+                 }
+@@ -118,8 +120,10 @@
+ #endif
+         }
+ 
+-        gDPSetEnvColor(dlHead++, 255, 255, 255, objectOpacity);
+-        gSPEndDisplayList(dlHead);
++        if (SM64_DRAW) {
++            gDPSetEnvColor(dlHead++, 255, 255, 255, objectOpacity);
++            gSPEndDisplayList(dlHead);
++        }
+     }
+ 
+     return dlStart;
+--- a/src/game/paintings.c
++++ b/src/game/paintings.c
+@@ -1241,11 +1241,13 @@
+             move_ddd_painting(painting, 3456.0f, 5529.6f, 20.0f);
+         }
+ 
+-        // Determine if the painting is transparent
+-        set_painting_layer(gen, painting);
+-
+-        // Draw before updating
+-        paintingDlist = display_painting(painting);
++        if (SM64_DRAW) {
++            // Determine if the painting is transparent
++            set_painting_layer(gen, painting);
++
++            // Draw before updating
++            paintingDlist = display_painting(painting);
++        }
+ 
+         // Update the painting
+         painting_update_floors(painting);
+--- a/src/game/envfx_snow.c
++++ b/src/game/envfx_snow.c
+@@ -388,11 +388,13 @@
+     vertex2 = gSnowFlakeVertex2;
+     vertex3 = gSnowFlakeVertex3;
+ 
+-    gfxStart = (Gfx *) alloc_display_list((gSnowParticleCount * 6 + 3) * sizeof(Gfx));
+-    gfx = gfxStart;
+-
+-    if (gfxStart == NULL) {
+-        return NULL;
++    if (SM64_DRAW) {
++        gfxStart = (Gfx *) alloc_display_list((gSnowParticleCount * 6 + 3) * sizeof(Gfx));
++        gfx = gfxStart;
++
++        if (gfxStart == NULL) {
++            return NULL;
++        }
+     }
+ 
+     envfx_update_snowflake_count(snowMode, marioPos);
+@@ -436,6 +438,10 @@
+             break;
+     }
+ 
++    if (!SM64_DRAW) {
++        return NULL;
++    }
++
+     rotate_triangle_vertices((s16 *) &vertex1, (s16 *) &vertex2, (s16 *) &vertex3, pitch, yaw);
+ 
+     if (snowMode == ENVFX_SNOW_NORMAL || snowMode == ENVFX_SNOW_BLIZZARD) {
+--- a/src/game/envfx_bubbles.c
++++ b/src/game/envfx_bubbles.c
+@@ -472,16 +472,23 @@
+     Vec3s vertex2;
+     Vec3s vertex3;
+ 
+-    Gfx *gfxStart = alloc_display_list(((sBubbleParticleMaxCount / 5) * 10 + sBubbleParticleMaxCount + 3)
+-                                       * sizeof(Gfx));
+-    if (gfxStart == NULL) {
+-        return NULL;
+-    }
+-
+-    sGfxCursor = gfxStart;
++    Gfx *gfxStart = NULL;
++
++    if (SM64_DRAW) {
++        gfxStart = alloc_display_list(((sBubbleParticleMaxCount / 5) * 10 + sBubbleParticleMaxCount + 3)
++                                      * sizeof(Gfx));
++        if (gfxStart == NULL) {
++            return NULL;
++        }
++
++        sGfxCursor = gfxStart;
++    }
+ 
+     orbit_from_positions(camTo, camFrom, &radius, &pitch, &yaw);
+     envfx_bubbles_update_switch(mode, camTo, vertex1, vertex2, vertex3);
++    if (!SM64_DRAW) {
++        return NULL;
++    }
+     rotate_triangle_vertices(vertex1, vertex2, vertex3, pitch, yaw);
+ 
+     gSPDisplayList(sGfxCursor++, &tiny_bubble_dl_0B006D38);
+--- a/src/game/moving_texture.c
++++ b/src/game/moving_texture.c
+@@ -412,10 +412,17 @@
+     s16 rotDir = quad->rotDir;
+     s16 alpha = quad->alpha;
+     s16 textureId = quad->textureId;
+-    Vtx *verts = alloc_display_list(4 * sizeof(*verts));
++    Vtx *verts;
+     Gfx *gfxHead;
+     Gfx *gfx;
+ 
++    if (!SM64_DRAW) {
++        if (gMovtexCounter != gMovtexCounterPrev) {
++            quad->rot += rotspeed;
++        }
++        return NULL;
++    }
++    verts = alloc_display_list(4 * sizeof(*verts));
+     if (textureId == gMovetexLastTextureId) {
+         gfxHead = alloc_display_list(3 * sizeof(*gfxHead));
+     } else {
+@@ -469,14 +476,18 @@
+ Gfx *movtex_gen_from_quad_array(s16 y, void *quadArrSegmented) {
+     s16 *quadArr = segmented_to_virtual(quadArrSegmented);
+     s16 numLists = quadArr[0];
+-    Gfx *gfxHead = alloc_display_list((numLists + 1) * sizeof(*gfxHead));
+-    Gfx *gfx = gfxHead;
++    Gfx *gfxHead = NULL;
++    Gfx *gfx;
+     Gfx *subList;
+     s32 i;
+ 
+-    if (gfxHead == NULL) {
+-        return NULL;
+-    }
++    if (SM64_DRAW) {
++        gfxHead = alloc_display_list((numLists + 1) * sizeof(*gfxHead));
++        if (gfxHead == NULL) {
++            return NULL;
++        }
++    }
++    gfx = gfxHead;
+     for (i = 0; i < numLists; i++) {
+         // quadArr is an array of s16, so sizeof(MovtexQuad) gets divided by 2
+         subList = movtex_gen_from_quad(
+@@ -485,7 +496,9 @@
+             gSPDisplayList(gfx++, VIRTUAL_TO_PHYSICAL(subList));
+         }
+     }
+-    gSPEndDisplayList(gfx);
++    if (SM64_DRAW) {
++        gSPEndDisplayList(gfx);
++    }
+     return gfxHead;
+ }
+ 
+@@ -636,11 +649,13 @@
+             return NULL;
+         }
+         numWaterBoxes = gEnvironmentRegions[0];
+-        gfxHead = alloc_display_list((numWaterBoxes + 3) * sizeof(*gfxHead));
+-        if (gfxHead == NULL) {
+-            return NULL;
+-        } else {
+-            gfx = gfxHead;
++        if (SM64_DRAW) {
++            gfxHead = alloc_display_list((numWaterBoxes + 3) * sizeof(*gfxHead));
++            if (gfxHead == NULL) {
++                return NULL;
++            } else {
++                gfx = gfxHead;
++            }
+         }
+         asGenerated = (struct GraphNodeGenerated *) node;
+         if (asGenerated->parameter == JRB_MOVTEX_INITIAL_MIST) {
+@@ -664,7 +679,9 @@
+         asGenerated->fnNode.node.flags =
+             (asGenerated->fnNode.node.flags & 0xFF) | (LAYER_TRANSPARENT_INTER << 8);
+ 
+-        movtex_change_texture_format(asGenerated->parameter, &gfx);
++        if (SM64_DRAW) {
++            movtex_change_texture_format(asGenerated->parameter, &gfx);
++        }
+         gMovetexLastTextureId = -1;
+         for (i = 0; i < numWaterBoxes; i++) {
+             waterId = gEnvironmentRegions[i * 6 + 1];
+@@ -674,8 +691,10 @@
+                 gSPDisplayList(gfx++, VIRTUAL_TO_PHYSICAL(subList));
+             }
+         }
+-        gSPDisplayList(gfx++, dl_waterbox_end);
+-        gSPEndDisplayList(gfx);
++        if (SM64_DRAW) {
++            gSPDisplayList(gfx++, dl_waterbox_end);
++            gSPEndDisplayList(gfx);
++        }
+     }
+     return gfxHead;
+ }
+@@ -805,11 +824,17 @@
+  * 'attrLayout' is one of MOVTEX_LAYOUT_NOCOLOR and MOVTEX_LAYOUT_COLORED.
+  */
+ Gfx *movtex_gen_list(s16 *movtexVerts, struct MovtexObject *movtexList, s8 attrLayout) {
+-    Vtx *verts = alloc_display_list(movtexList->vtx_count * sizeof(*verts));
+-    Gfx *gfxHead = alloc_display_list(11 * sizeof(*gfxHead));
+-    Gfx *gfx = gfxHead;
++    Vtx *verts;
++    Gfx *gfxHead;
++    Gfx *gfx;
+     s32 i;
+ 
++    if (!SM64_DRAW) {
++        return NULL;
++    }
++    verts = alloc_display_list(movtexList->vtx_count * sizeof(*verts));
++    gfxHead = alloc_display_list(11 * sizeof(*gfxHead));
++    gfx = gfxHead;
+     if (verts == NULL || gfxHead == NULL) {
+         return NULL;
+     }
