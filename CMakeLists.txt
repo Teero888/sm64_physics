@@ -127,17 +127,23 @@ foreach(line ${n64stack_hooked})
 endforeach()
 
 string(TOUPPER "${SM64_VERSION}" SM64_VERSION_UPPER)
-# How every game source is compiled.
-function(sm64_game_settings target visibility)
-  target_include_directories(${target} ${visibility} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}"
+# The game's headers and definitions, for game sources and the tools that
+# read the game's variables.
+function(sm64_game_headers target)
+  target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}"
                              "${GEN}/include" "${D}/include" "${D}/src"
                              "${CMAKE_CURRENT_SOURCE_DIR}/platform" "${SM64_N64STACK_DIR}")
-  target_compile_definitions(${target} ${visibility}
+  target_compile_definitions(${target} PRIVATE
     VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
     # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
     # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
     NON_MATCHING AVOID_UB
     NO_SEGMENTED_MEMORY)
+endfunction()
+
+# How every game source is compiled.
+function(sm64_game_settings target)
+  sm64_game_headers(${target})
   # Bit parity: IEEE single precision without fused or reordered arithmetic,
   # wrapping signed integers as on the N64, signed chars as IDO's -signed.
   target_compile_options(${target} PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
@@ -155,7 +161,7 @@ endfunction()
 # host finds and restores exactly those variables. Sets <NAME>_OBJECT.
 function(sm64_section_group name prefix)
   add_library(${name}_objects OBJECT ${ARGN})
-  sm64_game_settings(${name}_objects PRIVATE)
+  sm64_game_settings(${name}_objects)
   set(object "${CMAKE_CURRENT_BINARY_DIR}/${name}.o")
   add_custom_command(OUTPUT "${object}"
     COMMAND ${CMAKE_LINKER} -r -o "${object}.tmp" $<TARGET_OBJECTS:${name}_objects>
@@ -185,15 +191,17 @@ sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 # the two groups above, the game's whole state (sm64_save_state).
 sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c platform/n64stack.c)
 
-add_library(sm64_game STATIC $<TARGET_OBJECTS:sm64_ultra_math>
+# The library: include/sm64_physics.h is its whole interface.
+add_library(sm64_physics STATIC $<TARGET_OBJECTS:sm64_ultra_math>
             "${sm64_main_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}")
-set_target_properties(sm64_game PROPERTIES LINKER_LANGUAGE C)
-sm64_game_settings(sm64_game PUBLIC)
-add_dependencies(sm64_game sm64_main_objects sm64_overlay_objects sm64_level_data_objects)
-target_link_libraries(sm64_game PUBLIC m)
+set_target_properties(sm64_physics PROPERTIES LINKER_LANGUAGE C)
+target_include_directories(sm64_physics PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_dependencies(sm64_physics sm64_main_objects sm64_overlay_objects sm64_level_data_objects)
+target_link_libraries(sm64_physics PUBLIC m)
 
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)
-target_link_libraries(sm64_run PRIVATE sm64_game)
+sm64_game_headers(sm64_run)
+target_link_libraries(sm64_run PRIVATE sm64_physics)
 
 # The lockstep comparator: the oracle's emulator frontend with the native game
 # linked in, compared member by member at every frame. Needs mupen64plus.
@@ -227,6 +235,7 @@ if(MUPEN64PLUS_INCLUDE_DIR)
                              "${CMAKE_CURRENT_SOURCE_DIR}/tools/lockstep")
   target_compile_definitions(sm64_lockstep PRIVATE SM64_LOCKSTEP
     SM64_ORACLE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/oracle" SM64_VERSION_NAME="${SM64_VERSION}")
-  target_link_libraries(sm64_lockstep PRIVATE sm64_game ${CMAKE_DL_LIBS})
+  sm64_game_headers(sm64_lockstep)
+  target_link_libraries(sm64_lockstep PRIVATE sm64_physics ${CMAKE_DL_LIBS})
   add_dependencies(sm64_lockstep oracle_video oracle_input)
 endif()
