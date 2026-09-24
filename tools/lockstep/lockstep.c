@@ -334,11 +334,15 @@ typedef struct {
     const struct leaf *layout; // structs
     uint32_t n64_size, native_size, count;
     bool dereference;          // the global is a pointer to the struct
+    bool overlay;              // lives in the Goddard/menu segment
 } global;
 
-#define SCALAR(name, kind) { name, kind, NULL, 0, 0, 1, false }
-#define STRUCTS(name, type, count) { name, -1, LAYOUT_##type, N64_SIZEOF_##type, sizeof(struct type), count, false }
-#define POINTED(name, type) { name, -1, LAYOUT_##type, N64_SIZEOF_##type, sizeof(struct type), 1, true }
+static const uint32_t sKindSize[] = { 1, 1, 2, 2, 4, 4, 8, 8, 4, 8, 0 };
+#define SCALAR(name, kind) { name, kind, NULL, 0, 0, 1, false, false }
+#define SCALARS(name, kind, count) { name, kind, NULL, 0, 0, count, false, false }
+#define MENU(name, kind, count) { name, kind, NULL, 0, 0, count, false, true }
+#define STRUCTS(name, type, count) { name, -1, LAYOUT_##type, N64_SIZEOF_##type, sizeof(struct type), count, false, false }
+#define POINTED(name, type) { name, -1, LAYOUT_##type, N64_SIZEOF_##type, sizeof(struct type), 1, true, false }
 
 static const global sGlobals[] = {
     SCALAR("gGlobalTimer", LEAF_U32),
@@ -356,6 +360,37 @@ static const global sGlobals[] = {
     SCALAR("sSelectionFlags", LEAF_U16),
     SCALAR("gCutsceneTimer", LEAF_S16),
     SCALAR("sCutsceneShot", LEAF_S16),
+    // sAreaYaw is not compared yet: entering the water surface camera mode
+    // sets it to the low half of the N64 stack pointer (docs/avoid_ub.md).
+    SCALAR("sAreaYawChange", LEAF_S16),
+    SCALAR("sLakituDist", LEAF_S16),
+    SCALAR("sLakituPitch", LEAF_S16),
+    SCALAR("sCUpCameraPitch", LEAF_S16),
+    SCALAR("sModeOffsetYaw", LEAF_S16),
+    SCALAR("sPanDistance", LEAF_F32),
+    SCALAR("sCannonYOffset", LEAF_F32),
+    SCALAR("sYawSpeed", LEAF_S16),
+    SCALAR("gCameraZoomDist", LEAF_F32),
+    SCALAR("sFramesPaused", LEAF_U8),
+    SCALAR("sHandheldShakeTimer", LEAF_F32),
+    STRUCTS("sModeInfo", ModeTransitionInfo, 1),
+    STRUCTS("sFOVState", CameraFOVStatus, 1),
+    STRUCTS("sMarioGeometry", PlayerGeometry, 1),
+    MENU("sLoadedActNum", LEAF_S8, 1),
+    MENU("sObtainedStars", LEAF_U8, 1),
+    MENU("sVisibleStars", LEAF_S8, 1),
+    MENU("sInitSelectedActNum", LEAF_U8, 1),
+    MENU("sSelectedActIndex", LEAF_S8, 1),
+    MENU("sActSelectorMenuTimer", LEAF_S32, 1),
+    MENU("sSelectedButtonID", LEAF_S8, 1),
+    MENU("sCurrentMenuLevel", LEAF_S8, 1),
+    MENU("sCursorPos", LEAF_F32, 2),
+    MENU("sClickPos", LEAF_S16, 2),
+    MENU("sSelectedFileIndex", LEAF_S8, 1),
+    MENU("sFadeOutText", LEAF_S8, 1),
+    MENU("sStatusMessageID", LEAF_S8, 1),
+    MENU("sMainMenuTimer", LEAF_S16, 1),
+    MENU("sSelectedFileNum", LEAF_S8, 1),
     SCALAR("gMarioObject", LEAF_PTR),
     SCALAR("gCurrentArea", LEAF_PTR),
     STRUCTS("gMarioStates", MarioState, 1),
@@ -371,9 +406,33 @@ static const global sGlobals[] = {
     POINTED("gCamera", Camera),
 };
 
+// The Goddard/menu segment is loaded into the pool and later overwritten by
+// level data. Its code, fingerprinted right after each load, tells whether
+// it is still there.
+extern unsigned gHostOverlayLoads;
+static unsigned sOverlayLoadsSeen;
+static uint32_t sOverlayFingerprint[16], sOverlayCode;
+static bool sOverlayFingerprinted;
+
+static bool overlay_resident(void) {
+    if (!sOverlayFingerprinted) {
+        return false;
+    }
+    for (int i = 0; i < 16; ++i) {
+        if (n64_u32(sOverlayCode + 4 * i) != sOverlayFingerprint[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static void compare_all(void) {
+    const bool resident = overlay_resident();
     for (size_t g = 0; g < sizeof(sGlobals) / sizeof(sGlobals[0]); ++g) {
         const global *gl = &sGlobals[g];
+        if (gl->overlay && !resident) {
+            continue;
+        }
         const uint8_t *native = elf_symbol(gl->name, NULL);
         uint32_t n64 = n64_lookup(gl->name)->address;
         if (!native) {
@@ -381,7 +440,10 @@ static void compare_all(void) {
             exit(1);
         }
         if (gl->layout == NULL) {
-            compare_value(gl->name, "", 0, gl->kind, n64, native);
+            for (uint32_t i = 0; i < gl->count; ++i) {
+                compare_value(gl->name, "", i, gl->kind, n64 + i * sKindSize[gl->kind],
+                              native + i * (gl->kind == LEAF_PTR ? sizeof(void *) : sKindSize[gl->kind]));
+            }
             continue;
         }
         if (gl->dereference) {
@@ -433,8 +495,17 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         sN64ObjectPool = n64_lookup("gObjectPool")->address;
         sN64SegmentTable = n64_lookup("sSegmentTable")->address;
         sNativeObjectPool = elf_symbol("gObjectPool", NULL);
+        sOverlayCode = n64_lookup("bhv_menu_button_init")->address;
         sm64_boot();
         return 0;
+    }
+    // A load in the frame just run: the segment is in the emulator's RAM now.
+    if (gHostOverlayLoads != sOverlayLoadsSeen) {
+        sOverlayLoadsSeen = gHostOverlayLoads;
+        for (int i = 0; i < 16; ++i) {
+            sOverlayFingerprint[i] = n64_u32(sOverlayCode + 4 * i);
+        }
+        sOverlayFingerprinted = true;
     }
     compare_all();
     if (sReported) {

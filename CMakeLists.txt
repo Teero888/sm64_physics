@@ -83,20 +83,46 @@ target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_co
 target_include_directories(sm64_ultra_math PRIVATE "${D}/include" "${D}/lib/src")
 target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -w)
 
-add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c $<TARGET_OBJECTS:sm64_ultra_math>)
-target_include_directories(sm64_game PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}" "${GEN}/include" "${D}/include" "${D}/src")
 string(TOUPPER "${SM64_VERSION}" SM64_VERSION_UPPER)
-target_compile_definitions(sm64_game PUBLIC
-  VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
-  # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
-  # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
-  NON_MATCHING AVOID_UB
-  NO_SEGMENTED_MEMORY)
-# Bit parity: IEEE single precision without fused or reordered arithmetic,
-# wrapping signed integers as on the N64, signed chars as IDO's -signed.
-target_compile_options(sm64_game PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
-  -ffp-contract=off -fno-fast-math -fPIC -w
-  -include "${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h")
+# How every game source is compiled.
+function(sm64_game_settings target visibility)
+  target_include_directories(${target} ${visibility} "${CMAKE_CURRENT_SOURCE_DIR}/include" "${D}" "${GEN}"
+                             "${GEN}/include" "${D}/include" "${D}/src")
+  target_compile_definitions(${target} ${visibility}
+    VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
+    # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
+    # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
+    NON_MATCHING AVOID_UB
+    NO_SEGMENTED_MEMORY)
+  # Bit parity: IEEE single precision without fused or reordered arithmetic,
+  # wrapping signed integers as on the N64, signed chars as IDO's -signed.
+  target_compile_options(${target} PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
+    -ffp-contract=off -fno-fast-math -fPIC -w
+    -include "${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h")
+endfunction()
+
+# The N64 loads src/menu and src/goddard as one segment, from ROM, every time
+# a menu or the title screen starts, which resets all of their variables. They
+# are linked as one object whose data and bss sections have their own names,
+# so the host finds and resets exactly those variables (host_reload_overlay).
+set(SM64_OVERLAY_SOURCES ${SM64_SOURCES})
+list(FILTER SM64_OVERLAY_SOURCES INCLUDE REGEX "/src/(menu|goddard)/")
+list(REMOVE_ITEM SM64_SOURCES ${SM64_OVERLAY_SOURCES})
+add_library(sm64_overlay_objects OBJECT ${SM64_OVERLAY_SOURCES})
+sm64_game_settings(sm64_overlay_objects PRIVATE)
+set(SM64_OVERLAY_OBJECT "${CMAKE_CURRENT_BINARY_DIR}/sm64_overlay.o")
+add_custom_command(OUTPUT "${SM64_OVERLAY_OBJECT}"
+  COMMAND ${CMAKE_LINKER} -r -o "${SM64_OVERLAY_OBJECT}.tmp" $<TARGET_OBJECTS:sm64_overlay_objects>
+  COMMAND ${CMAKE_OBJCOPY} --rename-section .data=sm64ovl_data --rename-section .data.rel.local=sm64ovl_datarel
+          --rename-section .data.rel=sm64ovl_datarel2 --rename-section .bss=sm64ovl_bss
+          "${SM64_OVERLAY_OBJECT}.tmp" "${SM64_OVERLAY_OBJECT}"
+  DEPENDS $<TARGET_OBJECTS:sm64_overlay_objects> COMMAND_EXPAND_LISTS VERBATIM)
+set_source_files_properties("${SM64_OVERLAY_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
+
+add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c $<TARGET_OBJECTS:sm64_ultra_math>
+            "${SM64_OVERLAY_OBJECT}")
+sm64_game_settings(sm64_game PUBLIC)
+add_dependencies(sm64_game sm64_overlay_objects)
 target_link_libraries(sm64_game PUBLIC m)
 
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)

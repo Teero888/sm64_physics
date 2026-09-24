@@ -24,3 +24,6 @@ struct SaveBuffer layout_SaveBuffer;
 struct Surface layout_Surface;
 struct WarpDest layout_WarpDest;
 struct Area layout_Area;
+struct ModeTransitionInfo layout_ModeTransitionInfo;
+struct CameraFOVStatus layout_CameraFOVStatus;
+struct PlayerGeometry layout_PlayerGeometry;

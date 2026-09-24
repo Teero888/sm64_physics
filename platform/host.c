@@ -3,6 +3,7 @@
 // logic; it replaces the console's memory map and scheduling.
 #include <ultra64.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "sm64_physics.h"
@@ -28,6 +29,48 @@ void draw_reset_bars(void);
 // The input osContGetReadData hands the game (platform/ultra.c).
 OSContPad gHostPad;
 
+// The variables of src/menu and src/goddard, linked into their own sections
+// (CMakeLists.txt). The linker provides their bounds.
+extern char __start_sm64ovl_data[], __stop_sm64ovl_data[];
+extern char __start_sm64ovl_datarel[], __stop_sm64ovl_datarel[];
+extern char __start_sm64ovl_datarel2[], __stop_sm64ovl_datarel2[];
+extern char __start_sm64ovl_bss[], __stop_sm64ovl_bss[];
+
+typedef struct {
+    char *start, *stop, *initial;
+} overlay_section;
+
+static overlay_section sOverlaySections[] = {
+    { __start_sm64ovl_data, __stop_sm64ovl_data, NULL },
+    { __start_sm64ovl_datarel, __stop_sm64ovl_datarel, NULL },
+    { __start_sm64ovl_datarel2, __stop_sm64ovl_datarel2, NULL },
+};
+
+// FIXED_LOAD (patches/0006): on the N64 the segment is read from ROM again,
+// so its initialized variables return to their initial values and its bss
+// to zero.
+// How many times the segment was loaded: the lockstep comparator only reads
+// the menus' variables in the emulator while the segment is there.
+unsigned gHostOverlayLoads;
+
+void host_reload_overlay(void) {
+    gHostOverlayLoads++;
+    for (size_t i = 0; i < sizeof(sOverlaySections) / sizeof(sOverlaySections[0]); ++i) {
+        overlay_section *section = &sOverlaySections[i];
+        memcpy(section->start, section->initial, section->stop - section->start);
+    }
+    memset(__start_sm64ovl_bss, 0, __stop_sm64ovl_bss - __start_sm64ovl_bss);
+}
+
+static void save_overlay_initial_values(void) {
+    for (size_t i = 0; i < sizeof(sOverlaySections) / sizeof(sOverlaySections[0]); ++i) {
+        overlay_section *section = &sOverlaySections[i];
+        const size_t size = section->stop - section->start;
+        section->initial = malloc(size ? size : 1);
+        memcpy(section->initial, section->start, size);
+    }
+}
+
 static struct LevelCommand *sLevelAddress;
 static bool sBooted;
 // The N64 pool runs from the end of the framebuffers to the end of RDRAM;
@@ -35,6 +78,7 @@ static bool sBooted;
 static u8 sPoolMemory[DOUBLE_SIZE_ON_64_BIT(SEG_POOL_SIZE)] __attribute__((aligned(16)));
 
 void sm64_boot(void) {
+    save_overlay_initial_values();
     // thread3_main
     setup_mesg_queues();
     main_pool_init(sPoolMemory, sPoolMemory + sizeof(sPoolMemory));
