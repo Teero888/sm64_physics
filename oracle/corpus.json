@@ -10,6 +10,14 @@
       "end_action": "0c400201"
     },
     {
+      "name": "jp-alltrees",
+      "url": "https://tasvideos.org/7239M?handler=Download",
+      "rom": "jp",
+      "poll_offset": -16,
+      "route": [1, 16, 18, 16, 6, 8, 6, 19, 33, 6, 23, 6, 9, 6, 5, 6, 24, 6, 10, 6, 11, 6, 13, 6, 26],
+      "end_action": "0188088a"
+    },
+    {
       "name": "us-0star",
       "url": "https://tasvideos.org/2016M?handler=Download",
       "rom": "us",
