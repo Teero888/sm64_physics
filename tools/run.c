@@ -151,10 +151,50 @@ static void write_record(FILE *out, uint32_t frame, uint32_t input) {
     }
 }
 
+static uint64_t hash_state(void *buffer) {
+    sm64_save_state(buffer);
+    const unsigned char *bytes = buffer;
+    uint64_t hash = 0xcbf29ce484222325u;
+    for (size_t i = 0; i < sm64_state_size(); ++i) {
+        hash = (hash ^ bytes[i]) * 0x100000001b3u;
+    }
+    return hash;
+}
+
+// --check-state FRAME: save the state after FRAME, run to the end, load it
+// and run again: the states along the way have to be the same.
+static int check_state(const uint32_t *inputs, uint32_t count, uint32_t at) {
+    enum { EVERY = 500 };
+    void *saved = malloc(sm64_state_size()), *scratch = malloc(sm64_state_size());
+    uint64_t hashes[1024];
+    unsigned checks = 0;
+    for (uint32_t frame = 0; frame < count; ++frame) {
+        sm64_step(inputs[frame]);
+        if (frame + 1 == at) {
+            sm64_save_state(saved);
+        } else if (frame + 1 > at && (frame + 1 - at) % EVERY == 0 && checks < 1024) {
+            hashes[checks++] = hash_state(scratch);
+        }
+    }
+    sm64_load_state(saved);
+    unsigned check = 0;
+    for (uint32_t frame = at; frame < count; ++frame) {
+        sm64_step(inputs[frame]);
+        if ((frame + 1 - at) % EVERY == 0 && check < checks) {
+            if (hash_state(scratch) != hashes[check++]) {
+                printf("state differs after frame %u\n", frame + 1);
+                return 1;
+            }
+        }
+    }
+    printf("%zu byte state: %u checks from frame %u identical\n", sm64_state_size(), check, at);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
     bool audio = false, draw = false;
-    long limit = -1;
+    long limit = -1, check_at = -1;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
             trace_path = argv[++i];
@@ -162,6 +202,8 @@ int main(int argc, char **argv) {
             audio = true;
         } else if (strcmp(argv[i], "--draw") == 0) {
             draw = true;
+        } else if (strcmp(argv[i], "--check-state") == 0 && i + 1 < argc) {
+            check_at = atol(argv[++i]);
         } else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc) {
             limit = atol(argv[++i]);
         } else {
@@ -169,7 +211,7 @@ int main(int argc, char **argv) {
         }
     }
     if (!polls_path) {
-        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--audio] [--draw]\n");
+        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--audio] [--draw] [--check-state FRAME]\n");
         return 1;
     }
     FILE *polls = fopen(polls_path, "rb");
@@ -202,6 +244,14 @@ int main(int argc, char **argv) {
     if (fread(&input, 4, 1, polls) != 1) {
         fprintf(stderr, "sm64_run: %s is empty\n", polls_path);
         return 1;
+    }
+    if (check_at >= 0) {
+        static uint32_t inputs[1 << 20];
+        uint32_t count = 0;
+        while (count < (1 << 20) && fread(&inputs[count], 4, 1, polls) == 1) {
+            ++count;
+        }
+        return check_state(inputs, count, (uint32_t) check_at);
     }
     uint32_t frame = 0;
     while ((limit < 0 || frame < limit) && fread(&input, 4, 1, polls) == 1) {

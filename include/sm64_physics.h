@@ -4,6 +4,7 @@
 #define SM64_PHYSICS_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -27,6 +28,14 @@ void sm64_set_audio(bool enabled);
 // off by default. The game state does not depend on it; turning it on checks
 // exactly that.
 void sm64_set_draw(bool enabled);
+
+// The game's whole state, as of the last step: everything sm64_step reads and
+// writes (sm64_set_audio and sm64_set_draw are settings, not state). A saved
+// state holds pointers into this process's memory: it can only be loaded in
+// the process that saved it.
+size_t sm64_state_size(void);
+void sm64_save_state(void *buffer);
+void sm64_load_state(const void *buffer);
 
 #ifdef __cplusplus
 }

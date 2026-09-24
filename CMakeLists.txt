@@ -181,11 +181,15 @@ list(FILTER SM64_LEVEL_DATA_SOURCES INCLUDE REGEX "/levels/[^/]+/leveldata\\.c$"
 list(REMOVE_ITEM SM64_SOURCES ${SM64_LEVEL_DATA_SOURCES})
 sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 
-add_library(sm64_game STATIC ${SM64_SOURCES} platform/ultra.c platform/host.c platform/n64stack.c
-            $<TARGET_OBJECTS:sm64_ultra_math>
-            "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}")
+# Everything else, with the host's stand-ins for the console: together with
+# the two groups above, the game's whole state (sm64_save_state).
+sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c platform/n64stack.c)
+
+add_library(sm64_game STATIC $<TARGET_OBJECTS:sm64_ultra_math>
+            "${sm64_main_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}")
+set_target_properties(sm64_game PROPERTIES LINKER_LANGUAGE C)
 sm64_game_settings(sm64_game PUBLIC)
-add_dependencies(sm64_game sm64_overlay_objects sm64_level_data_objects)
+add_dependencies(sm64_game sm64_main_objects sm64_overlay_objects sm64_level_data_objects)
 target_link_libraries(sm64_game PUBLIC m)
 
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)

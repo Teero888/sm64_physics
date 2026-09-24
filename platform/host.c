@@ -11,6 +11,9 @@
 #include "n64_frames.h"
 
 #include "audio/external.h"
+#include "buffers/framebuffers.h"
+#include "buffers/gfx_output_buffer.h"
+#include "buffers/zbuffer.h"
 #include "engine/level_script.h"
 #include "game/game_init.h"
 #include "game/level_update.h"
@@ -41,6 +44,8 @@ OSContPad gHostPad;
     extern char __start_##prefix##_bss[], __stop_##prefix##_bss[];
 SECTION_BOUNDS(sm64ovl)
 SECTION_BOUNDS(sm64lvl)
+// Everything else, this file included.
+SECTION_BOUNDS(sm64st)
 
 typedef struct {
     char *start, *stop, *initial;
@@ -160,6 +165,90 @@ void host_run_audio_frame(void) {
     } else {
         gAudioFrameCount++;
     }
+}
+
+// --- State -------------------------------------------------------------------
+// The game's state is every variable of the game and of the host's stand-ins
+// for the console: the writable sections of the three section groups, less
+// the buffers that only hold the console's output.
+
+typedef struct {
+    char *start, *stop;
+} state_range;
+
+static state_range sStateRanges[32];
+static int sStateRangeCount;
+static size_t sStateSize;
+
+static void add_state_range(char *start, char *stop) {
+    static const struct {
+        void *start;
+        size_t size;
+    } output[] = {
+        { gFramebuffers, sizeof(gFramebuffers) },
+        { gZBuffer, sizeof(gZBuffer) },
+        { gGfxSPTaskOutputBuffer, sizeof(gGfxSPTaskOutputBuffer) },
+    };
+    for (size_t i = 0; i < sizeof(output) / sizeof(output[0]); ++i) {
+        char *skip = output[i].start, *skip_end = skip + output[i].size;
+        if (skip < stop && skip_end > start) {
+            add_state_range(start, skip > start ? skip : start);
+            add_state_range(skip_end < stop ? skip_end : stop, stop);
+            return;
+        }
+    }
+    if (start < stop) {
+        sStateRanges[sStateRangeCount++] = (state_range) { start, stop };
+        sStateSize += stop - start;
+    }
+}
+
+static void find_state(void) {
+    if (sStateRangeCount) {
+        return;
+    }
+#define GROUP(prefix)                                                                                  \
+    add_state_range(__start_##prefix##_data, __stop_##prefix##_data);                                  \
+    add_state_range(__start_##prefix##_datarel, __stop_##prefix##_datarel);                            \
+    add_state_range(__start_##prefix##_datarel2, __stop_##prefix##_datarel2);                          \
+    add_state_range(__start_##prefix##_bss, __stop_##prefix##_bss);
+    GROUP(sm64st)
+    GROUP(sm64ovl)
+    GROUP(sm64lvl)
+#undef GROUP
+}
+
+size_t sm64_state_size(void) {
+    find_state();
+    return sStateSize;
+}
+
+void sm64_save_state(void *buffer) {
+    if (!sBooted) {
+        sm64_boot();
+    }
+    find_state();
+    char *out = buffer;
+    for (int i = 0; i < sStateRangeCount; ++i) {
+        const size_t size = sStateRanges[i].stop - sStateRanges[i].start;
+        memcpy(out, sStateRanges[i].start, size);
+        out += size;
+    }
+}
+
+void sm64_load_state(const void *buffer) {
+    // The settings are not part of the state.
+    const bool audio = sRunAudio;
+    const int draw = gHostDraw;
+    find_state();
+    const char *in = buffer;
+    for (int i = 0; i < sStateRangeCount; ++i) {
+        const size_t size = sStateRanges[i].stop - sStateRanges[i].start;
+        memcpy(sStateRanges[i].start, in, size);
+        in += size;
+    }
+    sRunAudio = audio;
+    gHostDraw = draw;
 }
 
 void sm64_step(uint32_t input) {
