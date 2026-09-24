@@ -140,6 +140,20 @@ static struct Object *sNativeObjectPool;
 
 // Segments whose symbols are unique across the game: behavior scripts.
 static const int sNamedSegments[] = { 0x13 };
+static uint32_t sNamedSegmentSize[sizeof(sNamedSegments) / sizeof(sNamedSegments[0])];
+
+// A segment's extent: the end of its last symbol. Other segments are loaded
+// right after it in the pool.
+static uint32_t segment_size(int segment) {
+    uint32_t end = 0;
+    for (size_t i = 0; i < sSegmented.count; ++i) {
+        const n64_symbol *s = &sSegmented.symbols[i];
+        if ((s->address >> 24) == (uint32_t) segment && (s->address & 0xffffff) + s->size > end) {
+            end = (s->address & 0xffffff) + s->size;
+        }
+    }
+    return end;
+}
 
 static target n64_target(uint32_t a) {
     target t = { TARGET_OTHER, 0, 0, 0, NULL };
@@ -159,7 +173,7 @@ static target n64_target(uint32_t a) {
         for (size_t i = 0; i < sizeof(sNamedSegments) / sizeof(sNamedSegments[0]); ++i) {
             const int segment = sNamedSegments[i];
             const uint32_t base = n64_u32(sN64SegmentTable + 4 * segment) | 0x80000000;
-            if (a >= base && a - base < 0x01000000) {
+            if (a >= base && a - base < sNamedSegmentSize[i]) {
                 s = n64_containing(&sSegmented, (uint32_t) segment << 24 | (a - base));
                 if (s) {
                     a = (uint32_t) segment << 24 | (a - base);
@@ -495,6 +509,9 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         sN64SegmentTable = n64_lookup("sSegmentTable")->address;
         sNativeObjectPool = elf_symbol("gObjectPool", NULL);
         sOverlayCode = n64_lookup("bhv_menu_button_init")->address;
+        for (size_t i = 0; i < sizeof(sNamedSegments) / sizeof(sNamedSegments[0]); ++i) {
+            sNamedSegmentSize[i] = segment_size(sNamedSegments[i]);
+        }
         sm64_boot();
         return 0;
     }
