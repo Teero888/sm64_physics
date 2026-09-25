@@ -54,6 +54,13 @@ cmake --build build
 python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.trace
 ```
 
+`-DSM64_PHYSICS_SHARED=ON` builds a shared library instead, as frametee does:
+one copy of the game for a program and its plugins, since a world holds
+addresses of the library's code. It exports the API (`include/sm64_physics.h`)
+and, with protected visibility, the game's own functions and variables for
+code that uses the game directly. The tools (`sm64_run`, `sm64_lockstep`) are
+only built with the static library.
+
 ## Layout
 
 | | |

@@ -4,6 +4,9 @@ project(sm64_physics LANGUAGES C)
 # The game: game/ holds its code, imported from n64decomp/sm64 (tools/vendor.py)
 # and the library's own from then on. One library per game version.
 set(SM64_VERSION jp CACHE STRING "Game version: jp or us")
+# Shared: one copy of the game for a program and its plugins, as a world holds
+# addresses of the library's code.
+option(SM64_PHYSICS_SHARED "Build sm64_physics as a shared library" OFF)
 set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
@@ -58,7 +61,7 @@ list(APPEND SM64_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/platform/sound_data.c")
 add_library(sm64_ultra_math OBJECT "${G}/lib/src/math/sinf.c" "${G}/lib/src/math/cosf.c" "${G}/lib/src/NaN.c")
 target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_cosf NAN=ultra_nan)
 target_include_directories(sm64_ultra_math PRIVATE "${G}/include" "${G}/lib/src")
-target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -w)
+target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -fvisibility=protected -w)
 
 # The N64 stack pointer model (platform/n64stack.h): the frames of the
 # functions from which the N64 can reach the place where the original leaks a
@@ -98,8 +101,11 @@ function(sm64_game_settings target)
   sm64_game_headers(${target})
   # Bit parity: IEEE single precision without fused or reordered arithmetic,
   # wrapping signed integers as on the N64, signed chars as IDO's -signed.
+  # Protected visibility: the shared library exports the whole game, for
+  # plugins that read or call it directly, but binds the game's own references
+  # to itself, so nothing of the program or a plugin interposes on them.
   target_compile_options(${target} PRIVATE -std=gnu11 -fsigned-char -fwrapv -fno-strict-aliasing
-    -ffp-contract=off -fno-fast-math -fPIC -w
+    -ffp-contract=off -fno-fast-math -fPIC -fvisibility=protected -w
     "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h\""
     "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/draw.h\""
     "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/world.h\""
@@ -146,7 +152,7 @@ sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c
+add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c
             "${GV}/pointers/types.c")
 sm64_game_settings(sm64_shared_objects)
 sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)
@@ -166,14 +172,22 @@ add_custom_command(OUTPUT "${SM64_STATE_POINTERS}"
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" "${SM64_GAME_OBJECT}"
           "${SM64_STATE_POINTERS}"
   DEPENDS "${SM64_GAME_OBJECT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" VERBATIM)
-add_library(sm64_physics STATIC $<TARGET_OBJECTS:sm64_ultra_math> $<TARGET_OBJECTS:sm64_shared_objects>
+if(SM64_PHYSICS_SHARED)
+  set(SM64_PHYSICS_TYPE SHARED)
+else()
+  set(SM64_PHYSICS_TYPE STATIC)
+endif()
+add_library(sm64_physics ${SM64_PHYSICS_TYPE} $<TARGET_OBJECTS:sm64_ultra_math> $<TARGET_OBJECTS:sm64_shared_objects>
             "${SM64_GAME_OBJECT}" "${SM64_STATE_POINTERS}")
-set_source_files_properties("${SM64_STATE_POINTERS}" PROPERTIES COMPILE_OPTIONS "-fPIC")
+set_source_files_properties("${SM64_STATE_POINTERS}" PROPERTIES COMPILE_OPTIONS "-fPIC;-fvisibility=protected")
 set_target_properties(sm64_physics PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(sm64_physics PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_dependencies(sm64_physics sm64_main_objects sm64_overlay_objects sm64_level_data_objects)
 target_link_libraries(sm64_physics PUBLIC m)
 
+# The tools read the game's variables by symbol in their own executable: they
+# link the static library.
+if(NOT SM64_PHYSICS_SHARED)
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)
 sm64_game_headers(sm64_run)
 target_link_libraries(sm64_run PRIVATE sm64_physics)
@@ -214,4 +228,5 @@ if(MUPEN64PLUS_INCLUDE_DIR)
   sm64_game_headers(sm64_lockstep)
   target_link_libraries(sm64_lockstep PRIVATE sm64_physics ${CMAKE_DL_LIBS})
   add_dependencies(sm64_lockstep oracle_video oracle_input)
+endif()
 endif()

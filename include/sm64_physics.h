@@ -12,6 +12,13 @@
 extern "C" {
 #endif
 
+// The library exports the game's own functions and variables with protected
+// visibility; this header's, with default visibility, are its API.
+#pragma GCC visibility push(default)
+
+// The game version this library is built for: "jp" or "us".
+const char *sm64_version(void);
+
 // The user's ROM (.z64, .v64 or .n64 byte order) of the version this library
 // is built for: the library carries the game, but not what the decomp takes
 // from the ROM. Returns false if it is not that ROM. Worlds created before it
@@ -51,6 +58,38 @@ sm64_world *sm64_world_clone(const sm64_world *src);
 size_t sm64_state_size(void);
 void sm64_save_state(const sm64_world *world, void *buffer);
 bool sm64_load_state(sm64_world *world, const void *buffer);
+
+// --- Reading a world ------------------------------------------------------------
+
+// Mario as the game keeps him (gMarioStates[0] and a few globals). Returns
+// false before a level has spawned him.
+struct sm64_mario_info {
+    float pos[3], vel[3], forward_vel;
+    int16_t face_angle[3];
+    uint32_t action;
+    uint16_t action_state, action_timer;
+    int16_t health, num_stars, num_coins, num_lives;
+    int16_t level, area; // gCurrLevelNum, gCurrAreaIndex
+    uint32_t global_timer;
+};
+bool sm64_mario(const sm64_world *world, struct sm64_mario_info *out);
+
+// Lakitu, the game's camera: where it is, what it looks at, its roll (an
+// angle, 0x10000 a turn) and its vertical field of view in degrees.
+struct sm64_camera_info {
+    float pos[3], focus[3];
+    int16_t roll;
+    float fov;
+};
+void sm64_camera(const sm64_world *world, struct sm64_camera_info *out);
+
+// World's copy of one of the game's variables, given the variable's own
+// address as the game's headers declare it (&gMarioStates[0], &gCurrLevelNum):
+// for code that reads the game directly. Addresses outside the state (code,
+// constant data) are returned as they are.
+void *sm64_world_variable(const sm64_world *world, const void *variable);
+
+#pragma GCC visibility pop
 
 #ifdef __cplusplus
 }
