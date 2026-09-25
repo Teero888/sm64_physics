@@ -59,7 +59,9 @@ one copy of the game for a program and its plugins, since a world holds
 addresses of the library's code. It exports the API (`include/sm64_physics.h`)
 and, with protected visibility, the game's own functions and variables for
 code that uses the game directly. The tools (`sm64_run`, `sm64_lockstep`) are
-only built with the static library.
+only built with the static library. A program that wants several versions
+adds this directory once per version, with `SM64_VERSION` and
+`SM64_TARGET_SUFFIX` set (frametee: `sm64_physics_us`, `sm64_physics_jp`).
 
 ## Layout
 

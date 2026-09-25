@@ -8,6 +8,9 @@ set(SM64_VERSION jp CACHE STRING "Game version: jp or us")
 # addresses of the library's code.
 option(SM64_PHYSICS_SHARED "Build sm64_physics as a shared library" OFF)
 set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us)
+# A program with several versions adds this directory once per version, each
+# time with its own suffix for the targets (sm64_physics_us, ...).
+set(S "${SM64_TARGET_SUFFIX}")
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(G "${CMAKE_CURRENT_SOURCE_DIR}/game")
@@ -59,10 +62,10 @@ list(APPEND SM64_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/platform/sound_data.c")
 # libultra's sinf and cosf, which the game called and whose results differ from
 # the host's libm, under other names (see platform/ultra_math.h). Built apart:
 # they must not see the host's <math.h>, whose NAN they would clash with.
-add_library(sm64_ultra_math OBJECT "${G}/lib/src/math/sinf.c" "${G}/lib/src/math/cosf.c" "${G}/lib/src/NaN.c")
-target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_cosf NAN=ultra_nan)
-target_include_directories(sm64_ultra_math PRIVATE "${G}/include" "${G}/lib/src")
-target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -fvisibility=protected -w)
+add_library(sm64_ultra_math${S} OBJECT "${G}/lib/src/math/sinf.c" "${G}/lib/src/math/cosf.c" "${G}/lib/src/NaN.c")
+target_compile_definitions(sm64_ultra_math${S} PRIVATE sinf=ultra_sinf cosf=ultra_cosf NAN=ultra_nan)
+target_include_directories(sm64_ultra_math${S} PRIVATE "${G}/include" "${G}/lib/src")
+target_compile_options(sm64_ultra_math${S} PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -fvisibility=protected -w)
 
 # The N64 stack pointer model (platform/n64stack.h): the frames of the
 # functions from which the N64 can reach the place where the original leaks a
@@ -135,15 +138,15 @@ endfunction()
 set(SM64_OVERLAY_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_OVERLAY_SOURCES INCLUDE REGEX "/src/(menu|goddard)/")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_OVERLAY_SOURCES})
-sm64_section_group(sm64_overlay sm64ovl ${SM64_OVERLAY_SOURCES})
-set(SM64_OVERLAY_OBJECT "${sm64_overlay_OBJECT}")
+sm64_section_group(sm64_overlay${S} sm64ovl ${SM64_OVERLAY_SOURCES})
+set(SM64_OVERLAY_OBJECT "${sm64_overlay${S}_OBJECT}")
 
 # Each level's data is segment 7, decompressed by LOAD_MIO0 on every level load
 # (host_reload_level_data, docs/changes.md 8).
 set(SM64_LEVEL_DATA_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_LEVEL_DATA_SOURCES INCLUDE REGEX "/levels/[^/]+/leveldata\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_LEVEL_DATA_SOURCES})
-sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
+sm64_section_group(sm64_level_data${S} sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 
 # Everything else, with the host's stand-ins for the console: together with
 # the two groups above, the game's whole state (sm64_save_state).
@@ -153,18 +156,18 @@ sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c
+add_library(sm64_shared_objects${S} OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c
             "${GV}/pointers/types.c")
-sm64_game_settings(sm64_shared_objects)
-sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)
+sm64_game_settings(sm64_shared_objects${S})
+sm64_section_group(sm64_main${S} sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)
 
 # The library: include/sm64_physics.h is its whole interface.
 # The three groups' variables as one section, sm64_state (platform/state.ld).
 set(SM64_GAME_OBJECT "${CMAKE_CURRENT_BINARY_DIR}/sm64_game.o")
 add_custom_command(OUTPUT "${SM64_GAME_OBJECT}"
   COMMAND ${CMAKE_LINKER} -r -T "${CMAKE_CURRENT_SOURCE_DIR}/platform/state.ld" -o "${SM64_GAME_OBJECT}"
-          "${sm64_main_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}"
-  DEPENDS "${sm64_main_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data_OBJECT}"
+          "${sm64_main${S}_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data${S}_OBJECT}"
+  DEPENDS "${sm64_main${S}_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data${S}_OBJECT}"
           "${CMAKE_CURRENT_SOURCE_DIR}/platform/state.ld" VERBATIM)
 set_source_files_properties("${SM64_GAME_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
 # The addresses among the state's initial values, which move with every copy.
@@ -178,20 +181,29 @@ if(SM64_PHYSICS_SHARED)
 else()
   set(SM64_PHYSICS_TYPE STATIC)
 endif()
-add_library(sm64_physics ${SM64_PHYSICS_TYPE} $<TARGET_OBJECTS:sm64_ultra_math> $<TARGET_OBJECTS:sm64_shared_objects>
+add_library(sm64_physics${S} ${SM64_PHYSICS_TYPE} $<TARGET_OBJECTS:sm64_ultra_math${S}> $<TARGET_OBJECTS:sm64_shared_objects${S}>
             "${SM64_GAME_OBJECT}" "${SM64_STATE_POINTERS}")
 set_source_files_properties("${SM64_STATE_POINTERS}" PROPERTIES COMPILE_OPTIONS "-fPIC;-fvisibility=protected")
-set_target_properties(sm64_physics PROPERTIES LINKER_LANGUAGE C)
-target_include_directories(sm64_physics PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-add_dependencies(sm64_physics sm64_main_objects sm64_overlay_objects sm64_level_data_objects)
-target_link_libraries(sm64_physics PUBLIC m)
+set_target_properties(sm64_physics${S} PROPERTIES LINKER_LANGUAGE C)
+target_include_directories(sm64_physics${S} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_dependencies(sm64_physics${S} sm64_main${S}_objects sm64_overlay${S}_objects sm64_level_data${S}_objects)
+target_link_libraries(sm64_physics${S} PUBLIC m)
+
+# The display lists' format (sm64_step_draw), for a renderer: the decomp's
+# gbi.h with the library's definitions.
+# The same for every version.
+if(NOT TARGET sm64_physics_gbi)
+  add_library(sm64_physics_gbi INTERFACE)
+  target_include_directories(sm64_physics_gbi INTERFACE "${G}/include")
+  target_compile_definitions(sm64_physics_gbi INTERFACE F3D_OLD=1 _LANGUAGE_C)
+endif()
 
 # The tools read the game's variables by symbol in their own executable: they
 # link the static library.
 if(NOT SM64_PHYSICS_SHARED)
 add_executable(sm64_run tools/run.c tools/elf_symbols.c)
 sm64_game_headers(sm64_run)
-target_link_libraries(sm64_run PRIVATE sm64_physics)
+target_link_libraries(sm64_run PRIVATE sm64_physics${S})
 
 # The lockstep comparator: the oracle's emulator frontend with the native game
 # linked in, compared member by member at every frame. Needs mupen64plus.
@@ -227,7 +239,7 @@ if(MUPEN64PLUS_INCLUDE_DIR)
   target_compile_definitions(sm64_lockstep PRIVATE SM64_LOCKSTEP
     SM64_ORACLE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/oracle" SM64_VERSION_NAME="${SM64_VERSION}")
   sm64_game_headers(sm64_lockstep)
-  target_link_libraries(sm64_lockstep PRIVATE sm64_physics ${CMAKE_DL_LIBS})
+  target_link_libraries(sm64_lockstep PRIVATE sm64_physics${S} ${CMAKE_DL_LIBS})
   add_dependencies(sm64_lockstep oracle_video oracle_input)
 endif()
 endif()
