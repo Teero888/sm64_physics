@@ -125,6 +125,7 @@ void (*sOpenedCannonActions[])(void) = {
 };
 
 void bhv_cannon_base_loop(void) {
+    N64_STACK_FRAME(bhv_cannon_base_loop);
     cur_obj_call_action_function(WORLD(sOpenedCannonActions));
 
     if (o->oCannonUnkF8 != 0) {

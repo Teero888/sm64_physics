@@ -111,6 +111,7 @@ void (*sHeaveHoActions[])(void) = {
 };
 
 void heave_ho_move(void) {
+    N64_STACK_FRAME(heave_ho_move);
     cur_obj_update_floor_and_walls();
     cur_obj_call_action_function(WORLD(sHeaveHoActions));
     cur_obj_move_standard(-78);
@@ -137,6 +138,7 @@ void heave_ho_move(void) {
 }
 
 void bhv_heave_ho_loop(void) {
+    N64_STACK_FRAME(bhv_heave_ho_loop);
     cur_obj_scale(2.0f);
 
     switch (o->oHeldState) {

@@ -54,10 +54,6 @@ def main():
         source = entry["file"]
         if wanted and not any(source.endswith(w) for w in wanted):
             continue
-        # A wrapper of the stack model: its first line names the source.
-        path = Path(source)
-        if "/n64stack/" in source:
-            source = path.read_text().splitlines()[1].split('"')[1]
         if "/game/" not in source:
             continue
         tu = index.parse(source, args=flags(entry))

@@ -1757,6 +1757,7 @@ u32 common_landing_action(struct MarioState *m, s16 animation, u32 airAction) {
 
 s32 common_landing_cancels(struct MarioState *m, struct LandingAction *landingAction,
                            s32 (*setAPressAction)(struct MarioState *, u32, u32)) {
+    N64_STACK_FRAME(common_landing_cancels);
     //! Everything here, including floor steepness, is checked before checking
     // if Mario is actually on the floor. This leads to e.g. remote sliding.
 
@@ -1790,6 +1791,7 @@ s32 common_landing_cancels(struct MarioState *m, struct LandingAction *landingAc
 }
 
 s32 act_jump_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_jump_land);
     if (common_landing_cancels(m, &WORLD(sJumpLandAction), set_jumping_action)) {
         return TRUE;
     }
@@ -1799,6 +1801,7 @@ s32 act_jump_land(struct MarioState *m) {
 }
 
 s32 act_freefall_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_freefall_land);
     if (common_landing_cancels(m, &WORLD(sFreefallLandAction), set_jumping_action)) {
         return TRUE;
     }
@@ -1808,6 +1811,7 @@ s32 act_freefall_land(struct MarioState *m) {
 }
 
 s32 act_side_flip_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_side_flip_land);
     if (common_landing_cancels(m, &WORLD(sSideFlipLandAction), set_jumping_action)) {
         return TRUE;
     }
@@ -1819,6 +1823,7 @@ s32 act_side_flip_land(struct MarioState *m) {
 }
 
 s32 act_hold_jump_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_hold_jump_land);
     if (m->marioObj->oInteractStatus & INT_STATUS_MARIO_DROP_OBJECT) {
         return drop_and_set_mario_action(m, ACT_JUMP_LAND_STOP, 0);
     }
@@ -1832,6 +1837,7 @@ s32 act_hold_jump_land(struct MarioState *m) {
 }
 
 s32 act_hold_freefall_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_hold_freefall_land);
     if (m->marioObj->oInteractStatus & INT_STATUS_MARIO_DROP_OBJECT) {
         return drop_and_set_mario_action(m, ACT_FREEFALL_LAND_STOP, 0);
     }
@@ -1845,6 +1851,7 @@ s32 act_hold_freefall_land(struct MarioState *m) {
 }
 
 s32 act_long_jump_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_long_jump_land);
 #if defined(VERSION_SH) || defined(VERSION_CN)
     // BLJ (Backwards Long Jump) speed build up fix, crushing SimpleFlips's dreams since July 1997
     if (m->forwardVel < 0.0f) {
@@ -1872,6 +1879,7 @@ s32 act_long_jump_land(struct MarioState *m) {
 }
 
 s32 act_double_jump_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_double_jump_land);
     if (common_landing_cancels(m, &WORLD(sDoubleJumpLandAction), set_triple_jump_action)) {
         return TRUE;
     }
@@ -1880,6 +1888,7 @@ s32 act_double_jump_land(struct MarioState *m) {
 }
 
 s32 act_triple_jump_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_triple_jump_land);
     m->input &= ~INPUT_A_PRESSED;
 
     if (common_landing_cancels(m, &WORLD(sTripleJumpLandAction), set_jumping_action)) {
@@ -1895,6 +1904,7 @@ s32 act_triple_jump_land(struct MarioState *m) {
 }
 
 s32 act_backflip_land(struct MarioState *m) {
+    N64_STACK_FRAME(act_backflip_land);
     if (!(m->input & INPUT_Z_DOWN)) {
         m->input &= ~INPUT_A_PRESSED;
     }
@@ -1951,6 +1961,7 @@ s32 act_hold_quicksand_jump_land(struct MarioState *m) {
 }
 
 s32 check_common_moving_cancels(struct MarioState *m) {
+    N64_STACK_FRAME(check_common_moving_cancels);
     if (m->pos[1] < m->waterLevel - 100) {
         return set_water_plunge_action(m);
     }
@@ -1973,6 +1984,7 @@ s32 check_common_moving_cancels(struct MarioState *m) {
 }
 
 s32 mario_execute_moving_action(struct MarioState *m) {
+    N64_STACK_FRAME(mario_execute_moving_action);
     s32 cancel;
 
     if (check_common_moving_cancels(m)) {

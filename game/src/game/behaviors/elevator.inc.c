@@ -124,5 +124,6 @@ void (*sElevatorActions[])(void) = {
 };
 
 void bhv_elevator_loop(void) {
+    N64_STACK_FRAME(bhv_elevator_loop);
     cur_obj_call_action_function(WORLD(sElevatorActions));
 }

@@ -174,5 +174,6 @@ static void (*sBetaBooKeyActions[])(void) = {
  * Update function for bhvBetaBooKey.
  */
 void bhv_beta_boo_key_loop(void) {
+    N64_STACK_FRAME(bhv_beta_boo_key_loop);
     cur_obj_call_action_function(WORLD(sBetaBooKeyActions));
 }

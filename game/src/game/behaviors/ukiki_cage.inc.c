@@ -104,5 +104,6 @@ void (*sUkikiCageActions[])(void) = {
  * Main behavior loop for the cage. Only calls the relevant action.
  */
 void bhv_ukiki_cage_loop(void) {
+    N64_STACK_FRAME(bhv_ukiki_cage_loop);
     cur_obj_call_action_function(WORLD(sUkikiCageActions));
 }

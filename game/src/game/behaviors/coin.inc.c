@@ -308,6 +308,7 @@ void (*sCoinInsideBooActions[])(void) = {
 };
 
 void bhv_coin_inside_boo_loop(void) {
+    N64_STACK_FRAME(bhv_coin_inside_boo_loop);
     cur_obj_call_action_function(WORLD(sCoinInsideBooActions));
 }
 

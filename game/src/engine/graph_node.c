@@ -88,6 +88,7 @@ struct GraphNodePerspective *init_graph_node_perspective(struct AllocOnlyPool *p
                                                          struct GraphNodePerspective *graphNode,
                                                          f32 fov, s16 near, s16 far,
                                                          GraphNodeFunc nodeFunc, s32 unused) {
+    N64_STACK_FRAME(init_graph_node_perspective);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodePerspective));
         if (graphNode != NULL) {
@@ -183,6 +184,7 @@ struct GraphNodeSwitchCase *init_graph_node_switch_case(struct AllocOnlyPool *po
                                                         struct GraphNodeSwitchCase *graphNode,
                                                         s16 numCases, s16 selectedCase,
                                                         GraphNodeFunc nodeFunc, s32 unused) {
+    N64_STACK_FRAME(init_graph_node_switch_case);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeSwitchCase));
         if (graphNode != NULL) {
@@ -211,6 +213,7 @@ struct GraphNodeSwitchCase *init_graph_node_switch_case(struct AllocOnlyPool *po
 struct GraphNodeCamera *init_graph_node_camera(struct AllocOnlyPool *pool,
                                                struct GraphNodeCamera *graphNode, f32 *pos,
                                                f32 *focus, GraphNodeFunc func, s32 mode) {
+    N64_STACK_FRAME(init_graph_node_camera);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeCamera));
         if (graphNode != NULL) {
@@ -514,6 +517,7 @@ struct GraphNodeObjectParent *init_graph_node_object_parent(struct AllocOnlyPool
 struct GraphNodeGenerated *init_graph_node_generated(struct AllocOnlyPool *pool,
                                                      struct GraphNodeGenerated *graphNode,
                                                      GraphNodeFunc gfxFunc, s32 parameter) {
+    N64_STACK_FRAME(init_graph_node_generated);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeGenerated));
         if (graphNode != NULL) {
@@ -541,6 +545,7 @@ struct GraphNodeBackground *init_graph_node_background(struct AllocOnlyPool *poo
                                                        struct GraphNodeBackground *graphNode,
                                                        u16 background, GraphNodeFunc backgroundFunc,
                                                        s32 zero) {
+    N64_STACK_FRAME(init_graph_node_background);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeBackground));
         if (graphNode != NULL) {
@@ -571,6 +576,7 @@ struct GraphNodeHeldObject *init_graph_node_held_object(struct AllocOnlyPool *po
                                                         struct Object *objNode,
                                                         Vec3s translation,
                                                         GraphNodeFunc nodeFunc, s32 playerIndex) {
+    N64_STACK_FRAME(init_graph_node_held_object);
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeHeldObject));
         if (graphNode != NULL) {
@@ -685,6 +691,7 @@ struct GraphNode *geo_make_first_child(struct GraphNode *newFirstChild) {
  * traverses the scene graph and calls the functions of global nodes.
  */
 void geo_call_global_function_nodes_helper(struct GraphNode *graphNode, s32 callContext) {
+    N64_STACK_FRAME(geo_call_global_function_nodes_helper);
     struct GraphNode **globalPtr;
     struct GraphNode *curNode;
     struct FnGraphNode *asFnNode;
@@ -740,6 +747,7 @@ void geo_call_global_function_nodes_helper(struct GraphNode *graphNode, s32 call
  * The graphNode argument should be of type GraphNodeRoot.
  */
 void geo_call_global_function_nodes(struct GraphNode *graphNode, s32 callContext) {
+    N64_STACK_FRAME(geo_call_global_function_nodes);
     if (graphNode->flags & GRAPH_RENDER_ACTIVE) {
         WORLD(gCurGraphNodeRoot) = (struct GraphNodeRoot *) graphNode;
 

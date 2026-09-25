@@ -84,8 +84,6 @@ def is_const(type_):
 def scan(entry):
     """(edits, problems) for one translation unit."""
     source = entry["file"]
-    if "/n64stack/" in source:
-        source = Path(source).read_text().splitlines()[1].split('"')[1]
     tu = ci.Index.create().parse(source, args=refs.flags(entry))
     errors = [str(d) for d in tu.diagnostics if d.severity >= ci.Diagnostic.Error]
     edits, problems = set(), []

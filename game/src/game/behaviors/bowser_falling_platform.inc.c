@@ -103,5 +103,6 @@ void (*sFallingBowserPlatformActions[])(void) = {
 };
 
 void bhv_falling_bowser_platform_loop(void) {
+    N64_STACK_FRAME(bhv_falling_bowser_platform_loop);
     cur_obj_call_action_function(WORLD(sFallingBowserPlatformActions));
 }

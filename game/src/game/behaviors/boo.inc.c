@@ -474,6 +474,7 @@ static void (*sBooActions[])(void) = {
 };
 
 void bhv_boo_loop(void) {
+    N64_STACK_FRAME(bhv_boo_loop);
     //PARTIAL_UPDATE
 
     cur_obj_update_floor_and_walls();
@@ -655,6 +656,7 @@ static void (*sBooGivingStarActions[])(void) = {
 };
 
 void bhv_big_boo_loop(void) {
+    N64_STACK_FRAME(bhv_big_boo_loop);
     //PARTIAL_UPDATE
 
     obj_set_hitbox(o, &WORLD(sBooGivingStarHitbox));
@@ -732,6 +734,7 @@ static void (*sBooWithCageActions[])(void) = {
 };
 
 void bhv_boo_with_cage_loop(void) {
+    N64_STACK_FRAME(bhv_boo_with_cage_loop);
     //PARTIAL_UPDATE
 
     cur_obj_update_floor_and_walls();

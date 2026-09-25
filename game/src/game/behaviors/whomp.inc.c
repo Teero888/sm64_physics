@@ -278,6 +278,7 @@ void (*sWhompActions[])(void) = {
 };
 
 void bhv_whomp_loop(void) {
+    N64_STACK_FRAME(bhv_whomp_loop);
     cur_obj_update_floor_and_walls();
     cur_obj_call_action_function(WORLD(sWhompActions));
     cur_obj_move_standard(-20);

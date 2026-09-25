@@ -718,6 +718,7 @@ s16 find_floor_slope(struct MarioState *m, s16 yawOffset) {
  * Adjusts Mario's camera and sound based on his action status.
  */
 void update_mario_sound_and_camera(struct MarioState *m) {
+    N64_STACK_FRAME(update_mario_sound_and_camera);
     u32 action = m->action;
     s32 camPreset = m->area->camera->mode;
 
@@ -1158,6 +1159,7 @@ s32 check_common_hold_action_exits(struct MarioState *m) {
  * Transitions Mario from a submerged action to a walking action.
  */
 s32 transition_submerged_to_walking(struct MarioState *m) {
+    N64_STACK_FRAME(transition_submerged_to_walking);
     set_camera_mode(m->area->camera, m->area->camera->defMode, 1);
 
     vec3s_set(m->angleVel, 0, 0, 0);
@@ -1174,6 +1176,7 @@ s32 transition_submerged_to_walking(struct MarioState *m) {
  * non-submerged action. This also applies the water surface camera preset.
  */
 s32 set_water_plunge_action(struct MarioState *m) {
+    N64_STACK_FRAME(set_water_plunge_action);
     m->forwardVel = m->forwardVel / 4.0f;
     m->vel[1] = m->vel[1] / 2.0f;
 
@@ -1419,6 +1422,7 @@ void update_mario_inputs(struct MarioState *m) {
  * Set's the camera preset for submerged action behaviors.
  */
 void set_submerged_cam_preset_and_spawn_bubbles(struct MarioState *m) {
+    N64_STACK_FRAME(set_submerged_cam_preset_and_spawn_bubbles);
     f32 heightBelowWater;
     s16 camPreset;
 
@@ -1699,6 +1703,7 @@ void func_sh_8025574C(void) {
  * Main function for executing Mario's behavior.
  */
 s32 execute_mario_action(UNUSED struct Object *o) {
+    N64_STACK_FRAME(execute_mario_action);
     s32 inLoop = TRUE;
 
     if (WORLD(gMarioState)->action) {

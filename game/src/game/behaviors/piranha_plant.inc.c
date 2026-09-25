@@ -333,6 +333,7 @@ void (*TablePiranhaPlantActions[])(void) = {
  * Main loop for bhvPiranhaPlant.
  */
 void bhv_piranha_plant_loop(void) {
+    N64_STACK_FRAME(bhv_piranha_plant_loop);
     cur_obj_call_action_function(WORLD(TablePiranhaPlantActions));
 
     // In WF, hide all Piranha Plants once high enough up.

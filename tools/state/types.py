@@ -167,8 +167,6 @@ def shared_types(tu, source):
 def generate(entry):
     """(source, text, unions) for one source."""
     source = entry["file"]
-    if "/n64stack/" in source:
-        source = Path(source).read_text().splitlines()[1].split('"')[1]
     tu = ci.Index.create().parse(source, args=refs.flags(entry))
     emit = Emitter()
     variables, seen = [], set()

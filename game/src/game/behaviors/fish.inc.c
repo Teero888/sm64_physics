@@ -72,6 +72,7 @@ static void (*sFishSpawnerActions[])(void) = {
 };
 
 void bhv_fish_spawner_loop(void) {
+    N64_STACK_FRAME(bhv_fish_spawner_loop);
     cur_obj_call_action_function(WORLD(sFishSpawnerActions));
 }
 
@@ -239,6 +240,7 @@ static void (*sFishActions[])(void) = {
  * Main loop for fish
  */
 void bhv_fish_loop(void) {
+    N64_STACK_FRAME(bhv_fish_loop);
     UNUSED u8 filler[16];
     cur_obj_scale(1.0f);
 

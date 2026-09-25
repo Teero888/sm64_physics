@@ -236,6 +236,7 @@ void (*sChuckyaActions[])(void) = {
 };
 
 void chuckya_move(void) {
+    N64_STACK_FRAME(chuckya_move);
     cur_obj_update_floor_and_walls();
     cur_obj_call_action_function(WORLD(sChuckyaActions));
     cur_obj_move_standard(-30);
@@ -247,6 +248,7 @@ void chuckya_move(void) {
 }
 
 void bhv_chuckya_loop(void) {
+    N64_STACK_FRAME(bhv_chuckya_loop);
     f32 sp2C = 20.0f;
     f32 sp28 = 50.0f;
 

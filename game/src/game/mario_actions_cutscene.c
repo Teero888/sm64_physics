@@ -996,6 +996,7 @@ s32 act_emerge_from_pipe(struct MarioState *m) {
 }
 
 s32 act_spawn_spin_airborne(struct MarioState *m) {
+    N64_STACK_FRAME(act_spawn_spin_airborne);
     // entered water, exit action
     if (m->pos[1] < m->waterLevel - 100) {
         load_level_init_text(0);
@@ -1258,6 +1259,7 @@ s32 act_special_death_exit(struct MarioState *m) {
 }
 
 s32 act_spawn_no_spin_airborne(struct MarioState *m) {
+    N64_STACK_FRAME(act_spawn_no_spin_airborne);
     launch_mario_until_land(m, ACT_SPAWN_NO_SPIN_LANDING, MARIO_ANIM_GENERAL_FALL, 0.0f);
     if (m->pos[1] < m->waterLevel - 100) {
         set_water_plunge_action(m);
@@ -1420,6 +1422,7 @@ s32 act_teleport_fade_out(struct MarioState *m) {
 }
 
 s32 act_teleport_fade_in(struct MarioState *m) {
+    N64_STACK_FRAME(act_teleport_fade_in);
     play_sound_if_no_flag(m, SOUND_ACTION_TELEPORT, MARIO_ACTION_SOUND_PLAYED);
     set_mario_animation(m, MARIO_ANIM_FIRST_PERSON);
 
@@ -2580,6 +2583,7 @@ static s32 act_end_peach_cutscene(struct MarioState *m) {
 #endif
 
 static s32 act_credits_cutscene(struct MarioState *m) {
+    N64_STACK_FRAME(act_credits_cutscene);
     s32 width;
     s32 height;
 
@@ -2675,6 +2679,7 @@ static s32 act_end_waving_cutscene(struct MarioState *m) {
 }
 
 static s32 check_for_instant_quicksand(struct MarioState *m) {
+    N64_STACK_FRAME(check_for_instant_quicksand);
     if (m->floor->type == SURFACE_INSTANT_QUICKSAND && m->action & ACT_FLAG_INVULNERABLE
         && m->action != ACT_QUICKSAND_DEATH) {
         update_mario_sound_and_camera(m);
@@ -2684,6 +2689,7 @@ static s32 check_for_instant_quicksand(struct MarioState *m) {
 }
 
 s32 mario_execute_cutscene_action(struct MarioState *m) {
+    N64_STACK_FRAME(mario_execute_cutscene_action);
     s32 cancel;
 
     if (check_for_instant_quicksand(m)) {

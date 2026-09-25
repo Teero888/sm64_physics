@@ -355,6 +355,7 @@ struct SoundState sKingBobombSoundStates[] = {
 };
 
 void king_bobomb_move(void) {
+    N64_STACK_FRAME(king_bobomb_move);
     cur_obj_update_floor_and_walls();
 
     if (o->oKingBobombUnkF8 == 0) {
@@ -374,6 +375,7 @@ void king_bobomb_move(void) {
 }
 
 void bhv_king_bobomb_loop(void) {
+    N64_STACK_FRAME(bhv_king_bobomb_loop);
     f32 sp34 = 20.0f;
     f32 sp30 = 50.0f;
     UNUSED u8 filler[8];

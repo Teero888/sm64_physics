@@ -142,6 +142,7 @@ void (*sTweesterActions[])(void) = {
  * Loads the hitbox and calls its relevant action.
  */
 void bhv_tweester_loop(void) {
+    N64_STACK_FRAME(bhv_tweester_loop);
     obj_set_hitbox(o, &WORLD(sTweesterHitbox));
     cur_obj_call_action_function(WORLD(sTweesterActions));
     o->oInteractStatus = 0;

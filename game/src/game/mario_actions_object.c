@@ -439,6 +439,7 @@ s32 act_releasing_bowser(struct MarioState *m) {
 }
 
 s32 check_common_object_cancels(struct MarioState *m) {
+    N64_STACK_FRAME(check_common_object_cancels);
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
         return set_water_plunge_action(m);
@@ -456,6 +457,7 @@ s32 check_common_object_cancels(struct MarioState *m) {
 }
 
 s32 mario_execute_object_action(struct MarioState *m) {
+    N64_STACK_FRAME(mario_execute_object_action);
     s32 cancel;
 
     if (check_common_object_cancels(m)) {

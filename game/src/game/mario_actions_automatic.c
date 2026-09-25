@@ -843,6 +843,7 @@ s32 act_tornado_twirling(struct MarioState *m) {
 }
 
 s32 check_common_automatic_cancels(struct MarioState *m) {
+    N64_STACK_FRAME(check_common_automatic_cancels);
     if (m->pos[1] < m->waterLevel - 100) {
         return set_water_plunge_action(m);
     }
@@ -851,6 +852,7 @@ s32 check_common_automatic_cancels(struct MarioState *m) {
 }
 
 s32 mario_execute_automatic_action(struct MarioState *m) {
+    N64_STACK_FRAME(mario_execute_automatic_action);
     s32 cancel;
 
     if (check_common_automatic_cancels(m)) {

@@ -2326,6 +2326,7 @@ s32 jiggle_bbh_stair(s32 a0) {
 }
 
 void cur_obj_call_action_function(void (*actionFunctions[])(void)) {
+    N64_STACK_FRAME(cur_obj_call_action_function);
     void (*actionFunction)(void) = actionFunctions[o->oAction];
     actionFunction();
 }

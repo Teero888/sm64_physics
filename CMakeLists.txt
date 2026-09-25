@@ -60,40 +60,23 @@ target_compile_definitions(sm64_ultra_math PRIVATE sinf=ultra_sinf cosf=ultra_co
 target_include_directories(sm64_ultra_math PRIVATE "${G}/include" "${G}/lib/src")
 target_compile_options(sm64_ultra_math PRIVATE -fwrapv -ffp-contract=off -fno-fast-math -fPIC -w)
 
-# The N64 stack pointer model (platform/n64stack.h): every function from which
-# the N64 can reach the place where the original leaks a stack address moves
-# the model by its N64 frame. tools/n64stack/<version>.tsv lists them; each
-# source that has some is compiled through a wrapper that includes it and
-# registers their frame sizes, with its other functions not hooked.
+# The N64 stack pointer model (platform/n64stack.h): the frames of the
+# functions from which the N64 can reach the place where the original leaks a
+# stack address, from tools/n64stack/<version>.tsv (the other versions' tables
+# name the functions with no frame in this one).
 set(SM64_N64STACK_DIR "${CMAKE_CURRENT_BINARY_DIR}/n64stack")
-set(n64stack_specs)
-foreach(source ${SM64_SOURCES})
-  string(REPLACE "${G}/" "" relative "${source}")
-  if(relative MATCHES "^src/")
-    list(APPEND n64stack_specs "${relative}=${source}")
-  endif()
-endforeach()
+file(GLOB n64stack_tables "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/*.tsv")
 set(n64stack_table "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/${SM64_VERSION}.tsv")
+list(REMOVE_ITEM n64stack_tables "${n64stack_table}")
 execute_process(
-  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/frames.py" wrappers
-          "${n64stack_table}" "${SM64_N64STACK_DIR}" ${n64stack_specs}
-  OUTPUT_VARIABLE n64stack_hooked OUTPUT_STRIP_TRAILING_WHITESPACE RESULT_VARIABLE n64stack_result)
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/frames.py" header
+          "${SM64_N64STACK_DIR}/n64_frames.h" "${n64stack_table}" ${n64stack_tables}
+  RESULT_VARIABLE n64stack_result)
 if(NOT n64stack_result EQUAL 0)
   message(FATAL_ERROR "tools/n64stack/frames.py failed")
 endif()
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tools/n64stack/frames.py"
-             "${n64stack_table}")
-string(REPLACE "\n" ";" n64stack_hooked "${n64stack_hooked}")
-foreach(line ${n64stack_hooked})
-  string(REPLACE "\t" ";" fields "${line}")
-  list(GET fields 0 relative)
-  list(GET fields 1 wrapper)
-  list(GET fields 2 excluded)
-  list(TRANSFORM SM64_SOURCES REPLACE "^${G}/${relative}$" "${wrapper}")
-  get_filename_component(original_dir "${G}/${relative}" DIRECTORY)
-  set_source_files_properties("${wrapper}" PROPERTIES INCLUDE_DIRECTORIES "${original_dir}" COMPILE_OPTIONS
-    "-finstrument-functions;-finstrument-functions-exclude-file-list=.h;-finstrument-functions-exclude-function-list=${excluded}")
-endforeach()
+             "${n64stack_table}" ${n64stack_tables})
 
 string(TOUPPER "${SM64_VERSION}" SM64_VERSION_UPPER)
 # The game's headers and definitions, for game sources and the tools that
@@ -119,7 +102,8 @@ function(sm64_game_settings target)
     -ffp-contract=off -fno-fast-math -fPIC -w
     "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/ultra_math.h\""
     "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/draw.h\""
-    "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/world.h\"")
+    "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/world.h\""
+    "SHELL:-include \"${CMAKE_CURRENT_SOURCE_DIR}/platform/n64stack.h\"")
 endfunction()
 
 # Sources whose variables the N64 resets when it loads their segment from ROM

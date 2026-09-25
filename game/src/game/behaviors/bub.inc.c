@@ -37,6 +37,7 @@ void (*sBirdChirpChirpActions[])(void) = {
 };
 
 void bhv_bub_spawner_loop(void) {
+    N64_STACK_FRAME(bhv_bub_spawner_loop);
     cur_obj_call_action_function(WORLD(sBirdChirpChirpActions));
 }
 
@@ -157,6 +158,7 @@ void (*sCheepCheepActions[])(void) = {
 };
 
 void bhv_bub_loop(void) {
+    N64_STACK_FRAME(bhv_bub_loop);
     o->oCheepCheepUnkF4 = find_water_level(o->oPosX, o->oPosZ);
     o->oCheepCheepUnkF8 = WORLD(gMarioObject)->oPosY + o->oCheepCheepUnkFC;
     o->oWallHitboxRadius = 30.0f;

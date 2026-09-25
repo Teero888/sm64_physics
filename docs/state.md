@@ -14,8 +14,8 @@ level data the game writes to. The variables are defined exactly as the
 decomp wrote them, initial values included. What is not state stays outside:
 constant data, the code, and what the process shares (`platform/world.c`: the
 state's initial values, each thread's current world and settings;
-`platform/n64stack.c`: the stack model's table and, per thread, its stack
-pointer; the RSP's output buffer).
+`platform/n64stack.c`: per thread, the stack model's pointer; the RSP's
+output buffer).
 
 The section is page aligned at both ends. Ranges of it, marked by symbols,
 are what the N64 reloads from ROM: `sm64_overlay_*` (src/menu and

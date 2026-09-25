@@ -257,6 +257,7 @@ void geo_layout_cmd_node_ortho_projection(void) {
    [cmd+0x08: GraphNodeFunc frustumFunc]
 */
 void geo_layout_cmd_node_perspective(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_perspective);
     struct GraphNodePerspective *graphNode;
     GraphNodeFunc frustumFunc = NULL;
     s16 fov = cur_geo_cmd_s16(0x02);
@@ -336,6 +337,7 @@ void geo_layout_cmd_node_level_of_detail(void) {
   Used for animating coins, blinking, color selection, etc.
 */
 void geo_layout_cmd_node_switch_case(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_switch_case);
     struct GraphNodeSwitchCase *graphNode;
 
     graphNode =
@@ -362,6 +364,7 @@ void geo_layout_cmd_node_switch_case(void) {
   cmd+0x10: GraphNodeFunc func
 */
 void geo_layout_cmd_node_camera(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_camera);
     struct GraphNodeCamera *graphNode;
     s16 *cmdPos = (s16 *) &WORLD(gGeoLayoutCommand)[4];
 
@@ -674,6 +677,7 @@ void geo_layout_cmd_node_object_parent(void) {
    cmd+0x04: GraphNodeFunc func
 */
 void geo_layout_cmd_node_generated(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_generated);
     struct GraphNodeGenerated *graphNode;
 
     graphNode = init_graph_node_generated(WORLD(gGraphNodePool), NULL,
@@ -691,6 +695,7 @@ void geo_layout_cmd_node_generated(void) {
    cmd+0x04: GraphNodeFunc backgroundFunc
 */
 void geo_layout_cmd_node_background(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_background);
     struct GraphNodeBackground *graphNode;
 
     graphNode = init_graph_node_background(
@@ -745,6 +750,7 @@ void geo_layout_cmd_copy_view(void) {
    cmd+0x08: GraphNodeFunc nodeFunc
 */
 void geo_layout_cmd_node_held_obj(void) {
+    N64_STACK_FRAME(geo_layout_cmd_node_held_obj);
     struct GraphNodeHeldObject *graphNode;
     Vec3s offset;
 
@@ -771,6 +777,7 @@ void geo_layout_cmd_node_culling_radius(void) {
 }
 
 struct GraphNode *process_geo_layout(struct AllocOnlyPool *pool, void *segptr) {
+    N64_STACK_FRAME(process_geo_layout);
     // set by register_scene_graph_node when gCurGraphNodeIndex is 0
     // and gCurRootGraphNode is NULL
     WORLD(gCurRootGraphNode) = NULL;

@@ -708,6 +708,7 @@ u32 take_damage_from_interact_object(struct MarioState *m) {
 }
 
 u32 take_damage_and_knock_back(struct MarioState *m, struct Object *o) {
+    N64_STACK_FRAME(take_damage_and_knock_back);
     u32 damage;
 
     if (!WORLD(sInvulnerable) && !(m->flags & MARIO_VANISH_CAP)
@@ -734,6 +735,7 @@ u32 take_damage_and_knock_back(struct MarioState *m, struct Object *o) {
 }
 
 void reset_mario_pitch(struct MarioState *m) {
+    N64_STACK_FRAME(reset_mario_pitch);
     if (m->action == ACT_WATER_JUMP || m->action == ACT_SHOT_FROM_CANNON || m->action == ACT_FLYING) {
         set_camera_mode(m->area->camera, m->area->camera->defMode, 1);
         m->faceAngle[0] = 0;
@@ -767,6 +769,7 @@ u32 interact_water_ring(struct MarioState *m, UNUSED u32 interactType, struct Ob
 }
 
 u32 interact_star_or_key(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_star_or_key);
     u32 starIndex;
     u32 starGrabAction = ACT_STAR_DANCE_EXIT;
     u32 noExit = (o->oInteractionSubtype & INT_SUBTYPE_NO_EXIT) != 0;
@@ -1086,6 +1089,7 @@ u32 interact_igloo_barrier(struct MarioState *m, UNUSED u32 interactType, struct
 }
 
 u32 interact_tornado(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_tornado);
     struct Object *marioObj = m->marioObj;
 
     if (m->action != ACT_TORNADO_TWIRLING && m->action != ACT_SQUISHED) {
@@ -1134,6 +1138,7 @@ u32 interact_whirlpool(struct MarioState *m, UNUSED u32 interactType, struct Obj
 }
 
 u32 interact_strong_wind(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_strong_wind);
     UNUSED struct Object *marioObj = m->marioObj;
 
     if (m->action != ACT_GETTING_BLOWN) {
@@ -1156,6 +1161,7 @@ u32 interact_strong_wind(struct MarioState *m, UNUSED u32 interactType, struct O
 }
 
 u32 interact_flame(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_flame);
     u32 burningAction = ACT_BURNING_JUMP;
 
     if (!WORLD(sInvulnerable) && !(m->flags & MARIO_METAL_CAP) && !(m->flags & MARIO_VANISH_CAP)
@@ -1186,6 +1192,7 @@ u32 interact_flame(struct MarioState *m, UNUSED u32 interactType, struct Object 
 }
 
 u32 interact_snufit_bullet(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_snufit_bullet);
     if (!WORLD(sInvulnerable) && !(m->flags & MARIO_VANISH_CAP)) {
         if (m->flags & MARIO_METAL_CAP) {
             o->oInteractStatus = INT_STATUS_INTERACTED | INT_STATUS_WAS_ATTACKED;
@@ -1211,6 +1218,7 @@ u32 interact_snufit_bullet(struct MarioState *m, UNUSED u32 interactType, struct
 }
 
 u32 interact_clam_or_bubba(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_clam_or_bubba);
     if (o->oInteractionSubtype & INT_SUBTYPE_EATS_MARIO) {
         o->oInteractStatus = INT_STATUS_INTERACTED;
         m->interactObj = o;
@@ -1227,6 +1235,7 @@ u32 interact_clam_or_bubba(struct MarioState *m, UNUSED u32 interactType, struct
 }
 
 u32 interact_bully(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_bully);
     UNUSED u8 filler[4];
 
     u32 interaction;
@@ -1274,6 +1283,7 @@ u32 interact_bully(struct MarioState *m, UNUSED u32 interactType, struct Object 
 }
 
 u32 interact_shock(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_shock);
     if (!WORLD(sInvulnerable) && !(m->flags & MARIO_VANISH_CAP)
         && !(o->oInteractionSubtype & INT_SUBTYPE_DELAY_INVINCIBILITY)) {
         u32 actionArg = (m->action & (ACT_FLAG_AIR | ACT_FLAG_ON_POLE | ACT_FLAG_HANGING)) == 0;
@@ -1310,6 +1320,7 @@ UNUSED static u32 interact_stub(UNUSED struct MarioState *m, UNUSED u32 interact
 }
 
 u32 interact_mr_blizzard(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_mr_blizzard);
     if (take_damage_and_knock_back(m, o)) {
         return TRUE;
     }
@@ -1322,6 +1333,7 @@ u32 interact_mr_blizzard(struct MarioState *m, UNUSED u32 interactType, struct O
 }
 
 u32 interact_hit_from_below(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_hit_from_below);
     UNUSED u8 filler[4];
 
     u32 interaction;
@@ -1366,6 +1378,7 @@ u32 interact_hit_from_below(struct MarioState *m, UNUSED u32 interactType, struc
 }
 
 u32 interact_bounce_top(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_bounce_top);
     u32 interaction;
     if (m->flags & MARIO_METAL_CAP) {
         interaction = INT_FAST_ATTACK_OR_SHELL;
@@ -1404,6 +1417,7 @@ u32 interact_bounce_top(struct MarioState *m, UNUSED u32 interactType, struct Ob
 }
 
 u32 interact_unknown_08(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_unknown_08);
     u32 interaction = determine_interaction(m, o);
 
     if (interaction & INT_PUNCH) {
@@ -1421,6 +1435,7 @@ u32 interact_unknown_08(struct MarioState *m, UNUSED u32 interactType, struct Ob
 }
 
 u32 interact_damage(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_damage);
     if (take_damage_and_knock_back(m, o)) {
         return TRUE;
     }
@@ -1458,6 +1473,7 @@ u32 interact_breakable(struct MarioState *m, UNUSED u32 interactType, struct Obj
 }
 
 u32 interact_koopa_shell(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_koopa_shell);
     if (!(m->action & ACT_FLAG_RIDING_SHELL)) {
         u32 interaction = determine_interaction(m, o);
 
@@ -1484,6 +1500,7 @@ u32 interact_koopa_shell(struct MarioState *m, UNUSED u32 interactType, struct O
 }
 
 u32 check_object_grab_mario(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(check_object_grab_mario);
     if ((!(m->action & (ACT_FLAG_AIR | ACT_FLAG_INVULNERABLE | ACT_FLAG_ATTACKING)) || !WORLD(sInvulnerable))
         && (o->oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO)) {
         if (object_facing_mario(m, o, 0x2AAA)) {
@@ -1508,6 +1525,7 @@ u32 check_object_grab_mario(struct MarioState *m, UNUSED u32 interactType, struc
 }
 
 u32 interact_pole(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_pole);
     s32 actionId = m->action & ACT_ID_MASK;
     if (actionId >= 0x080 && actionId < 0x0A0) {
         if (!(m->prevAction & ACT_FLAG_ON_POLE) || m->usedObj != o) {
@@ -1558,6 +1576,7 @@ u32 interact_pole(struct MarioState *m, UNUSED u32 interactType, struct Object *
 }
 
 u32 interact_hoot(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_hoot);
     s32 actionId = m->action & ACT_ID_MASK;
 
     //! Can pause to advance the global timer without falling too far, allowing
@@ -1634,6 +1653,7 @@ u32 interact_cap(struct MarioState *m, UNUSED u32 interactType, struct Object *o
 }
 
 u32 interact_grabbable(struct MarioState *m, u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_grabbable);
     const BehaviorScript *script = virtual_to_segmented(0x13, o->behavior);
 
     if (o->oInteractionSubtype & INT_SUBTYPE_KICKABLE) {
@@ -1778,6 +1798,7 @@ void check_kick_or_punch_wall(struct MarioState *m) {
 }
 
 void mario_process_interactions(struct MarioState *m) {
+    N64_STACK_FRAME(mario_process_interactions);
     WORLD(sDelayInvincTimer) = FALSE;
     WORLD(sInvulnerable) = (m->action & ACT_FLAG_INVULNERABLE) || m->invincTimer != 0;
 
@@ -1825,6 +1846,7 @@ void check_death_barrier(struct MarioState *m) {
 }
 
 void check_lava_boost(struct MarioState *m) {
+    N64_STACK_FRAME(check_lava_boost);
     if (!(m->action & ACT_FLAG_RIDING_SHELL) && m->pos[1] < m->floorHeight + 10.0f) {
         if (!(m->flags & MARIO_METAL_CAP)) {
             m->hurtCounter += (m->flags & MARIO_CAP_ON_HEAD) ? 12 : 18;
@@ -1856,6 +1878,7 @@ void pss_end_slide(struct MarioState *m) {
 }
 
 void mario_handle_special_floors(struct MarioState *m) {
+    N64_STACK_FRAME(mario_handle_special_floors);
     if ((m->action & ACT_GROUP_MASK) == ACT_GROUP_CUTSCENE) {
         return;
     }

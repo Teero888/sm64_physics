@@ -39,6 +39,7 @@ void (*sMrIParticleActions[])(void) = {
 };
 
 void bhv_mr_i_particle_loop(void) {
+    N64_STACK_FRAME(bhv_mr_i_particle_loop);
     cur_obj_call_action_function(WORLD(sMrIParticleActions));
 }
 
@@ -305,6 +306,7 @@ struct ObjectHitbox sMrIHitbox = {
 };
 
 void bhv_mr_i_loop(void) {
+    N64_STACK_FRAME(bhv_mr_i_loop);
     obj_set_hitbox(o, &WORLD(sMrIHitbox));
     cur_obj_call_action_function(WORLD(sMrIActions));
 

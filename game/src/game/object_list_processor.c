@@ -265,6 +265,7 @@ void spawn_particle(u32 activeParticleFlag, s16 model, const BehaviorScript *beh
  * Mario's primary behavior update function.
  */
 void bhv_mario_update(void) {
+    N64_STACK_FRAME(bhv_mario_update);
     u32 particleFlags = 0;
     s32 i;
 
@@ -291,6 +292,7 @@ void bhv_mario_update(void) {
  * including firstObj itself. Return the number of objects that were updated.
  */
 s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *firstObj) {
+    N64_STACK_FRAME(update_objects_starting_at);
     s32 count = 0;
 
     while (objList != firstObj) {
@@ -316,6 +318,7 @@ s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *fi
  * updated)
  */
 s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNode *firstObj) {
+    N64_STACK_FRAME(update_objects_during_time_stop);
     s32 count = 0;
     s32 unfrozen;
 
@@ -361,6 +364,7 @@ s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNod
  * the list.
  */
 s32 update_objects_in_list(struct ObjectNode *objList) {
+    N64_STACK_FRAME(update_objects_in_list);
     s32 count;
     struct ObjectNode *firstObj = objList->next;
 
@@ -561,6 +565,7 @@ void clear_objects(void) {
  * Update spawner and surface objects.
  */
 void update_terrain_objects(void) {
+    N64_STACK_FRAME(update_terrain_objects);
     WORLD(gObjectCounter) = update_objects_in_list(&WORLD(gObjectLists)[OBJ_LIST_SPAWNER]);
     //! This was meant to be +=
     WORLD(gObjectCounter) = update_objects_in_list(&WORLD(gObjectLists)[OBJ_LIST_SURFACE]);
@@ -571,6 +576,7 @@ void update_terrain_objects(void) {
  * the order specified by sObjectListUpdateOrder.
  */
 void update_non_terrain_objects(void) {
+    N64_STACK_FRAME(update_non_terrain_objects);
     UNUSED u8 filler[4];
     s32 listIndex;
 
@@ -624,6 +630,7 @@ UNUSED static u16 unused_get_elapsed_time(u64 *cycleCounts, s32 index) {
  * and object surface management.
  */
 void update_objects(UNUSED s32 unused) {
+    N64_STACK_FRAME(update_objects);
     s64 cycleCounts[30];
 
     cycleCounts[0] = get_current_clock();

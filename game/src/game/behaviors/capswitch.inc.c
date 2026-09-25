@@ -64,5 +64,6 @@ void (*sCapSwitchActions[])(void) = {
 };
 
 void bhv_cap_switch_loop(void) {
+    N64_STACK_FRAME(bhv_cap_switch_loop);
     cur_obj_call_action_function(WORLD(sCapSwitchActions));
 }

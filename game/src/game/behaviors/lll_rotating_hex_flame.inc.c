@@ -68,6 +68,7 @@ void (*sRotatingCwFireBarsActions[])(void) = {
 };
 
 void bhv_lll_rotating_block_fire_bars_loop(void) {
+    N64_STACK_FRAME(bhv_lll_rotating_block_fire_bars_loop);
     cur_obj_call_action_function(WORLD(sRotatingCwFireBarsActions));
     if (o->oBhvParams2ndByte == 0) {
         load_object_collision_model();

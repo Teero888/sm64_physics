@@ -82,9 +82,12 @@ v0, which set_camera_mode last set through vec3f_copy, whose `return &dest`
 is the address of its argument slot on the stack: set_camera_mode's stack
 pointer. AVOID_UB returned 0. The value depends on the call path (0x6e78 and
 0x6eb0 in the JP 1-key TAS), so it comes from the host's model of the N64
-stack pointer.
+stack pointer (docs/avoid_ub.md): every function on the N64's paths to
+set_camera_mode opens with `N64_STACK_FRAME(name);`, put there by
+`tools/n64stack/frames.py apply`.
 
-Files: `src/game/camera.c`
+Files: `src/game/camera.c`, and those functions' sources (`src/engine`,
+`src/game`, `src/menu`)
 
 ## 8. Reload a level's data when its script loads segment 7
 

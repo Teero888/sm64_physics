@@ -361,6 +361,7 @@ void select_gfx_pool(void) {
  * - Selects which framebuffer will be rendered and displayed to next time.
  */
 void display_and_vsync(void) {
+    N64_STACK_FRAME(display_and_vsync);
     profiler_log_thread5_time(BEFORE_DISPLAY_LISTS);
     osRecvMesg(&WORLD(gGfxVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
     if (WORLD(gGoddardVblankCallback) != NULL) {
@@ -641,6 +642,7 @@ void setup_game_memory(void) {
  * Main game loop thread. Runs forever as long as the game continues.
  */
 void thread5_game_loop(UNUSED void *arg) {
+    N64_STACK_FRAME(thread5_game_loop);
     struct LevelCommand *addr;
 
     CN_DEBUG_PRINTF(("start gfx thread\n"));

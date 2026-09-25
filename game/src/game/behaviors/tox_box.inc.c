@@ -161,6 +161,7 @@ void (*sToxBoxActions[])(void) = {
 };
 
 void bhv_tox_box_loop(void) {
+    N64_STACK_FRAME(bhv_tox_box_loop);
     cur_obj_call_action_function(WORLD(sToxBoxActions));
     load_object_collision_model();
 }

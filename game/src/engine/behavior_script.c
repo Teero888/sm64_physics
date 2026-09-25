@@ -359,6 +359,7 @@ static s32 bhv_cmd_end_loop(void) {
 // Usage: CALL_NATIVE(func)
 typedef void (*NativeBhvFunc)(void);
 static s32 bhv_cmd_call_native(void) {
+    N64_STACK_FRAME(bhv_cmd_call_native);
     NativeBhvFunc behaviorFunc = BHV_CMD_GET_VPTR(1);
 
     behaviorFunc();
@@ -904,6 +905,7 @@ static BhvCommandProc BehaviorCmdTable[] = {
 
 // Execute the behavior script of the current object, process the object flags, and other miscellaneous code for updating objects.
 void cur_obj_update(void) {
+    N64_STACK_FRAME(cur_obj_update);
     UNUSED u8 filler[4];
 
     s16 objFlags = WORLD(gCurrentObject)->oFlags;

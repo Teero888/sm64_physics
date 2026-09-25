@@ -365,6 +365,7 @@ void set_mario_initial_action(struct MarioState *m, u32 spawnType, u32 actionArg
 }
 
 void init_mario_after_warp(void) {
+    N64_STACK_FRAME(init_mario_after_warp);
     struct ObjectWarpNode *spawnNode = area_get_warp_node(WORLD(sWarpDest).nodeId);
     u32 marioSpawnType = get_mario_spawn_type(spawnNode->object);
 
@@ -461,6 +462,7 @@ void init_mario_after_warp(void) {
 
 // used for warps inside one level
 void warp_area(void) {
+    N64_STACK_FRAME(warp_area);
     if (WORLD(sWarpDest).type != WARP_TYPE_NOT_WARPING) {
         if (WORLD(sWarpDest).type == WARP_TYPE_CHANGE_AREA) {
             level_control_timer(TIMER_CONTROL_HIDE);
@@ -474,6 +476,7 @@ void warp_area(void) {
 
 // used for warps between levels
 void warp_level(void) {
+    N64_STACK_FRAME(warp_level);
     WORLD(gCurrLevelNum) = WORLD(sWarpDest).levelNum;
 
     level_control_timer(TIMER_CONTROL_HIDE);
@@ -483,6 +486,7 @@ void warp_level(void) {
 }
 
 void warp_credits(void) {
+    N64_STACK_FRAME(warp_credits);
     s32 marioAction;
 
     switch (WORLD(sWarpDest).nodeId) {
@@ -528,6 +532,7 @@ void warp_credits(void) {
 }
 
 void check_instant_warp(void) {
+    N64_STACK_FRAME(check_instant_warp);
     s16 cameraAngle;
     struct Surface *floor;
 
@@ -951,6 +956,7 @@ void update_hud_values(void) {
  * warp twice.
  */
 void basic_update(UNUSED s16 *arg) {
+    N64_STACK_FRAME(basic_update);
     area_update_objects();
     update_hud_values();
 
@@ -960,6 +966,7 @@ void basic_update(UNUSED s16 *arg) {
 }
 
 s32 play_mode_normal(void) {
+    N64_STACK_FRAME(play_mode_normal);
     if (WORLD(gCurrDemoInput) != NULL) {
         print_intro_text();
         if (WORLD(gPlayer1Controller)->buttonPressed & END_DEMO) {
@@ -1035,6 +1042,7 @@ s32 play_mode_paused(void) {
  * it uses the pause camera, making it basically unusable in most levels.
  */
 s32 play_mode_frame_advance(void) {
+    N64_STACK_FRAME(play_mode_frame_advance);
     if (WORLD(gPlayer1Controller)->buttonPressed & D_JPAD) {
         WORLD(gCameraMovementFlags) &= ~CAM_MOVE_PAUSE_SCREEN;
         play_mode_normal();
@@ -1063,6 +1071,7 @@ void level_set_transition(s16 length, void (*updateFunction)(s16 *)) {
  * Play the transition and then return to normal play mode.
  */
 s32 play_mode_change_area(void) {
+    N64_STACK_FRAME(play_mode_change_area);
     //! This maybe was supposed to be sTransitionTimer == -1? sTransitionUpdate
     // is never set to -1.
     if (WORLD(sTransitionUpdate) == (void (*)(s16 *)) -1) {
@@ -1087,6 +1096,7 @@ s32 play_mode_change_area(void) {
  * Play the transition and then return to normal play mode.
  */
 s32 play_mode_change_level(void) {
+    N64_STACK_FRAME(play_mode_change_level);
     if (WORLD(sTransitionUpdate) != NULL) {
         WORLD(sTransitionUpdate)(&WORLD(sTransitionTimer));
     }
@@ -1124,6 +1134,7 @@ UNUSED static s32 play_mode_unused(void) {
 }
 
 s32 update_level(void) {
+    N64_STACK_FRAME(update_level);
     s32 changeLevel;
 
     switch (WORLD(sCurrPlayMode)) {
@@ -1153,6 +1164,7 @@ s32 update_level(void) {
 }
 
 s32 init_level(void) {
+    N64_STACK_FRAME(init_level);
     s32 val4 = FALSE;
 
     set_play_mode(PLAY_MODE_NORMAL);
@@ -1219,6 +1231,7 @@ s32 init_level(void) {
  * Initialize the current level if initOrUpdate is 0, or update the level if it is 1.
  */
 s32 lvl_init_or_update(s16 initOrUpdate, UNUSED s32 unused) {
+    N64_STACK_FRAME(lvl_init_or_update);
     s32 result = 0;
 
     switch (initOrUpdate) {

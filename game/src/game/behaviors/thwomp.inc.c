@@ -58,5 +58,6 @@ void (*sGrindelThwompActions[])(void) = {
 };
 
 void bhv_grindel_thwomp_loop(void) {
+    N64_STACK_FRAME(bhv_grindel_thwomp_loop);
     cur_obj_call_action_function(WORLD(sGrindelThwompActions));
 }

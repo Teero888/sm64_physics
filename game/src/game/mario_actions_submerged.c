@@ -1498,6 +1498,7 @@ static s32 act_hold_metal_water_fall_land(struct MarioState *m) {
 }
 
 static s32 check_common_submerged_cancels(struct MarioState *m) {
+    N64_STACK_FRAME(check_common_submerged_cancels);
     if (m->pos[1] > m->waterLevel - 80) {
         if (m->waterLevel - 80 > m->floorHeight) {
             m->pos[1] = m->waterLevel - 80;
@@ -1524,6 +1525,7 @@ static s32 check_common_submerged_cancels(struct MarioState *m) {
 }
 
 s32 mario_execute_submerged_action(struct MarioState *m) {
+    N64_STACK_FRAME(mario_execute_submerged_action);
     s32 cancel;
 
     if (check_common_submerged_cancels(m)) {

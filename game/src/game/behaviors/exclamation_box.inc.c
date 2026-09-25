@@ -173,6 +173,7 @@ void (*sExclamationBoxActions[])(void) = {
 };
 
 void bhv_exclamation_box_loop(void) {
+    N64_STACK_FRAME(bhv_exclamation_box_loop);
     cur_obj_scale(2.0f);
     cur_obj_call_action_function(WORLD(sExclamationBoxActions));
 }

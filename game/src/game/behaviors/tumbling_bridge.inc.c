@@ -128,5 +128,6 @@ void (*sTumblingBridgeActions[])(void) = {
 };
 
 void bhv_tumbling_bridge_loop(void) {
+    N64_STACK_FRAME(bhv_tumbling_bridge_loop);
     cur_obj_call_action_function(WORLD(sTumblingBridgeActions));
 }

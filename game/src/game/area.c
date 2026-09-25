@@ -212,6 +212,7 @@ void clear_areas(void) {
 }
 
 void clear_area_graph_nodes(void) {
+    N64_STACK_FRAME(clear_area_graph_nodes);
     s32 i;
 
     if (WORLD(gCurrentArea) != NULL) {
@@ -229,6 +230,7 @@ void clear_area_graph_nodes(void) {
 }
 
 void load_area(s32 index) {
+    N64_STACK_FRAME(load_area);
     if (WORLD(gCurrentArea) == NULL && WORLD(gAreaData)[index].unk04 != NULL) {
         WORLD(gCurrentArea) = &WORLD(gAreaData)[index];
         WORLD(gCurrAreaIndex) = WORLD(gCurrentArea)->index;
@@ -248,6 +250,7 @@ void load_area(s32 index) {
 }
 
 void unload_area(void) {
+    N64_STACK_FRAME(unload_area);
     if (WORLD(gCurrentArea) != NULL) {
         unload_objects_from_area(0, WORLD(gCurrentArea)->index);
         geo_call_global_function_nodes(&WORLD(gCurrentArea)->unk04->node, GEO_CONTEXT_AREA_UNLOAD);
@@ -259,6 +262,7 @@ void unload_area(void) {
 }
 
 void load_mario_area(void) {
+    N64_STACK_FRAME(load_mario_area);
     stop_sounds_in_continuous_banks();
     load_area(WORLD(gMarioSpawnInfo)->areaIndex);
 
@@ -269,6 +273,7 @@ void load_mario_area(void) {
 }
 
 void unload_mario_area(void) {
+    N64_STACK_FRAME(unload_mario_area);
     if (WORLD(gCurrentArea) != NULL && (WORLD(gCurrentArea)->flags & 0x01)) {
         unload_objects_from_area(0, WORLD(gMarioSpawnInfo)->activeAreaIndex);
 
@@ -280,6 +285,7 @@ void unload_mario_area(void) {
 }
 
 void change_area(s32 index) {
+    N64_STACK_FRAME(change_area);
     s32 areaFlags = WORLD(gCurrentArea)->flags;
 
     if (WORLD(gCurrAreaIndex) != index) {
@@ -296,6 +302,7 @@ void change_area(s32 index) {
 }
 
 void area_update_objects(void) {
+    N64_STACK_FRAME(area_update_objects);
     WORLD(gAreaUpdateCounter)++;
     update_objects(0);
 }
@@ -366,6 +373,7 @@ void play_transition_after_delay(s16 transType, s16 time, u8 red, u8 green, u8 b
 }
 
 void render_game(void) {
+    N64_STACK_FRAME(render_game);
     if (WORLD(gCurrentArea) != NULL && !WORLD(gWarpTransition).pauseRendering) {
         geo_process_root(WORLD(gCurrentArea)->unk04, WORLD(D_8032CE74), WORLD(D_8032CE78), WORLD(gFBSetColor));
 

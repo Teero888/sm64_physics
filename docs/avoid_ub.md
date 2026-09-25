@@ -40,7 +40,7 @@ sites only affect sound and the title screen's Mario head and are not audited.
 
 Where the original leaks a stack address into game state (only
 `set_camera_mode`, docs/changes.md 7), the value depends on how deep the call path
-is. `platform/n64stack.c` keeps the N64 game thread's stack pointer: every
+is. `platform/n64stack.h` keeps the N64 game thread's stack pointer: every
 function from which the N64 can call `set_camera_mode`, and that function
 itself, moves it by its N64 frame size on entry and back on return.
 
@@ -51,10 +51,13 @@ calls from `jal` (and `j` to another function: a tail call); an indirect call
 (`jalr`) may reach any function whose address appears in the ROM's data or is
 built in code with `lui` and `addiu`/`ori`, except that goddard's indirect
 calls stay in goddard. That over-approximates the real graph, which only
-costs time. `tools/n64stack/frames.py` then writes, at configure time, a
-wrapper for each native source that has such functions: it includes the
-source and registers their frame sizes, and the source is compiled with
-`-finstrument-functions` and every other function of it excluded.
+costs time. The table goes to `tools/n64stack/<version>.tsv`, and
+`tools/n64stack/frames.py apply` opens each of those functions with
+`N64_STACK_FRAME(name);`: a variable whose initializer moves the pointer down
+and whose cleanup moves it back on any return. The frames come from a header
+written at configure time from the version's table (0 for a function only
+another version has on the path), so nothing else pays for the model, and it
+does not depend on the compiler.
 
 The host sets the pointer to its value inside `thread5_game_loop` (the game
 thread's stack top, less 16 as `osCreateThread` does, less that function's

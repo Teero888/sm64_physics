@@ -469,6 +469,7 @@ void (*sUkikiActions[])(void) = {
  * being held, dropped, or thrown.
  */
 void ukiki_free_loop(void) {
+    N64_STACK_FRAME(ukiki_free_loop);
     s32 steepSlopeAngleDegrees;
 
     cur_obj_update_floor_and_walls();
@@ -603,6 +604,7 @@ void bhv_ukiki_init(void) {
  * dependent on the held state and whick ukiki it is (cage or cap).
  */
 void bhv_ukiki_loop(void) {
+    N64_STACK_FRAME(bhv_ukiki_loop);
     switch (o->oHeldState) {
         case HELD_FREE:
             //! @bug (PARTIAL_UPDATE)

@@ -41,6 +41,7 @@ void (*sJumpingBoxActions[])(void) = {
 };
 
 void jumping_box_free_update(void) {
+    N64_STACK_FRAME(jumping_box_free_update);
     cur_obj_set_model(MODEL_BREAKABLE_BOX);
     cur_obj_scale(0.5f);
     obj_set_hitbox(o, &WORLD(sJumpingBoxHitbox));
@@ -50,6 +51,7 @@ void jumping_box_free_update(void) {
 }
 
 void bhv_jumping_box_loop(void) {
+    N64_STACK_FRAME(bhv_jumping_box_loop);
     switch (o->oHeldState) {
         case HELD_FREE:
             jumping_box_free_update();

@@ -266,6 +266,7 @@ void (*sBowserPuzzlePieceActions[])(void) = {
 };
 
 void bhv_lll_bowser_puzzle_piece_loop(void) {
+    N64_STACK_FRAME(bhv_lll_bowser_puzzle_piece_loop);
     bhv_lll_bowser_puzzle_piece_update();
 
     cur_obj_call_action_function(WORLD(sBowserPuzzlePieceActions));

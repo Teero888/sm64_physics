@@ -59,6 +59,7 @@ void (*sBowserTailAnchorActions[])(void) = {
  * Bowser's tail main loop
  */
 void bhv_bowser_tail_anchor_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_tail_anchor_loop);
     // Call its actions
     cur_obj_call_action_function(WORLD(sBowserTailAnchorActions));
     // Position the tail
@@ -1585,6 +1586,7 @@ s8 sBowserHealth[] = { 1, 1, 3 };
  * Update Bowser's actions when he's hands free
  */
 void bowser_free_update(void) {
+    N64_STACK_FRAME(bowser_free_update);
     struct Surface *floor;
     struct Object *platform;
     UNUSED f32 floorHeight;
@@ -1687,6 +1689,7 @@ void bowser_thrown_dropped_update(void) {
  * Bowser's main loop
  */
 void bhv_bowser_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_loop);
     s16 angleToMario;  // AngleToMario from Bowser's perspective
     s16 angleToCenter; // AngleToCenter from Bowser's perspective
 
