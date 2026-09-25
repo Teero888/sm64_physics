@@ -15,3 +15,6 @@
 
 #include "levels/totwc/cloud/geo.inc.c"
 #include "levels/totwc/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/totwc/geo.c.inc.c"

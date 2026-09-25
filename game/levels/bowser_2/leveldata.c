@@ -13,3 +13,6 @@
 #include "levels/bowser_2/areas/1/1/model.inc.c"
 #include "levels/bowser_2/areas/1/collision.inc.c"
 #include "levels/bowser_2/tilting_platform/collision.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bowser_2/leveldata.c.inc.c"

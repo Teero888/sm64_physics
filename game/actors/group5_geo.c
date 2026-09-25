@@ -10,3 +10,6 @@
 #include "klepto/geo.inc.c"
 #include "eyerok/geo.inc.c"
 #include "pokey/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group5_geo.c.inc.c"

@@ -1870,3 +1870,6 @@ const Collision main_menu_seg7_collision[] = {
 #undef COURSE_TABLE
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/menu/leveldata.c.inc.c"

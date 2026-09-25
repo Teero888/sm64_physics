@@ -2,3 +2,6 @@
 #include "types.h"
 
 const Texture *const wdw_skybox_ptrlist[80] = { 0 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/gen/us/bin/wdw_skybox.c.inc.c"

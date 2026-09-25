@@ -122,3 +122,6 @@ ALIGNED8 const Texture grass_0900B000[] = {
 ALIGNED8 const Texture grass_0900B800[] = {
 #include "textures/grass/wf_textures.0B800.ia16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/grass.c.inc.c"

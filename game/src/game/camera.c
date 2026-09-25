@@ -3504,6 +3504,7 @@ void select_mario_cam_mode(void) {
 void create_camera(struct GraphNodeCamera *gc, struct AllocOnlyPool *pool) {
     s16 mode = gc->config.mode;
     struct Camera *c = alloc_only_pool_alloc(pool, sizeof(struct Camera));
+    host_mark(c, HOST_TYPE_OF(Camera), 1);
 
     gc->config.camera = c;
     c->mode = mode;
@@ -11561,3 +11562,6 @@ void obj_rotate_towards_point(struct Object *o, Vec3f point, s16 pitchOff, s16 y
 #include "behaviors/end_birds_1.inc.c"
 #include "behaviors/end_birds_2.inc.c"
 #include "behaviors/intro_scene.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/camera.c.inc.c"

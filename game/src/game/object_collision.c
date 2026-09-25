@@ -204,3 +204,6 @@ void detect_object_collisions(void) {
     check_destructive_object_collision();
     check_pushable_object_collision();
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/object_collision.c.inc.c"

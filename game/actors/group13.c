@@ -36,3 +36,6 @@ UNUSED static const u64 binid_5 = 5;
 
 #include "treasure_chest/model.inc.c"
 UNUSED static const u64 binid_6 = 6;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group13.c.inc.c"

@@ -25,3 +25,6 @@
 #include "white_particle_small/model.inc.c"
 
 #include "sparkle_animation/model.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group0.c.inc.c"

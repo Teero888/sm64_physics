@@ -2121,3 +2121,6 @@ s32 mario_execute_airborne_action(struct MarioState *m) {
 
     return cancel;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/mario_actions_airborne.c.inc.c"

@@ -1165,3 +1165,6 @@ void reset_joint_counts(void) {
     WORLD(sJointNotF1Count) = 0;
     WORLD(sBoneCount) = 0;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/joints.c.inc.c"

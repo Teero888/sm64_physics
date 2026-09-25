@@ -963,3 +963,6 @@ void UNUSED gd_rot_mat_offset(Mat4f *dst, f32 x, f32 y, f32 z, s32 copy) {
         gd_copy_mat4f(&rot, dst);
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/gd_math.c.inc.c"

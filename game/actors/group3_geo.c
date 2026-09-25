@@ -9,3 +9,6 @@
 
 #include "king_bobomb/geo.inc.c"
 #include "water_bubble/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group3_geo.c.inc.c"

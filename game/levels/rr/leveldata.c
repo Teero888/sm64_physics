@@ -66,3 +66,6 @@
 #include "levels/rr/areas/1/collision.inc.c"
 #include "levels/rr/areas/1/macro.inc.c"
 #include "levels/rr/areas/1/trajectory.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/rr/leveldata.c.inc.c"

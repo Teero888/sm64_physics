@@ -10,3 +10,6 @@
 #include "spindrift/geo.inc.c"
 #include "penguin/geo.inc.c"
 #include "snowman/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group7_geo.c.inc.c"

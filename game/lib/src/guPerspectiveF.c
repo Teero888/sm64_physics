@@ -37,3 +37,6 @@ void guPerspective(Mtx *m, u16 *perspNorm, float fovy, float aspect, float near,
     guPerspectiveF(mat, perspNorm, fovy, aspect, near, far, scale);
     guMtxF2L(mat, m);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guPerspectiveF.c.inc.c"

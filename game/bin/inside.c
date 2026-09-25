@@ -87,3 +87,6 @@ ALIGNED8 const Texture inside_0900B000[] = {
 ALIGNED8 const Texture inside_0900B800[] = {
 #include "textures/inside/inside_castle_textures.0B800.rgba16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/inside.c.inc.c"

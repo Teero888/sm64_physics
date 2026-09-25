@@ -15,3 +15,6 @@ UNUSED static const u64 binid_0 = 0;
 #include "blargg/anims/data.inc.c"
 #include "blargg/anims/table.inc.c"
 UNUSED static const u64 binid_1 = 1;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group2.c.inc.c"

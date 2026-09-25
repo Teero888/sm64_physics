@@ -252,3 +252,6 @@ void reset_gadget(struct ObjGadget *gdgt) {
 void reset_gadgets_in_grp(struct ObjGroup *grp) {
     apply_to_obj_types_in_group(OBJ_TYPE_GADGETS, (applyproc_t) reset_gadget, grp);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/old_menu.c.inc.c"

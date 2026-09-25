@@ -59,3 +59,6 @@ u32 __main__(void) {
     imout();
     return 0;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/gd_main.c.inc.c"

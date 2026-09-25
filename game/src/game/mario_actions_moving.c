@@ -2033,3 +2033,6 @@ s32 mario_execute_moving_action(struct MarioState *m) {
 
     return cancel;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/mario_actions_moving.c.inc.c"

@@ -463,3 +463,6 @@ void render_hud(void) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/hud.c.inc.c"

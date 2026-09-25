@@ -2740,3 +2740,6 @@ void unused_80321460(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2, UNUSED s
 void unused_80321474(UNUSED s32 arg0) {
 }
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/external.c.inc.c"

@@ -159,3 +159,6 @@ const LevelScript script_intro_L5[] = {
     SLEEP(/*frames*/ 2),
     EXIT_AND_EXECUTE(/*seg*/ 0x14, _introSegmentRomStart, _introSegmentRomEnd, level_intro_splash_screen),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/intro/script.c.inc.c"

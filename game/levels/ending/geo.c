@@ -38,3 +38,5 @@ const GeoLayout ending_geo_000050[] = {
     GEO_END(),
 };
 
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ending/geo.c.inc.c"

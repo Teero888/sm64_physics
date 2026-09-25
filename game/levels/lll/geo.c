@@ -42,3 +42,6 @@
 #include "levels/lll/areas/1/geo.inc.c"
 #include "levels/lll/volcano_falling_trap/geo.inc.c"
 #include "levels/lll/areas/2/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/lll/geo.c.inc.c"

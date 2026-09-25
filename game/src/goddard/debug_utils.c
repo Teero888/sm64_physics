@@ -956,3 +956,6 @@ s32 gd_fread_line(char *buf, u32 size, struct GdFile *f) {
 
     return pos;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/debug_utils.c.inc.c"

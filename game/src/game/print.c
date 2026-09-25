@@ -523,3 +523,6 @@ void render_text_labels(void) {
 
     WORLD(sTextLabelsCount) = 0;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/print.c.inc.c"

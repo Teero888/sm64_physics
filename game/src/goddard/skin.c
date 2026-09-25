@@ -525,3 +525,6 @@ void gd_print_net(struct ObjNet *net) {
 void reset_net_count(void) {
     WORLD(sNetCount) = 0;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/skin.c.inc.c"

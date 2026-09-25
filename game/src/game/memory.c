@@ -65,6 +65,12 @@ FORCE_BSS struct MainPoolBlock *sPoolListHeadR;
 
 static struct MainPoolState *gMainPoolState = NULL;
 
+// Library: a main pool block's header holds addresses (platform/pointers.h).
+static void host_mark_block(struct MainPoolBlock *block) {
+    host_mark_address(&block->prev);
+    host_mark_address(&block->next);
+}
+
 uintptr_t set_segment_base_addr(s32 segment, void *addr) {
 #ifdef NO_SEGMENTED_MEMORY
     // Library: the whole address. The N64's physical address (its lower 29
@@ -138,6 +144,10 @@ void main_pool_init(UNUSED_CN void *start, void *end) {
     WORLD(sPoolListHeadL)->next = NULL;
     WORLD(sPoolListHeadR)->prev = NULL;
     WORLD(sPoolListHeadR)->next = NULL;
+    // Library: the state's pointer map (platform/pointers.h).
+    host_mark_raw(WORLD(sPoolStart) - 16, WORLD(sPoolEnd) + 16 - (WORLD(sPoolStart) - 16));
+    host_mark_block(WORLD(sPoolListHeadL));
+    host_mark_block(WORLD(sPoolListHeadR));
 }
 
 /**
@@ -145,7 +155,15 @@ void main_pool_init(UNUSED_CN void *start, void *end) {
  * specified side of the pool (MEMORY_POOL_LEFT or MEMORY_POOL_RIGHT).
  * If there is not enough space, return NULL.
  */
+static void *main_pool_alloc_block(u32 size, u32 side, s32 keep, void *caller);
+
 void *main_pool_alloc(u32 size, u32 side) {
+    return main_pool_alloc_block(size, side, FALSE, __builtin_return_address(0));
+}
+
+// Library: keep, when the block is the one being resized (main_pool_realloc):
+// its contents stay, and what the pointer map says of them.
+static void *main_pool_alloc_block(u32 size, u32 side, s32 keep, void *caller) {
     struct MainPoolBlock *newListHead;
     void *addr = NULL;
 
@@ -159,6 +177,7 @@ void *main_pool_alloc(u32 size, u32 side) {
             newListHead->next = NULL;
             addr = (u8 *) WORLD(sPoolListHeadL) + 16;
             WORLD(sPoolListHeadL) = newListHead;
+            host_mark_block(newListHead);
         } else {
             newListHead = (struct MainPoolBlock *) ((u8 *) WORLD(sPoolListHeadR) - size);
             WORLD(sPoolListHeadR)->prev = newListHead;
@@ -166,6 +185,12 @@ void *main_pool_alloc(u32 size, u32 side) {
             newListHead->prev = NULL;
             WORLD(sPoolListHeadR) = newListHead;
             addr = (u8 *) WORLD(sPoolListHeadR) + 16;
+            host_mark_block(newListHead);
+        }
+        // Library: what the caller keeps there, it marks.
+        if (!keep) {
+            host_mark_raw(addr, size - 16);
+            host_note_allocation(addr, size - 16, caller);
         }
     }
     return addr;
@@ -185,6 +210,7 @@ u32 main_pool_free(void *addr) {
         while (oldListHead->next != NULL) {
             oldListHead = oldListHead->next;
         }
+        host_note_release(block, oldListHead);
         WORLD(sPoolListHeadL) = block;
         WORLD(sPoolListHeadL)->next = NULL;
         WORLD(sPoolFreeSpace) += (uintptr_t) oldListHead - (uintptr_t) WORLD(sPoolListHeadL);
@@ -192,6 +218,7 @@ u32 main_pool_free(void *addr) {
         while (oldListHead->prev != NULL) {
             oldListHead = oldListHead->prev;
         }
+        host_note_release(oldListHead, (u8 *) block->next);
         WORLD(sPoolListHeadR) = block->next;
         WORLD(sPoolListHeadR)->prev = NULL;
         WORLD(sPoolFreeSpace) += (uintptr_t) WORLD(sPoolListHeadR) - (uintptr_t) oldListHead;
@@ -211,7 +238,7 @@ void *main_pool_realloc(void *addr, u32 size) {
 
     if (block->next == WORLD(sPoolListHeadL)) {
         main_pool_free(addr);
-        newAddr = main_pool_alloc(size, MEMORY_POOL_LEFT);
+        newAddr = main_pool_alloc_block(size, MEMORY_POOL_LEFT, TRUE, NULL);
     }
     return newAddr;
 }
@@ -235,6 +262,9 @@ u32 main_pool_push_state(void) {
     struct MainPoolBlock *rhead = WORLD(sPoolListHeadR);
 
     WORLD(gMainPoolState) = main_pool_alloc(sizeof(*WORLD(gMainPoolState)), MEMORY_POOL_LEFT);
+    host_mark_address(&WORLD(gMainPoolState)->listHeadL);
+    host_mark_address(&WORLD(gMainPoolState)->listHeadR);
+    host_mark_address(&WORLD(gMainPoolState)->prev);
     WORLD(gMainPoolState)->freeSpace = freeSpace;
     WORLD(gMainPoolState)->listHeadL = lhead;
     WORLD(gMainPoolState)->listHeadR = rhead;
@@ -247,6 +277,8 @@ u32 main_pool_push_state(void) {
  * amount of free space left in the pool.
  */
 u32 main_pool_pop_state(void) {
+    host_note_release(WORLD(gMainPoolState)->listHeadL, WORLD(sPoolListHeadL));
+    host_note_release(WORLD(sPoolListHeadR), WORLD(gMainPoolState)->listHeadR);
     WORLD(sPoolFreeSpace) = WORLD(gMainPoolState)->freeSpace;
     WORLD(sPoolListHeadL) = WORLD(gMainPoolState)->listHeadL;
     WORLD(sPoolListHeadR) = WORLD(gMainPoolState)->listHeadR;
@@ -406,6 +438,10 @@ struct AllocOnlyPool *alloc_only_pool_init(u32 size, u32 side) {
         subPool->usedSpace = 0;
         subPool->startPtr = (u8 *) addr + sizeof(struct AllocOnlyPool);
         subPool->freePtr = (u8 *) addr + sizeof(struct AllocOnlyPool);
+        host_mark_address(&subPool->startPtr);
+        host_mark_address(&subPool->freePtr);
+        // Library: what is in use is what the pool hands out.
+        host_note_release(subPool->startPtr, subPool->startPtr + size);
     }
     return subPool;
 }
@@ -422,6 +458,8 @@ void *alloc_only_pool_alloc(struct AllocOnlyPool *pool, s32 size) {
         addr = pool->freePtr;
         pool->freePtr += size;
         pool->usedSpace += size;
+        host_mark_raw(addr, size);
+        host_note_allocation(addr, size, __builtin_return_address(0));
     }
     return addr;
 }
@@ -465,6 +503,10 @@ struct MemoryPool *mem_pool_init(u32 size, u32 side) {
         block = pool->firstBlock;
         block->next = NULL;
         block->size = pool->totalSpace;
+        host_mark_address(&pool->firstBlock);
+        host_mark_address(&pool->freeList.next);
+        host_mark_address(&block->next);
+        host_note_release(pool->firstBlock, (u8 *) pool->firstBlock + size);
     }
     return pool;
 }
@@ -486,12 +528,18 @@ void *mem_pool_alloc(struct MemoryPool *pool, u32 size) {
                 struct MemoryBlock *newBlock = (struct MemoryBlock *) ((u8 *) freeBlock->next + size);
                 newBlock->size = freeBlock->next->size - size;
                 newBlock->next = freeBlock->next->next;
+                host_mark_address(&newBlock->next);
                 freeBlock->next->size = size;
                 freeBlock->next = newBlock;
             }
             break;
         }
         freeBlock = freeBlock->next;
+    }
+    if (addr != NULL) {
+        // Library: the block's header stays; the rest is the caller's.
+        host_mark_raw(addr, size - sizeof(struct MemoryBlock));
+        host_note_allocation(addr, size - sizeof(struct MemoryBlock), __builtin_return_address(0));
     }
     return addr;
 }
@@ -502,6 +550,8 @@ void *mem_pool_alloc(struct MemoryPool *pool, u32 size) {
 BAD_RETURN(s32) mem_pool_free(struct MemoryPool *pool, void *addr) {
     struct MemoryBlock *block = (struct MemoryBlock *) ((u8 *) addr - sizeof(struct MemoryBlock));
     struct MemoryBlock *freeList = pool->freeList.next;
+
+    host_mark_address(&block->next);
 
     if (pool->freeList.next == NULL) {
         pool->freeList.next = block;
@@ -563,6 +613,7 @@ static struct DmaTable *load_dma_table_address(u8 *srcAddr) {
 
     table = dynamic_dma_read(srcAddr, srcAddr + size, MEMORY_POOL_LEFT);
     table->srcAddr = srcAddr;
+    host_mark_address(&table->srcAddr);
     return table;
 }
 
@@ -590,3 +641,6 @@ s32 load_patchable_table(struct DmaHandlerList *list, s32 index) {
     }
     return ret;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/memory.c.inc.c"

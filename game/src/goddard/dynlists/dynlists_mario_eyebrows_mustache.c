@@ -168,3 +168,6 @@ struct DynList dynlist_mario_mustache_shape[] = {
 
     EndList(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/dynlists_mario_eyebrows_mustache.c.inc.c"

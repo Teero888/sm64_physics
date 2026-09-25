@@ -1539,3 +1539,6 @@ void note_disable(struct Note *note) {
 }
 #endif
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/synthesis.c.inc.c"

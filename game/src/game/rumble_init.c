@@ -312,3 +312,6 @@ void rumble_thread_update_vi(void) {
 }
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/rumble_init.c.inc.c"

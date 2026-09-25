@@ -359,3 +359,6 @@ void mark_obj_for_deletion(struct Object *obj) {
     //! Same issue as obj_mark_for_deletion
     obj->activeFlags = ACTIVE_FLAG_DEACTIVATED;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/spawn_object.c.inc.c"

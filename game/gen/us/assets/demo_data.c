@@ -48,3 +48,6 @@ void host_load_demo_inputs(const unsigned char *rom) {
     memcpy(WORLD(gDemoInputs).unused, rom + 0x57b130, sizeof(WORLD(gDemoInputs).unused));
     memcpy(WORLD(gDemoInputs).wf, rom + 0x57aba4, sizeof(WORLD(gDemoInputs).wf));
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/gen/us/assets/demo_data.c.inc.c"

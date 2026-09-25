@@ -15,3 +15,6 @@ const LevelScript level_script_entry[] = {
     EXECUTE(/*seg*/ 0x14, /*script*/ _introSegmentRomStart, /*scriptEnd*/ _introSegmentRomEnd, /*entry*/ level_intro_splash_screen),
     JUMP(/*target*/ level_script_entry),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/entry.c.inc.c"

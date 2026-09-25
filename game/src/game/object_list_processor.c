@@ -684,3 +684,6 @@ void update_objects(UNUSED s32 unused) {
 
     WORLD(gPrevFrameObjectCount) = WORLD(gObjectCounter);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/object_list_processor.c.inc.c"

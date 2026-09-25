@@ -13,3 +13,6 @@
 #include "thwomp/geo.inc.c"
 #include "bullet_bill/geo.inc.c"
 #include "heave_ho/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group1_geo.c.inc.c"

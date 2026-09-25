@@ -184,3 +184,6 @@ void clear_mario_platform(void) {
     WORLD(gMarioPlatform) = NULL;
 }
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/platform_displacement.c.inc.c"

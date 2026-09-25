@@ -2912,3 +2912,6 @@ struct AnimDataInfo anim_red_star[] = {
     { ARRAY_COUNT(animdata_red_star_2), GD_ANIM_ROT3S_POS3S, animdata_red_star_2 },
     END_ANIMDATA_INFO_ARR,
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/anim_group_2.c.inc.c"

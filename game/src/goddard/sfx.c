@@ -36,3 +36,6 @@ void gd_sfx_update(void) {
 void gd_play_sfx(enum GdSfx sfx) {
     WORLD(sCurrSfx) |= sfx;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/sfx.c.inc.c"

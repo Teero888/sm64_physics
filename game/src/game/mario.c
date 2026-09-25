@@ -68,6 +68,7 @@ s16 set_mario_animation(struct MarioState *m, s32 targetAnimID) {
     if (load_patchable_table(m->animList, targetAnimID)) {
         targetAnim->values = (void *) VIRTUAL_TO_PHYSICAL((u8 *) targetAnim + (uintptr_t) targetAnim->values);
         targetAnim->index = (void *) VIRTUAL_TO_PHYSICAL((u8 *) targetAnim + (uintptr_t) targetAnim->index);
+        host_mark(targetAnim, HOST_TYPE_OF(Animation), 1);
     }
 
     if (o->header.gfx.animInfo.animID != targetAnimID) {
@@ -101,6 +102,7 @@ s16 set_mario_anim_with_accel(struct MarioState *m, s32 targetAnimID, s32 accel)
     if (load_patchable_table(m->animList, targetAnimID)) {
         targetAnim->values = (void *) VIRTUAL_TO_PHYSICAL((u8 *) targetAnim + (uintptr_t) targetAnim->values);
         targetAnim->index = (void *) VIRTUAL_TO_PHYSICAL((u8 *) targetAnim + (uintptr_t) targetAnim->index);
+        host_mark(targetAnim, HOST_TYPE_OF(Animation), 1);
     }
 
     if (o->header.gfx.animInfo.animID != targetAnimID) {
@@ -1892,3 +1894,6 @@ void init_mario_from_save_file(void) {
     WORLD(gHudDisplay).coins = 0;
     WORLD(gHudDisplay).wedges = 8;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/mario.c.inc.c"

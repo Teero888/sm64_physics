@@ -41,3 +41,6 @@
 #include "levels/wf/kickable_board/geo.inc.c"
 #include "levels/wf/tower_door/geo.inc.c"
 #include "levels/wf/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/wf/geo.c.inc.c"

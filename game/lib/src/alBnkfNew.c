@@ -91,3 +91,6 @@ void alBnkfNew(ALBankFile *f, u8 *table) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/alBnkfNew.c.inc.c"

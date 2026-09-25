@@ -112,3 +112,6 @@ void guLookAtReflect(Mtx *m, LookAt *l, float xEye, float yEye, float zEye, floa
 
     guMtxF2L(mf, m);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guLookAtRef.c.inc.c"

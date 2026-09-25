@@ -15,3 +15,6 @@
 
 #include "levels/bowser_2/tilting_platform/geo.inc.c"
 #include "levels/bowser_2/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bowser_2/geo.c.inc.c"

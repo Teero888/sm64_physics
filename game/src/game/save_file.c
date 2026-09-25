@@ -638,3 +638,6 @@ s32 check_warp_checkpoint(struct WarpNode *warpNode) {
 
     return warpCheckpointActive;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/save_file.c.inc.c"

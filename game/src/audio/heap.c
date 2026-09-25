@@ -279,6 +279,9 @@ void *soundAlloc(struct SoundAllocPool *pool, u32 size) {
     } else {
         return NULL;
     }
+    // Library: the caller marks what it keeps there (platform/pointers.h).
+    host_mark_raw(start, ALIGN16(size));
+    host_note_allocation(start, ALIGN16(size), __builtin_return_address(0));
     return start;
 #endif
 }
@@ -301,6 +304,8 @@ void *sound_alloc_uninitialized(struct SoundAllocPool *pool, u32 size) {
 #endif
 
 void sound_alloc_pool_init(struct SoundAllocPool *pool, void *memAddr, u32 size) {
+    // Library: what is in use is what the pool hands out.
+    host_note_release(memAddr, (u8 *) memAddr + size);
     pool->cur = pool->start = (u8 *) ALIGN16((uintptr_t) memAddr);
 #if defined(VERSION_SH) || defined(VERSION_CN)
     pool->size = size - ((uintptr_t) memAddr & 0xf);
@@ -1321,6 +1326,9 @@ void audio_reset_session(void) {
 #endif
 
     WORLD(gNotes) = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxSimultaneousNotes) * sizeof(struct Note));
+    if (WORLD(gNotes) != NULL) {
+        host_mark(WORLD(gNotes), HOST_TYPE_OF(Note), WORLD(gMaxSimultaneousNotes));
+    }
     note_init_all();
     init_note_free_list();
 
@@ -1746,3 +1754,6 @@ u8 audioString29[] = "FXDOWN %d\n";
 u8 audioString30[] = "WaveCacheLen: %d\n";
 u8 audioString31[] = "SpecChange Finished\n";
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/heap.c.inc.c"

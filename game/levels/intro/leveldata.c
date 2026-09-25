@@ -8768,3 +8768,6 @@ const f32 intro_seg7_table_0700C880[] = {
     0.048600f, 0.048600f, 0.012800f, 0.012800f,
     0.012800f, 0.000000f, 0.000000f, 0.000000f,
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/intro/leveldata.c.inc.c"

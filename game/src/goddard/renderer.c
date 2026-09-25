@@ -992,6 +992,9 @@ void *gd_allocblock(u32 size) {
 
     block = WORLD(sMemBlockPoolBase) + WORLD(sMemBlockPoolUsed);
     WORLD(sMemBlockPoolUsed) += size;
+    // Library: the caller marks what it keeps there (platform/pointers.h).
+    host_mark_raw(block, size);
+    host_note_allocation(block, size, __builtin_return_address(0));
     return block;
 }
 
@@ -1157,6 +1160,8 @@ void gdm_init(void *blockpool, u32 size) {
     blockpool = (void *) (((uintptr_t) blockpool + 8) & ~7);
     WORLD(sMemBlockPoolBase) = blockpool;
     WORLD(sMemBlockPoolSize) = size;
+    // Library: what is in use is what the heap hands out.
+    host_note_release(blockpool, (u8 *) blockpool + size);
     WORLD(sMemBlockPoolUsed) = 0;
     WORLD(sAllocMemory) = 0;
     init_mem_block_lists();
@@ -1424,6 +1429,7 @@ struct GdDisplayList *alloc_displaylist(u32 id) {
     struct GdDisplayList *gdDl;
 
     gdDl = gd_malloc_perm(sizeof(struct GdDisplayList));
+    host_mark(gdDl, HOST_TYPE_OF(GdDisplayList), 1);
     if (gdDl == NULL) {
         fatal_no_dl_mem();
     }
@@ -1510,7 +1516,10 @@ struct GdDisplayList *new_gd_dl(s32 id, s32 gfxs, s32 verts, s32 mtxs, s32 light
     }
     dl->curGfxIdx = 0;
     dl->totalGfx = gfxs;
-    if ((dl->gfx = gd_malloc_perm(gfxs * sizeof(Gfx))) == NULL) {
+    if ((dl->gfx = gd_malloc_perm(gfxs * sizeof(Gfx))) != NULL) {
+        host_mark(dl->gfx, HOST_TYPE_OF(Gfx), gfxs);
+    }
+    if (dl->gfx == NULL) {
         fatal_no_dl_mem();
     }
 
@@ -3929,3 +3938,6 @@ void func_801A71CC(struct ObjNet *net) {
 /* 255EB0 -> 255EC0 */
 void stub_renderer_21(void) {
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/renderer.c.inc.c"

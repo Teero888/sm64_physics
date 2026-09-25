@@ -218,3 +218,6 @@ const LevelScript level_lll_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/lll/script.c.inc.c"

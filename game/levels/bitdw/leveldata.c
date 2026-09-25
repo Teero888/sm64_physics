@@ -48,3 +48,6 @@
 #include "levels/bitdw/collapsing_stairs_3/collision.inc.c"
 #include "levels/bitdw/collapsing_stairs_4/collision.inc.c"
 #include "levels/bitdw/collapsing_stairs_5/collision.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bitdw/leveldata.c.inc.c"

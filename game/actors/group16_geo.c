@@ -8,3 +8,6 @@
 #include "group16.h"
 
 #include "moneybag/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group16_geo.c.inc.c"

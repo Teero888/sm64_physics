@@ -16,3 +16,6 @@
 #include "levels/totwc/areas/1/collision.inc.c"
 #include "levels/totwc/areas/1/macro.inc.c"
 #include "levels/totwc/cloud/collision.inc.c" // Blank File
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/totwc/leveldata.c.inc.c"

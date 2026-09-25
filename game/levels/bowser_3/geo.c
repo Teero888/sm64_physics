@@ -25,3 +25,6 @@
 #include "levels/bowser_3/falling_platform_10/geo.inc.c"
 #include "levels/bowser_3/areas/1/bomb_stand/geo.inc.c"
 #include "levels/bowser_3/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bowser_3/geo.c.inc.c"

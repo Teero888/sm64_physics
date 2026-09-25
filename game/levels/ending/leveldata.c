@@ -842,3 +842,6 @@ const Gfx dl_cake_end_screen[] = {
     gsSPEndDisplayList(),
 };
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ending/leveldata.c.inc.c"

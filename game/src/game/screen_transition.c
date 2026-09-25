@@ -302,3 +302,6 @@ Gfx *geo_cannon_circle_base(s32 callContext, struct GraphNode *node, UNUSED Mat4
     }
     return dlist;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/screen_transition.c.inc.c"

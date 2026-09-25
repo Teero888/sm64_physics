@@ -85,3 +85,6 @@
 #include "levels/castle_inside/water_level_pillar/collision.inc.c"
 #include "levels/castle_inside/areas/3/trajectory.inc.c"
 #include "levels/castle_inside/areas/3/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_inside/leveldata.c.inc.c"

@@ -3195,3 +3195,6 @@ s32 lvl_update_obj_and_load_file_selected(UNUSED s32 arg, UNUSED s32 unused) {
 #undef FILE_SELECT_PRINT_STRING
 #undef FILE_SELECT_TEXT_DL_BEGIN
 #undef FILE_SELECT_TEXT_DL_END
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/menu/file_select.c.inc.c"

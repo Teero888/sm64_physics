@@ -14,3 +14,6 @@
 #include "levels/cotmc/header.h"
 
 #include "levels/cotmc/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/cotmc/geo.c.inc.c"

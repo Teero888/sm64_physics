@@ -10,3 +10,6 @@
 #include "bird/geo.inc.c"
 #include "peach/geo.inc.c"
 #include "yoshi/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group10_geo.c.inc.c"

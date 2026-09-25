@@ -1470,3 +1470,6 @@ void note_init_all(void) {
 #endif
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/playback.c.inc.c"

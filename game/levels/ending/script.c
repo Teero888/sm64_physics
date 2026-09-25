@@ -35,3 +35,6 @@ const LevelScript level_ending_entry[] = {
     /*17*/ SLEEP(/*frames*/ 1),
     /*18*/ JUMP(level_ending_entry + 17),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ending/script.c.inc.c"

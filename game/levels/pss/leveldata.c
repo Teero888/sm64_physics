@@ -19,3 +19,6 @@
 #include "levels/pss/areas/1/7/model.inc.c"
 #include "levels/pss/areas/1/collision.inc.c"
 #include "levels/pss/areas/1/macro.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/pss/leveldata.c.inc.c"

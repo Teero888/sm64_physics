@@ -159,3 +159,6 @@ void reset_joint_weights(struct ObjJoint *joint) {
         apply_to_obj_types_in_group(OBJ_TYPE_WEIGHTS, (applyproc_t) reset_weight, group);
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/skin_movement.c.inc.c"

@@ -18,3 +18,6 @@
 #include "levels/sl/snow_mound/geo.inc.c"
 #include "levels/sl/areas/1/geo.inc.c"
 #include "levels/sl/areas/2/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/sl/geo.c.inc.c"

@@ -9,3 +9,6 @@
 
 #include "bully/geo.inc.c"
 #include "blargg/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group2_geo.c.inc.c"

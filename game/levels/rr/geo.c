@@ -50,3 +50,6 @@
 #include "levels/rr/tricky_triangles_4/geo.inc.c"
 #include "levels/rr/tricky_triangles_5/geo.inc.c"
 #include "levels/rr/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/rr/geo.c.inc.c"

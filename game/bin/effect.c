@@ -176,3 +176,6 @@ const Gfx tiny_bubble_dl_0B006D68[] = {
     gsDPSetTileSize(0, 0, 0, (32 - 1) << G_TEXTURE_IMAGE_FRAC, (32 - 1) << G_TEXTURE_IMAGE_FRAC),
     gsSPEndDisplayList(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/effect.c.inc.c"

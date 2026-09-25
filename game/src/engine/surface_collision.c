@@ -777,3 +777,6 @@ s32 unused_resolve_floor_or_ceil_collisions(s32 checkCeil, f32 *px, f32 *py, f32
 
     return 0;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/surface_collision.c.inc.c"

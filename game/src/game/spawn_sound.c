@@ -120,3 +120,6 @@ s32 calc_dist_to_volume_range_2(f32 distance) { // range from 79.2-143.2
 
     return volume;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/spawn_sound.c.inc.c"

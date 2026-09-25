@@ -35,3 +35,6 @@ UNUSED static const u64 binid_3 = 3;
 #include "spiny/anims/data.inc.c"
 #include "spiny/anims/table.inc.c"
 UNUSED static const u64 binid_4 = 4;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group11.c.inc.c"

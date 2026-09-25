@@ -162,3 +162,6 @@ const LevelScript level_thi_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/thi/script.c.inc.c"

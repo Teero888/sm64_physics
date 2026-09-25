@@ -12,3 +12,6 @@
 #include "lakitu_enemy/geo.inc.c"
 #include "spiny_egg/geo.inc.c"
 #include "spiny/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group11_geo.c.inc.c"

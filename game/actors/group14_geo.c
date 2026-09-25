@@ -14,3 +14,6 @@
 #include "whomp/geo.inc.c"
 #include "chain_ball/geo.inc.c"
 #include "chain_chomp/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group14_geo.c.inc.c"

@@ -65,3 +65,6 @@ ALIGNED8 u8 gAudioSPTaskYieldBuffer[OS_YIELD_AUDIO_SIZE];
 #if !defined(F3DEX_GBI_SHARED) && !defined(VERSION_EU)
 ALIGNED8 u8 gUnusedThread2Stack[UNUSED_STACKSIZE];
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/buffers/buffers.c.inc.c"

@@ -11,3 +11,6 @@
 #include "toad/geo.inc.c"
 #include "mips/geo.inc.c"
 #include "boo_castle/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group15_geo.c.inc.c"

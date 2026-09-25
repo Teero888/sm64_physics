@@ -162,7 +162,8 @@ sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c)
+add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c
+            "${GV}/pointers/types.c")
 sm64_game_settings(sm64_shared_objects)
 sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)
 

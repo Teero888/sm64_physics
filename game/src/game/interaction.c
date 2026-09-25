@@ -1891,3 +1891,6 @@ void mario_handle_special_floors(struct MarioState *m) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/interaction.c.inc.c"

@@ -46,3 +46,6 @@
 #include "levels/ttc/large_gear/collision.inc.c"
 #include "levels/ttc/areas/1/macro.inc.c"
 #include "levels/ttc/areas/1/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ttc/leveldata.c.inc.c"

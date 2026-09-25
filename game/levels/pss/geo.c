@@ -14,3 +14,6 @@
 #include "levels/pss/header.h"
 
 #include "levels/pss/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/pss/geo.c.inc.c"

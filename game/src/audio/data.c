@@ -959,3 +959,6 @@ OSMesgQueue *D_SH_80350FA8;
 #endif
 
 u64 gAudioGlobalsEndMarker;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/data.c.inc.c"

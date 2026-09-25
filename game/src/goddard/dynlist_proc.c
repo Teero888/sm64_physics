@@ -537,6 +537,7 @@ void add_to_dynobj_list(struct GdObj *newobj, DynObjName name) {
 
     if (WORLD(sGdDynObjList) == NULL) {
         WORLD(sGdDynObjList) = gd_malloc_temp(DYNOBJ_LIST_SIZE * sizeof(struct DynObjInfo));
+        host_mark(WORLD(sGdDynObjList), HOST_TYPE_OF(DynObjInfo), DYNOBJ_LIST_SIZE);
         if (WORLD(sGdDynObjList) == NULL) {
             fatal_printf("dMakeObj(): Cant allocate dynlist memory");
         }
@@ -878,6 +879,7 @@ void alloc_animdata(struct ObjAnimator *animator) {
     }
 
     animDst = gd_malloc_perm(animCnt * sizeof(struct AnimDataInfo)); // gd_alloc_perm
+    host_mark(animDst, HOST_TYPE_OF(AnimDataInfo), animCnt);
     if ((animDataArr = animDst) == NULL) {
         fatal_printf("cant allocate animation data");
     }
@@ -1006,6 +1008,7 @@ void chk_shapegen(struct ObjShape *shape) {
             }
 
             vtxbuf = gd_malloc_temp(VTX_BUF_SIZE * sizeof(struct ObjVertex *));
+            host_mark(vtxbuf, &gHostTypeAddress, VTX_BUF_SIZE);
             oldObjHead = WORLD(gGdObjectList);
 
             for (i = 0; i < vtxdata->count; i++) {
@@ -3136,3 +3139,6 @@ void d_set_skin_weight(s32 vtxId, f32 percentWeight) {
                          WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlist_proc.c.inc.c"

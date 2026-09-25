@@ -14,3 +14,6 @@
 #include "levels/wmotr/header.h"
 
 #include "levels/wmotr/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/wmotr/geo.c.inc.c"

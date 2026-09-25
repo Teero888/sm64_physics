@@ -32,3 +32,6 @@
 #include "levels/thi/areas/1/trajectory.inc.c"
 #include "levels/thi/areas/1/movtext.inc.c"
 #include "levels/thi/areas/2/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/thi/leveldata.c.inc.c"

@@ -87,3 +87,6 @@ ALIGNED8 const Texture cave_0900B800[] = {
 ALIGNED8 const Texture cave_0900C000[] = {
 #include "textures/cave/hmc_textures.0C000.ia16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/cave.c.inc.c"

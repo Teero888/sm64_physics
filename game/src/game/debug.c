@@ -529,3 +529,6 @@ void debug_enemy_unknown(s16 *enemyArr) {
     enemyArr[6] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][3];
     enemyArr[7] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][4];
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/debug.c.inc.c"

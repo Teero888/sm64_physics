@@ -207,3 +207,6 @@ u64 rspF3DStart[1], rspF3DEnd[1];
 u64 rspF3DDataStart[1], rspF3DDataEnd[1];
 u64 rspAspMainStart[1], rspAspMainEnd[1];
 u64 rspAspMainDataStart[1], rspAspMainDataEnd[1];
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/platform/ultra.c.inc.c"

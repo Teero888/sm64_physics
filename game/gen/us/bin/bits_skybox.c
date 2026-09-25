@@ -2,3 +2,6 @@
 #include "types.h"
 
 const Texture *const bits_skybox_ptrlist[80] = { 0 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/gen/us/bin/bits_skybox.c.inc.c"

@@ -88,3 +88,5 @@ ALIGNED8 const Texture spooky_0900B800[] = {
 #include "textures/spooky/bbh_textures.0B800.ia16.inc.c"
 };
 
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/spooky.c.inc.c"

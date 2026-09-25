@@ -15,3 +15,6 @@
 
 #include "levels/castle_courtyard/areas/1/spire/geo.inc.c"
 #include "levels/castle_courtyard/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_courtyard/geo.c.inc.c"

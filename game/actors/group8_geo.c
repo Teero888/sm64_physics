@@ -9,3 +9,6 @@
 
 #include "springboard/geo.inc.c"
 #include "capswitch/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group8_geo.c.inc.c"

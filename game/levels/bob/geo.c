@@ -17,3 +17,6 @@
 #include "levels/bob/seesaw_platform/geo.inc.c"
 #include "levels/bob/grate_door/geo.inc.c"
 #include "levels/bob/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bob/geo.c.inc.c"

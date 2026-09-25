@@ -87,3 +87,6 @@ ALIGNED8 const Texture machine_09008000[] = {
 ALIGNED8 const Texture machine_09008400[] = {
 #include "textures/machine/ttc_textures.08400.rgba16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/machine.c.inc.c"

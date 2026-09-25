@@ -14,3 +14,6 @@
 #include "levels/bowser_1/header.h"
 
 #include "levels/bowser_1/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bowser_1/geo.c.inc.c"

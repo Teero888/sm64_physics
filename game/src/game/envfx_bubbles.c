@@ -566,3 +566,6 @@ Gfx *envfx_update_bubbles(s32 mode, Vec3s marioPos, Vec3s camTo, Vec3s camFrom) 
 
     return gfx;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/envfx_bubbles.c.inc.c"

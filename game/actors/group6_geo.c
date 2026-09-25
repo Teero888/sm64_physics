@@ -10,3 +10,6 @@
 #include "monty_mole/geo.inc.c"
 #include "ukiki/geo.inc.c"
 #include "fwoosh/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group6_geo.c.inc.c"

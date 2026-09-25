@@ -29,3 +29,6 @@
 #include "levels/ttc/small_gear/geo.inc.c"
 #include "levels/ttc/large_gear/geo.inc.c"
 #include "levels/ttc/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ttc/geo.c.inc.c"

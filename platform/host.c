@@ -180,3 +180,6 @@ void host_step(uint32_t input) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/platform/host.c.inc.c"

@@ -10,3 +10,6 @@ u16 gFramebuffer0[SCREEN_WIDTH * SCREEN_HEIGHT];
 u16 gFramebuffer1[SCREEN_WIDTH * SCREEN_HEIGHT];
 u16 gFramebuffer2[SCREEN_WIDTH * SCREEN_HEIGHT];
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/buffers/framebuffers.c.inc.c"

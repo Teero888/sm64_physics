@@ -73,3 +73,6 @@ const LevelScript level_bowser_3_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bowser_3/script.c.inc.c"

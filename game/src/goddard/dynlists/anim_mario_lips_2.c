@@ -262,3 +262,6 @@ struct AnimDataInfo anim_mario_lips_2[] = {
     { ARRAY_COUNT(animdata_mario_lips_2_2), GD_ANIM_ROT3S, animdata_mario_lips_2_2 },
     END_ANIMDATA_INFO_ARR,
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/anim_mario_lips_2.c.inc.c"

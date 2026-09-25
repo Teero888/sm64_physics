@@ -462,6 +462,7 @@ static void level_cmd_place_object(void) {
     if (WORLD(sCurrAreaIndex) != -1 && ((CMD_GET(u8, 2) & val7) || CMD_GET(u8, 2) == 0x1F)) {
         model = CMD_GET(u8, 3);
         spawnInfo = alloc_only_pool_alloc(WORLD(sLevelPool), sizeof(struct SpawnInfo));
+        host_mark(spawnInfo, HOST_TYPE_OF(SpawnInfo), 1);
 
         spawnInfo->startPos[0] = CMD_GET(s16, 4);
         spawnInfo->startPos[1] = CMD_GET(s16, 6);
@@ -489,6 +490,7 @@ static void level_cmd_create_warp_node(void) {
     if (WORLD(sCurrAreaIndex) != -1) {
         struct ObjectWarpNode *warpNode =
             alloc_only_pool_alloc(WORLD(sLevelPool), sizeof(struct ObjectWarpNode));
+        host_mark(warpNode, HOST_TYPE_OF(ObjectWarpNode), 1);
 
         warpNode->node.id = CMD_GET(u8, 2);
         warpNode->node.destLevel = CMD_GET(u8, 3) + CMD_GET(u8, 6);
@@ -861,3 +863,6 @@ struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
 
     return WORLD(sCurrentCmd);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/level_script.c.inc.c"

@@ -39,3 +39,6 @@
 #include "levels/bitdw/collapsing_stairs_4/geo.inc.c"
 #include "levels/bitdw/collapsing_stairs_5/geo.inc.c"
 #include "levels/bitdw/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bitdw/geo.c.inc.c"

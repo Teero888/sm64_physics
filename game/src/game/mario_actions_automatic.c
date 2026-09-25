@@ -883,3 +883,6 @@ s32 mario_execute_automatic_action(struct MarioState *m) {
 
     return cancel;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/mario_actions_automatic.c.inc.c"

@@ -1264,3 +1264,6 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
         main_pool_free(WORLD(gDisplayListHeap));
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/rendering_graph_node.c.inc.c"

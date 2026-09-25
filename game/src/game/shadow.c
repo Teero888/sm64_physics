@@ -898,3 +898,6 @@ Gfx *create_shadow_below_xyz(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 s
     }
     return displayList;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/shadow.c.inc.c"

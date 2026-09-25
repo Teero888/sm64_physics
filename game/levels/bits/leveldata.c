@@ -56,3 +56,6 @@
 #include "levels/bits/areas/1/30/collision.inc.c"
 #include "levels/bits/areas/1/31/collision.inc.c"
 #include "levels/bits/areas/1/32/collision.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bits/leveldata.c.inc.c"

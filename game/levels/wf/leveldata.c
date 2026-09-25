@@ -67,3 +67,6 @@
 #include "levels/wf/areas/1/collision.inc.c"
 #include "levels/wf/areas/1/macro.inc.c"
 #include "levels/wf/areas/1/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/wf/leveldata.c.inc.c"

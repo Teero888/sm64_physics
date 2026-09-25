@@ -67,9 +67,57 @@ at once instead of quietly sharing a variable between worlds.
   which nothing reads.)
 - `sm64_run POLLS --check-state FRAME`: save, run on, load, run again.
 
+## Copying worlds: the pointer map
+
+The state keeps addresses of itself: objects point at objects, graph nodes at
+graph nodes, the pools' headers at each other. Copying a world into another's
+memory has to move exactly those, and a value is not enough to tell: an angle
+of `0x7xxx` next to a zero looks like the upper half of an address. So every
+world keeps a pointer map, one bit per 4 bytes of its memory, saying where an
+address may be kept (`platform/pointers.h`). `sm64_world_copy` copies the
+memory and the map and moves every marked value that points into the source
+world by the distance between the two; values pointing elsewhere (the code,
+constant data) stay.
+
+The map comes from types:
+
+- Variables: `tools/state/types.py` describes, with libclang, every state
+  variable whose type holds addresses, as `offsetof` expressions so the
+  compiler lays them out, into `game/gen/<version>/pointers/<source>.inc.c`;
+  each source includes its file at its end, which registers its variables at
+  load time. A new world's map starts from them.
+- Memory handed out at run time: the allocators (the main pool, alloc-only
+  pools, memory pools, goddard's heap, the sound pools) clear the map of
+  every block they hand out and mark their own headers; the code that
+  allocates marks what it keeps there with `host_mark(p, HOST_TYPE_OF(Type),
+  count)`. The descriptors of those types are generated too
+  (`game/gen/<version>/pointers/types.c`).
+
+Where the same memory is used by two owners at once, as the title screen's
+goddard heap and the surface pools can be, the last one to mark it wins; what
+the other keeps there is not read while it is.
+
+`types.py`, like `rewrite.py`, runs for each version after the game's code
+changes; its output is committed.
+
+### Checks
+
+- `sm64_run POLLS --pointers N`: two worlds stepped alike at different
+  addresses; every N frames, the words where they differ by exactly the
+  distance between them are the state's addresses of itself. Those the map
+  misses are listed, with the code that allocated them
+  (`SM64_NOTE_ALLOCATIONS=1` records it). Addresses left in memory nothing
+  allocated holds are counted apart: nothing reads them.
+- `sm64_run POLLS --move N` and `SM64_LOCKSTEP_MOVE=N sm64_lockstep`: every N
+  frames the world is copied to new memory and the old one overwritten and
+  freed; an address the copy missed faults or changes the run.
+- `sm64_run POLLS --check-state FRAME`: saves at FRAME, runs on, loads the
+  state into another world and runs again.
+
 ## Saved states
 
-`sm64_save_state` copies a world's memory; the copy holds addresses in that
-world's memory, so it loads only into the same world. Moving a state to
-another world needs every address in it moved, including the ones in the
-memory pools, whose contents have no static type: the next step.
+`sm64_save_state` writes where the world's memory was, the memory and its
+map; `sm64_load_state` loads it into any world of the process, moving the
+addresses as a copy does. A saved state also holds addresses of the
+library's code and constant data, so it is only valid in the process that
+saved it.

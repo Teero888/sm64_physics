@@ -247,3 +247,6 @@ s32 lvl_intro_update(s16 arg, UNUSED s32 unusedArg) {
     }
     return retVar;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/menu/title_screen.c.inc.c"

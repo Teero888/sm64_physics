@@ -112,3 +112,6 @@ ALIGNED8 const Texture generic_0900A800[] = {
 ALIGNED8 const Texture generic_0900B000[] = {
 #include "textures/generic/bob_textures.0B000.ia16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/generic.c.inc.c"

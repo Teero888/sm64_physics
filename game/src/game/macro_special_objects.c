@@ -365,3 +365,6 @@ u32 get_special_objects_size(s16 *data) {
     return data - startPos;
 }
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/macro_special_objects.c.inc.c"

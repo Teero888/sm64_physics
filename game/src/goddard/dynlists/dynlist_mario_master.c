@@ -1121,3 +1121,6 @@ struct DynList dynlist_mario_master[] = {
     UseIntegerNames(FALSE),
     EndList(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/dynlist_mario_master.c.inc.c"

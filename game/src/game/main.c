@@ -460,3 +460,6 @@ void main_func(void) {
     create_thread(&WORLD(gIdleThread), 1, thread1_idle, NULL, WORLD(gIdleThreadStack) + 0x800, 100);
     osStartThread(&WORLD(gIdleThread));
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/main.c.inc.c"

@@ -17,3 +17,6 @@
 #include "levels/castle_courtyard/areas/1/collision.inc.c"
 #include "levels/castle_courtyard/areas/1/macro.inc.c"
 #include "levels/castle_courtyard/areas/1/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_courtyard/leveldata.c.inc.c"

@@ -625,6 +625,8 @@ void get_3DG1_shape(struct ObjShape *shape) {
 
     vtxPtrArr = gd_malloc_perm(72000 * sizeof(struct ObjVertex *)); // 288,000 = 72,000 * 4
     facePtrArr = gd_malloc_perm(76000 * sizeof(struct ObjFace *));  // 304,000 = 76,000 * 4
+    host_mark(vtxPtrArr, &gHostTypeAddress, 72000);
+    host_mark(facePtrArr, &gHostTypeAddress, 76000);
 
     tempNormal.x = 0.0f;
     tempNormal.y = 0.0f;
@@ -1534,3 +1536,6 @@ struct ObjGroup *Unknown8019AEC4(UNUSED u32 a0) {
 
     return WORLD(gGdLightGroup);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/shape_helper.c.inc.c"

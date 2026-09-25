@@ -86,3 +86,6 @@ const LevelScript level_main_menu_entry_2[] = {
     // L1:
     /*42*/ EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/menu/script.c.inc.c"

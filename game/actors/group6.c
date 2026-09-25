@@ -24,3 +24,6 @@ UNUSED static const u64 binid_3 = 3;
 
 #include "fwoosh/model.inc.c"
 UNUSED static const u64 binid_4 = 4;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group6.c.inc.c"

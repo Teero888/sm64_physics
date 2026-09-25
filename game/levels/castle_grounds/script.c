@@ -137,3 +137,6 @@ const LevelScript level_castle_grounds_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_grounds/script.c.inc.c"

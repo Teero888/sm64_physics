@@ -14,3 +14,6 @@
 #include "bub/geo.inc.c"
 #include "water_ring/geo.inc.c"
 #include "treasure_chest/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group13_geo.c.inc.c"

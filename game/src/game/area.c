@@ -421,3 +421,6 @@ void render_game(void) {
     WORLD(D_8032CE74) = NULL;
     WORLD(D_8032CE78) = NULL;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/area.c.inc.c"

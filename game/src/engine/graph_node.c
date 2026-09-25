@@ -39,6 +39,9 @@ struct GraphNodeRoot *init_graph_node_root(struct AllocOnlyPool *pool, struct Gr
                                            s16 areaIndex, s16 x, s16 y, s16 width, s16 height) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeRoot));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeRoot), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -65,6 +68,9 @@ init_graph_node_ortho_projection(struct AllocOnlyPool *pool, struct GraphNodeOrt
                                  f32 scale) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeOrthoProjection));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeOrthoProjection), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -84,6 +90,9 @@ struct GraphNodePerspective *init_graph_node_perspective(struct AllocOnlyPool *p
                                                          GraphNodeFunc nodeFunc, s32 unused) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodePerspective));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodePerspective), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -110,6 +119,9 @@ struct GraphNodeStart *init_graph_node_start(struct AllocOnlyPool *pool,
                                              struct GraphNodeStart *graphNode) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeStart));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeStart), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -126,6 +138,9 @@ struct GraphNodeMasterList *init_graph_node_master_list(struct AllocOnlyPool *po
                                                         struct GraphNodeMasterList *graphNode, s16 on) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeMasterList));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeMasterList), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -147,6 +162,9 @@ struct GraphNodeLevelOfDetail *init_graph_node_render_range(struct AllocOnlyPool
                                                             s16 minDistance, s16 maxDistance) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeLevelOfDetail));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeLevelOfDetail), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -167,6 +185,9 @@ struct GraphNodeSwitchCase *init_graph_node_switch_case(struct AllocOnlyPool *po
                                                         GraphNodeFunc nodeFunc, s32 unused) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeSwitchCase));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeSwitchCase), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -192,6 +213,9 @@ struct GraphNodeCamera *init_graph_node_camera(struct AllocOnlyPool *pool,
                                                f32 *focus, GraphNodeFunc func, s32 mode) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeCamera));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeCamera), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -227,6 +251,9 @@ init_graph_node_translation_rotation(struct AllocOnlyPool *pool,
                                      void *displayList, Vec3s translation, Vec3s rotation) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeTranslationRotation));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeTranslationRotation), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -250,6 +277,9 @@ struct GraphNodeTranslation *init_graph_node_translation(struct AllocOnlyPool *p
                                                          Vec3s translation) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeTranslation));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeTranslation), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -272,6 +302,9 @@ struct GraphNodeRotation *init_graph_node_rotation(struct AllocOnlyPool *pool,
                                                    Vec3s rotation) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeRotation));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeRotation), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -292,6 +325,9 @@ struct GraphNodeScale *init_graph_node_scale(struct AllocOnlyPool *pool,
                                              void *displayList, f32 scale) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeScale));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeScale), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -313,6 +349,9 @@ struct GraphNodeObject *init_graph_node_object(struct AllocOnlyPool *pool,
                                                Vec3f scale) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeObject));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeObject), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -342,6 +381,9 @@ struct GraphNodeCullingRadius *init_graph_node_culling_radius(struct AllocOnlyPo
                                                               s16 radius) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeCullingRadius));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeCullingRadius), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -361,6 +403,9 @@ struct GraphNodeAnimatedPart *init_graph_node_animated_part(struct AllocOnlyPool
                                                             Vec3s translation) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeAnimatedPart));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeAnimatedPart), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -382,6 +427,9 @@ struct GraphNodeBillboard *init_graph_node_billboard(struct AllocOnlyPool *pool,
                                                      Vec3s translation) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeBillboard));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeBillboard), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -402,6 +450,9 @@ struct GraphNodeDisplayList *init_graph_node_display_list(struct AllocOnlyPool *
                                                           s32 drawingLayer, void *displayList) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeDisplayList));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeDisplayList), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -421,6 +472,9 @@ struct GraphNodeShadow *init_graph_node_shadow(struct AllocOnlyPool *pool,
                                                u8 shadowSolidity, u8 shadowType) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeShadow));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeShadow), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -441,6 +495,9 @@ struct GraphNodeObjectParent *init_graph_node_object_parent(struct AllocOnlyPool
                                                             struct GraphNode *sharedChild) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeObjectParent));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeObjectParent), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -459,6 +516,9 @@ struct GraphNodeGenerated *init_graph_node_generated(struct AllocOnlyPool *pool,
                                                      GraphNodeFunc gfxFunc, s32 parameter) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeGenerated));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeGenerated), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -483,6 +543,9 @@ struct GraphNodeBackground *init_graph_node_background(struct AllocOnlyPool *poo
                                                        s32 zero) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeBackground));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeBackground), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -510,6 +573,9 @@ struct GraphNodeHeldObject *init_graph_node_held_object(struct AllocOnlyPool *po
                                                         GraphNodeFunc nodeFunc, s32 playerIndex) {
     if (pool != NULL) {
         graphNode = alloc_only_pool_alloc(pool, sizeof(struct GraphNodeHeldObject));
+        if (graphNode != NULL) {
+            host_mark(graphNode, HOST_TYPE_OF(GraphNodeHeldObject), 1);
+        }
     }
 
     if (graphNode != NULL) {
@@ -892,3 +958,6 @@ struct GraphNodeRoot *geo_find_root(struct GraphNode *graphNode) {
 
     return resGraphNode;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/graph_node.c.inc.c"

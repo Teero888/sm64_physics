@@ -39,3 +39,6 @@
 #include "levels/jrb/areas/2/collision.inc.c"
 #include "levels/jrb/areas/2/macro.inc.c"
 #include "levels/jrb/areas/2/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/jrb/leveldata.c.inc.c"

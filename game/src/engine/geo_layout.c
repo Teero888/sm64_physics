@@ -217,6 +217,9 @@ void geo_layout_cmd_node_root(void) {
 
     // TODO: check type
     WORLD(gGeoViews) = alloc_only_pool_alloc(WORLD(gGraphNodePool), WORLD(gGeoNumViews) * sizeof(struct GraphNode *));
+    if (WORLD(gGeoViews) != NULL) {
+        host_mark(WORLD(gGeoViews), &gHostTypeAddress, WORLD(gGeoNumViews));
+    }
 
     graphNode->views = WORLD(gGeoViews);
     graphNode->numViews = WORLD(gGeoNumViews);
@@ -793,3 +796,6 @@ struct GraphNode *process_geo_layout(struct AllocOnlyPool *pool, void *segptr) {
 
     return WORLD(gCurRootGraphNode);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/geo_layout.c.inc.c"

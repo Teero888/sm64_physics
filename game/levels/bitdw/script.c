@@ -112,3 +112,6 @@ const LevelScript level_bitdw_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bitdw/script.c.inc.c"

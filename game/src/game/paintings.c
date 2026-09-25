@@ -1287,3 +1287,6 @@ Gfx *geo_painting_update(s32 callContext, UNUSED struct GraphNode *node, UNUSED 
     }
     return NULL;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/paintings.c.inc.c"

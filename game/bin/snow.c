@@ -92,3 +92,6 @@ ALIGNED8 const Texture snow_09009000[] = {
 ALIGNED8 const Texture snow_09009800[] = {
 #include "textures/snow/ccm_textures.09800.ia16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/snow.c.inc.c"

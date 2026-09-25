@@ -56,3 +56,6 @@
 #include "levels/bitfs/seesaw_platform/collision.inc.c"
 #include "levels/bitfs/areas/1/trajectory.inc.c"
 #include "levels/bitfs/areas/1/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bitfs/leveldata.c.inc.c"

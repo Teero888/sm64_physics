@@ -16,3 +16,6 @@
 #include "levels/cotmc/areas/1/collision.inc.c"
 #include "levels/cotmc/areas/1/macro.inc.c"
 #include "levels/cotmc/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/cotmc/leveldata.c.inc.c"

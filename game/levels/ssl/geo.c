@@ -25,3 +25,6 @@
 #include "levels/ssl/eyerok_col/geo.inc.c"
 #include "levels/ssl/areas/2/geo.inc.c"
 #include "levels/ssl/areas/3/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ssl/geo.c.inc.c"

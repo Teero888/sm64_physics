@@ -17,3 +17,6 @@ void guScale(Mtx *m, float x, float y, float z) {
 }
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guScaleF.c.inc.c"

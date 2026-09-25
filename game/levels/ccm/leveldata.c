@@ -45,3 +45,6 @@
 #include "levels/ccm/areas/2/collision.inc.c"
 #include "levels/ccm/areas/2/macro.inc.c"
 #include "levels/ccm/areas/2/trajectory.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ccm/leveldata.c.inc.c"

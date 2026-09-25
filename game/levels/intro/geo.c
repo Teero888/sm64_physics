@@ -140,3 +140,5 @@ const GeoLayout intro_geo_000414[] = {
     GEO_END(),
 };
 
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/intro/geo.c.inc.c"

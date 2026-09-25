@@ -122,3 +122,6 @@ ALIGNED8 const Texture fire_0900B000[] = {
 ALIGNED8 const Texture fire_0900B800[] = {
 #include "textures/fire/lll_textures.0B800.rgba16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/fire.c.inc.c"

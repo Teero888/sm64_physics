@@ -209,3 +209,6 @@ const Gfx title_screen_bg_dl_0A007548[] = {
     gsSPEndDisplayList(),
 };
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/title_screen_bg.c.inc.c"

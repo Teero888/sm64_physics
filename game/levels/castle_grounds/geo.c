@@ -18,3 +18,6 @@
 #include "levels/castle_grounds/areas/1/7/geo.inc.c"
 #include "levels/castle_grounds/areas/1/8/geo.inc.c"
 #include "levels/castle_grounds/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_grounds/geo.c.inc.c"

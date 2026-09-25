@@ -17,3 +17,6 @@
 #include "levels/vcutm/areas/1/collision.inc.c"
 #include "levels/vcutm/areas/1/macro.inc.c"
 #include "levels/vcutm/seesaw/collision.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/vcutm/leveldata.c.inc.c"

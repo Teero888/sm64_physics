@@ -72,3 +72,6 @@ void guMtxIdent(Mtx *m) {
 }
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guMtxF2L.c.inc.c"

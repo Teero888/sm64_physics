@@ -27,3 +27,6 @@
 #include "metal_box/geo.inc.c"
 #include "exclamation_box_outline/geo.inc.c"
 #include "koopa_shell/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/common0_geo.c.inc.c"

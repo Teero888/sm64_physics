@@ -21,3 +21,6 @@
 #include "levels/hmc/arrow_platform_button/geo.inc.c"
 #include "levels/hmc/elevator_platform/geo.inc.c"
 #include "levels/hmc/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/hmc/geo.c.inc.c"

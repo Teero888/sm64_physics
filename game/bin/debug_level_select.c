@@ -2183,3 +2183,5 @@ const Gfx debug_level_select_dl_070063B0[] = {
     gsSPEndDisplayList(),
 };
 
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/debug_level_select.c.inc.c"

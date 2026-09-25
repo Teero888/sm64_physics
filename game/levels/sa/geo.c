@@ -14,3 +14,6 @@
 #include "levels/sa/header.h"
 
 #include "levels/sa/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/sa/geo.c.inc.c"

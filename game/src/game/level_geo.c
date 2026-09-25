@@ -77,3 +77,6 @@ Gfx *geo_skybox_main(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) 
 
     return gfx;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/level_geo.c.inc.c"

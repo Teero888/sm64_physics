@@ -72,3 +72,6 @@ void guRotate(Mtx *m, float a, float x, float y, float z) {
     guRotateF(mf, a, x, y, z);
     guMtxF2L(mf, m);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guRotateF.c.inc.c"

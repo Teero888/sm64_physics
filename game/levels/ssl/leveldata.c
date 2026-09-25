@@ -50,3 +50,6 @@
 #include "levels/ssl/pyramid_elevator/collision.inc.c"
 #include "levels/ssl/eyerok_col/collision.inc.c"
 #include "levels/ssl/areas/2/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ssl/leveldata.c.inc.c"

@@ -1001,3 +1001,6 @@ void cur_obj_update(void) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/behavior_script.c.inc.c"

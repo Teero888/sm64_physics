@@ -1313,3 +1313,6 @@ s32 lvl_play_the_end_screen_sound(UNUSED s16 arg0, UNUSED s32 arg1) {
     play_sound(SOUND_MENU_THANK_YOU_PLAYING_MY_GAME, WORLD(gGlobalSoundSource));
     return 1;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/level_update.c.inc.c"

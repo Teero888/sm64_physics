@@ -624,5 +624,20 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         fprintf(stderr, "lockstep: %u polls identical\n", poll);
     }
     sm64_step(sWorld, input);
+    // SM64_LOCKSTEP_MOVE=N: every N frames the world moves to new memory
+    // (sm64_world_copy), the old one overwritten and freed.
+    static long move = -1;
+    if (move < 0) {
+        const char *every = getenv("SM64_LOCKSTEP_MOVE");
+        move = every ? atol(every) : 0;
+    }
+    if (move > 0 && poll % move == 0) {
+        sm64_world *copy = sm64_world_clone(sWorld);
+        memset(sm64_state_start + gHostWorldOffset, 0xAB, sm64_state_end - sm64_state_start);
+        sm64_world_destroy(sWorld);
+        sWorld = copy;
+        sm64_world_enter(sWorld);
+        sNativeObjectPool = (struct Object *) native_symbol("gObjectPool");
+    }
     return 0;
 }

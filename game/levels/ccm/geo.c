@@ -23,3 +23,6 @@
 #include "levels/ccm/areas/1/10/geo.inc.c"
 #include "levels/ccm/areas/1/geo.inc.c"
 #include "levels/ccm/areas/2/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ccm/geo.c.inc.c"

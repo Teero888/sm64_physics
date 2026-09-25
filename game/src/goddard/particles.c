@@ -226,6 +226,7 @@ struct ObjParticle *make_particle(u32 flags, s32 colourNum, f32 x, f32 y, f32 z)
 /* 230DCC -> 230F48 */
 struct Connection *make_connection(struct ObjVertex *vtx1, struct ObjVertex *vtx2) {
     struct Connection *conn = gd_malloc_perm(sizeof(struct Connection));
+    host_mark(conn, HOST_TYPE_OF(Connection), 1);
     struct GdVec3f sp28;
     struct GdVec3f sp1C;
 
@@ -523,3 +524,6 @@ void func_801838D0(struct ObjParticle *ptc) {
     if (ptc->pos.y < -15.0f) {
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/particles.c.inc.c"

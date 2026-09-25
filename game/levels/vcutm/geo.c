@@ -15,3 +15,6 @@
 
 #include "levels/vcutm/seesaw/geo.inc.c"
 #include "levels/vcutm/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/vcutm/geo.c.inc.c"

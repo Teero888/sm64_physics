@@ -667,3 +667,6 @@ void set_vel_from_yaw(struct MarioState *m) {
     m->vel[1] = 0.0f;
     m->vel[2] = m->slideVelZ = m->forwardVel * coss(m->faceAngle[1]);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/mario_step.c.inc.c"

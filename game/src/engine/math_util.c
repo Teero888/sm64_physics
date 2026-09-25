@@ -878,3 +878,6 @@ s32 anim_spline_poll(Vec3f result) {
 
     return hasEnded;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/math_util.c.inc.c"

@@ -5,3 +5,6 @@
 
 void nop_change_course(void) {
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/debug_course.c.inc.c"

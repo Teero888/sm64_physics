@@ -196,3 +196,6 @@ const GeoLayout geo_menu_act_selector_strings[] = {
     GEO_CLOSE_NODE(),
     GEO_END(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/menu/geo.c.inc.c"

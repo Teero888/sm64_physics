@@ -38,7 +38,7 @@ def main():
             continue
         if current != "sm64_state":
             # Code reaches the state through WORLD(); data must not.
-            if not current.startswith((".text", ".eh_frame", ".debug")) and (
+            if not current.startswith((".text", ".eh_frame", ".debug", "sm64_state_variables")) and (
                     parts[4] == "sm64_state" or parts[4] in in_state):
                 outside.append(f"{current}+0x{parts[0]} -> {parts[4]}")
             continue

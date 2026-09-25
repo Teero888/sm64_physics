@@ -207,90 +207,111 @@ struct GdObj *make_object(enum ObjTypeFlag objType) {
     const char *typeName;
     u8 *newObjBytes;
     s32 objPermanence = 0x10;
+    const struct host_type *objHostType = NULL; // Library: platform/pointers.h
 
     imin("make_object");
 
     switch (objType) {
         case OBJ_TYPE_JOINTS:
             objSize = sizeof(struct ObjJoint);
+            objHostType = HOST_TYPE_OF(ObjJoint);
             objDrawFn = (drawmethod_t) draw_joint;
             break;
         case OBJ_TYPE_BONES:
             objSize = sizeof(struct ObjBone);
+            objHostType = HOST_TYPE_OF(ObjBone);
             objDrawFn = (drawmethod_t) draw_bone;
             break;
         case OBJ_TYPE_GROUPS:
             objSize = sizeof(struct ObjGroup);
+            objHostType = HOST_TYPE_OF(ObjGroup);
             objDrawFn = (drawmethod_t) draw_group;
             break;
         case OBJ_TYPE_PARTICLES:
             objSize = sizeof(struct ObjParticle);
+            objHostType = HOST_TYPE_OF(ObjParticle);
             objDrawFn = (drawmethod_t) draw_particle;
             break;
         case OBJ_TYPE_SHAPES:
             objSize = sizeof(struct ObjShape);
+            objHostType = HOST_TYPE_OF(ObjShape);
             // Shapes get drawn by their parent object instead of automatically.
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_UNK200000:
             objSize = sizeof(struct ObjUnk200000);
+            objHostType = HOST_TYPE_OF(ObjUnk200000);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_NETS:
             objSize = sizeof(struct ObjNet);
+            objHostType = HOST_TYPE_OF(ObjNet);
             objDrawFn = (drawmethod_t) draw_net;
             break;
         case OBJ_TYPE_PLANES:
             objSize = sizeof(struct ObjPlane);
+            objHostType = HOST_TYPE_OF(ObjPlane);
             objDrawFn = (drawmethod_t) draw_plane;
             break;
         case OBJ_TYPE_VERTICES:
             objSize = sizeof(struct ObjVertex);
+            objHostType = HOST_TYPE_OF(ObjVertex);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_CAMERAS:
             objSize = sizeof(struct ObjCamera);
+            objHostType = HOST_TYPE_OF(ObjCamera);
             objDrawFn = (drawmethod_t) draw_camera;
             break;
         case OBJ_TYPE_FACES:
             objSize = sizeof(struct ObjFace);
+            objHostType = HOST_TYPE_OF(ObjFace);
             objDrawFn = (drawmethod_t) draw_face;
             objPermanence = 1;
             break;
         case OBJ_TYPE_MATERIALS:
             objSize = sizeof(struct ObjMaterial);
+            objHostType = HOST_TYPE_OF(ObjMaterial);
             objDrawFn = (drawmethod_t) draw_material;
             break;
         case OBJ_TYPE_LIGHTS:
             objSize = sizeof(struct ObjLight);
+            objHostType = HOST_TYPE_OF(ObjLight);
             objDrawFn = (drawmethod_t) draw_light;
             break;
         case OBJ_TYPE_WEIGHTS:
             objSize = sizeof(struct ObjWeight);
+            objHostType = HOST_TYPE_OF(ObjWeight);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_GADGETS:
             objSize = sizeof(struct ObjGadget);
+            objHostType = HOST_TYPE_OF(ObjGadget);
             objDrawFn = (drawmethod_t) draw_gadget;
             break;
         case OBJ_TYPE_VIEWS:
             objSize = sizeof(struct ObjView);
+            objHostType = HOST_TYPE_OF(ObjView);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_LABELS:
             objSize = sizeof(struct ObjLabel);
+            objHostType = HOST_TYPE_OF(ObjLabel);
             objDrawFn = (drawmethod_t) draw_label;
             break;
         case OBJ_TYPE_ANIMATORS:
             objSize = sizeof(struct ObjAnimator);
+            objHostType = HOST_TYPE_OF(ObjAnimator);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_VALPTRS:
             objSize = sizeof(struct ObjValPtr);
+            objHostType = HOST_TYPE_OF(ObjValPtr);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         case OBJ_TYPE_ZONES:
             objSize = sizeof(struct ObjZone);
+            objHostType = HOST_TYPE_OF(ObjZone);
             objDrawFn = (drawmethod_t) draw_nothing;
             break;
         default:
@@ -312,6 +333,7 @@ struct GdObj *make_object(enum ObjTypeFlag objType) {
     for (i = 0; i < objSize; i++) {
         newObjBytes[i] = 0;
     }
+    host_mark(newObj, objHostType, 1);
 
     // Add the new object to the beginning of gGdObjectList
     WORLD(gGdObjCount)++;
@@ -372,6 +394,9 @@ struct ListNode *make_link_to_obj(struct ListNode *prevNode, struct GdObj *obj) 
     // Allocate link node
     start_memtracker("links");
     newNode = gd_malloc_perm(sizeof(struct ListNode));
+    if (newNode != NULL) {
+        host_mark(newNode, HOST_TYPE_OF(ListNode), 1);
+    }
     if (newNode == NULL) {
         fatal_print("Cant allocate link memory!");
     }
@@ -396,6 +421,9 @@ struct VtxLink *make_vtx_link(struct VtxLink *prevNode, Vtx *data) {
     struct VtxLink *newNode;
 
     newNode = gd_malloc_perm(sizeof(struct VtxLink));
+    if (newNode != NULL) {
+        host_mark(newNode, HOST_TYPE_OF(VtxLink), 1);
+    }
     if (newNode == NULL) {
         fatal_print("Cant allocate link memory!");
     }
@@ -2087,3 +2115,6 @@ void null_obj_lists(void) {
     reset_net_count();
     reset_joint_counts();
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/objects.c.inc.c"

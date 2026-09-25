@@ -12,3 +12,6 @@
 #include "levels/wmotr/areas/1/model.inc.c"
 #include "levels/wmotr/areas/1/collision.inc.c"
 #include "levels/wmotr/areas/1/macro.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/wmotr/leveldata.c.inc.c"

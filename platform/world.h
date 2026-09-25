@@ -7,6 +7,8 @@
 
 #include <stddef.h>
 
+#include "pointers.h"
+
 extern __thread ptrdiff_t gHostWorldOffset __attribute__((tls_model("initial-exec")));
 
 #define WORLD(x) (*(__typeof__(&(x))) ((char *) &(x) + gHostWorldOffset))

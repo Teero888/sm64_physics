@@ -6107,4 +6107,5 @@ const BehaviorScript bhvIntroScene[] = {
     END_LOOP(),
 };
 
-
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/data/behavior_data.c.inc.c"

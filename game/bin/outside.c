@@ -107,3 +107,6 @@ ALIGNED8 const Texture outside_0900B400[] = {
 ALIGNED8 const Texture outside_0900BC00[] = {
 #include "textures/outside/castle_grounds_textures.0BC00.ia16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/outside.c.inc.c"

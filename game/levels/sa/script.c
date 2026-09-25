@@ -62,3 +62,6 @@ const LevelScript level_sa_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/sa/script.c.inc.c"

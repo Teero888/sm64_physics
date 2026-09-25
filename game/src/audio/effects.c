@@ -541,3 +541,6 @@ s32 adsr_update(struct AdsrState *adsr) {
     return 0;
 #endif
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/effects.c.inc.c"

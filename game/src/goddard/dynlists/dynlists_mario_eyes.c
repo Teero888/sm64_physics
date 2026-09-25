@@ -158,3 +158,6 @@ struct DynList dynlist_mario_eye_left_shape[28] = {
 
     EndList(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/dynlists_mario_eyes.c.inc.c"

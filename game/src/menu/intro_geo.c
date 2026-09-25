@@ -138,7 +138,7 @@ Gfx *geo_intro_tm_copyright(s32 state, struct GraphNode *node, UNUSED void *cont
  */
 static Gfx *intro_backdrop_one_image(s32 index, s8 *backgroundTable) {
     // intro screen background display lists for each of four 80x20 textures
-    static const Gfx *introBackgroundDlRows[] = { title_screen_bg_dl_0A000130, title_screen_bg_dl_0A000148,
+    static const Gfx *const introBackgroundDlRows[] = { title_screen_bg_dl_0A000130, title_screen_bg_dl_0A000148,
                                                   title_screen_bg_dl_0A000160, title_screen_bg_dl_0A000178 };
 
     // intro screen background texture X offsets
@@ -156,12 +156,12 @@ static Gfx *intro_backdrop_one_image(s32 index, s8 *backgroundTable) {
     };
 
     // table that points to either the "Super Mario 64" or "Game Over" tables
-    static const u8 *const *textureTables[] = { mario_title_texture_table, game_over_texture_table };
+    static const u8 *const *const textureTables[] = { mario_title_texture_table, game_over_texture_table };
 
     Mtx *mtx = alloc_display_list(sizeof(*mtx));
     Gfx *displayList = alloc_display_list(36 * sizeof(*displayList));
     Gfx *displayListIter = displayList;
-    const u8 *const *vIntroBgTable = segmented_to_virtual(WORLD(textureTables)[backgroundTable[index]]);
+    const u8 *const *vIntroBgTable = segmented_to_virtual(textureTables[backgroundTable[index]]);
     s32 i;
 
     guTranslate(mtx, WORLD(xCoords)[index], WORLD(yCoords)[index], 0.0f);
@@ -170,7 +170,7 @@ static Gfx *intro_backdrop_one_image(s32 index, s8 *backgroundTable) {
     for (i = 0; i < 4; i++) {
         gDPLoadTextureBlock(displayListIter++, vIntroBgTable[i], G_IM_FMT_RGBA, G_IM_SIZ_16b, 80, 20, 0,
                             G_TX_CLAMP, G_TX_CLAMP, 7, 6, G_TX_NOLOD, G_TX_NOLOD)
-        gSPDisplayList(displayListIter++, WORLD(introBackgroundDlRows)[i]);
+        gSPDisplayList(displayListIter++, introBackgroundDlRows[i]);
     }
     gSPPopMatrix(displayListIter++, G_MTX_MODELVIEW);
     gSPEndDisplayList(displayListIter);
@@ -539,3 +539,6 @@ Gfx *geo_intro_rumble_pak_graphic(s32 state, struct GraphNode *node, UNUSED void
 }
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/menu/intro_geo.c.inc.c"

@@ -3466,3 +3466,6 @@ s16 render_menus_and_dialogs(void) {
 
     return index;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/ingame_menu.c.inc.c"

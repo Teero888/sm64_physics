@@ -13,3 +13,6 @@
 #include "bowser/geo.inc.c"
 #include "bomb/geo.inc.c"
 #include "impact_smoke/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group12_geo.c.inc.c"

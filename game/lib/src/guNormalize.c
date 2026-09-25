@@ -10,3 +10,6 @@ void guNormalize(f32 *x, f32 *y, f32 *z) {
 }
 
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guNormalize.c.inc.c"

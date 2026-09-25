@@ -13,3 +13,6 @@
 #include "snufit/geo.inc.c"
 #include "dorrie/geo.inc.c"
 #include "scuttlebug/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group17_geo.c.inc.c"

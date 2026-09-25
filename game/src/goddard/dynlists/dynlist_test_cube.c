@@ -80,3 +80,6 @@ struct DynList dynlist_test_cube[] = {
 
     EndList(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/dynlist_test_cube.c.inc.c"

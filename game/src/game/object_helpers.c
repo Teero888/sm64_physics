@@ -2915,3 +2915,6 @@ void cur_obj_spawn_star_at_y_offset(f32 targetX, f32 targetY, f32 targetZ, f32 o
     o->oPosY = objectPosY;
 }
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/object_helpers.c.inc.c"

@@ -160,13 +160,21 @@ static void write_record(FILE *out, uint32_t frame, uint32_t input) {
     }
 }
 
+// A hash of the world's state that does not depend on where its memory is:
+// its trace record (the oracle's fields).
 static uint64_t hash_state(void *buffer) {
-    sm64_save_state(sWorld, buffer);
-    const unsigned char *bytes = buffer;
+    (void) buffer;
+    char *record = NULL;
+    size_t size = 0;
+    FILE *out = open_memstream(&record, &size);
+    sm64_world_enter(sWorld);
+    write_record(out, 0, 0);
+    fclose(out);
     uint64_t hash = 0xcbf29ce484222325u;
-    for (size_t i = 0; i < sm64_state_size(); ++i) {
-        hash = (hash ^ bytes[i]) * 0x100000001b3u;
+    for (size_t i = 0; i < size; ++i) {
+        hash = (hash ^ (unsigned char) record[i]) * 0x100000001b3u;
     }
+    free(record);
     return hash;
 }
 
@@ -185,7 +193,14 @@ static int check_state(const uint32_t *inputs, uint32_t count, uint32_t at) {
             hashes[checks++] = hash_state(scratch);
         }
     }
-    sm64_load_state(sWorld, saved);
+    // Into another world: the state's addresses move to its memory.
+    sm64_world *other = sm64_world_create();
+    sm64_world_destroy(sWorld);
+    sWorld = other;
+    if (!sm64_load_state(sWorld, saved)) {
+        printf("not a saved state\n");
+        return 1;
+    }
     unsigned check = 0;
     for (uint32_t frame = at; frame < count; ++frame) {
         sm64_step(sWorld, inputs[frame]);
@@ -284,11 +299,102 @@ static int check_threads(const uint32_t *inputs, uint32_t count, int threads) {
     return differ;
 }
 
+// A saved state (platform/world.c): a 16-byte header, the memory, the map.
+#define SAVED_HEADER 16
+
+static size_t memory_size(void) {
+    extern char sm64_state_end[];
+    return sm64_state_end - sm64_state_start;
+}
+
+// --pointers EVERY: two worlds stepped alike at different addresses. Every
+// EVERY frames, the words where they differ by exactly the distance between
+// them are the state's addresses of itself; those the pointer map misses are
+// printed as the variable (or pool offset) they are in.
+static int find_pointers(const uint32_t *inputs, uint32_t count, uint32_t every) {
+    sm64_world *a = sm64_world_create(), *b = sm64_world_create();
+    const size_t size = memory_size();
+    unsigned char *sa = malloc(sm64_state_size()), *sb = malloc(sm64_state_size());
+    unsigned char *ma = sa + SAVED_HEADER, *mb = sb + SAVED_HEADER;
+    const uint32_t *map = (const uint32_t *) (ma + size);
+    sm64_world_enter(a);
+    const uintptr_t base_a = (uintptr_t) sm64_state_start + gHostWorldOffset;
+    sm64_world_enter(b);
+    const uintptr_t base_b = (uintptr_t) sm64_state_start + gHostWorldOffset;
+    unsigned long missing = 0, found = 0, dead = 0;
+    for (uint32_t frame = 0; frame < count; ++frame) {
+        sm64_step(a, inputs[frame]);
+        sm64_step(b, inputs[frame]);
+        if ((frame + 1) % every != 0) {
+            continue;
+        }
+        sm64_save_state(a, sa);
+        sm64_save_state(b, sb);
+        const char *last = NULL;
+        for (size_t i = 0; i + 8 <= size; i += 4) {
+            uint64_t wa, wb;
+            memcpy(&wa, ma + i, 8);
+            memcpy(&wb, mb + i, 8);
+            if (wa == wb || wa < base_a || wa >= base_a + size || wa - base_a != wb - base_b) {
+                continue;
+            }
+            ++found;
+            if (!(map[i / 4 / 32] >> (i / 4 % 32) & 1)) {
+                ++missing;
+                size_t offset = 0, sym_size = 0;
+                const char *name = elf_symbol_containing(sm64_state_start + i, &offset, &sym_size);
+                size_t t_offset = 0, t_size = 0;
+                const char *target = elf_symbol_containing(sm64_state_start + (wa - base_a), &t_offset, &t_size);
+                // Memory handed out at run time: the code that allocated it.
+                size_t fo = 0, fs = 0;
+                void *caller = sm64_world_allocation_at(a, i);
+                const char *site = caller ? elf_symbol_containing(caller, &fo, &fs) : "";
+                if (!site) {
+                    site = "?";
+                }
+                void *target_caller = sm64_world_allocation_at(a, wa - base_a);
+                const char *target_site = target_caller ? elf_symbol_containing(target_caller, &fo, &fs) : "";
+                // Memory the game hands out (the pools and heaps): where nothing
+                // allocated holds, nothing reads what is there.
+                const bool heap = name && (strcmp(name, "sPoolMemory") == 0 || strcmp(name, "gZBuffer") == 0
+                                           || strcmp(name, "gFramebuffers") == 0 || strcmp(name, "gAudioHeap") == 0);
+                if (*site == '\0' && heap) {
+                    // Memory no allocation holds: nothing reads what is there.
+                    ++dead;
+                    --missing;
+                    i += 4;
+                    continue;
+                }
+                if (name != last || heap) {
+                    printf("%u\t%zx\t%s+0x%zx\t%s\t-> %s+0x%zx\t%s\n", frame + 1, i, name ? name : "?", offset, site,
+                           target ? target : "?", t_offset, target_site ? target_site : "?");
+                }
+                last = name;
+            }
+            i += 4;
+        }
+    }
+    printf("%lu addresses found, %lu not in the map, %lu more in memory no allocation holds\n", found, missing, dead);
+    return missing != 0;
+}
+
+// --move EVERY: every EVERY frames the world is copied to new memory and the
+// old one overwritten and freed: an address the copy did not move faults or
+// changes the run (compare --trace with a run without --move).
+static sm64_world *move_world(sm64_world *world) {
+    sm64_world *copy = sm64_world_clone(world);
+    sm64_world_enter(world);
+    memset(sm64_state_start + gHostWorldOffset, 0xAB, memory_size());
+    sm64_world_destroy(world);
+    sm64_world_enter(copy);
+    return copy;
+}
+
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
     bool audio = false, draw = false;
     const char *rom_path = NULL;
-    long limit = -1, check_at = -1, threads = 0;
+    long limit = -1, check_at = -1, threads = 0, pointers = 0, move = 0;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
             trace_path = argv[++i];
@@ -298,6 +404,10 @@ int main(int argc, char **argv) {
             audio = true;
         } else if (strcmp(argv[i], "--draw") == 0) {
             draw = true;
+        } else if (strcmp(argv[i], "--move") == 0 && i + 1 < argc) {
+            move = atol(argv[++i]);
+        } else if (strcmp(argv[i], "--pointers") == 0 && i + 1 < argc) {
+            pointers = atol(argv[++i]);
         } else if (strcmp(argv[i], "--threads") == 0 && i + 1 < argc) {
             threads = atol(argv[++i]);
         } else if (strcmp(argv[i], "--check-state") == 0 && i + 1 < argc) {
@@ -318,7 +428,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     FILE *trace = NULL;
-    if (trace_path || threads > 0) {
+    if (trace_path || threads > 0 || check_at >= 0) {
         for (unsigned f = 0; f < FIELD_COUNT; ++f) {
             if (!(fields[f].address = elf_symbol(fields[f].name, NULL))) {
                 fprintf(stderr, "sm64_run: no symbol %s\n", fields[f].name);
@@ -363,11 +473,14 @@ int main(int argc, char **argv) {
         fprintf(stderr, "sm64_run: %s is empty\n", polls_path);
         return 1;
     }
-    if (check_at >= 0 || threads > 0) {
+    if (check_at >= 0 || threads > 0 || pointers > 0) {
         static uint32_t inputs[1 << 20];
         uint32_t count = 0;
         while (count < (1 << 20) && fread(&inputs[count], 4, 1, polls) == 1) {
             ++count;
+        }
+        if (pointers > 0) {
+            return find_pointers(inputs, count, (uint32_t) pointers);
         }
         return threads > 0 ? check_threads(inputs, count, threads > 64 ? 64 : threads)
                            : check_state(inputs, count, (uint32_t) check_at);
@@ -379,6 +492,9 @@ int main(int argc, char **argv) {
         }
         sm64_step(sWorld, input);
         ++frame;
+        if (move > 0 && frame % move == 0) {
+            sWorld = move_world(sWorld);
+        }
     }
     fclose(polls);
     if (trace) {

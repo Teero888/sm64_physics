@@ -40,12 +40,17 @@ void sm64_world_enter(const sm64_world *world);
 void sm64_set_audio(bool enabled);
 void sm64_set_draw(bool enabled);
 
-// A world's whole state: everything a step reads and writes. A saved state
-// holds pointers into its world's memory: it can only be loaded into the
-// world that saved it.
+// Makes dst the same console as src (both of this process). A world is
+// copied while no thread steps it; it keeps its own memory.
+void sm64_world_copy(sm64_world *dst, const sm64_world *src);
+sm64_world *sm64_world_clone(const sm64_world *src);
+
+// A world's whole state as bytes: everything a step reads and writes. It
+// loads into any world of the process that saved it (it holds addresses of
+// the library's code and data); false if buffer is not a saved state.
 size_t sm64_state_size(void);
 void sm64_save_state(const sm64_world *world, void *buffer);
-void sm64_load_state(sm64_world *world, const void *buffer);
+bool sm64_load_state(sm64_world *world, const void *buffer);
 
 #ifdef __cplusplus
 }

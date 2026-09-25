@@ -213,3 +213,6 @@ struct AnimDataInfo anim_mario_mustache_right[3] = {
     { ARRAY_COUNT(animdata_mario_mustache_right_2), GD_ANIM_ROT3S, animdata_mario_mustache_right_2 },
     END_ANIMDATA_INFO_ARR,
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/anim_mario_mustache_right.c.inc.c"

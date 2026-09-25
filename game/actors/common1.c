@@ -84,3 +84,6 @@ UNUSED static const u64 binid_21 = 21;
 
 #include "tree/model.inc.c"
 UNUSED static const u64 binid_22 = 22;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/common1.c.inc.c"

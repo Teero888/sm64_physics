@@ -41,6 +41,12 @@ u8 unused8038EEA8[0x30];
 static struct SurfaceNode *alloc_surface_node(void) {
     struct SurfaceNode *node = &WORLD(sSurfaceNodePool)[WORLD(gSurfaceNodesAllocated)];
     WORLD(gSurfaceNodesAllocated)++;
+    // Library: the pool is marked as a whole (alloc_surface_pools); past its
+    // end, the node is marked where it lands.
+    if (WORLD(gSurfaceNodesAllocated) > 7000) {
+        host_mark(node, HOST_TYPE_OF(SurfaceNode), 1);
+    }
+    host_note_allocation(node, sizeof(*node), __builtin_return_address(0));
 
     node->next = NULL;
 
@@ -59,6 +65,10 @@ static struct Surface *alloc_surface(void) {
 
     struct Surface *surface = &WORLD(sSurfacePool)[WORLD(gSurfacesAllocated)];
     WORLD(gSurfacesAllocated)++;
+    if (WORLD(gSurfacesAllocated) > WORLD(sSurfacePoolSize)) {
+        host_mark(surface, HOST_TYPE_OF(Surface), 1);
+    }
+    host_note_allocation(surface, sizeof(*surface), __builtin_return_address(0));
 
     if (WORLD(gSurfacesAllocated) >= WORLD(sSurfacePoolSize)) {
         CN_DEBUG_PRINTF((" mcMakeBGCheckData OVERFLOW\n"));
@@ -522,6 +532,11 @@ void alloc_surface_pools(void) {
     WORLD(sSurfacePoolSize) = 2300;
     WORLD(sSurfaceNodePool) = main_pool_alloc(7000 * sizeof(struct SurfaceNode), MEMORY_POOL_LEFT);
     WORLD(sSurfacePool) = main_pool_alloc(WORLD(sSurfacePoolSize) * sizeof(struct Surface), MEMORY_POOL_LEFT);
+    host_mark(WORLD(sSurfaceNodePool), HOST_TYPE_OF(SurfaceNode), 7000);
+    host_mark(WORLD(sSurfacePool), HOST_TYPE_OF(Surface), WORLD(sSurfacePoolSize));
+    // Library: what is in use are the surfaces and nodes handed out.
+    host_note_release(WORLD(sSurfaceNodePool), WORLD(sSurfaceNodePool) + 7000);
+    host_note_release(WORLD(sSurfacePool), WORLD(sSurfacePool) + WORLD(sSurfacePoolSize));
 
     WORLD(gCCMEnteredSlide) = 0;
     reset_red_coins_collected();
@@ -789,3 +804,6 @@ void load_object_collision_model(void) {
         WORLD(gCurrentObject)->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/surface_load.c.inc.c"

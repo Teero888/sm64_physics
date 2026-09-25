@@ -701,3 +701,6 @@ void thread5_game_loop(UNUSED void *arg) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/game_init.c.inc.c"

@@ -76,3 +76,6 @@ ALIGNED8 const Texture sky_09007800[] = {
 ALIGNED8 const Texture sky_09008000[] = {
 #include "textures/sky/rr_textures.08000.rgba16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/sky.c.inc.c"

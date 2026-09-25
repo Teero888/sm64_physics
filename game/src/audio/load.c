@@ -904,6 +904,15 @@ void load_sequence_internal(u32 player, u32 seqId, s32 loadAsync) {
 }
 
 // (void) must be omitted from parameters to fix stack with -framepointer
+// Library: an ALSeqFile's entries hold addresses once alSeqFileNew has made
+// their offsets absolute (platform/pointers.h).
+static void host_mark_seq_file(ALSeqFile *file, u32 size) {
+    if (file != NULL) {
+        u32 count = (size - offsetof(ALSeqFile, seqArray)) / sizeof(ALSeqData);
+        host_mark(file->seqArray, HOST_TYPE_OF(ALSeqData), count);
+    }
+}
+
 void audio_init() {
 #if defined(VERSION_EU)
     UNUSED s8 pad[16];
@@ -1035,6 +1044,7 @@ void audio_init() {
     size = ALIGN16(WORLD(gSequenceCount) * sizeof(ALSeqData) + 4);
 #endif
     WORLD(gSeqFileHeader) = soundAlloc(&WORLD(gAudioInitPool), size);
+    host_mark_seq_file(WORLD(gSeqFileHeader), size);
     audio_dma_copy_immediate((uintptr_t) data, WORLD(gSeqFileHeader), size);
     alSeqFileNew(WORLD(gSeqFileHeader), data);
 
@@ -1045,7 +1055,11 @@ void audio_init() {
     size = WORLD(gAlCtlHeader)->seqCount * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
     WORLD(gCtlEntries) = soundAlloc(&WORLD(gAudioInitPool), WORLD(gAlCtlHeader)->seqCount * sizeof(struct CtlEntry));
+    if (WORLD(gCtlEntries) != NULL) {
+        host_mark(WORLD(gCtlEntries), HOST_TYPE_OF(CtlEntry), WORLD(gAlCtlHeader)->seqCount);
+    }
     WORLD(gAlCtlHeader) = soundAlloc(&WORLD(gAudioInitPool), size);
+    host_mark_seq_file(WORLD(gAlCtlHeader), size);
     audio_dma_copy_immediate((uintptr_t) data, WORLD(gAlCtlHeader), size);
     alSeqFileNew(WORLD(gAlCtlHeader), data);
 
@@ -1055,6 +1069,7 @@ void audio_init() {
     size = WORLD(gAlTbl)->seqCount * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
     WORLD(gAlTbl) = soundAlloc(&WORLD(gAudioInitPool), size);
+    host_mark_seq_file(WORLD(gAlTbl), size);
     audio_dma_copy_immediate((uintptr_t) gSoundDataRaw, WORLD(gAlTbl), size);
     alSeqFileNew(WORLD(gAlTbl), gSoundDataRaw);
 
@@ -1073,3 +1088,6 @@ void audio_init() {
     eu_stubbed_printf_0("---------------------------------------\n");
 }
 #endif
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/load.c.inc.c"

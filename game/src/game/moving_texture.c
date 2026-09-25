@@ -1001,3 +1001,6 @@ Gfx *geo_movtex_update_horizontal(s32 callContext, struct GraphNode *node, UNUSE
     }
     return NULL;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/moving_texture.c.inc.c"

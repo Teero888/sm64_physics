@@ -319,3 +319,6 @@ Gfx *create_skybox_facing_camera(s8 player, s8 background, f32 fov,
 
     return init_skybox_display_list(player, background, colorIndex);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/skybox.c.inc.c"

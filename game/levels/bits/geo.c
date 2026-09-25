@@ -45,3 +45,6 @@
 #include "levels/bits/areas/1/31/geo.inc.c"
 #include "levels/bits/areas/1/32/geo.inc.c"
 #include "levels/bits/areas/1/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/bits/geo.c.inc.c"

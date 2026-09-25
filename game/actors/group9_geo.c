@@ -14,3 +14,6 @@
 #include "mad_piano/geo.inc.c"
 #include "boo/geo.inc.c"
 #include "haunted_cage/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group9_geo.c.inc.c"

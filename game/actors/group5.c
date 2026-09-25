@@ -24,3 +24,6 @@ UNUSED static const u64 binid_2 = 2;
 #include "tornado/model.inc.c"
 #include "tornado/geo.inc.c"
 UNUSED static const u64 binid_3 = 3;
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group5.c.inc.c"

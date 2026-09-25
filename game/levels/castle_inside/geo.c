@@ -22,3 +22,6 @@
 #include "levels/castle_inside/areas/2/geo.inc.c"
 #include "levels/castle_inside/water_level_pillar/geo.inc.c"
 #include "levels/castle_inside/areas/3/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/castle_inside/geo.c.inc.c"

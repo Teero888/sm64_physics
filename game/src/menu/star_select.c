@@ -457,3 +457,6 @@ s32 lvl_update_obj_and_load_act_button_actions(UNUSED s32 arg, UNUSED s32 unused
     WORLD(sActSelectorMenuTimer)++;
     return WORLD(sLoadedActNum);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/menu/star_select.c.inc.c"

@@ -178,3 +178,6 @@ const LevelScript level_jrb_entry[] = {
     SLEEP_BEFORE_EXIT(/*frames*/ 1),
     EXIT(),
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/jrb/script.c.inc.c"

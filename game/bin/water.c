@@ -77,3 +77,6 @@ ALIGNED8 const Texture water_0900A800[] = {
 ALIGNED8 const Texture water_0900B800[] = {
 #include "textures/water/jrb_textures.0B800.rgba16.inc.c"
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/bin/water.c.inc.c"

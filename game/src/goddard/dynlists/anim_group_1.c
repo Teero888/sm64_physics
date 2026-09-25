@@ -2326,3 +2326,6 @@ struct AnimDataInfo anim_mario_ear_left[] = {
     { 0, GD_ANIM_EMPTY, NULL },
     END_ANIMDATA_INFO_ARR,
 };
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/dynlists/anim_group_1.c.inc.c"

@@ -306,3 +306,6 @@ void draw_profiler(void) {
         draw_profiler_mode_1();
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/profiler.c.inc.c"

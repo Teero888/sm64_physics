@@ -231,3 +231,6 @@ Gfx *geo_exec_cake_end_screen(s32 callContext, struct GraphNode *node, UNUSED f3
 
     return displayList;
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/game/geo_misc.c.inc.c"

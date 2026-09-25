@@ -6,3 +6,6 @@ const unsigned char gSoundDataADSR[0x100];
 const unsigned char gSoundDataRaw[0x100];
 const unsigned char gMusicData[0x100];
 const unsigned char gBankSetsData[0x100];
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/platform/sound_data.c.inc.c"

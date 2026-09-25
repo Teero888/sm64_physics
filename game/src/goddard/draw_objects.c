@@ -1542,3 +1542,6 @@ void update_view(struct ObjView *view) {
  */
 void stub_draw_objects_1(void) {
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/draw_objects.c.inc.c"

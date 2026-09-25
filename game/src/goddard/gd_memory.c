@@ -103,6 +103,7 @@ struct GMemBlock *make_mem_block(u32 blockType, u8 permFlag) {
 
     if (WORLD(sEmptyBlockListHead) == NULL) {
         WORLD(sEmptyBlockListHead) = (struct GMemBlock *) gd_allocblock(sizeof(struct GMemBlock));
+        host_mark(WORLD(sEmptyBlockListHead), HOST_TYPE_OF(GMemBlock), 1);
 
         if (WORLD(sEmptyBlockListHead) == NULL) {
             fatal_printf("MakeMemBlock() unable to allocate");
@@ -157,6 +158,7 @@ u32 gd_free_mem(void *ptr) {
     for (curBlock = WORLD(sUsedBlockListHead); curBlock != NULL; curBlock = curBlock->next) {
         if (targetBlock == curBlock->ptr) {
             bytesFreed = curBlock->size;
+            host_note_release(curBlock->ptr, curBlock->ptr + curBlock->size);
             into_free_memblock(curBlock);
             return bytesFreed;
         }
@@ -204,6 +206,9 @@ void *gd_request_mem(u32 size, u8 permanence) {
     if (foundBlock == NULL) {
         return NULL;
     }
+    // Library: the caller marks what it keeps there (platform/pointers.h).
+    host_mark_raw(foundBlock->ptr, size);
+    host_note_allocation(foundBlock->ptr, size, __builtin_return_address(0));
 
     if (foundBlock->size > size) { /* split free block */
         newBlock->ptr = foundBlock->ptr;
@@ -312,3 +317,6 @@ void mem_stats(void) {
     list = WORLD(sEmptyBlockListHead);
     print_list_stats(list, FALSE, PERM_G_MEM_BLOCK | TEMP_G_MEM_BLOCK);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/goddard/gd_memory.c.inc.c"

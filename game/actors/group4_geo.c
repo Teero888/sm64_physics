@@ -10,3 +10,6 @@
 #include "clam_shell/geo.inc.c"
 #include "sushi/geo.inc.c"
 #include "unagi/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/actors/group4_geo.c.inc.c"

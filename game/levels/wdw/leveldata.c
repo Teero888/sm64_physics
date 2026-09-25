@@ -36,3 +36,6 @@
 #include "levels/wdw/rotating_platform/collision.inc.c"
 #include "levels/wdw/areas/1/movtext.inc.c"
 #include "levels/wdw/areas/2/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/wdw/leveldata.c.inc.c"

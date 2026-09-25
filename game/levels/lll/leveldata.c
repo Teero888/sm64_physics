@@ -66,3 +66,6 @@
 #include "levels/lll/volcano_falling_trap/collision.inc.c"
 #include "levels/lll/areas/2/trajectory.inc.c"
 #include "levels/lll/areas/2/movtext.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/lll/leveldata.c.inc.c"

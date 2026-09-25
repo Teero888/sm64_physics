@@ -2849,3 +2849,5 @@ void init_sequence_players(void) {
     }
 }
 
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/audio/seqplayer.c.inc.c"

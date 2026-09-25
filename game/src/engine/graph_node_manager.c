@@ -78,3 +78,6 @@ void register_scene_graph_node(struct GraphNode *graphNode) {
         }
     }
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/src/engine/graph_node_manager.c.inc.c"

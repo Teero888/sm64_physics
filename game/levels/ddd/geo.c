@@ -18,3 +18,6 @@
 #include "levels/ddd/submarine/geo.inc.c"
 #include "levels/ddd/areas/1/geo.inc.c"
 #include "levels/ddd/areas/2/geo.inc.c"
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/levels/ddd/geo.c.inc.c"

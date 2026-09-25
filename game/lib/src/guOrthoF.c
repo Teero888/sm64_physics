@@ -25,3 +25,6 @@ void guOrtho(Mtx *m, float left, float right, float bottom, float top, float nea
     guOrthoF(sp28, left, right, bottom, top, near, far, scale);
     guMtxF2L(sp28, m);
 }
+
+// Library: its variables' addresses (tools/state/types.py).
+#include "pointers/game/lib/src/guOrthoF.c.inc.c"
