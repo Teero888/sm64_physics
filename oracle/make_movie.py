@@ -7,8 +7,8 @@
 idle presses nothing: the title screen plays its demos, over and over.
 random holds random buttons and stick for 8 polls at a time, from power-on:
 it finds its way through the menus into the game and plays.
-Both are .m64 from power-on, for sm64_oracle and sm64_lockstep with
---poll-offset 0 (EU: VI_RATE 50). With --rom, the header names the ROM (its
+Both are .m64 from power-on, for sm64_oracle and sm64_lockstep
+(EU: VI_RATE 50). With --rom, the header names the ROM (its
 checksum and country code), as movies recorded on an emulator do, so FrameTee
 knows which version's movie it is.
 """

@@ -66,7 +66,7 @@ def main():
         path = fetch(movie)
         trace_path, polls_path = HERE / "out" / f"{movie['name']}.trace", HERE / "out" / f"{movie['name']}.polls"
         subprocess.run([str(HERE / "build" / "sm64_oracle"), "--rom", str(roms / ROM_NAMES[movie["rom"]]),
-                        "--movie", str(path), "--poll-offset", str(movie["poll_offset"]),
+                        "--movie", str(path), "--poll-offset", str(movie.get("poll_offset", -1)),
                         "--symbols", str(HERE / "symbols" / f"{movie['rom']}.tsv"),
                         "--fields", str(HERE / "fields" / "core.txt"),
                         "--trace", str(trace_path), "--polls", str(polls_path)],

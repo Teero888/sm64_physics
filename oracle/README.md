@@ -23,7 +23,7 @@ python3 corpus.py            # downloads, runs and checks every movie in corpus.
 
 | | |
 |---|---|
-| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`), and with `--audio OUT` the sound the game hands the audio interface (stereo 16-bit samples). `--poll-offset` shifts an .m64 against the emulator's boot. |
+| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`), and with `--audio OUT` the sound the game hands the audio interface (stereo 16-bit samples). `--poll-offset` (default -1, see Findings) says which movie sample a poll reads. |
 | `corpus.py` | Runs `corpus.json` and checks each movie's level route and final action. |
 | `make_movie.py` | Movies for a version without a TAS: no input (the title demos) or seeded random input. |
 | `sm64trace.py` | `info`, `show`, `mario` (decoded Mario state) and `diff` (first differing poll and field) for traces. |
@@ -61,12 +61,14 @@ python3 .../oracle/symbols.py build/jp sm64.jp .../oracle/symbols/jp.tsv
   poll in the same interrupt as BizHawk's did. mupen64plus 2.6 does not, and
   the published .bk2 desyncs. SM64 TASes are made on Mupen64-rr as .m64 and
   TASVideos keeps the originals as additional files.
-- **A poll offset is needed, and harmless.** mupen64plus reaches the title
-  screen later than Mupen64-rr, so a movie's first Start press arrives too early.
-  Delaying the movie (a negative `--poll-offset`) fixes it; every offset past
-  the point where the title accepts Start gives the same run, shifted. The
-  reference is this emulator's run with the inputs it actually fed, which the
-  polls file records.
+- **Movie sample N is the console's controller read N + 1.** Mupen64-rr,
+  which the TASes are made on, gives the first read after power-on no movie
+  sample (`--poll-offset -1`, the default). Found with Mupen64-rr 1.4.0-5
+  itself under Wine, logging the game every poll from Lua: with it, the 16-star
+  TAS is identical on both emulators at every poll, and the 16, 70 and 120-star
+  TASes play to their end on mupen64plus. Earlier, per-movie offsets (-16, -55)
+  were found by trying: they put the first Start press where the title screen
+  takes it, but misplace every input after, which the long runs do not survive.
 - **Game state does not depend on emulated timing.** The dynarec and the
   cached interpreter give identical traces over the whole 1-key TAS, although
   RAM differs (the audio heap, around `0x801ce000`–`0x801e0000`, and some audio

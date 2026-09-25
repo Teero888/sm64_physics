@@ -292,7 +292,11 @@ int main(int argc, char **argv) {
   const char *core_path = "libmupen64plus.so.2";
   const char *rsp_path = "/usr/lib/mupen64plus/mupen64plus-rsp-hle.so";
   int cpu = 2;
+  int count_per_op = -1; // the core's default
   o.dump_dir = ".";
+  // Mupen64-rr, which SM64 TASes are made on, gives the console's first
+  // controller read after power-on no movie sample: sample N is read N + 1.
+  o.poll_offset = -1;
   for (int i = 1; i < argc; ++i) {
     const char *arg = argv[i], *value = i + 1 < argc ? argv[i + 1] : NULL;
 #define OPTION(flag, target) if (strcmp(arg, flag) == 0 && value) { target = value; ++i; continue; }
@@ -308,6 +312,7 @@ int main(int argc, char **argv) {
     OPTION("--rsp", rsp_path)
 #undef OPTION
     if (strcmp(arg, "--cpu") == 0 && value) { cpu = atoi(value); ++i; continue; }
+    if (strcmp(arg, "--count-per-op") == 0 && value) { count_per_op = atoi(value); ++i; continue; }
     if (strcmp(arg, "--vi-offset") == 0 && value) { o.vi_offset = atoi(value); ++i; continue; }
     if (strcmp(arg, "--poll-offset") == 0 && value) { o.poll_offset = atoi(value); ++i; continue; }
     if (strcmp(arg, "--skip") == 0 && value && o.skips < 64) {
@@ -363,6 +368,7 @@ int main(int argc, char **argv) {
   m64p_handle section;
   if (open_section("Core", &section) != M64ERR_SUCCESS) die("no Core config section");
   set_int(set_parameter, section, "R4300Emulator", cpu);
+  if (count_per_op >= 0) set_int(set_parameter, section, "CountPerOp", count_per_op);
   // Interrupt timing must be deterministic, and match BizHawk's 4 MiB setup.
   int off = 0, on = 1;
   set_parameter(section, "RandomizeInterrupt", M64TYPE_BOOL, &off);
