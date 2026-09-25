@@ -46,33 +46,33 @@ static s16 sPlayMarioGameOver = TRUE;
  * It also returns the level ID from intro_regular (file select or level select menu)
  */
 s32 run_level_id_or_demo(s32 level) {
-    gCurrDemoInput = NULL;
+    WORLD(gCurrDemoInput) = NULL;
 
     if (level == LEVEL_NONE) {
-        if (!gPlayer1Controller->buttonDown && !gPlayer1Controller->stickMag) {
+        if (!WORLD(gPlayer1Controller)->buttonDown && !WORLD(gPlayer1Controller)->stickMag) {
             // start the demo. 800 frames has passed while
             // player is idle on PRESS START screen.
-            if ((++sDemoCountdown) == PRESS_START_DEMO_TIMER) {
+            if ((++WORLD(sDemoCountdown)) == PRESS_START_DEMO_TIMER) {
 
                 // start the Mario demo animation for the demo list.
-                load_patchable_table(&gDemoInputsBuf, gDemoInputListID);
+                load_patchable_table(&WORLD(gDemoInputsBuf), WORLD(gDemoInputListID));
 
                 // if the next demo sequence ID is the count limit, reset it back to
                 // the first sequence.
-                if (++gDemoInputListID == gDemoInputsBuf.dmaTable->count) {
-                    gDemoInputListID = 0;
+                if (++WORLD(gDemoInputListID) == WORLD(gDemoInputsBuf).dmaTable->count) {
+                    WORLD(gDemoInputListID) = 0;
                 }
 
                 // add 1 (+4) to the pointer to skip the first 4 bytes
                 // Use the first 4 bytes to store level ID,
                 // then use the rest of the values for inputs
-                gCurrDemoInput = ((struct DemoInput *) gDemoInputsBuf.bufTarget) + 1;
-                level = (s8)((struct DemoInput *) gDemoInputsBuf.bufTarget)->timer;
-                gCurrSaveFileNum = 1;
-                gCurrActNum = 1;
+                WORLD(gCurrDemoInput) = ((struct DemoInput *) WORLD(gDemoInputsBuf).bufTarget) + 1;
+                level = (s8)((struct DemoInput *) WORLD(gDemoInputsBuf).bufTarget)->timer;
+                WORLD(gCurrSaveFileNum) = 1;
+                WORLD(gCurrActNum) = 1;
             }
         } else { // activity was detected, so reset the demo countdown.
-            sDemoCountdown = 0;
+            WORLD(sDemoCountdown) = 0;
         }
     }
     return level;
@@ -89,59 +89,59 @@ s16 intro_level_select(void) {
     // perform the ID updates per each button press.
     // runs into a loop so after a button is pressed
     // stageChanged goes back to FALSE
-    if (gPlayer1Controller->buttonPressed & A_BUTTON) {
-        ++gCurrLevelNum, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & A_BUTTON) {
+        ++WORLD(gCurrLevelNum), stageChanged = TRUE;
     }
-    if (gPlayer1Controller->buttonPressed & B_BUTTON) {
-        --gCurrLevelNum, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & B_BUTTON) {
+        --WORLD(gCurrLevelNum), stageChanged = TRUE;
     }
-    if (gPlayer1Controller->buttonPressed & U_JPAD) {
-        --gCurrLevelNum, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & U_JPAD) {
+        --WORLD(gCurrLevelNum), stageChanged = TRUE;
     }
-    if (gPlayer1Controller->buttonPressed & D_JPAD) {
-        ++gCurrLevelNum, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & D_JPAD) {
+        ++WORLD(gCurrLevelNum), stageChanged = TRUE;
     }
-    if (gPlayer1Controller->buttonPressed & L_JPAD) {
-        gCurrLevelNum -= 10, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & L_JPAD) {
+        WORLD(gCurrLevelNum) -= 10, stageChanged = TRUE;
     }
-    if (gPlayer1Controller->buttonPressed & R_JPAD) {
-        gCurrLevelNum += 10, stageChanged = TRUE;
+    if (WORLD(gPlayer1Controller)->buttonPressed & R_JPAD) {
+        WORLD(gCurrLevelNum) += 10, stageChanged = TRUE;
     }
 
     // if the stage was changed, play the sound for changing a stage.
     if (stageChanged) {
-        play_sound(SOUND_GENERAL_LEVEL_SELECT_CHANGE, gGlobalSoundSource);
+        play_sound(SOUND_GENERAL_LEVEL_SELECT_CHANGE, WORLD(gGlobalSoundSource));
     }
 
-    if (gCurrLevelNum > LEVEL_MAX) {
-        gCurrLevelNum = LEVEL_MIN; // exceeded max. set to min.
+    if (WORLD(gCurrLevelNum) > LEVEL_MAX) {
+        WORLD(gCurrLevelNum) = LEVEL_MIN; // exceeded max. set to min.
     }
 
-    if (gCurrLevelNum < LEVEL_MIN) {
-        gCurrLevelNum = LEVEL_MAX; // exceeded min. set to max.
+    if (WORLD(gCurrLevelNum) < LEVEL_MIN) {
+        WORLD(gCurrLevelNum) = LEVEL_MAX; // exceeded min. set to max.
     }
 
     // Use file 4 and last act as a test
-    gCurrSaveFileNum = 4;
-    gCurrActNum = 6;
+    WORLD(gCurrSaveFileNum) = 4;
+    WORLD(gCurrActNum) = 6;
 
     print_text_centered(160, 80, "SELECT STAGE");
     print_text_centered(160, 30, "PRESS START BUTTON");
-    print_text_fmt_int(40, 60, "%2d", gCurrLevelNum);
-    print_text(80, 60, sLevelSelectStageNames[gCurrLevelNum - 1]); // print stage name
+    print_text_fmt_int(40, 60, "%2d", WORLD(gCurrLevelNum));
+    print_text(80, 60, WORLD(sLevelSelectStageNames)[WORLD(gCurrLevelNum) - 1]); // print stage name
 
 #define QUIT_LEVEL_SELECT_COMBO (Z_TRIG | START_BUTTON | L_CBUTTONS | R_CBUTTONS)
 
     // start being pressed signals the stage to be started. that is, unless...
-    if (gPlayer1Controller->buttonPressed & START_BUTTON) {
+    if (WORLD(gPlayer1Controller)->buttonPressed & START_BUTTON) {
         // ... the level select quit combo is being pressed, which uses START. If this
         // is the case, quit the menu instead.
-        if (gPlayer1Controller->buttonDown == QUIT_LEVEL_SELECT_COMBO) {
-            gDebugLevelSelect = FALSE;
+        if (WORLD(gPlayer1Controller)->buttonDown == QUIT_LEVEL_SELECT_COMBO) {
+            WORLD(gDebugLevelSelect) = FALSE;
             return -1;
         }
-        play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
-        return gCurrLevelNum;
+        play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
+        return WORLD(gCurrLevelNum);
     }
     return 0;
 }
@@ -157,19 +157,19 @@ s32 intro_regular(void) {
     // so Mario greets the player. After that, he will always say
     // "press start to play" when it goes back to the title screen
     // (using SAVE AND QUIT)
-    if (sPlayMarioGreeting == TRUE) {
-        if (gGlobalTimer < 129) {
-            play_sound(SOUND_MARIO_HELLO, gGlobalSoundSource);
+    if (WORLD(sPlayMarioGreeting) == TRUE) {
+        if (WORLD(gGlobalTimer) < 129) {
+            play_sound(SOUND_MARIO_HELLO, WORLD(gGlobalSoundSource));
         } else {
-            play_sound(SOUND_MARIO_PRESS_START_TO_PLAY, gGlobalSoundSource);
+            play_sound(SOUND_MARIO_PRESS_START_TO_PLAY, WORLD(gGlobalSoundSource));
         }
-        sPlayMarioGreeting = FALSE;
+        WORLD(sPlayMarioGreeting) = FALSE;
     }
 #endif
     print_intro_text();
 
-    if (gPlayer1Controller->buttonPressed & START_BUTTON) {
-        play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
+    if (WORLD(gPlayer1Controller)->buttonPressed & START_BUTTON) {
+        play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
 #if ENABLE_RUMBLE
         queue_rumble_data(60, 70);
         func_sh_8024C89C(1);
@@ -177,9 +177,9 @@ s32 intro_regular(void) {
         // calls level ID 100 (or 101 adding level select bool value)
         // defined in level_intro_mario_head_regular JUMP_IF commands
         // 100 is File Select - 101 is Level Select
-        level = 100 + gDebugLevelSelect;
+        level = 100 + WORLD(gDebugLevelSelect);
 #ifndef VERSION_JP
-        sPlayMarioGreeting = TRUE;
+        WORLD(sPlayMarioGreeting) = TRUE;
 #endif
     }
     return run_level_id_or_demo(level);
@@ -192,24 +192,24 @@ s32 intro_game_over(void) {
     s32 level = LEVEL_NONE;
 
 #ifndef VERSION_JP
-    if (sPlayMarioGameOver == TRUE) {
-        play_sound(SOUND_MARIO_GAME_OVER, gGlobalSoundSource);
-        sPlayMarioGameOver = FALSE;
+    if (WORLD(sPlayMarioGameOver) == TRUE) {
+        play_sound(SOUND_MARIO_GAME_OVER, WORLD(gGlobalSoundSource));
+        WORLD(sPlayMarioGameOver) = FALSE;
     }
 #endif
 
     print_intro_text();
 
-    if (gPlayer1Controller->buttonPressed & START_BUTTON) {
-        play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
+    if (WORLD(gPlayer1Controller)->buttonPressed & START_BUTTON) {
+        play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
 #if ENABLE_RUMBLE
         queue_rumble_data(60, 70);
         func_sh_8024C89C(1);
 #endif
         // same criteria as intro_regular
-        level = 100 + gDebugLevelSelect;
+        level = 100 + WORLD(gDebugLevelSelect);
 #ifndef VERSION_JP
-        sPlayMarioGameOver = TRUE;
+        WORLD(sPlayMarioGameOver) = TRUE;
 #endif
     }
     return run_level_id_or_demo(level);
@@ -220,7 +220,7 @@ s32 intro_game_over(void) {
  */
 s32 intro_play_its_a_me_mario(void) {
     set_background_music(0, SEQ_SOUND_PLAYER, 0);
-    play_sound(SOUND_MENU_COIN_ITS_A_ME_MARIO, gGlobalSoundSource);
+    play_sound(SOUND_MENU_COIN_ITS_A_ME_MARIO, WORLD(gGlobalSoundSource));
     return 1;
 }
 

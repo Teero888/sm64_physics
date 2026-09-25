@@ -21,7 +21,7 @@ static Collision const *sSeesawPlatformCollisionModels[] = {
  * Init function for bhvSeesawPlatform.
  */
 void bhv_seesaw_platform_init(void) {
-    o->collisionData = segmented_to_virtual(sSeesawPlatformCollisionModels[o->oBhvParams2ndByte]);
+    o->collisionData = segmented_to_virtual(WORLD(sSeesawPlatformCollisionModels)[o->oBhvParams2ndByte]);
 
     // The S-shaped seesaw platform in BitS is large, so increase its collision
     // distance
@@ -41,7 +41,7 @@ void bhv_seesaw_platform_update(void) {
         cur_obj_play_sound_1(SOUND_ENV_BOAT_ROCKING1);
     }
 
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         // Rotate toward mario
         f32 rotation = o->oDistanceToMario * coss(o->oAngleToMario - o->oMoveAngleYaw);
         UNUSED u8 filler[4];

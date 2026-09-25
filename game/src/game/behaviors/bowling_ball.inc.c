@@ -46,7 +46,7 @@ void bhv_bowling_ball_init(void) {
 }
 
 void bowling_ball_set_hitbox(void) {
-    obj_set_hitbox(o, &sBowlingBallHitbox);
+    obj_set_hitbox(o, &WORLD(sBowlingBallHitbox));
 
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         o->oInteractStatus = 0;
@@ -68,11 +68,11 @@ void bowling_ball_set_waypoints(void) {
             break;
 
         case BBALL_BP_STYPE_THI_LARGE:
-            o->oPathedStartWaypoint = (struct Waypoint *) sTHIHugeMetalBallTraj;
+            o->oPathedStartWaypoint = (struct Waypoint *) WORLD(sTHIHugeMetalBallTraj);
             break;
 
         case BBALL_BP_STYPE_THI_SMALL:
-            o->oPathedStartWaypoint = (struct Waypoint *) sTHITinyMetalBallTraj;
+            o->oPathedStartWaypoint = (struct Waypoint *) WORLD(sTHITinyMetalBallTraj);
             break;
     }
 }
@@ -194,7 +194,7 @@ void bhv_generic_bowling_ball_spawner_loop(void) {
     }
 
     if (is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 1000)
-        || o->oPosY < gMarioObject->header.gfx.pos[1]) {
+        || o->oPosY < WORLD(gMarioObject)->header.gfx.pos[1]) {
         return;
     }
 
@@ -213,7 +213,7 @@ void bhv_thi_bowling_ball_spawner_loop(void) {
     }
 
     if (is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 800)
-        || o->oPosY < gMarioObject->header.gfx.pos[1]) {
+        || o->oPosY < WORLD(gMarioObject)->header.gfx.pos[1]) {
         return;
     }
 

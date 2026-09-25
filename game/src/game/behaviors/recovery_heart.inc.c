@@ -13,14 +13,14 @@ struct ObjectHitbox sRecoveryHeartHitbox = {
 };
 
 void bhv_recovery_heart_loop(void) {
-    obj_set_hitbox(o, &sRecoveryHeartHitbox);
-    if (obj_check_if_collided_with_object(o, gMarioObject)) {
+    obj_set_hitbox(o, &WORLD(sRecoveryHeartHitbox));
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject))) {
         if (o->oSpinningHeartPlayedSound == 0) {
             cur_obj_play_sound_2(SOUND_GENERAL_HEART_SPIN);
             o->oSpinningHeartPlayedSound++;
         }
 
-        o->oAngleVelYaw = (s32)(200.0f * gMarioStates[0].forwardVel) + 1000;
+        o->oAngleVelYaw = (s32)(200.0f * WORLD(gMarioStates)[0].forwardVel) + 1000;
     } else {
         o->oSpinningHeartPlayedSound = 0;
 
@@ -31,7 +31,7 @@ void bhv_recovery_heart_loop(void) {
     }
 
     if ((o->oSpinningHeartTotalSpin += o->oAngleVelYaw) >= 0x10000) {
-        gMarioStates[0].healCounter += 4;
+        WORLD(gMarioStates)[0].healCounter += 4;
         o->oSpinningHeartTotalSpin -= 0x10000;
     }
 

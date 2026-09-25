@@ -14,7 +14,7 @@ static Collision const *sSlidingPlatform2CollisionData[] = {
 void bhv_sliding_plat_2_init(void) {
     s32 collisionDataIndex = ((u16)(o->oBhvParams >> 16) & 0x0380) >> 7;
 
-    o->collisionData = segmented_to_virtual(sSlidingPlatform2CollisionData[collisionDataIndex]);
+    o->collisionData = segmented_to_virtual(WORLD(sSlidingPlatform2CollisionData)[collisionDataIndex]);
     o->oBackAndForthPlatformPathLength = 50.0f * ((u16)(o->oBhvParams >> 16) & 0x003F);
 
     if (collisionDataIndex < 5 || collisionDataIndex > 6) {

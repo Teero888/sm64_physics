@@ -18,6 +18,8 @@ This is the rewrite. Where it is headed:
 - **No ROM data in the library.** What the decomp extracts from the ROM
   (textures, skyboxes, demo inputs, sound) is loaded from the user's ROM
   (`sm64_load_rom`); `game/rom_assets/` lists where each is.
+- **Any number of worlds, on any threads.** Each world is a console of its
+  own (`sm64_world_create`); threads step different worlds at the same time.
 - **Verified against an emulator.** `oracle/` records the game's state at every
   frame of real TAS movies on mupen64plus; the library must reproduce it.
 
@@ -61,6 +63,8 @@ python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.t
 | `platform/ultra_math.h` | libultra's `sinf`/`cosf` for the game, under other names. |
 | `game/` | The game's code. `game/gen/<version>/` holds what the decomp generates from its own sources (text, level headers); `game/rom_assets/<version>.tsv` lists what comes from the ROM. |
 | `platform/draw.h` | The runtime switch for the render walk's drawing. |
+| `platform/world.c`, `world.h`, `state.ld` | Worlds: the game's state as one section, one copy per world (`docs/state.md`). |
+| `tools/state/` | The rewrite that routes every use of the state through the current world, and the initial values' pointer table. |
 | `tools/vendor.py` | The one-time import from the decomp, kept as a record. |
 | `tools/rom_stubs.py` | Names for the ROM's textures, without their pixels, for the build. |
 | `tools/n64stack/` | The N64 stack pointer model's table (`<version>.tsv`) and the tools that derive it from a decomp build. |

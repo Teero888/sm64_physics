@@ -4,9 +4,9 @@
 Gfx *geo_update_held_mario_pos(s32 run, UNUSED struct GraphNode *node, Mat4 mtx) {
     if (run == TRUE) {
         Mat4 sp20;
-        struct Object *obj = (struct Object *) gCurGraphNodeObject;
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
         if (obj->prevObj != NULL) {
-            create_transformation_from_matrices(sp20, mtx, *gCurGraphNodeCamera->matrixPtr);
+            create_transformation_from_matrices(sp20, mtx, *WORLD(gCurGraphNodeCamera)->matrixPtr);
             obj_update_pos_from_parent_transformation(sp20, obj->prevObj);
             obj_set_gfx_pos_from_pos(obj->prevObj);
         }
@@ -27,7 +27,7 @@ void king_bobomb_act_0(void) {
 
     if (o->oSubAction == 0) {
         cur_obj_become_intangible();
-        gSecondCameraFocus = o;
+        WORLD(gSecondCameraFocus) = o;
         cur_obj_init_animation_with_sound(5);
         cur_obj_set_pos_to_home();
         o->oHealth = 3;
@@ -44,7 +44,7 @@ void king_bobomb_act_0(void) {
 }
 
 s32 mario_is_far_below_object(f32 arg0) {
-    if (arg0 < o->oPosY - gMarioObject->oPosY) {
+    if (arg0 < o->oPosY - WORLD(gMarioObject)->oPosY) {
         return TRUE;
     } else {
         return FALSE;
@@ -363,8 +363,8 @@ void king_bobomb_move(void) {
         cur_obj_move_using_fvel_and_gravity();
     }
 
-    cur_obj_call_action_function(sKingBobombActions);
-    exec_anim_sound_state(sKingBobombSoundStates);
+    cur_obj_call_action_function(WORLD(sKingBobombActions));
+    exec_anim_sound_state(WORLD(sKingBobombSoundStates));
 
     if (o->oDistanceToMario < 5000.0f) {
         cur_obj_enable_rendering();

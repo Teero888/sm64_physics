@@ -45,8 +45,8 @@ void bhv_falling_pillar_spawn_hitboxes(void) {
 s16 bhv_falling_pillar_calculate_angle_in_front_of_mario(void) {
     // Calculate target to be 500 units in front of Mario in
     // the direction he is facing (angle[1] is yaw).
-    f32 targetX = sins(gMarioObject->header.gfx.angle[1]) * 500.0f + gMarioObject->header.gfx.pos[0];
-    f32 targetZ = coss(gMarioObject->header.gfx.angle[1]) * 500.0f + gMarioObject->header.gfx.pos[2];
+    f32 targetX = sins(WORLD(gMarioObject)->header.gfx.angle[1]) * 500.0f + WORLD(gMarioObject)->header.gfx.pos[0];
+    f32 targetZ = coss(WORLD(gMarioObject)->header.gfx.angle[1]) * 500.0f + WORLD(gMarioObject)->header.gfx.pos[2];
 
     // Calculate the angle to the target from the pillar's current location.
     return atan2s(targetZ - o->oPosZ, targetX - o->oPosX);
@@ -136,7 +136,7 @@ void bhv_falling_pillar_hitbox_loop(void) {
     o->oPosZ = sins(pitch) * coss(yaw) * yOffset + z;
 
     // Give these a hitbox so they can collide with Mario.
-    obj_set_hitbox(o, &sFallingPillarHitbox);
+    obj_set_hitbox(o, &WORLD(sFallingPillarHitbox));
 
     // When the pillar goes inactive, the hitboxes also go inactive.
     if (o->parentObj->activeFlags == ACTIVE_FLAG_DEACTIVATED) {

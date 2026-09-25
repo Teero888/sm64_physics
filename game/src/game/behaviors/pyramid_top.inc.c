@@ -144,7 +144,7 @@ void bhv_pyramid_top_fragment_loop(void) {
  */
 void bhv_pyramid_pillar_touch_detector_loop(void) {
     cur_obj_become_tangible();
-    if (obj_check_if_collided_with_object(o, gMarioObject) == TRUE) {
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         // Increase the pyramid top's count of pillars touched.
         o->parentObj->oPyramidTopPillarsTouched++;
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;

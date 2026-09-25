@@ -136,7 +136,7 @@ u8 sSkyboxColors[][3] = {
  *                 (the screen width)
  */
 s32 calculate_skybox_scaled_x(s8 player, f32 fov) {
-    f32 yaw = sSkyBoxInfo[player].yaw;
+    f32 yaw = WORLD(sSkyBoxInfo)[player].yaw;
 
     //! double literals are used instead of floats
     f32 yawScaled = SCREEN_WIDTH * 360.0 * yaw / (fov * 65536.0);
@@ -157,7 +157,7 @@ s32 calculate_skybox_scaled_x(s8 player, f32 fov) {
  */
 s32 calculate_skybox_scaled_y(s8 player, UNUSED f32 fov) {
     // Convert pitch to degrees. Pitch is bounded between -90 (looking down) and 90 (looking up).
-    f32 pitchInDegrees = (f32) sSkyBoxInfo[player].pitch * 360.0 / 65535.0;
+    f32 pitchInDegrees = (f32) WORLD(sSkyBoxInfo)[player].pitch * 360.0 / 65535.0;
 
     // Scale by 360 / fov
     f32 degreesToScale = 360.0f * pitchInDegrees / 90.0;
@@ -180,8 +180,8 @@ s32 calculate_skybox_scaled_y(s8 player, UNUSED f32 fov) {
  * Converts the upper left xPos and yPos to the index of the upper left tile in the skybox.
  */
 static s32 get_top_left_tile_idx(s8 player) {
-    s32 tileCol = sSkyBoxInfo[player].scaledX / SKYBOX_TILE_WIDTH;
-    s32 tileRow = (SKYBOX_HEIGHT - sSkyBoxInfo[player].scaledY) / SKYBOX_TILE_HEIGHT;
+    s32 tileCol = WORLD(sSkyBoxInfo)[player].scaledX / SKYBOX_TILE_WIDTH;
+    s32 tileRow = (SKYBOX_HEIGHT - WORLD(sSkyBoxInfo)[player].scaledY) / SKYBOX_TILE_HEIGHT;
 
     return tileRow * SKYBOX_COLS + tileCol;
 }
@@ -199,14 +199,14 @@ Vtx *make_skybox_rect(s32 tileIndex, s8 colorIndex) {
     s16 y = SKYBOX_HEIGHT - tileIndex / SKYBOX_COLS * SKYBOX_TILE_HEIGHT;
 
     if (verts != NULL) {
-        make_vertex(verts, 0, x, y, -1, 0, 0, sSkyboxColors[colorIndex][0], sSkyboxColors[colorIndex][1],
-                    sSkyboxColors[colorIndex][2], 255);
-        make_vertex(verts, 1, x, y - SKYBOX_TILE_HEIGHT, -1, 0, 31 << 5, sSkyboxColors[colorIndex][0], sSkyboxColors[colorIndex][1],
-                    sSkyboxColors[colorIndex][2], 255);
-        make_vertex(verts, 2, x + SKYBOX_TILE_WIDTH, y - SKYBOX_TILE_HEIGHT, -1, 31 << 5, 31 << 5, sSkyboxColors[colorIndex][0],
-                    sSkyboxColors[colorIndex][1], sSkyboxColors[colorIndex][2], 255);
-        make_vertex(verts, 3, x + SKYBOX_TILE_WIDTH, y, -1, 31 << 5, 0, sSkyboxColors[colorIndex][0], sSkyboxColors[colorIndex][1],
-                    sSkyboxColors[colorIndex][2], 255);
+        make_vertex(verts, 0, x, y, -1, 0, 0, WORLD(sSkyboxColors)[colorIndex][0], WORLD(sSkyboxColors)[colorIndex][1],
+                    WORLD(sSkyboxColors)[colorIndex][2], 255);
+        make_vertex(verts, 1, x, y - SKYBOX_TILE_HEIGHT, -1, 0, 31 << 5, WORLD(sSkyboxColors)[colorIndex][0], WORLD(sSkyboxColors)[colorIndex][1],
+                    WORLD(sSkyboxColors)[colorIndex][2], 255);
+        make_vertex(verts, 2, x + SKYBOX_TILE_WIDTH, y - SKYBOX_TILE_HEIGHT, -1, 31 << 5, 31 << 5, WORLD(sSkyboxColors)[colorIndex][0],
+                    WORLD(sSkyboxColors)[colorIndex][1], WORLD(sSkyboxColors)[colorIndex][2], 255);
+        make_vertex(verts, 3, x + SKYBOX_TILE_WIDTH, y, -1, 31 << 5, 0, WORLD(sSkyboxColors)[colorIndex][0], WORLD(sSkyboxColors)[colorIndex][1],
+                    WORLD(sSkyboxColors)[colorIndex][2], 255);
     } else {
     }
     return verts;
@@ -223,9 +223,9 @@ void draw_skybox_tile_grid(Gfx **dlist, s8 background, s8 player, s8 colorIndex)
 
     for (row = 0; row < 3; row++) {
         for (col = 0; col < 3; col++) {
-            s32 tileIndex = sSkyBoxInfo[player].upperLeftTile + row * SKYBOX_COLS + col;
+            s32 tileIndex = WORLD(sSkyBoxInfo)[player].upperLeftTile + row * SKYBOX_COLS + col;
             const u8 *const texture =
-                (*(SkyboxTexture *) segmented_to_virtual(sSkyboxTextures[background]))[tileIndex];
+                (*(SkyboxTexture *) segmented_to_virtual(WORLD(sSkyboxTextures)[background]))[tileIndex];
             Vtx *vertices = make_skybox_rect(tileIndex, colorIndex);
 
             gLoadBlockTexture((*dlist)++, 32, 32, G_IM_FMT_RGBA, texture);
@@ -236,10 +236,10 @@ void draw_skybox_tile_grid(Gfx **dlist, s8 background, s8 player, s8 colorIndex)
 }
 
 void *create_skybox_ortho_matrix(s8 player) {
-    f32 left = sSkyBoxInfo[player].scaledX;
-    f32 right = sSkyBoxInfo[player].scaledX + SCREEN_WIDTH;
-    f32 bottom = sSkyBoxInfo[player].scaledY - SCREEN_HEIGHT;
-    f32 top = sSkyBoxInfo[player].scaledY;
+    f32 left = WORLD(sSkyBoxInfo)[player].scaledX;
+    f32 right = WORLD(sSkyBoxInfo)[player].scaledX + SCREEN_WIDTH;
+    f32 bottom = WORLD(sSkyBoxInfo)[player].scaledY - SCREEN_HEIGHT;
+    f32 top = WORLD(sSkyBoxInfo)[player].scaledY;
     Mtx *mtx = alloc_display_list(sizeof(*mtx));
 
 #ifdef WIDESCREEN
@@ -304,18 +304,18 @@ Gfx *create_skybox_facing_camera(s8 player, s8 background, f32 fov,
 
     // If the "Plunder in the Sunken Ship" star in JRB is collected, make the sky darker and slightly green
     if (background == 8
-        && !(save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(COURSE_JRB)) & (1 << 0))) {
+        && !(save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(COURSE_JRB)) & (1 << 0))) {
         colorIndex = 0;
     }
 
     //! fov is always set to 90.0f. If this line is removed, then the game crashes because fov is 0 on
     //! the first frame, which causes a floating point divide by 0
     fov = 90.0f;
-    sSkyBoxInfo[player].yaw = atan2s(cameraFaceZ, cameraFaceX);
-    sSkyBoxInfo[player].pitch = atan2s(sqrtf(cameraFaceX * cameraFaceX + cameraFaceZ * cameraFaceZ), cameraFaceY);
-    sSkyBoxInfo[player].scaledX = calculate_skybox_scaled_x(player, fov);
-    sSkyBoxInfo[player].scaledY = calculate_skybox_scaled_y(player, fov);
-    sSkyBoxInfo[player].upperLeftTile = get_top_left_tile_idx(player);
+    WORLD(sSkyBoxInfo)[player].yaw = atan2s(cameraFaceZ, cameraFaceX);
+    WORLD(sSkyBoxInfo)[player].pitch = atan2s(sqrtf(cameraFaceX * cameraFaceX + cameraFaceZ * cameraFaceZ), cameraFaceY);
+    WORLD(sSkyBoxInfo)[player].scaledX = calculate_skybox_scaled_x(player, fov);
+    WORLD(sSkyBoxInfo)[player].scaledY = calculate_skybox_scaled_y(player, fov);
+    WORLD(sSkyBoxInfo)[player].upperLeftTile = get_top_left_tile_idx(player);
 
     return init_skybox_display_list(player, background, colorIndex);
 }

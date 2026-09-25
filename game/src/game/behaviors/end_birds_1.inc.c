@@ -23,7 +23,7 @@ void bhv_end_birds_1_loop(void) {
             if ((o->oEndBirdUnk104 == 0.0f) && (o->oTimer == 0)) {
                 cur_obj_play_sound_2(SOUND_GENERAL_BIRDS_FLY_AWAY);
             }
-            if (gCutsceneTimer == 0) {
+            if (WORLD(gCutsceneTimer) == 0) {
                 obj_mark_for_deletion(o);
             }
             break;

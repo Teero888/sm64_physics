@@ -100,7 +100,7 @@ void opened_cannon_act_1(void) {
     cur_obj_disable_rendering();
 
     o->oCannonUnk10C = FALSE;
-    gMarioShotFromCannon = TRUE;
+    WORLD(gMarioShotFromCannon) = TRUE;
 }
 
 void opened_cannon_act_2(void) {
@@ -125,7 +125,7 @@ void (*sOpenedCannonActions[])(void) = {
 };
 
 void bhv_cannon_base_loop(void) {
-    cur_obj_call_action_function(sOpenedCannonActions);
+    cur_obj_call_action_function(WORLD(sOpenedCannonActions));
 
     if (o->oCannonUnkF8 != 0) {
         o->oCannonUnkF8++;

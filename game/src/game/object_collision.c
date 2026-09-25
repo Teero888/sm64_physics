@@ -15,7 +15,7 @@ struct Object *debug_print_obj_collision(struct Object *a) {
     for (i = 0; i < a->numCollidedObjs; i++) {
         print_debug_top_down_objectinfo("ON", 0);
         sp24 = a->collidedObjs[i];
-        if (sp24 != gMarioObject) {
+        if (sp24 != WORLD(gMarioObject)) {
             return sp24;
         }
     }
@@ -33,7 +33,7 @@ struct Object *debug_print_obj_collision(struct Object *a) {
 // frame shorter than 2^32 CPU cycles. Once one test has found an overlap,
 // every later miss in the pass counts as a hit.
 static s32 sCollisionV0;
-#define RETURN_V0(value) return (sCollisionV0 = (value))
+#define RETURN_V0(value) return (WORLD(sCollisionV0) = (value))
 #else
 #define RETURN_V0(value) return (value)
 #endif
@@ -74,7 +74,7 @@ s32 detect_object_hitbox_overlap(struct Object *a, struct Object *b) {
 
     //! no return value
 #ifdef AVOID_UB
-    return sCollisionV0;
+    return WORLD(sCollisionV0);
 #endif
 }
 
@@ -87,7 +87,7 @@ s32 detect_object_hurtbox_overlap(struct Object *a, struct Object *b) {
     f32 sp28 = a->hurtboxRadius + b->hurtboxRadius;
     f32 sp24 = sqrtf(sp34 * sp34 + sp2C * sp2C);
 
-    if (a == gMarioObject) {
+    if (a == WORLD(gMarioObject)) {
         b->oInteractionSubtype |= INT_SUBTYPE_DELAY_INVINCIBILITY;
     }
 
@@ -101,7 +101,7 @@ s32 detect_object_hurtbox_overlap(struct Object *a, struct Object *b) {
         if (sp20 < sp38) {
             RETURN_V0(0);
         }
-        if (a == gMarioObject) {
+        if (a == WORLD(gMarioObject)) {
             b->oInteractionSubtype &= ~INT_SUBTYPE_DELAY_INVINCIBILITY;
         }
         RETURN_V0(1);
@@ -109,7 +109,7 @@ s32 detect_object_hurtbox_overlap(struct Object *a, struct Object *b) {
 
     //! no return value
 #ifdef AVOID_UB
-    return sCollisionV0;
+    return WORLD(sCollisionV0);
 #endif
 }
 
@@ -140,29 +140,29 @@ void check_collision_in_list(struct Object *a, struct Object *b, struct Object *
 }
 
 void check_player_object_collision(void) {
-    struct Object *sp1C = (struct Object *) &gObjectLists[OBJ_LIST_PLAYER];
+    struct Object *sp1C = (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PLAYER];
     struct Object *sp18 = (struct Object *) sp1C->header.next;
 
     while (sp18 != sp1C) {
         check_collision_in_list(sp18, (struct Object *) sp18->header.next, sp1C);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_POLELIKE].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_POLELIKE]);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_LEVEL].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_LEVEL]);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_GENACTOR].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_GENACTOR]);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_PUSHABLE].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_PUSHABLE]);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_SURFACE].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_SURFACE]);
-        check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_DESTRUCTIVE].next,
-                      (struct Object *) &gObjectLists[OBJ_LIST_DESTRUCTIVE]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_POLELIKE].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_POLELIKE]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_LEVEL].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_LEVEL]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_GENACTOR].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_GENACTOR]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_PUSHABLE].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PUSHABLE]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_SURFACE].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_SURFACE]);
+        check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_DESTRUCTIVE].next,
+                      (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_DESTRUCTIVE]);
         sp18 = (struct Object *) sp18->header.next;
     }
 }
 
 void check_pushable_object_collision(void) {
-    struct Object *sp1C = (struct Object *) &gObjectLists[OBJ_LIST_PUSHABLE];
+    struct Object *sp1C = (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PUSHABLE];
     struct Object *sp18 = (struct Object *) sp1C->header.next;
 
     while (sp18 != sp1C) {
@@ -172,18 +172,18 @@ void check_pushable_object_collision(void) {
 }
 
 void check_destructive_object_collision(void) {
-    struct Object *sp1C = (struct Object *) &gObjectLists[OBJ_LIST_DESTRUCTIVE];
+    struct Object *sp1C = (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_DESTRUCTIVE];
     struct Object *sp18 = (struct Object *) sp1C->header.next;
 
     while (sp18 != sp1C) {
         if (sp18->oDistanceToMario < 2000.0f && !(sp18->activeFlags & ACTIVE_FLAG_UNK9)) {
             check_collision_in_list(sp18, (struct Object *) sp18->header.next, sp1C);
-            check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_GENACTOR].next,
-                          (struct Object *) &gObjectLists[OBJ_LIST_GENACTOR]);
-            check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_PUSHABLE].next,
-                          (struct Object *) &gObjectLists[OBJ_LIST_PUSHABLE]);
-            check_collision_in_list(sp18, (struct Object *) gObjectLists[OBJ_LIST_SURFACE].next,
-                          (struct Object *) &gObjectLists[OBJ_LIST_SURFACE]);
+            check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_GENACTOR].next,
+                          (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_GENACTOR]);
+            check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_PUSHABLE].next,
+                          (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PUSHABLE]);
+            check_collision_in_list(sp18, (struct Object *) WORLD(gObjectLists)[OBJ_LIST_SURFACE].next,
+                          (struct Object *) &WORLD(gObjectLists)[OBJ_LIST_SURFACE]);
         }
         sp18 = (struct Object *) sp18->header.next;
     }
@@ -191,15 +191,15 @@ void check_destructive_object_collision(void) {
 
 void detect_object_collisions(void) {
 #ifdef AVOID_UB
-    sCollisionV0 = 0;
+    WORLD(sCollisionV0) = 0;
 #endif
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_POLELIKE]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_PLAYER]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_PUSHABLE]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_GENACTOR]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_LEVEL]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_SURFACE]);
-    clear_object_collision((struct Object *) &gObjectLists[OBJ_LIST_DESTRUCTIVE]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_POLELIKE]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PLAYER]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_PUSHABLE]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_GENACTOR]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_LEVEL]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_SURFACE]);
+    clear_object_collision((struct Object *) &WORLD(gObjectLists)[OBJ_LIST_DESTRUCTIVE]);
     check_player_object_collision();
     check_destructive_object_collision();
     check_pushable_object_collision();

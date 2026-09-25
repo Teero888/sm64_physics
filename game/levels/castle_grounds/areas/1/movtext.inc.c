@@ -29,7 +29,7 @@ static Movtex castle_grounds_movtex_lake_water_data[] = {
 };
 
 // 0x07010E80
-const struct MovtexQuadCollection castle_grounds_movtex_water[] = {
+struct MovtexQuadCollection castle_grounds_movtex_water[] = {
     {0, castle_grounds_movtex_moat_water_data},
     {1, castle_grounds_movtex_lake_water_data},
     {-1, NULL},

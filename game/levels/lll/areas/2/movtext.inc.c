@@ -35,7 +35,7 @@ static Movtex lll_movtex_volcano_floor_lava_data[] = {
     MOV_TEX_END(),
 };
 
-const struct MovtexQuadCollection lll_movtex_volcano_floor_lava[] = {
+struct MovtexQuadCollection lll_movtex_volcano_floor_lava[] = {
     {10, lll_movtex_volcano_floor_lava_data},
     {-1, NULL},
 };

@@ -30,7 +30,7 @@ void bhv_scuttlebug_loop(void) {
     cur_obj_update_floor_and_walls();
 
     if (o->oSubAction != 0
-        && cur_obj_set_hitbox_and_die_if_attacked(&sScuttlebugHitbox, SOUND_OBJ_DYING_ENEMY1,
+        && cur_obj_set_hitbox_and_die_if_attacked(&WORLD(sScuttlebugHitbox), SOUND_OBJ_DYING_ENEMY1,
                                                   o->oScuttlebugUnkF4)) {
         o->oSubAction = 3;
     }
@@ -59,7 +59,7 @@ void bhv_scuttlebug_loop(void) {
             } else {
                 if (o->oScuttlebugUnkF8 == 0) {
                     o->oScuttlebugUnkFC = 0;
-                    o->oAngleToMario = obj_angle_to_object(o, gMarioObject);
+                    o->oAngleToMario = obj_angle_to_object(o, WORLD(gMarioObject));
                     if (abs_angle_diff(o->oAngleToMario, o->oMoveAngleYaw) < 0x800) {
                         o->oScuttlebugUnkF8 = 1;
                         o->oVelY = 20.0f;

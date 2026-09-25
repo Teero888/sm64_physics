@@ -70,8 +70,8 @@ void bhv_blue_coin_switch_loop(void) {
         case BLUE_COIN_SWITCH_ACT_IDLE:
             // If Mario is on the switch and has ground-pounded,
             // recede and get ready to start ticking.
-            if (gMarioObject->platform == o) {
-                if (gMarioStates[0].action == ACT_GROUND_POUND_LAND) {
+            if (WORLD(gMarioObject)->platform == o) {
+                if (WORLD(gMarioStates)[0].action == ACT_GROUND_POUND_LAND) {
                     // Set to BLUE_COIN_SWITCH_ACT_RECEDING
                     o->oAction++;
 
@@ -99,7 +99,7 @@ void bhv_blue_coin_switch_loop(void) {
                 // Set to BLUE_COIN_SWITCH_ACT_TICKING
                 o->oAction++;
                 // ???
-                o->oPosY = gMarioObject->oPosY - 40.0f;
+                o->oPosY = WORLD(gMarioObject)->oPosY - 40.0f;
 
                 // Spawn particles. There's a function that calls this same function
                 // with the same arguments, spawn_mist_particles, why didn't they just call that?
@@ -116,9 +116,9 @@ void bhv_blue_coin_switch_loop(void) {
         case BLUE_COIN_SWITCH_ACT_TICKING:
             // Tick faster when the blue coins start blinking
             if (o->oTimer < 200) {
-                play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, WORLD(gGlobalSoundSource));
             } else {
-                play_sound(SOUND_GENERAL2_SWITCH_TICK_SLOW, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_SWITCH_TICK_SLOW, WORLD(gGlobalSoundSource));
             }
 
             // Delete the switch (which stops the sound) after the last coin is collected,

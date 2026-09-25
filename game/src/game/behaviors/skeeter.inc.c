@@ -28,7 +28,7 @@ static void skeeter_spawn_waves(void) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        spawn_object_relative_with_scale(0, D_80331C38[i].unk00, 0, D_80331C38[i].unk02, 0.8f, o,
+        spawn_object_relative_with_scale(0, WORLD(D_80331C38)[i].unk00, 0, WORLD(D_80331C38)[i].unk02, 0.8f, o,
                                          MODEL_IDLE_WATER_WAVE, bhvSkeeterWave);
     }
 }
@@ -154,7 +154,7 @@ void bhv_skeeter_update(void) {
             break;
     }
 
-    obj_check_attacks(&sSkeeterHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sSkeeterHitbox), o->oAction);
     cur_obj_move_standard(-78);
 }
 
@@ -164,5 +164,5 @@ void bhv_skeeter_wave_update(void) {
     }
 
     cur_obj_scale(o->header.gfx.scale[0]);
-    o->oAnimState = gGlobalTimer / 6;
+    o->oAnimState = WORLD(gGlobalTimer) / 6;
 }

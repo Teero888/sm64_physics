@@ -26,11 +26,11 @@ static u8 sTTCRotatingSolidInitialDelays[] = {
  * Init function for bhvTTCRotatingSolid.
  */
 void bhv_ttc_rotating_solid_init(void) {
-    o->collisionData = segmented_to_virtual(sTTCRotatingSolidCollisionModels[o->oBhvParams2ndByte]);
+    o->collisionData = segmented_to_virtual(WORLD(sTTCRotatingSolidCollisionModels)[o->oBhvParams2ndByte]);
 
     o->oTTCRotatingSolidNumSides = o->oBhvParams2ndByte == TTC_ROTATING_SOLID_BP_CUBE ? 4 : 3;
 
-    o->oTTCRotatingSolidRotationDelay = sTTCRotatingSolidInitialDelays[gTTCSpeedSetting];
+    o->oTTCRotatingSolidRotationDelay = WORLD(sTTCRotatingSolidInitialDelays)[WORLD(gTTCSpeedSetting)];
 }
 
 /**
@@ -39,7 +39,7 @@ void bhv_ttc_rotating_solid_init(void) {
  */
 void bhv_ttc_rotating_solid_update(void) {
     // 1. Wait out the rotation delay
-    if (gTTCSpeedSetting != TTC_SPEED_STOPPED && o->oTimer > o->oTTCRotatingSolidRotationDelay) {
+    if (WORLD(gTTCSpeedSetting) != TTC_SPEED_STOPPED && o->oTimer > o->oTTCRotatingSolidRotationDelay) {
         if (o->oTTCRotatingSolidSoundTimer != 0) {
             // 3. Play a sound after 6 frames
             if (--o->oTTCRotatingSolidSoundTimer == 0) {
@@ -61,7 +61,7 @@ void bhv_ttc_rotating_solid_update(void) {
                     (o->oTTCRotatingSolidNumTurns + 1) % o->oTTCRotatingSolidNumSides;
 
                 o->oTimer = 0;
-                if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+                if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
                     o->oTTCRotatingSolidRotationDelay = random_mod_offset(5, 20, 7);
                 }
             }

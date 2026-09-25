@@ -44,7 +44,7 @@ static Movtex thi_movtex_area1_mountain_top_water_data[] = {
 };
 
 // 0x0700E31C
-const struct MovtexQuadCollection thi_movtex_area1_water[] = {
+struct MovtexQuadCollection thi_movtex_area1_water[] = {
     {0, thi_movtex_area1_short_side_water_data},
     {1, thi_movtex_area1_large_side_water_data},
     {2, thi_movtex_area1_mountain_top_water_data},

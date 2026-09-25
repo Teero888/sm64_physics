@@ -13,7 +13,7 @@ static struct ObjectHitbox sCapHitbox = {
 };
 
 s32 cap_set_hitbox(void) {
-    obj_set_hitbox(o, &sCapHitbox);
+    obj_set_hitbox(o, &WORLD(sCapHitbox));
 
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
@@ -31,11 +31,11 @@ void cap_despawn(void) {
 }
 
 void cap_check_quicksand(void) {
-    if (sObjFloor == NULL) {
+    if (WORLD(sObjFloor) == NULL) {
         return;
     }
 
-    switch (sObjFloor->type) {
+    switch (WORLD(sObjFloor)->type) {
         case SURFACE_DEATH_PLANE:
             o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
             break;
@@ -51,8 +51,8 @@ void cap_check_quicksand(void) {
         case SURFACE_SHALLOW_MOVING_QUICKSAND:
         case SURFACE_MOVING_QUICKSAND:
             o->oAction = 11;
-            o->oMoveAngleYaw = (sObjFloor->force & 0xFF) << 8;
-            o->oForwardVel = 8 + 2 * (0 - ((sObjFloor->force & 0xFF00) >> 8));
+            o->oMoveAngleYaw = (WORLD(sObjFloor)->force & 0xFF) << 8;
+            o->oForwardVel = 8 + 2 * (0 - ((WORLD(sObjFloor)->force & 0xFF00) >> 8));
             break;
 
         case SURFACE_INSTANT_QUICKSAND:
@@ -62,8 +62,8 @@ void cap_check_quicksand(void) {
 
         case SURFACE_INSTANT_MOVING_QUICKSAND:
             o->oAction = 13;
-            o->oMoveAngleYaw = (sObjFloor->force & 0xFF) << 8;
-            o->oForwardVel = 8 + 2 * (0 - ((sObjFloor->force & 0xFF00) >> 8));
+            o->oMoveAngleYaw = (WORLD(sObjFloor)->force & 0xFF) << 8;
+            o->oForwardVel = 8 + 2 * (0 - ((WORLD(sObjFloor)->force & 0xFF00) >> 8));
             break;
     }
 }
@@ -208,7 +208,7 @@ void bhv_normal_cap_init(void) {
 void normal_cap_set_save_flags(void) {
     save_file_clear_flags(SAVE_FLAG_CAP_ON_GROUND);
 
-    switch (gCurrCourseNum) {
+    switch (WORLD(gCurrCourseNum)) {
         case COURSE_SSL:
             save_file_set_flags(SAVE_FLAG_CAP_ON_KLEPTO);
             break;

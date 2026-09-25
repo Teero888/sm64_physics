@@ -27,7 +27,7 @@ s32 bhv_coin_sparkles_init(void) {
 
 void bhv_yellow_coin_init(void) {
     cur_obj_set_behavior(bhvYellowCoin);
-    obj_set_hitbox(o, &sYellowCoinHitbox);
+    obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
     bhv_init_room();
     cur_obj_update_floor_height();
 
@@ -61,7 +61,7 @@ void bhv_spawned_coin_init(void) {
     o->oMoveAngleYaw = random_u16();
 
     cur_obj_set_behavior(bhvYellowCoin);
-    obj_set_hitbox(o, &sYellowCoinHitbox);
+    obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
     cur_obj_become_intangible();
 }
 
@@ -125,7 +125,7 @@ void bhv_spawned_coin_loop(void) {
 void bhv_coin_formation_spawn_loop(void) {
     if (o->oTimer == 0) {
         cur_obj_set_behavior(bhvYellowCoin);
-        obj_set_hitbox(o, &sYellowCoinHitbox);
+        obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
         bhv_init_room();
 
         if (o->oCoinOnGround) {
@@ -203,8 +203,8 @@ void spawn_coin_in_formation(s32 coinIndex, s32 coinFormationFlags) {
             break;
 
         case COIN_FORMATION_BP_ARROW:
-            pos[0] = sCoinArrowPositions[coinIndex][0];
-            pos[2] = sCoinArrowPositions[coinIndex][1];
+            pos[0] = WORLD(sCoinArrowPositions)[coinIndex][0];
+            pos[2] = WORLD(sCoinArrowPositions)[coinIndex][1];
             break;
     }
 
@@ -261,7 +261,7 @@ void coin_inside_boo_act_1(void) {
     }
 
     if (o->oTimer > 90 || (o->oMoveFlags & OBJ_MOVE_LANDED)) {
-        obj_set_hitbox(o, &sYellowCoinHitbox);
+        obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
         cur_obj_become_tangible();
         cur_obj_set_behavior(bhvYellowCoin);
     }
@@ -285,7 +285,7 @@ void coin_inside_boo_act_0(void) {
 
     cur_obj_become_intangible();
 
-    if (o->oTimer == 0 && gCurrLevelNum == LEVEL_BBH) {
+    if (o->oTimer == 0 && WORLD(gCurrLevelNum) == LEVEL_BBH) {
         cur_obj_set_model(MODEL_BLUE_COIN);
         cur_obj_scale(0.7f);
     }
@@ -294,7 +294,7 @@ void coin_inside_boo_act_0(void) {
 
     if (parent->oBooDeathStatus == BOO_DEATH_STATUS_DYING) {
         o->oAction = 1;
-        sp26 = gMarioObject->oMoveAngleYaw;
+        sp26 = WORLD(gMarioObject)->oMoveAngleYaw;
         sp20 = 3.0f;
         o->oVelX = sins(sp26) * sp20;
         o->oVelZ = coss(sp26) * sp20;
@@ -308,7 +308,7 @@ void (*sCoinInsideBooActions[])(void) = {
 };
 
 void bhv_coin_inside_boo_loop(void) {
-    cur_obj_call_action_function(sCoinInsideBooActions);
+    cur_obj_call_action_function(WORLD(sCoinInsideBooActions));
 }
 
 void bhv_coin_sparkles_loop(void) {

@@ -387,8 +387,8 @@ void process_notes(void) {
          ? it                                                                                          \
          : (it->prev->next = it->next, it->next->prev = it->prev, it->prev = NULL, it))
 
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        note = &gNotes[i];
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        note = &WORLD(gNotes)[i];
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
         playbackState = (struct NotePlaybackState *) &note->priority;
         if (note->parentLayer != NO_LAYER) {
@@ -570,7 +570,7 @@ void process_notes(void) {
                             if (note_init_for_layer(note, note->wantedParentLayer) == TRUE) {
                                 note_disable2(note);
                                 POP(&note->listItem);
-                                PREPEND(&note->listItem, &gNoteFreeLists.disabled);
+                                PREPEND(&note->listItem, &WORLD(gNoteFreeLists).disabled);
                             } else {
                                 note_vibrato_init(note);
                                 audio_list_push_back(&note->listItem.pool->active,
@@ -615,8 +615,8 @@ void process_notes(void) {
             scale = note->adsrVolScale;
             frequency *= note->vibratoFreqScale * note->portamentoFreqScale;
             cap = 3.99992f;
-            if (gAiFrequency != 32006) {
-                frequency *= US_FLOAT(32000.0) / (f32) gAiFrequency;
+            if (WORLD(gAiFrequency) != 32006) {
+                frequency *= US_FLOAT(32000.0) / (f32) WORLD(gAiFrequency);
             }
             frequency = (frequency < cap ? frequency : cap);
             scale *= 4.3498e-5f; // ~1 / 23000
@@ -770,7 +770,7 @@ void seq_channel_layer_decay_release_internal(struct SequenceChannelLayer *seqLa
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
             note->adsr.fadeOutVel = gAudioBufferParameters.updatesPerFrameInv;
 #else
-            note->adsr.fadeOutVel = 0x8000 / gAudioUpdatesPerFrame;
+            note->adsr.fadeOutVel = 0x8000 / WORLD(gAudioUpdatesPerFrame);
 #endif
             note->adsr.action |= ADSR_ACTION_RELEASE;
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -888,7 +888,7 @@ void build_synthetic_wave(struct Note *note, struct SequenceChannelLayer *seqLay
     note->instOrWave = (u8) seqLayer->seqChannel->instOrWave;
     for (i = -1, pos = 0; pos < 0x40; pos += stepSize) {
         i++;
-        note->synthesisBuffers->samples[i] = gWaveSamples[seqLayer->seqChannel->instOrWave - 0x80][pos];
+        note->synthesisBuffers->samples[i] = WORLD(gWaveSamples)[seqLayer->seqChannel->instOrWave - 0x80][pos];
     }
 
     // Repeat sample
@@ -955,11 +955,11 @@ void init_note_lists(struct NotePool *pool) {
 void init_note_free_list(void) {
     s32 i;
 
-    init_note_lists(&gNoteFreeLists);
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        gNotes[i].listItem.u.value = &gNotes[i];
-        gNotes[i].listItem.prev = NULL;
-        audio_list_push_back(&gNoteFreeLists.disabled, &gNotes[i].listItem);
+    init_note_lists(&WORLD(gNoteFreeLists));
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        WORLD(gNotes)[i].listItem.u.value = &WORLD(gNotes)[i];
+        WORLD(gNotes)[i].listItem.prev = NULL;
+        audio_list_push_back(&WORLD(gNoteFreeLists).disabled, &WORLD(gNotes)[i].listItem);
     }
 }
 
@@ -974,22 +974,22 @@ void note_pool_clear(struct NotePool *pool) {
         switch (i) {
             case 0:
                 source = &pool->disabled;
-                dest = &gNoteFreeLists.disabled;
+                dest = &WORLD(gNoteFreeLists).disabled;
                 break;
 
             case 1:
                 source = &pool->decaying;
-                dest = &gNoteFreeLists.decaying;
+                dest = &WORLD(gNoteFreeLists).decaying;
                 break;
 
             case 2:
                 source = &pool->releasing;
-                dest = &gNoteFreeLists.releasing;
+                dest = &WORLD(gNoteFreeLists).releasing;
                 break;
 
             case 3:
                 source = &pool->active;
-                dest = &gNoteFreeLists.active;
+                dest = &WORLD(gNoteFreeLists).active;
                 break;
         }
 
@@ -1016,7 +1016,7 @@ void note_pool_clear(struct NotePool *pool) {
             audio_list_remove(cur);
             audio_list_push_back(dest, cur);
             j++;
-        } while (j <= gMaxSimultaneousNotes);
+        } while (j <= WORLD(gMaxSimultaneousNotes));
 #endif
     }
 }
@@ -1038,22 +1038,22 @@ void note_pool_fill(struct NotePool *pool, s32 count) {
 
         switch (i) {
             case 0:
-                source = &gNoteFreeLists.disabled;
+                source = &WORLD(gNoteFreeLists).disabled;
                 dest = &pool->disabled;
                 break;
 
             case 1:
-                source = &gNoteFreeLists.decaying;
+                source = &WORLD(gNoteFreeLists).decaying;
                 dest = &pool->decaying;
                 break;
 
             case 2:
-                source = &gNoteFreeLists.releasing;
+                source = &WORLD(gNoteFreeLists).releasing;
                 dest = &pool->releasing;
                 break;
 
             case 3:
-                source = &gNoteFreeLists.active;
+                source = &WORLD(gNoteFreeLists).active;
                 dest = &pool->active;
                 break;
         }
@@ -1207,7 +1207,7 @@ void note_release_and_take_ownership(struct Note *note, struct SequenceChannelLa
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
     note->adsr.fadeOutVel = gAudioBufferParameters.updatesPerFrameInv;
 #else
-    note->adsr.fadeOutVel = 0x8000 / gAudioUpdatesPerFrame;
+    note->adsr.fadeOutVel = 0x8000 / WORLD(gAudioUpdatesPerFrame);
 #endif
     note->adsr.action |= ADSR_ACTION_RELEASE;
 }
@@ -1219,7 +1219,7 @@ struct Note *alloc_note_from_disabled(struct NotePool *pool, struct SequenceChan
         note_init_for_layer(note, seqLayer);
 #else
         if (note_init_for_layer(note, seqLayer) == TRUE) {
-            audio_list_push_front(&gNoteFreeLists.disabled, &note->listItem);
+            audio_list_push_front(&WORLD(gNoteFreeLists).disabled, &note->listItem);
             return NULL;
         }
 #endif
@@ -1302,7 +1302,7 @@ struct Note *alloc_note(struct SequenceChannelLayer *seqLayer) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
             audio_list_push_back(&ret->listItem.pool->releasing, &ret->listItem);
 #else
-            audio_list_push_back(&gNoteFreeLists.releasing, &ret->listItem);
+            audio_list_push_back(&WORLD(gNoteFreeLists).releasing, &ret->listItem);
 #endif
             return ret;
         }
@@ -1342,9 +1342,9 @@ struct Note *alloc_note(struct SequenceChannelLayer *seqLayer) {
     }
 
     if (policy & NOTE_ALLOC_GLOBAL_FREELIST) {
-        if (!(ret = alloc_note_from_disabled(&gNoteFreeLists, seqLayer))
-            && !(ret = alloc_note_from_decaying(&gNoteFreeLists, seqLayer))
-            && !(ret = alloc_note_from_active(&gNoteFreeLists, seqLayer))) {
+        if (!(ret = alloc_note_from_disabled(&WORLD(gNoteFreeLists), seqLayer))
+            && !(ret = alloc_note_from_decaying(&WORLD(gNoteFreeLists), seqLayer))
+            && !(ret = alloc_note_from_active(&WORLD(gNoteFreeLists), seqLayer))) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
             goto null_return;
 #else
@@ -1358,13 +1358,13 @@ struct Note *alloc_note(struct SequenceChannelLayer *seqLayer) {
 
     if (!(ret = alloc_note_from_disabled(&seqLayer->seqChannel->notePool, seqLayer))
         && !(ret = alloc_note_from_disabled(&seqLayer->seqChannel->seqPlayer->notePool, seqLayer))
-        && !(ret = alloc_note_from_disabled(&gNoteFreeLists, seqLayer))
+        && !(ret = alloc_note_from_disabled(&WORLD(gNoteFreeLists), seqLayer))
         && !(ret = alloc_note_from_decaying(&seqLayer->seqChannel->notePool, seqLayer))
         && !(ret = alloc_note_from_decaying(&seqLayer->seqChannel->seqPlayer->notePool, seqLayer))
-        && !(ret = alloc_note_from_decaying(&gNoteFreeLists, seqLayer))
+        && !(ret = alloc_note_from_decaying(&WORLD(gNoteFreeLists), seqLayer))
         && !(ret = alloc_note_from_active(&seqLayer->seqChannel->notePool, seqLayer))
         && !(ret = alloc_note_from_active(&seqLayer->seqChannel->seqPlayer->notePool, seqLayer))
-        && !(ret = alloc_note_from_active(&gNoteFreeLists, seqLayer))) {
+        && !(ret = alloc_note_from_active(&WORLD(gNoteFreeLists), seqLayer))) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
         goto null_return;
 #else
@@ -1388,14 +1388,14 @@ void reclaim_notes(void) {
     s32 i;
     s32 cond;
 
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        note = &gNotes[i];
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        note = &WORLD(gNotes)[i];
         if (note->parentLayer != NO_LAYER) {
             cond = FALSE;
             if (!note->parentLayer->enabled && note->priority >= NOTE_PRIORITY_MIN) {
                 cond = TRUE;
             } else if (note->parentLayer->seqChannel == NULL) {
-                audio_list_push_back(&gLayerFreeList, &note->parentLayer->listItem);
+                audio_list_push_back(&WORLD(gLayerFreeList), &note->parentLayer->listItem);
                 seq_channel_layer_disable(note->parentLayer);
                 note->priority = NOTE_PRIORITY_STOPPING;
             } else if (note->parentLayer->seqChannel->seqPlayer == NULL) {
@@ -1425,8 +1425,8 @@ void note_init_all(void) {
     struct Note *note;
     s32 i;
 
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        note = &gNotes[i];
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        note = &WORLD(gNotes)[i];
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
         note->noteSubEu = gZeroNoteSub;
 #else
@@ -1466,7 +1466,7 @@ void note_init_all(void) {
 #elif defined(VERSION_EU)
         note->synthesisState.synthesisBuffers = soundAlloc(&gNotesAndBuffersPool, sizeof(struct NoteSynthesisBuffers));
 #else
-        note->synthesisBuffers = soundAlloc(&gNotesAndBuffersPool, sizeof(struct NoteSynthesisBuffers));
+        note->synthesisBuffers = soundAlloc(&WORLD(gNotesAndBuffersPool), sizeof(struct NoteSynthesisBuffers));
 #endif
     }
 }

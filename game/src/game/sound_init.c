@@ -80,7 +80,7 @@ void play_menu_sounds_extra(s32 a, void *b);
  * Called from threads: thread5_game_loop
  */
 void reset_volume(void) {
-    sMusicVolume = 0;
+    WORLD(sMusicVolume) = 0;
 }
 
 /**
@@ -95,7 +95,7 @@ void lower_background_noise(s32 a) {
             seq_player_lower_volume(SEQ_PLAYER_LEVEL, 60, 40);
             break;
     }
-    sMusicVolume |= a;
+    WORLD(sMusicVolume) |= a;
 }
 
 /**
@@ -110,15 +110,15 @@ void raise_background_noise(s32 a) {
             seq_player_unlower_volume(SEQ_PLAYER_LEVEL, 60);
             break;
     }
-    sMusicVolume &= ~a;
+    WORLD(sMusicVolume) &= ~a;
 }
 
 /**
  * Called from threads: thread5_game_loop
  */
 void disable_background_sound(void) {
-    if (sBgMusicDisabled == FALSE) {
-        sBgMusicDisabled = TRUE;
+    if (WORLD(sBgMusicDisabled) == FALSE) {
+        WORLD(sBgMusicDisabled) = TRUE;
         sound_banks_disable(SEQ_PLAYER_SFX, SOUND_BANKS_BACKGROUND);
     }
 }
@@ -127,8 +127,8 @@ void disable_background_sound(void) {
  * Called from threads: thread5_game_loop
  */
 void enable_background_sound(void) {
-    if (sBgMusicDisabled == TRUE) {
-        sBgMusicDisabled = FALSE;
+    if (WORLD(sBgMusicDisabled) == TRUE) {
+        WORLD(sBgMusicDisabled) = FALSE;
         sound_banks_enable(SEQ_PLAYER_SFX, SOUND_BANKS_BACKGROUND);
     }
 }
@@ -140,7 +140,7 @@ void enable_background_sound(void) {
  */
 void set_sound_mode(u16 soundMode) {
     if (soundMode < 3) {
-        audio_set_sound_mode(sSoundMenuModeToSoundMode[soundMode]);
+        audio_set_sound_mode(WORLD(sSoundMenuModeToSoundMode)[soundMode]);
     }
 }
 
@@ -151,21 +151,21 @@ void set_sound_mode(u16 soundMode) {
  */
 void play_menu_sounds(s16 soundMenuFlags) {
     if (soundMenuFlags & SOUND_MENU_FLAG_HANDAPPEAR) {
-        play_sound(SOUND_MENU_HAND_APPEAR, gGlobalSoundSource);
+        play_sound(SOUND_MENU_HAND_APPEAR, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_HANDISAPPEAR) {
-        play_sound(SOUND_MENU_HAND_DISAPPEAR, gGlobalSoundSource);
+        play_sound(SOUND_MENU_HAND_DISAPPEAR, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_UNKNOWN1) {
-        play_sound(SOUND_MENU_UNK0C, gGlobalSoundSource);
+        play_sound(SOUND_MENU_UNK0C, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_PINCHMARIOFACE) {
-        play_sound(SOUND_MENU_PINCH_MARIO_FACE, gGlobalSoundSource);
+        play_sound(SOUND_MENU_PINCH_MARIO_FACE, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_PINCHMARIOFACE2) {
-        play_sound(SOUND_MENU_PINCH_MARIO_FACE, gGlobalSoundSource);
+        play_sound(SOUND_MENU_PINCH_MARIO_FACE, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_LETGOMARIOFACE) {
-        play_sound(SOUND_MENU_LET_GO_MARIO_FACE, gGlobalSoundSource);
+        play_sound(SOUND_MENU_LET_GO_MARIO_FACE, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_CAMERAZOOMIN) {
-        play_sound(SOUND_MENU_CAMERA_ZOOM_IN, gGlobalSoundSource);
+        play_sound(SOUND_MENU_CAMERA_ZOOM_IN, WORLD(gGlobalSoundSource));
     } else if (soundMenuFlags & SOUND_MENU_FLAG_CAMERAZOOMOUT) {
-        play_sound(SOUND_MENU_CAMERA_ZOOM_OUT, gGlobalSoundSource);
+        play_sound(SOUND_MENU_CAMERA_ZOOM_OUT, WORLD(gGlobalSoundSource));
     }
 
     if (soundMenuFlags & 0x100) {
@@ -184,15 +184,15 @@ void play_menu_sounds(s16 soundMenuFlags) {
  * Called from threads: thread5_game_loop
  */
 void play_painting_eject_sound(void) {
-    if (gRipplingPainting != NULL && gRipplingPainting->state == PAINTING_ENTERED) {
+    if (WORLD(gRipplingPainting) != NULL && WORLD(gRipplingPainting)->state == PAINTING_ENTERED) {
         // ripple when Mario enters painting
-        if (!sPaintingEjectSoundPlayed) {
+        if (!WORLD(sPaintingEjectSoundPlayed)) {
             play_sound(SOUND_GENERAL_PAINTING_EJECT,
-                       gMarioStates[0].marioObj->header.gfx.cameraToObject);
+                       WORLD(gMarioStates)[0].marioObj->header.gfx.cameraToObject);
         }
-        sPaintingEjectSoundPlayed = TRUE;
+        WORLD(sPaintingEjectSoundPlayed) = TRUE;
     } else {
-        sPaintingEjectSoundPlayed = FALSE;
+        WORLD(sPaintingEjectSoundPlayed) = FALSE;
     }
 }
 
@@ -203,16 +203,16 @@ void play_infinite_stairs_music(void) {
     u8 shouldPlay = FALSE;
 
     /* Infinite stairs? */
-    if (gCurrLevelNum == LEVEL_CASTLE && gCurrAreaIndex == 2 && gMarioState->numStars < 70) {
-        if (gMarioState->floor != NULL && gMarioState->floor->room == 6) {
-            if (gMarioState->pos[2] < 2540.0f) {
+    if (WORLD(gCurrLevelNum) == LEVEL_CASTLE && WORLD(gCurrAreaIndex) == 2 && WORLD(gMarioState)->numStars < 70) {
+        if (WORLD(gMarioState)->floor != NULL && WORLD(gMarioState)->floor->room == 6) {
+            if (WORLD(gMarioState)->pos[2] < 2540.0f) {
                 shouldPlay = TRUE;
             }
         }
     }
 
-    if (sPlayingInfiniteStairs ^ shouldPlay) {
-        sPlayingInfiniteStairs = shouldPlay;
+    if (WORLD(sPlayingInfiniteStairs) ^ shouldPlay) {
+        WORLD(sPlayingInfiniteStairs) = shouldPlay;
         if (shouldPlay) {
             play_secondary_music(SEQ_EVENT_ENDLESS_STAIRS, 0, 255, 1000);
         } else {
@@ -225,16 +225,16 @@ void play_infinite_stairs_music(void) {
  * Called from threads: thread5_game_loop
  */
 void set_background_music(u16 a, u16 seqArgs, s16 fadeTimer) {
-    if (gResetTimer == 0 && seqArgs != sCurrentMusic) {
-        if (gCurrCreditsEntry != NULL) {
+    if (WORLD(gResetTimer) == 0 && seqArgs != WORLD(sCurrentMusic)) {
+        if (WORLD(gCurrCreditsEntry) != NULL) {
             sound_reset(7);
         } else {
             sound_reset(a);
         }
 
-        if (!gNeverEnteredCastle || seqArgs != SEQ_LEVEL_INSIDE_CASTLE) {
+        if (!WORLD(gNeverEnteredCastle) || seqArgs != SEQ_LEVEL_INSIDE_CASTLE) {
             play_music(SEQ_PLAYER_LEVEL, seqArgs, fadeTimer);
-            sCurrentMusic = seqArgs;
+            WORLD(sCurrentMusic) = seqArgs;
         }
     }
 }
@@ -244,9 +244,9 @@ void set_background_music(u16 a, u16 seqArgs, s16 fadeTimer) {
  */
 void fadeout_music(s16 fadeOutTime) {
     func_803210D4(fadeOutTime);
-    sCurrentMusic = MUSIC_NONE;
-    sCurrentShellMusic = MUSIC_NONE;
-    sCurrentCapMusic = MUSIC_NONE;
+    WORLD(sCurrentMusic) = MUSIC_NONE;
+    WORLD(sCurrentShellMusic) = MUSIC_NONE;
+    WORLD(sCurrentCapMusic) = MUSIC_NONE;
 }
 
 /**
@@ -254,9 +254,9 @@ void fadeout_music(s16 fadeOutTime) {
  */
 void fadeout_level_music(s16 fadeTimer) {
     seq_player_fade_out(SEQ_PLAYER_LEVEL, fadeTimer);
-    sCurrentMusic = MUSIC_NONE;
-    sCurrentShellMusic = MUSIC_NONE;
-    sCurrentCapMusic = MUSIC_NONE;
+    WORLD(sCurrentMusic) = MUSIC_NONE;
+    WORLD(sCurrentShellMusic) = MUSIC_NONE;
+    WORLD(sCurrentCapMusic) = MUSIC_NONE;
 }
 
 /**
@@ -264,7 +264,7 @@ void fadeout_level_music(s16 fadeTimer) {
  */
 void play_cutscene_music(u16 seqArgs) {
     play_music(SEQ_PLAYER_LEVEL, seqArgs, 0);
-    sCurrentMusic = seqArgs;
+    WORLD(sCurrentMusic) = seqArgs;
 }
 
 /**
@@ -272,16 +272,16 @@ void play_cutscene_music(u16 seqArgs) {
  */
 void play_shell_music(void) {
     play_music(SEQ_PLAYER_LEVEL, SEQUENCE_ARGS(4, SEQ_EVENT_POWERUP | SEQ_VARIATION), 0);
-    sCurrentShellMusic = SEQUENCE_ARGS(4, SEQ_EVENT_POWERUP | SEQ_VARIATION);
+    WORLD(sCurrentShellMusic) = SEQUENCE_ARGS(4, SEQ_EVENT_POWERUP | SEQ_VARIATION);
 }
 
 /**
  * Called from threads: thread5_game_loop
  */
 void stop_shell_music(void) {
-    if (sCurrentShellMusic != MUSIC_NONE) {
-        stop_background_music(sCurrentShellMusic);
-        sCurrentShellMusic = MUSIC_NONE;
+    if (WORLD(sCurrentShellMusic) != MUSIC_NONE) {
+        stop_background_music(WORLD(sCurrentShellMusic));
+        WORLD(sCurrentShellMusic) = MUSIC_NONE;
     }
 }
 
@@ -290,18 +290,18 @@ void stop_shell_music(void) {
  */
 void play_cap_music(u16 seqArgs) {
     play_music(SEQ_PLAYER_LEVEL, seqArgs, 0);
-    if (sCurrentCapMusic != MUSIC_NONE && sCurrentCapMusic != seqArgs) {
-        stop_background_music(sCurrentCapMusic);
+    if (WORLD(sCurrentCapMusic) != MUSIC_NONE && WORLD(sCurrentCapMusic) != seqArgs) {
+        stop_background_music(WORLD(sCurrentCapMusic));
     }
-    sCurrentCapMusic = seqArgs;
+    WORLD(sCurrentCapMusic) = seqArgs;
 }
 
 /**
  * Called from threads: thread5_game_loop
  */
 void fadeout_cap_music(void) {
-    if (sCurrentCapMusic != MUSIC_NONE) {
-        fadeout_background_music(sCurrentCapMusic, 600);
+    if (WORLD(sCurrentCapMusic) != MUSIC_NONE) {
+        fadeout_background_music(WORLD(sCurrentCapMusic), 600);
     }
 }
 
@@ -309,9 +309,9 @@ void fadeout_cap_music(void) {
  * Called from threads: thread5_game_loop
  */
 void stop_cap_music(void) {
-    if (sCurrentCapMusic != MUSIC_NONE) {
-        stop_background_music(sCurrentCapMusic);
-        sCurrentCapMusic = MUSIC_NONE;
+    if (WORLD(sCurrentCapMusic) != MUSIC_NONE) {
+        stop_background_music(WORLD(sCurrentCapMusic));
+        WORLD(sCurrentCapMusic) = MUSIC_NONE;
     }
 }
 
@@ -319,7 +319,7 @@ void stop_cap_music(void) {
  * Called from threads: thread5_game_loop
  */
 void play_menu_sounds_extra(s32 a, void *b) {
-    play_sound(sMenuSoundsExtra[a], b);
+    play_sound(WORLD(sMenuSoundsExtra)[a], b);
 }
 
 /**
@@ -337,16 +337,16 @@ void thread4_sound(UNUSED void *arg) {
     sound_init();
 
     // Zero-out unused vector
-    vec3f_copy(unused80339DC0, gVec3fZero);
+    vec3f_copy(WORLD(unused80339DC0), WORLD(gVec3fZero));
 
-    osCreateMesgQueue(&sSoundMesgQueue, sSoundMesgBuf, ARRAY_COUNT(sSoundMesgBuf));
-    set_vblank_handler(1, &sSoundVblankHandler, &sSoundMesgQueue, (OSMesg) 512);
+    osCreateMesgQueue(&WORLD(sSoundMesgQueue), WORLD(sSoundMesgBuf), ARRAY_COUNT(WORLD(sSoundMesgBuf)));
+    set_vblank_handler(1, &WORLD(sSoundVblankHandler), &WORLD(sSoundMesgQueue), (OSMesg) 512);
 
     while (TRUE) {
         OSMesg msg;
 
-        osRecvMesg(&sSoundMesgQueue, &msg, OS_MESG_BLOCK);
-        if (gResetTimer < 25) {
+        osRecvMesg(&WORLD(sSoundMesgQueue), &msg, OS_MESG_BLOCK);
+        if (WORLD(gResetTimer) < 25) {
             struct SPTask *spTask;
             profiler_log_thread4_time();
             spTask = create_next_audio_frame_task();

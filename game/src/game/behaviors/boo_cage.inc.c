@@ -28,7 +28,7 @@ static struct ObjectHitbox sBooCageHitbox = {
 void bhv_boo_cage_loop(void) {
     UNUSED u8 filler[4];
 
-    obj_set_hitbox(o, &sBooCageHitbox);
+    obj_set_hitbox(o, &WORLD(sBooCageHitbox));
 
     switch (o->oAction) {
         case BOO_CAGE_ACT_IN_BOO:
@@ -89,7 +89,7 @@ void bhv_boo_cage_loop(void) {
             cur_obj_scale(1.0f);
 
             // Set the action to BOO_CAGE_ACT_MARIO_JUMPING_IN when Mario jumps in.
-            if (obj_check_if_collided_with_object(o, gMarioObject)) {
+            if (obj_check_if_collided_with_object(o, WORLD(gMarioObject))) {
                 o->oAction++;
             }
 

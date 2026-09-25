@@ -224,40 +224,40 @@ struct ParticleProperties sParticleTypes[] = {
 void copy_mario_state_to_object(void) {
     s32 i = 0;
     // L is real
-    if (gCurrentObject != gMarioObject) {
+    if (WORLD(gCurrentObject) != WORLD(gMarioObject)) {
         i++;
     }
 
-    gCurrentObject->oVelX = gMarioStates[i].vel[0];
-    gCurrentObject->oVelY = gMarioStates[i].vel[1];
-    gCurrentObject->oVelZ = gMarioStates[i].vel[2];
+    WORLD(gCurrentObject)->oVelX = WORLD(gMarioStates)[i].vel[0];
+    WORLD(gCurrentObject)->oVelY = WORLD(gMarioStates)[i].vel[1];
+    WORLD(gCurrentObject)->oVelZ = WORLD(gMarioStates)[i].vel[2];
 
-    gCurrentObject->oPosX = gMarioStates[i].pos[0];
-    gCurrentObject->oPosY = gMarioStates[i].pos[1];
-    gCurrentObject->oPosZ = gMarioStates[i].pos[2];
+    WORLD(gCurrentObject)->oPosX = WORLD(gMarioStates)[i].pos[0];
+    WORLD(gCurrentObject)->oPosY = WORLD(gMarioStates)[i].pos[1];
+    WORLD(gCurrentObject)->oPosZ = WORLD(gMarioStates)[i].pos[2];
 
-    gCurrentObject->oMoveAnglePitch = gCurrentObject->header.gfx.angle[0];
-    gCurrentObject->oMoveAngleYaw = gCurrentObject->header.gfx.angle[1];
-    gCurrentObject->oMoveAngleRoll = gCurrentObject->header.gfx.angle[2];
+    WORLD(gCurrentObject)->oMoveAnglePitch = WORLD(gCurrentObject)->header.gfx.angle[0];
+    WORLD(gCurrentObject)->oMoveAngleYaw = WORLD(gCurrentObject)->header.gfx.angle[1];
+    WORLD(gCurrentObject)->oMoveAngleRoll = WORLD(gCurrentObject)->header.gfx.angle[2];
 
-    gCurrentObject->oFaceAnglePitch = gCurrentObject->header.gfx.angle[0];
-    gCurrentObject->oFaceAngleYaw = gCurrentObject->header.gfx.angle[1];
-    gCurrentObject->oFaceAngleRoll = gCurrentObject->header.gfx.angle[2];
+    WORLD(gCurrentObject)->oFaceAnglePitch = WORLD(gCurrentObject)->header.gfx.angle[0];
+    WORLD(gCurrentObject)->oFaceAngleYaw = WORLD(gCurrentObject)->header.gfx.angle[1];
+    WORLD(gCurrentObject)->oFaceAngleRoll = WORLD(gCurrentObject)->header.gfx.angle[2];
 
-    gCurrentObject->oAngleVelPitch = gMarioStates[i].angleVel[0];
-    gCurrentObject->oAngleVelYaw = gMarioStates[i].angleVel[1];
-    gCurrentObject->oAngleVelRoll = gMarioStates[i].angleVel[2];
+    WORLD(gCurrentObject)->oAngleVelPitch = WORLD(gMarioStates)[i].angleVel[0];
+    WORLD(gCurrentObject)->oAngleVelYaw = WORLD(gMarioStates)[i].angleVel[1];
+    WORLD(gCurrentObject)->oAngleVelRoll = WORLD(gMarioStates)[i].angleVel[2];
 }
 
 /**
  * Spawn a particle at gCurrentObject's location.
  */
 void spawn_particle(u32 activeParticleFlag, s16 model, const BehaviorScript *behavior) {
-    if (!(gCurrentObject->oActiveParticleFlags & activeParticleFlag)) {
+    if (!(WORLD(gCurrentObject)->oActiveParticleFlags & activeParticleFlag)) {
         struct Object *particle;
-        gCurrentObject->oActiveParticleFlags |= activeParticleFlag;
-        particle = spawn_object_at_origin(gCurrentObject, 0, model, behavior);
-        obj_copy_pos_and_angle(particle, gCurrentObject);
+        WORLD(gCurrentObject)->oActiveParticleFlags |= activeParticleFlag;
+        particle = spawn_object_at_origin(WORLD(gCurrentObject), 0, model, behavior);
+        obj_copy_pos_and_angle(particle, WORLD(gCurrentObject));
     }
 }
 
@@ -268,18 +268,18 @@ void bhv_mario_update(void) {
     u32 particleFlags = 0;
     s32 i;
 
-    particleFlags = execute_mario_action(gCurrentObject);
-    gCurrentObject->oMarioParticleFlags = particleFlags;
+    particleFlags = execute_mario_action(WORLD(gCurrentObject));
+    WORLD(gCurrentObject)->oMarioParticleFlags = particleFlags;
 
     // Mario code updates MarioState's versions of position etc, so we need
     // to sync it with the Mario object
     copy_mario_state_to_object();
 
     i = 0;
-    while (sParticleTypes[i].particleFlag != 0) {
-        if (particleFlags & sParticleTypes[i].particleFlag) {
-            spawn_particle(sParticleTypes[i].activeParticleFlag, sParticleTypes[i].model,
-                           sParticleTypes[i].behavior);
+    while (WORLD(sParticleTypes)[i].particleFlag != 0) {
+        if (particleFlags & WORLD(sParticleTypes)[i].particleFlag) {
+            spawn_particle(WORLD(sParticleTypes)[i].activeParticleFlag, WORLD(sParticleTypes)[i].model,
+                           WORLD(sParticleTypes)[i].behavior);
         }
 
         i++;
@@ -294,9 +294,9 @@ s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *fi
     s32 count = 0;
 
     while (objList != firstObj) {
-        gCurrentObject = (struct Object *) firstObj;
+        WORLD(gCurrentObject) = (struct Object *) firstObj;
 
-        gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_HAS_ANIMATION;
+        WORLD(gCurrentObject)->header.gfx.node.flags |= GRAPH_RENDER_HAS_ANIMATION;
         cur_obj_update();
 
         firstObj = firstObj->next;
@@ -320,22 +320,22 @@ s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNod
     s32 unfrozen;
 
     while (objList != firstObj) {
-        gCurrentObject = (struct Object *) firstObj;
+        WORLD(gCurrentObject) = (struct Object *) firstObj;
 
         unfrozen = FALSE;
 
         // Selectively unfreeze certain objects
-        if (!(gTimeStopState & TIME_STOP_ALL_OBJECTS)) {
-            if (gCurrentObject == gMarioObject && !(gTimeStopState & TIME_STOP_MARIO_AND_DOORS)) {
+        if (!(WORLD(gTimeStopState) & TIME_STOP_ALL_OBJECTS)) {
+            if (WORLD(gCurrentObject) == WORLD(gMarioObject) && !(WORLD(gTimeStopState) & TIME_STOP_MARIO_AND_DOORS)) {
                 unfrozen = TRUE;
             }
 
-            if ((gCurrentObject->oInteractType & (INTERACT_DOOR | INTERACT_WARP_DOOR))
-                && !(gTimeStopState & TIME_STOP_MARIO_AND_DOORS)) {
+            if ((WORLD(gCurrentObject)->oInteractType & (INTERACT_DOOR | INTERACT_WARP_DOOR))
+                && !(WORLD(gTimeStopState) & TIME_STOP_MARIO_AND_DOORS)) {
                 unfrozen = TRUE;
             }
 
-            if (gCurrentObject->activeFlags
+            if (WORLD(gCurrentObject)->activeFlags
                 & (ACTIVE_FLAG_UNIMPORTANT | ACTIVE_FLAG_INITIATED_TIME_STOP)) {
                 unfrozen = TRUE;
             }
@@ -343,10 +343,10 @@ s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNod
 
         // Only update if unfrozen
         if (unfrozen) {
-            gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_HAS_ANIMATION;
+            WORLD(gCurrentObject)->header.gfx.node.flags |= GRAPH_RENDER_HAS_ANIMATION;
             cur_obj_update();
         } else {
-            gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_HAS_ANIMATION;
+            WORLD(gCurrentObject)->header.gfx.node.flags &= ~GRAPH_RENDER_HAS_ANIMATION;
         }
 
         firstObj = firstObj->next;
@@ -364,7 +364,7 @@ s32 update_objects_in_list(struct ObjectNode *objList) {
     s32 count;
     struct ObjectNode *firstObj = objList->next;
 
-    if (!(gTimeStopState & TIME_STOP_ACTIVE)) {
+    if (!(WORLD(gTimeStopState) & TIME_STOP_ACTIVE)) {
         count = update_objects_starting_at(objList, firstObj);
     } else {
         count = update_objects_during_time_stop(objList, firstObj);
@@ -380,18 +380,18 @@ s32 unload_deactivated_objects_in_list(struct ObjectNode *objList) {
     struct ObjectNode *obj = objList->next;
 
     while (objList != obj) {
-        gCurrentObject = (struct Object *) obj;
+        WORLD(gCurrentObject) = (struct Object *) obj;
 
         obj = obj->next;
 
-        if ((gCurrentObject->activeFlags & ACTIVE_FLAG_ACTIVE) != ACTIVE_FLAG_ACTIVE) {
+        if ((WORLD(gCurrentObject)->activeFlags & ACTIVE_FLAG_ACTIVE) != ACTIVE_FLAG_ACTIVE) {
             // Prevent object from respawning after exiting and re-entering the
             // area
-            if (!(gCurrentObject->oFlags & OBJ_FLAG_PERSISTENT_RESPAWN)) {
-                set_object_respawn_info_bits(gCurrentObject, RESPAWN_INFO_DONT_RESPAWN);
+            if (!(WORLD(gCurrentObject)->oFlags & OBJ_FLAG_PERSISTENT_RESPAWN)) {
+                set_object_respawn_info_bits(WORLD(gCurrentObject), RESPAWN_INFO_DONT_RESPAWN);
             }
 
-            unload_object(gCurrentObject);
+            unload_object(WORLD(gCurrentObject));
         }
     }
 
@@ -430,10 +430,10 @@ void unload_objects_from_area(UNUSED s32 unused, s32 areaIndex) {
     struct ObjectNode *node;
     struct ObjectNode *list;
     s32 i;
-    gObjectLists = gObjectListArray;
+    WORLD(gObjectLists) = WORLD(gObjectListArray);
 
     for (i = 0; i < NUM_OBJ_LISTS; i++) {
-        list = gObjectLists + i;
+        list = WORLD(gObjectLists) + i;
         node = list->next;
 
         while (node != list) {
@@ -451,11 +451,11 @@ void unload_objects_from_area(UNUSED s32 unused, s32 areaIndex) {
  * Spawn objects given a list of SpawnInfos. Called when loading an area.
  */
 void spawn_objects_from_info(UNUSED s32 unused, struct SpawnInfo *spawnInfo) {
-    gObjectLists = gObjectListArray;
-    gTimeStopState = 0;
+    WORLD(gObjectLists) = WORLD(gObjectListArray);
+    WORLD(gTimeStopState) = 0;
 
-    gWDWWaterLevelChanging = FALSE;
-    gMarioOnMerryGoRound = FALSE;
+    WORLD(gWDWWaterLevelChanging) = FALSE;
+    WORLD(gMarioOnMerryGoRound) = FALSE;
 
     //! (Spawning Displacement) On the Japanese version, Mario's platform object
     //  isn't cleared when transitioning between areas. This can cause Mario to
@@ -464,8 +464,8 @@ void spawn_objects_from_info(UNUSED s32 unused, struct SpawnInfo *spawnInfo) {
     clear_mario_platform();
 #endif
 
-    if (gCurrAreaIndex == 2) {
-        gCCMEnteredSlide |= 1;
+    if (WORLD(gCurrAreaIndex) == 2) {
+        WORLD(gCCMEnteredSlide) |= 1;
     }
 
     while (spawnInfo != NULL) {
@@ -496,7 +496,7 @@ void spawn_objects_from_info(UNUSED s32 unused, struct SpawnInfo *spawnInfo) {
             object->respawnInfo = &spawnInfo->behaviorArg;
 
             if (spawnInfo->behaviorArg & 0x01) {
-                gMarioObject = object;
+                WORLD(gMarioObject) = object;
                 geo_make_first_child(&object->header.gfx.node);
             }
 
@@ -528,31 +528,31 @@ void stub_obj_list_processor_1(void) {
 void clear_objects(void) {
     s32 i;
 
-    gTHIWaterDrained = 0;
-    gTimeStopState = 0;
-    gMarioObject = NULL;
-    gMarioCurrentRoom = 0;
+    WORLD(gTHIWaterDrained) = 0;
+    WORLD(gTimeStopState) = 0;
+    WORLD(gMarioObject) = NULL;
+    WORLD(gMarioCurrentRoom) = 0;
 
     for (i = 0; i < 60; i++) {
-        gDoorAdjacentRooms[i][0] = 0;
-        gDoorAdjacentRooms[i][1] = 0;
+        WORLD(gDoorAdjacentRooms)[i][0] = 0;
+        WORLD(gDoorAdjacentRooms)[i][1] = 0;
     }
 
     debug_unknown_level_select_check();
 
     init_free_object_list();
-    clear_object_lists(gObjectListArray);
+    clear_object_lists(WORLD(gObjectListArray));
 
     stub_behavior_script_2();
     stub_obj_list_processor_1();
 
     for (i = 0; i < OBJECT_POOL_CAPACITY; i++) {
-        gObjectPool[i].activeFlags = ACTIVE_FLAG_DEACTIVATED;
-        geo_reset_object_node(&gObjectPool[i].header.gfx);
+        WORLD(gObjectPool)[i].activeFlags = ACTIVE_FLAG_DEACTIVATED;
+        geo_reset_object_node(&WORLD(gObjectPool)[i].header.gfx);
     }
 
-    gObjectMemoryPool = mem_pool_init(0x800, MEMORY_POOL_LEFT);
-    gObjectLists = gObjectListArray;
+    WORLD(gObjectMemoryPool) = mem_pool_init(0x800, MEMORY_POOL_LEFT);
+    WORLD(gObjectLists) = WORLD(gObjectListArray);
 
     clear_dynamic_surfaces();
 }
@@ -561,9 +561,9 @@ void clear_objects(void) {
  * Update spawner and surface objects.
  */
 void update_terrain_objects(void) {
-    gObjectCounter = update_objects_in_list(&gObjectLists[OBJ_LIST_SPAWNER]);
+    WORLD(gObjectCounter) = update_objects_in_list(&WORLD(gObjectLists)[OBJ_LIST_SPAWNER]);
     //! This was meant to be +=
-    gObjectCounter = update_objects_in_list(&gObjectLists[OBJ_LIST_SURFACE]);
+    WORLD(gObjectCounter) = update_objects_in_list(&WORLD(gObjectLists)[OBJ_LIST_SURFACE]);
 }
 
 /**
@@ -575,8 +575,8 @@ void update_non_terrain_objects(void) {
     s32 listIndex;
 
     s32 i = 2;
-    while ((listIndex = sObjectListUpdateOrder[i]) != -1) {
-        gObjectCounter += update_objects_in_list(&gObjectLists[listIndex]);
+    while ((listIndex = WORLD(sObjectListUpdateOrder)[i]) != -1) {
+        WORLD(gObjectCounter) += update_objects_in_list(&WORLD(gObjectLists)[listIndex]);
         i++;
     }
 }
@@ -589,14 +589,14 @@ void unload_deactivated_objects(void) {
     s32 listIndex;
 
     s32 i = 0;
-    while ((listIndex = sObjectListUpdateOrder[i]) != -1) {
-        unload_deactivated_objects_in_list(&gObjectLists[listIndex]);
+    while ((listIndex = WORLD(sObjectListUpdateOrder)[i]) != -1) {
+        unload_deactivated_objects_in_list(&WORLD(gObjectLists)[listIndex]);
         i++;
     }
 
     // TIME_STOP_UNKNOWN_0 was most likely intended to be used to track whether
     // any objects had been deactivated
-    gTimeStopState &= ~TIME_STOP_UNKNOWN_0;
+    WORLD(gTimeStopState) &= ~TIME_STOP_UNKNOWN_0;
 }
 
 /**
@@ -611,7 +611,7 @@ UNUSED static u16 unused_get_elapsed_time(u64 *cycleCounts, s32 index) {
         cycles = 0;
     }
 
-    time = (u16)(((u64) cycles * 1000000 / osClockRate) / 16667.0 * 1000.0);
+    time = (u16)(((u64) cycles * 1000000 / WORLD(osClockRate)) / 16667.0 * 1000.0);
     if (time > 999) {
         time = 999;
     }
@@ -628,16 +628,16 @@ void update_objects(UNUSED s32 unused) {
 
     cycleCounts[0] = get_current_clock();
 
-    gTimeStopState &= ~TIME_STOP_MARIO_OPENED_DOOR;
+    WORLD(gTimeStopState) &= ~TIME_STOP_MARIO_OPENED_DOOR;
 
-    gNumRoomedObjectsInMarioRoom = 0;
-    gNumRoomedObjectsNotInMarioRoom = 0;
-    gCheckingSurfaceCollisionsForCamera = FALSE;
+    WORLD(gNumRoomedObjectsInMarioRoom) = 0;
+    WORLD(gNumRoomedObjectsNotInMarioRoom) = 0;
+    WORLD(gCheckingSurfaceCollisionsForCamera) = FALSE;
 
     reset_debug_objectinfo();
     stub_debug_5();
 
-    gObjectLists = gObjectListArray;
+    WORLD(gObjectLists) = WORLD(gObjectListArray);
 
     // If time stop is not active, unload object surfaces
     cycleCounts[1] = get_clock_difference(cycleCounts[0]);
@@ -676,11 +676,11 @@ void update_objects(UNUSED s32 unused) {
 
     // If time stop was enabled this frame, activate it now so that it will
     // take effect next frame
-    if (gTimeStopState & TIME_STOP_ENABLED) {
-        gTimeStopState |= TIME_STOP_ACTIVE;
+    if (WORLD(gTimeStopState) & TIME_STOP_ENABLED) {
+        WORLD(gTimeStopState) |= TIME_STOP_ACTIVE;
     } else {
-        gTimeStopState &= ~TIME_STOP_ACTIVE;
+        WORLD(gTimeStopState) &= ~TIME_STOP_ACTIVE;
     }
 
-    gPrevFrameObjectCount = gObjectCounter;
+    WORLD(gPrevFrameObjectCount) = WORLD(gObjectCounter);
 }

@@ -31,7 +31,7 @@ void bhv_small_piranha_flame_loop(void) {
             o->oTimer = 0;
         }
 
-        obj_check_attacks(&sPiranhaPlantFireHitbox, o->oAction);
+        obj_check_attacks(&WORLD(sPiranhaPlantFireHitbox), o->oAction);
         o->oSmallPiranhaFlameSpeed += o->oSmallPiranhaFlameStartSpeed;
 
         if (o->oSmallPiranhaFlameSpeed > 1500.0f

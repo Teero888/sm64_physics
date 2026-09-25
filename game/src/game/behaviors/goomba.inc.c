@@ -108,13 +108,13 @@ void bhv_goomba_triplet_spawner_update(void) {
 void bhv_goomba_init(void) {
     o->oGoombaSize = o->oBhvParams2ndByte & GOOMBA_BP_SIZE_MASK;
 
-    o->oGoombaScale = sGoombaProperties[o->oGoombaSize].scale;
-    o->oDeathSound = sGoombaProperties[o->oGoombaSize].deathSound;
+    o->oGoombaScale = WORLD(sGoombaProperties)[o->oGoombaSize].scale;
+    o->oDeathSound = WORLD(sGoombaProperties)[o->oGoombaSize].deathSound;
 
-    obj_set_hitbox(o, &sGoombaHitbox);
+    obj_set_hitbox(o, &WORLD(sGoombaHitbox));
 
-    o->oDrawingDistance = sGoombaProperties[o->oGoombaSize].drawDistance;
-    o->oDamageOrCoinValue = sGoombaProperties[o->oGoombaSize].damage;
+    o->oDrawingDistance = WORLD(sGoombaProperties)[o->oGoombaSize].drawDistance;
+    o->oDamageOrCoinValue = WORLD(sGoombaProperties)[o->oGoombaSize].damage;
 
     o->oGravity = -8.0f / 3.0f * o->oGoombaScale;
 }
@@ -303,8 +303,8 @@ void bhv_goomba_update(void) {
         // without harming it (e.g. by punching it), the goomba will be marked as dead
         // and will not respawn if Mario leaves and re-enters the spawner's radius
         // even though the goomba isn't actually dead.
-        if (obj_handle_attacks(&sGoombaHitbox, GOOMBA_ACT_ATTACKED_MARIO,
-                               sGoombaAttackHandlers[o->oGoombaSize & 1])) {
+        if (obj_handle_attacks(&WORLD(sGoombaHitbox), GOOMBA_ACT_ATTACKED_MARIO,
+                               WORLD(sGoombaAttackHandlers)[o->oGoombaSize & 1])) {
             mark_goomba_as_dead();
         }
 

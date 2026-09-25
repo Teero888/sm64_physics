@@ -62,17 +62,17 @@ void bhv_treasure_chest_top_loop(void) {
 
 void bhv_treasure_chest_bottom_init(void) {
     spawn_object_relative(0, 0, 102, -77, o, MODEL_TREASURE_CHEST_LID, bhvTreasureChestTop);
-    obj_set_hitbox(o, &sTreasureChestBottomHitbox);
+    obj_set_hitbox(o, &WORLD(sTreasureChestBottomHitbox));
 }
 
 void bhv_treasure_chest_bottom_loop(void) {
     switch (o->oAction) {
         case 0:
-            if (obj_check_if_facing_toward_angle(o->oMoveAngleYaw, gMarioObject->header.gfx.angle[1] + 0x8000, 0x3000)
+            if (obj_check_if_facing_toward_angle(o->oMoveAngleYaw, WORLD(gMarioObject)->header.gfx.angle[1] + 0x8000, 0x3000)
                 && is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 150)
                 && !o->parentObj->oTreasureChestUnkF8) {
                 if (o->parentObj->oTreasureChestUnkF4 == o->oBhvParams2ndByte) {
-                    play_sound(SOUND_GENERAL2_RIGHT_ANSWER, gGlobalSoundSource);
+                    play_sound(SOUND_GENERAL2_RIGHT_ANSWER, WORLD(gGlobalSoundSource));
                     o->parentObj->oTreasureChestUnkF4++;
                     o->oAction = 1;
                 } else {
@@ -80,7 +80,7 @@ void bhv_treasure_chest_bottom_loop(void) {
                     o->parentObj->oTreasureChestUnkF8 = TRUE;
                     o->oAction = 2;
                     cur_obj_become_tangible();
-                    play_sound(SOUND_MENU_CAMERA_BUZZ, gGlobalSoundSource);
+                    play_sound(SOUND_MENU_CAMERA_BUZZ, WORLD(gGlobalSoundSource));
                 }
             }
             break;
@@ -129,12 +129,12 @@ void bhv_treasure_chest_ship_loop(void) {
             break;
 
         case 1:
-            if (gEnvironmentRegions != NULL) {
-                gEnvironmentRegions[6] -= 5;
-                play_sound(SOUND_ENV_WATER_DRAIN, gGlobalSoundSource);
+            if (WORLD(gEnvironmentRegions) != NULL) {
+                WORLD(gEnvironmentRegions)[6] -= 5;
+                play_sound(SOUND_ENV_WATER_DRAIN, WORLD(gGlobalSoundSource));
                 set_environmental_camera_shake(SHAKE_ENV_JRB_SHIP_DRAIN);
-                if (gEnvironmentRegions[6] < -335) {
-                    gEnvironmentRegions[6] = -335;
+                if (WORLD(gEnvironmentRegions)[6] < -335) {
+                    WORLD(gEnvironmentRegions)[6] = -335;
                     o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
                 }
 #if ENABLE_RUMBLE

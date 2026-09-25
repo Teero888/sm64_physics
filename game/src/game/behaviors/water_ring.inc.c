@@ -1,9 +1,9 @@
 // water_ring.inc.c
 
 f32 water_ring_calc_mario_dist(void) {
-    f32 marioDistX = o->oPosX - gMarioObject->header.gfx.pos[0];
-    f32 marioDistY = o->oPosY - (gMarioObject->header.gfx.pos[1] + 80.0f);
-    f32 marioDistZ = o->oPosZ - gMarioObject->header.gfx.pos[2];
+    f32 marioDistX = o->oPosX - WORLD(gMarioObject)->header.gfx.pos[0];
+    f32 marioDistY = o->oPosY - (WORLD(gMarioObject)->header.gfx.pos[1] + 80.0f);
+    f32 marioDistZ = o->oPosZ - WORLD(gMarioObject)->header.gfx.pos[2];
     f32 marioDistInFront = marioDistX * o->oWaterRingNormalX + marioDistY * o->oWaterRingNormalY
                            + marioDistZ * o->oWaterRingNormalZ;
 
@@ -44,9 +44,9 @@ void bhv_jet_stream_water_ring_init(void) {
 void water_ring_check_collection(f32 avgScale, struct Object *ringManager) {
     f32 marioDistInFront = water_ring_calc_mario_dist();
 
-    if (!is_point_close_to_object(o, gMarioObject->header.gfx.pos[0],
-                                  gMarioObject->header.gfx.pos[1] + 80.0f,
-                                  gMarioObject->header.gfx.pos[2], (avgScale + 0.2) * 120.0)) {
+    if (!is_point_close_to_object(o, WORLD(gMarioObject)->header.gfx.pos[0],
+                                  WORLD(gMarioObject)->header.gfx.pos[1] + 80.0f,
+                                  WORLD(gMarioObject)->header.gfx.pos[2], (avgScale + 0.2) * 120.0)) {
         o->oWaterRingMarioDistInFront = marioDistInFront;
         return;
     }
@@ -61,11 +61,11 @@ void water_ring_check_collection(f32 avgScale, struct Object *ringManager) {
                 if (ringSpawner->oWaterRingSpawnerRingsCollected < 6) {
                     spawn_orange_number(ringSpawner->oWaterRingSpawnerRingsCollected, 0, -40, 0);
 #ifdef VERSION_JP
-                    play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
+                    play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
 #else
                     play_sound(SOUND_MENU_COLLECT_SECRET
                                + (((u8) ringSpawner->oWaterRingSpawnerRingsCollected - 1) << 16),
-                               gGlobalSoundSource);
+                               WORLD(gGlobalSoundSource));
 #endif
                 }
                 ringManager->oWaterRingMgrLastRingCollected = o->oWaterRingIndex;

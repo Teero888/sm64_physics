@@ -102,7 +102,7 @@ static void spiny_act_walk(void) {
 
         cur_obj_move_standard(-78);
 
-        if (obj_handle_attacks(&sSpinyHitbox, SPINY_ACT_ATTACKED_MARIO, sSpinyWalkAttackHandlers)) {
+        if (obj_handle_attacks(&WORLD(sSpinyHitbox), SPINY_ACT_ATTACKED_MARIO, WORLD(sSpinyWalkAttackHandlers))) {
             // When attacked by mario, lessen the knockback
             o->oAction = SPINY_ACT_WALK;
             o->oForwardVel *= 0.1f;
@@ -169,7 +169,7 @@ static void spiny_act_thrown_by_lakitu(void) {
 
         cur_obj_move_standard(-78);
 
-        if (obj_check_attacks(&sSpinyHitbox, o->oAction) != 0 && o->parentObj != o) {
+        if (obj_check_attacks(&WORLD(sSpinyHitbox), o->oAction) != 0 && o->parentObj != o) {
             o->parentObj->oEnemyLakituNumSpinies--;
         }
     }

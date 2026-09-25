@@ -77,18 +77,18 @@ struct Instrument **instOut = _instOut;\
     struct Instrument *inst; \
     UNUSED u32 pad; \
         /* copt inlines instId here  */ \
-    if (instId >= gCtlEntries[(*seqChannel).bankId].numInstruments) { \
-        _instId = gCtlEntries[(*seqChannel).bankId].numInstruments; \
+    if (instId >= WORLD(gCtlEntries)[(*seqChannel).bankId].numInstruments) { \
+        _instId = WORLD(gCtlEntries)[(*seqChannel).bankId].numInstruments; \
         if (_instId == 0) { \
             dst = 0; \
             goto ret ## l; \
         } \
         _instId--; \
     } \
-    inst = gCtlEntries[(*seqChannel).bankId].instruments[_instId]; \
+    inst = WORLD(gCtlEntries)[(*seqChannel).bankId].instruments[_instId]; \
     if (inst == NULL) { \
         while (_instId != 0xff) { \
-            inst = gCtlEntries[(*seqChannel).bankId].instruments[_instId]; \
+            inst = WORLD(gCtlEntries)[(*seqChannel).bankId].instruments[_instId]; \
             if (inst != NULL) { \
                 goto gi ## l; \
             } \
@@ -96,19 +96,19 @@ struct Instrument **instOut = _instOut;\
         } \
         gi ## l:; \
     } \
-    if (((uintptr_t) gBankLoadedPool.persistent.pool.start <= (uintptr_t) inst \
-         && (uintptr_t) inst <= (uintptr_t)(gBankLoadedPool.persistent.pool.start \
-                                          + gBankLoadedPool.persistent.pool.size)) \
-        || ((uintptr_t) gBankLoadedPool.temporary.pool.start <= (uintptr_t) inst \
-            && (uintptr_t) inst <= (uintptr_t)(gBankLoadedPool.temporary.pool.start \
-                                             + gBankLoadedPool.temporary.pool.size))) { \
+    if (((uintptr_t) WORLD(gBankLoadedPool).persistent.pool.start <= (uintptr_t) inst \
+         && (uintptr_t) inst <= (uintptr_t)(WORLD(gBankLoadedPool).persistent.pool.start \
+                                          + WORLD(gBankLoadedPool).persistent.pool.size)) \
+        || ((uintptr_t) WORLD(gBankLoadedPool).temporary.pool.start <= (uintptr_t) inst \
+            && (uintptr_t) inst <= (uintptr_t)(WORLD(gBankLoadedPool).temporary.pool.start \
+                                             + WORLD(gBankLoadedPool).temporary.pool.size))) { \
         (*adsr).envelope = (*inst).envelope; \
         (*adsr).releaseRate = (*inst).releaseRate; \
         *instOut = inst; \
         _instId++; \
         goto ret ## l; \
     } \
-    gAudioErrorFlags = _instId + 0x20000; \
+    WORLD(gAudioErrorFlags) = _instId + 0x20000; \
     *instOut = NULL; \
     ret ## l: ; \
 }
@@ -366,8 +366,8 @@ l1138:
         } else {
             if (seqChannel->instOrWave == 0) { // drum
                 cmdSemitone += (*seqChannel).transposition + (*layer).transposition;
-                if (cmdSemitone >= gCtlEntries[seqChannel->bankId].numDrums) {
-                    cmdSemitone = gCtlEntries[seqChannel->bankId].numDrums;
+                if (cmdSemitone >= WORLD(gCtlEntries)[seqChannel->bankId].numDrums) {
+                    cmdSemitone = WORLD(gCtlEntries)[seqChannel->bankId].numDrums;
                     if (cmdSemitone == 0) {
                         // this goto looks a bit like a function return...
                         layer->stopSomething = TRUE;
@@ -377,7 +377,7 @@ l1138:
                     cmdSemitone--;
                 }
 
-                drum = gCtlEntries[seqChannel->bankId].drums[cmdSemitone];
+                drum = WORLD(gCtlEntries)[seqChannel->bankId].drums[cmdSemitone];
                 if (drum == NULL) {
                     layer->stopSomething = TRUE;
                 } else {
@@ -421,8 +421,8 @@ l1138:
                             tuning = 1.0f;
                         }
 
-                        temp_f2 = gNoteFrequencies[cmdSemitone] * tuning;
-                        temp_f12 = gNoteFrequencies[layer->portamentoTargetNote] * tuning;
+                        temp_f2 = WORLD(gNoteFrequencies)[cmdSemitone] * tuning;
+                        temp_f12 = WORLD(gNoteFrequencies)[layer->portamentoTargetNote] * tuning;
 
                         portamento = &layer->portamento;
                         switch (PORTAMENTO_MODE(layer->portamento)) {
@@ -443,7 +443,7 @@ l13cc:
                         portamento->extent = sp24 / freqScale - US_FLOAT(1.0);
                         if (PORTAMENTO_IS_SPECIAL((*layer).portamento)) {
                             portamento->speed = US_FLOAT(32512.0) * FLOAT_CAST((*seqPlayer).tempo)
-                                                / ((f32)(*layer).delay * (f32) gTempoInternalToExternal
+                                                / ((f32)(*layer).delay * (f32) WORLD(gTempoInternalToExternal)
                                                    * FLOAT_CAST((*layer).portamentoTime));
                         } else {
                             portamento->speed = US_FLOAT(127.0) / FLOAT_CAST((*layer).portamentoTime);
@@ -460,10 +460,10 @@ l13cc:
 
                         sameSound = (sound == (*layer).sound);
                         layer->sound = sound;
-                        layer->freqScale = gNoteFrequencies[cmdSemitone] * (*sound).tuning;
+                        layer->freqScale = WORLD(gNoteFrequencies)[cmdSemitone] * (*sound).tuning;
                     } else {
                         layer->sound = NULL;
-                        layer->freqScale = gNoteFrequencies[cmdSemitone];
+                        layer->freqScale = WORLD(gNoteFrequencies)[cmdSemitone];
                     }
                 }
             }

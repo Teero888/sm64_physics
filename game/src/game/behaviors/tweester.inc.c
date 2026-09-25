@@ -84,7 +84,7 @@ void tweester_act_chase(void) {
         cur_obj_rotate_yaw_toward(o->oAngleToMario, 0x200);
         print_debug_top_down_objectinfo("off ", 0);
 
-        if (gMarioStates[0].action == ACT_TWIRLING) {
+        if (WORLD(gMarioStates)[0].action == ACT_TWIRLING) {
             o->oSubAction++;
         }
     } else {
@@ -142,8 +142,8 @@ void (*sTweesterActions[])(void) = {
  * Loads the hitbox and calls its relevant action.
  */
 void bhv_tweester_loop(void) {
-    obj_set_hitbox(o, &sTweesterHitbox);
-    cur_obj_call_action_function(sTweesterActions);
+    obj_set_hitbox(o, &WORLD(sTweesterHitbox));
+    cur_obj_call_action_function(WORLD(sTweesterActions));
     o->oInteractStatus = 0;
 }
 

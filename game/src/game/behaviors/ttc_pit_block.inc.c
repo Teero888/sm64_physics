@@ -37,11 +37,11 @@ static struct TTCPitBlockProperties sTTCPitBlockProperties[][2] = {
  * Init function for bhvTTCPitBlock.
  */
 void bhv_ttc_pit_block_init(void) {
-    o->collisionData = segmented_to_virtual(sTTCPitBlockCollisionModels[o->oBhvParams2ndByte]);
+    o->collisionData = segmented_to_virtual(WORLD(sTTCPitBlockCollisionModels)[o->oBhvParams2ndByte]);
 
     o->oTTCPitBlockPeakY = o->oPosY + 330.0f;
 
-    if (gTTCSpeedSetting == TTC_SPEED_STOPPED) {
+    if (WORLD(gTTCSpeedSetting) == TTC_SPEED_STOPPED) {
         o->oPosY += 330.0f;
     }
 }
@@ -59,12 +59,12 @@ void bhv_ttc_pit_block_update(void) {
             o->oTTCPitBlockDir = o->oTTCPitBlockDir ^ 0x01;
 
             if ((o->oTTCPitBlockWaitTime =
-                     sTTCPitBlockProperties[gTTCSpeedSetting][o->oTTCPitBlockDir & 0x01].waitTime)
+                     WORLD(sTTCPitBlockProperties)[WORLD(gTTCSpeedSetting)][o->oTTCPitBlockDir & 0x01].waitTime)
                 < 0) {
                 o->oTTCPitBlockWaitTime = random_mod_offset(10, 20, 6);
             }
 
-            o->oVelY = sTTCPitBlockProperties[gTTCSpeedSetting][o->oTTCPitBlockDir].speed;
+            o->oVelY = WORLD(sTTCPitBlockProperties)[WORLD(gTTCSpeedSetting)][o->oTTCPitBlockDir].speed;
             o->oTimer = 0;
         }
     }

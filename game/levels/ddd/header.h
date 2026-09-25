@@ -34,8 +34,8 @@ extern const MacroObject ddd_seg7_area_1_macro_objs[];
 extern const MacroObject ddd_seg7_area_2_macro_objs[];
 extern const Collision ddd_seg7_collision_submarine[];
 extern const Collision ddd_seg7_collision_bowser_sub_door[];
-extern const struct MovtexQuadCollection ddd_movtex_area1_water[];
-extern const struct MovtexQuadCollection ddd_movtex_area2_water[];
+extern struct MovtexQuadCollection ddd_movtex_area1_water[];
+extern struct MovtexQuadCollection ddd_movtex_area2_water[];
 
 // script
 extern const LevelScript level_ddd_entry[];

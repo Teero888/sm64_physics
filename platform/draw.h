@@ -5,7 +5,7 @@
 #ifndef SM64_PLATFORM_DRAW_H
 #define SM64_PLATFORM_DRAW_H
 
-extern int gHostDraw;
+extern __thread int gHostDraw __attribute__((tls_model("initial-exec")));
 #define SM64_DRAW gHostDraw
 
 #endif

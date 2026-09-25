@@ -168,7 +168,7 @@ f32 get_portamento_freq_scale(struct Portamento *p) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
     result = US_FLOAT(1.0) + p->extent * (gPitchBendFrequencyScale[v0 + 128] - US_FLOAT(1.0));
 #else
-    result = US_FLOAT(1.0) + p->extent * (gPitchBendFrequencyScale[v0 + 127] - US_FLOAT(1.0));
+    result = US_FLOAT(1.0) + p->extent * (WORLD(gPitchBendFrequencyScale)[v0 + 127] - US_FLOAT(1.0));
 #endif
     return result;
 }
@@ -256,7 +256,7 @@ f32 get_vibrato_freq_scale(struct VibratoState *vib) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
     result = US_FLOAT(1.0) + extent * (gPitchBendFrequencyScale[pitchChange + 128] - US_FLOAT(1.0));
 #else
-    result = US_FLOAT(1.0) + extent * (gPitchBendFrequencyScale[pitchChange + 127] - US_FLOAT(1.0));
+    result = US_FLOAT(1.0) + extent * (WORLD(gPitchBendFrequencyScale)[pitchChange + 127] - US_FLOAT(1.0));
 #endif
     return result;
 }
@@ -321,7 +321,7 @@ void note_vibrato_init(struct Note *note) {
 
     seqPlayerState->portamento = seqPlayerState->parentLayer->portamento;
 #else
-    vib->curve = gVibratoCurve;
+    vib->curve = WORLD(gVibratoCurve);
     vib->seqChannel = note->parentLayer->seqChannel;
     seqChannel = vib->seqChannel;
 

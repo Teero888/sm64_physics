@@ -11,7 +11,7 @@ void controllable_platform_act_1(void) {
 }
 
 void controllable_platform_act_2(void) {
-    if (o->oBhvParams2ndByte == D_80331694) {
+    if (o->oBhvParams2ndByte == WORLD(D_80331694)) {
         return;
     }
 
@@ -29,8 +29,8 @@ void bhv_controllable_platform_sub_loop(void) {
                 break;
             }
 
-            if (gMarioObject->platform == o) {
-                D_80331694 = o->oBhvParams2ndByte;
+            if (WORLD(gMarioObject)->platform == o) {
+                WORLD(D_80331694) = o->oBhvParams2ndByte;
 #if defined(VERSION_SH) || defined(VERSION_CN)
                 o->parentObj->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
 #endif
@@ -72,7 +72,7 @@ void bhv_controllable_platform_init(void) {
                                      -204, 51, 0, 0, -0x4000, 0);
     sp34->oBhvParams2ndByte = 4;
 
-    D_80331694 = 0;
+    WORLD(D_80331694) = 0;
 
     o->oControllablePlatformUnkFC = o->oPosY;
 }
@@ -80,7 +80,7 @@ void bhv_controllable_platform_init(void) {
 void controllable_platform_hit_wall(s8 sp1B) {
     o->oControllablePlatformUnkF8 = sp1B;
     o->oTimer = 0;
-    D_80331694 = 5;
+    WORLD(D_80331694) = 5;
 
     cur_obj_play_sound_2(SOUND_GENERAL_QUIET_POUND1);
 #if ENABLE_RUMBLE
@@ -114,7 +114,7 @@ void controllable_platform_check_walls(s8 sp1B, s8 sp1C[3], Vec3f sp20, UNUSED V
     }
 
     if (!is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 400)) {
-        D_80331694 = 6;
+        WORLD(D_80331694) = 6;
         o->oControllablePlatformUnk100 = 1;
         o->oTimer = 0;
     }
@@ -130,7 +130,7 @@ void controllable_platform_shake_on_wall_hit(void) {
     }
 
     if (o->oTimer == 32) {
-        D_80331694 = o->oControllablePlatformUnkF8;
+        WORLD(D_80331694) = o->oControllablePlatformUnkF8;
         o->oFaceAnglePitch = 0;
         o->oFaceAngleRoll = 0;
         o->oPosY = o->oControllablePlatformUnkFC;
@@ -138,15 +138,15 @@ void controllable_platform_shake_on_wall_hit(void) {
 }
 
 void controllable_platform_tilt_from_mario(void) {
-    s16 sp1E = gMarioObject->header.gfx.pos[0] - o->oPosX;
-    s16 sp1C = gMarioObject->header.gfx.pos[2] - o->oPosZ;
+    s16 sp1E = WORLD(gMarioObject)->header.gfx.pos[0] - o->oPosX;
+    s16 sp1C = WORLD(gMarioObject)->header.gfx.pos[2] - o->oPosZ;
 
-    if (gMarioObject->platform == o
-        || gMarioObject->platform == cur_obj_nearest_object_with_behavior(bhvControllablePlatformSub)) {
+    if (WORLD(gMarioObject)->platform == o
+        || WORLD(gMarioObject)->platform == cur_obj_nearest_object_with_behavior(bhvControllablePlatformSub)) {
         o->oFaceAnglePitch = sp1C * 4;
         o->oFaceAngleRoll = -sp1E * 4;
-        if (D_80331694 == 6) {
-            D_80331694 = 0;
+        if (WORLD(D_80331694) == 6) {
+            WORLD(D_80331694) = 0;
             o->oTimer = 0;
             o->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
         }
@@ -165,12 +165,12 @@ void bhv_controllable_platform_loop(void) {
     o->oVelX = 0;
     o->oVelZ = 0;
 
-    switch (D_80331694) {
+    switch (WORLD(D_80331694)) {
         case 0:
             o->oFaceAnglePitch /= 2;
             o->oFaceAngleRoll /= 2;
             if (o->oControllablePlatformUnk100 == 1 && o->oTimer > 30) {
-                D_80331694 = 6;
+                WORLD(D_80331694) = 6;
                 o->oTimer = 0;
             }
             break;
@@ -223,7 +223,7 @@ void bhv_controllable_platform_loop(void) {
     controllable_platform_tilt_from_mario();
     o->oPosX += o->oVelX;
     o->oPosZ += o->oVelZ;
-    if (D_80331694 != 0 && D_80331694 != 6) {
+    if (WORLD(D_80331694) != 0 && WORLD(D_80331694) != 6) {
         cur_obj_play_sound_1(SOUND_ENV_ELEVATOR2);
     }
 }

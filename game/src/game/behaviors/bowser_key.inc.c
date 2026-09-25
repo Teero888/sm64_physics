@@ -39,7 +39,7 @@ void bhv_bowser_key_loop(void) {
             cur_obj_play_sound_2(SOUND_GENERAL_UNKNOWN3);
         }
     } else {
-        obj_set_hitbox(o, &sBowserKeyHitbox);
+        obj_set_hitbox(o, &WORLD(sBowserKeyHitbox));
 
         if (o->oInteractStatus & INT_STATUS_INTERACTED) {
             mark_obj_for_deletion(o);

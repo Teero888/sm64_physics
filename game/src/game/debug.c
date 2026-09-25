@@ -123,7 +123,7 @@ void print_text_array_info(s16 *printState, const char *str, s32 number) {
 }
 
 void set_text_array_x_y(s32 xOffset, s32 yOffset) {
-    s16 *printState = gDebugPrintState1;
+    s16 *printState = WORLD(gDebugPrintState1);
 
     printState[DEBUG_PSTATE_X_CURSOR] += xOffset;
     printState[DEBUG_PSTATE_Y_CURSOR] =
@@ -135,30 +135,30 @@ void set_text_array_x_y(s32 xOffset, s32 yOffset) {
  * current debug mode as well as the printer array (down to up vs up to down).
  */
 void print_debug_bottom_up(const char *str, s32 number) {
-    if (gDebugInfoFlags & DEBUG_INFO_FLAG_DPRINT) {
-        print_text_array_info(gDebugPrintState2, str, number);
+    if (WORLD(gDebugInfoFlags) & DEBUG_INFO_FLAG_DPRINT) {
+        print_text_array_info(WORLD(gDebugPrintState2), str, number);
     }
 }
 
 void print_debug_top_down_objectinfo(const char *str, s32 number) {
-    if ((gDebugInfoFlags & DEBUG_INFO_FLAG_DPRINT) && sDebugPage == DEBUG_PAGE_OBJECTINFO) {
-        print_text_array_info(gDebugPrintState1, str, number);
+    if ((WORLD(gDebugInfoFlags) & DEBUG_INFO_FLAG_DPRINT) && WORLD(sDebugPage) == DEBUG_PAGE_OBJECTINFO) {
+        print_text_array_info(WORLD(gDebugPrintState1), str, number);
     }
 }
 
 void print_debug_top_down_mapinfo(const char *str, s32 number) {
-    if (sNoExtraDebug) { // how come this is the only instance of the sNoExtraDebug check?
+    if (WORLD(sNoExtraDebug)) { // how come this is the only instance of the sNoExtraDebug check?
         return;
     }
 
-    if (gDebugInfoFlags & DEBUG_INFO_FLAG_DPRINT) {
-        print_text_array_info(gDebugPrintState1, str, number);
+    if (WORLD(gDebugInfoFlags) & DEBUG_INFO_FLAG_DPRINT) {
+        print_text_array_info(WORLD(gDebugPrintState1), str, number);
     }
 }
 
 void print_debug_top_down_normal(const char *str, s32 number) {
-    if (gDebugInfoFlags & DEBUG_INFO_FLAG_DPRINT) {
-        print_text_array_info(gDebugPrintState1, str, number);
+    if (WORLD(gDebugInfoFlags) & DEBUG_INFO_FLAG_DPRINT) {
+        print_text_array_info(WORLD(gDebugPrintState1), str, number);
     }
 }
 
@@ -170,22 +170,22 @@ void print_mapinfo(void) {
     UNUSED s32 area;  // unused in EU
     UNUSED s32 angY;  // unused in EU
 
-    angY = gCurrentObject->oMoveAngleYaw / 182.044000;
-    area = ((s32) gCurrentObject->oPosX + 0x2000) / 1024
-           + ((s32) gCurrentObject->oPosZ + 0x2000) / 1024 * 16;
+    angY = WORLD(gCurrentObject)->oMoveAngleYaw / 182.044000;
+    area = ((s32) WORLD(gCurrentObject)->oPosX + 0x2000) / 1024
+           + ((s32) WORLD(gCurrentObject)->oPosZ + 0x2000) / 1024 * 16;
 
-    bgY = find_floor(gCurrentObject->oPosX, gCurrentObject->oPosY, gCurrentObject->oPosZ, &pfloor);
-    water = find_water_level(gCurrentObject->oPosX, gCurrentObject->oPosZ);
+    bgY = find_floor(WORLD(gCurrentObject)->oPosX, WORLD(gCurrentObject)->oPosY, WORLD(gCurrentObject)->oPosZ, &pfloor);
+    water = find_water_level(WORLD(gCurrentObject)->oPosX, WORLD(gCurrentObject)->oPosZ);
 
     print_debug_top_down_normal("mapinfo", 0);
 #ifndef VERSION_EU
     print_debug_top_down_mapinfo("area %x", area);
-    print_debug_top_down_mapinfo("wx   %d", gCurrentObject->oPosX);
+    print_debug_top_down_mapinfo("wx   %d", WORLD(gCurrentObject)->oPosX);
     //! Fat finger: programmer hit tab instead of space. Japanese
     // thumb shift keyboards had the tab key next to the spacebar,
     // so this was likely the reason.
-    print_debug_top_down_mapinfo("wy\t  %d", gCurrentObject->oPosY);
-    print_debug_top_down_mapinfo("wz   %d", gCurrentObject->oPosZ);
+    print_debug_top_down_mapinfo("wy\t  %d", WORLD(gCurrentObject)->oPosY);
+    print_debug_top_down_mapinfo("wz   %d", WORLD(gCurrentObject)->oPosZ);
     print_debug_top_down_mapinfo("bgY  %d", bgY);
     print_debug_top_down_mapinfo("angY %d", angY);
 
@@ -195,7 +195,7 @@ void print_mapinfo(void) {
         print_debug_top_down_mapinfo("bgarea   %d", pfloor->room);
     }
 
-    if (gCurrentObject->oPosY < water) {
+    if (WORLD(gCurrentObject)->oPosY < water) {
         print_debug_top_down_mapinfo("water %d", water);
     }
 #endif
@@ -206,12 +206,12 @@ void print_checkinfo(void) {
 }
 
 void print_surfaceinfo(void) {
-    debug_surface_list_info(gMarioObject->oPosX, gMarioObject->oPosZ);
+    debug_surface_list_info(WORLD(gMarioObject)->oPosX, WORLD(gMarioObject)->oPosZ);
 }
 
 void print_stageinfo(void) {
     print_debug_top_down_normal("stageinfo", 0);
-    print_debug_top_down_normal("stage param %d", gTTCSpeedSetting);
+    print_debug_top_down_normal("stage param %d", WORLD(gTTCSpeedSetting));
 }
 
 /*
@@ -222,79 +222,79 @@ void print_stageinfo(void) {
 void print_string_array_info(const char **strArr) {
     s32 i;
 
-    if (!sDebugStringArrPrinted) {
-        sDebugStringArrPrinted++; // again, why not = TRUE...
+    if (!WORLD(sDebugStringArrPrinted)) {
+        WORLD(sDebugStringArrPrinted)++; // again, why not = TRUE...
         for (i = 0; i < 8; i++) {
             // sDebugPage is assumed to be 4 or 5 here.
-            print_debug_top_down_mapinfo(strArr[i], gDebugInfo[sDebugPage][i]);
+            print_debug_top_down_mapinfo(strArr[i], WORLD(gDebugInfo)[WORLD(sDebugPage)][i]);
         }
         // modify the cursor position so the cursor prints at the correct location.
         // this is equivalent to (sDebugSysCursor - 8)
-        set_text_array_x_y(0, -1 - (u32)(7 - sDebugSysCursor));
+        set_text_array_x_y(0, -1 - (u32)(7 - WORLD(sDebugSysCursor)));
         print_debug_top_down_mapinfo(strArr[8], 0); // print the cursor
-        set_text_array_x_y(0, 7 - sDebugSysCursor);
+        set_text_array_x_y(0, 7 - WORLD(sDebugSysCursor));
     }
 }
 
 void print_effectinfo(void) {
     print_debug_top_down_normal("effectinfo", 0);
-    print_string_array_info(sDebugEffectStringInfo);
+    print_string_array_info(WORLD(sDebugEffectStringInfo));
 }
 
 void print_enemyinfo(void) {
     print_debug_top_down_normal("enemyinfo", 0);
-    print_string_array_info(sDebugEnemyStringInfo);
+    print_string_array_info(WORLD(sDebugEnemyStringInfo));
 }
 
 void update_debug_dpadmask(void) {
-    s32 dPadMask = gPlayer1Controller->buttonDown & (U_JPAD | D_JPAD | L_JPAD | R_JPAD);
+    s32 dPadMask = WORLD(gPlayer1Controller)->buttonDown & (U_JPAD | D_JPAD | L_JPAD | R_JPAD);
 
     if (!dPadMask) {
-        sDebugInfoDPadUpdID = 0;
-        sDebugInfoDPadMask = 0;
+        WORLD(sDebugInfoDPadUpdID) = 0;
+        WORLD(sDebugInfoDPadMask) = 0;
     } else {
         // to prevent stuttering of mask updates, the first time is updated 6
         // frames from start, and then every 2 frames when held down.
-        if (sDebugInfoDPadUpdID == 0) {
-            sDebugInfoDPadMask = dPadMask;
-        } else if (sDebugInfoDPadUpdID == 6) {
-            sDebugInfoDPadMask = dPadMask;
+        if (WORLD(sDebugInfoDPadUpdID) == 0) {
+            WORLD(sDebugInfoDPadMask) = dPadMask;
+        } else if (WORLD(sDebugInfoDPadUpdID) == 6) {
+            WORLD(sDebugInfoDPadMask) = dPadMask;
         } else {
-            sDebugInfoDPadMask = 0;
+            WORLD(sDebugInfoDPadMask) = 0;
         }
-        sDebugInfoDPadUpdID++;
-        if (sDebugInfoDPadUpdID >= 8) {
-            sDebugInfoDPadUpdID = 6; // rapidly set to 6 from 8 as long as dPadMask is being set.
+        WORLD(sDebugInfoDPadUpdID)++;
+        if (WORLD(sDebugInfoDPadUpdID) >= 8) {
+            WORLD(sDebugInfoDPadUpdID) = 6; // rapidly set to 6 from 8 as long as dPadMask is being set.
         }
     }
 }
 
 void debug_unknown_level_select_check(void) {
-    if (!sDebugLvSelectCheckFlag) {
-        sDebugLvSelectCheckFlag++; // again, just do = TRUE...
+    if (!WORLD(sDebugLvSelectCheckFlag)) {
+        WORLD(sDebugLvSelectCheckFlag)++; // again, just do = TRUE...
 
-        if (!gDebugLevelSelect) {
-            gDebugInfoFlags = DEBUG_INFO_NOFLAGS;
+        if (!WORLD(gDebugLevelSelect)) {
+            WORLD(gDebugInfoFlags) = DEBUG_INFO_NOFLAGS;
         } else {
-            gDebugInfoFlags = DEBUG_INFO_FLAG_LSELECT;
+            WORLD(gDebugInfoFlags) = DEBUG_INFO_FLAG_LSELECT;
         }
 
-        gNumCalls.floor = 0;
-        gNumCalls.ceil = 0;
-        gNumCalls.wall = 0;
+        WORLD(gNumCalls).floor = 0;
+        WORLD(gNumCalls).ceil = 0;
+        WORLD(gNumCalls).wall = 0;
     }
 }
 
 void reset_debug_objectinfo(void) {
-    gNumFindFloorMisses = 0;
-    gUnknownWallCount = 0;
-    gObjectCounter = 0;
-    sDebugStringArrPrinted = FALSE;
-    D_8035FEE2 = 0;
-    D_8035FEE4 = 0;
+    WORLD(gNumFindFloorMisses) = 0;
+    WORLD(gUnknownWallCount) = 0;
+    WORLD(gObjectCounter) = 0;
+    WORLD(sDebugStringArrPrinted) = FALSE;
+    WORLD(D_8035FEE2) = 0;
+    WORLD(D_8035FEE4) = 0;
 
-    set_print_state_info(gDebugPrintState1, 20, 185, 40, 200, -15);
-    set_print_state_info(gDebugPrintState2, 180, 30, 0, 150, 15);
+    set_print_state_info(WORLD(gDebugPrintState1), 20, 185, 40, 200, -15);
+    set_print_state_info(WORLD(gDebugPrintState2), 180, 30, 0, 150, 15);
     update_debug_dpadmask();
 }
 
@@ -304,24 +304,24 @@ void reset_debug_objectinfo(void) {
  * despite so this has no effect, being called. (unused)
  */
 UNUSED static void check_debug_button_seq(void) {
-    s16 *buttonArr = sDebugInfoButtonSeq;
+    s16 *buttonArr = WORLD(sDebugInfoButtonSeq);
     s16 cButtonMask;
 
-    if (!(gPlayer1Controller->buttonDown & L_TRIG)) {
-        sDebugInfoButtonSeqID = 0;
+    if (!(WORLD(gPlayer1Controller)->buttonDown & L_TRIG)) {
+        WORLD(sDebugInfoButtonSeqID) = 0;
     } else {
-        if ((s16)(cButtonMask = (gPlayer1Controller->buttonPressed & C_BUTTONS))) {
-            if (buttonArr[sDebugInfoButtonSeqID] == cButtonMask) {
-                sDebugInfoButtonSeqID++;
-                if (buttonArr[sDebugInfoButtonSeqID] == -1) {
-                    if (gDebugInfoFlags == DEBUG_INFO_FLAG_ALL) {
-                        gDebugInfoFlags = DEBUG_INFO_FLAG_LSELECT;
+        if ((s16)(cButtonMask = (WORLD(gPlayer1Controller)->buttonPressed & C_BUTTONS))) {
+            if (buttonArr[WORLD(sDebugInfoButtonSeqID)] == cButtonMask) {
+                WORLD(sDebugInfoButtonSeqID)++;
+                if (buttonArr[WORLD(sDebugInfoButtonSeqID)] == -1) {
+                    if (WORLD(gDebugInfoFlags) == DEBUG_INFO_FLAG_ALL) {
+                        WORLD(gDebugInfoFlags) = DEBUG_INFO_FLAG_LSELECT;
                     } else {
-                        gDebugInfoFlags = DEBUG_INFO_FLAG_ALL;
+                        WORLD(gDebugInfoFlags) = DEBUG_INFO_FLAG_ALL;
                     }
                 }
             } else {
-                sDebugInfoButtonSeqID = 0;
+                WORLD(sDebugInfoButtonSeqID) = 0;
             }
         }
     }
@@ -332,20 +332,20 @@ UNUSED static void check_debug_button_seq(void) {
  * control sDebugPage's range. (unused)
  */
 UNUSED static void try_change_debug_page(void) {
-    if (gDebugInfoFlags & DEBUG_INFO_FLAG_DPRINT) {
-        if ((gPlayer1Controller->buttonPressed & L_JPAD)
-            && (gPlayer1Controller->buttonDown & (L_TRIG | R_TRIG))) {
-            sDebugPage++;
+    if (WORLD(gDebugInfoFlags) & DEBUG_INFO_FLAG_DPRINT) {
+        if ((WORLD(gPlayer1Controller)->buttonPressed & L_JPAD)
+            && (WORLD(gPlayer1Controller)->buttonDown & (L_TRIG | R_TRIG))) {
+            WORLD(sDebugPage)++;
         }
-        if ((gPlayer1Controller->buttonPressed & R_JPAD)
-            && (gPlayer1Controller->buttonDown & (L_TRIG | R_TRIG))) {
-            sDebugPage--;
+        if ((WORLD(gPlayer1Controller)->buttonPressed & R_JPAD)
+            && (WORLD(gPlayer1Controller)->buttonDown & (L_TRIG | R_TRIG))) {
+            WORLD(sDebugPage)--;
         }
-        if (sDebugPage >= (DEBUG_PAGE_MAX + 1)) {
-            sDebugPage = DEBUG_PAGE_MIN;
+        if (WORLD(sDebugPage) >= (DEBUG_PAGE_MAX + 1)) {
+            WORLD(sDebugPage) = DEBUG_PAGE_MIN;
         }
-        if (sDebugPage < DEBUG_PAGE_MIN) {
-            sDebugPage = DEBUG_PAGE_MAX;
+        if (WORLD(sDebugPage) < DEBUG_PAGE_MIN) {
+            WORLD(sDebugPage) = DEBUG_PAGE_MAX;
         }
     }
 }
@@ -362,43 +362,43 @@ UNUSED static
 void try_modify_debug_controls(void) {
     s32 sp4;
 
-    if (gPlayer1Controller->buttonPressed & Z_TRIG) {
-        sNoExtraDebug ^= 1;
+    if (WORLD(gPlayer1Controller)->buttonPressed & Z_TRIG) {
+        WORLD(sNoExtraDebug) ^= 1;
     }
-    if (!(gPlayer1Controller->buttonDown & (L_TRIG | R_TRIG)) && !sNoExtraDebug) {
+    if (!(WORLD(gPlayer1Controller)->buttonDown & (L_TRIG | R_TRIG)) && !WORLD(sNoExtraDebug)) {
         sp4 = 1;
-        if (gPlayer1Controller->buttonDown & B_BUTTON) {
+        if (WORLD(gPlayer1Controller)->buttonDown & B_BUTTON) {
             sp4 = 100;
         }
 
-        if (sDebugInfoDPadMask & U_JPAD) {
-            sDebugSysCursor--;
-            if (sDebugSysCursor < 0) {
-                sDebugSysCursor = 0;
+        if (WORLD(sDebugInfoDPadMask) & U_JPAD) {
+            WORLD(sDebugSysCursor)--;
+            if (WORLD(sDebugSysCursor) < 0) {
+                WORLD(sDebugSysCursor) = 0;
             }
         }
 
-        if (sDebugInfoDPadMask & D_JPAD) {
-            sDebugSysCursor++;
-            if (sDebugSysCursor >= 8) {
-                sDebugSysCursor = 7;
+        if (WORLD(sDebugInfoDPadMask) & D_JPAD) {
+            WORLD(sDebugSysCursor)++;
+            if (WORLD(sDebugSysCursor) >= 8) {
+                WORLD(sDebugSysCursor) = 7;
             }
         }
 
-        if (sDebugInfoDPadMask & L_JPAD) {
+        if (WORLD(sDebugInfoDPadMask) & L_JPAD) {
             // we allow the player while in this mode to modify the debug controls. This is
             // so the playtester can adjust enemy behavior and parameters on the fly, since
             // various behaviors try to update their behaviors from gDebugInfo[4] and [5].
-            if (gPlayer1Controller->buttonDown & A_BUTTON) {
-                gDebugInfo[sDebugPage][sDebugSysCursor] =
-                    gDebugInfoOverwrite[sDebugPage][sDebugSysCursor];
+            if (WORLD(gPlayer1Controller)->buttonDown & A_BUTTON) {
+                WORLD(gDebugInfo)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)] =
+                    WORLD(gDebugInfoOverwrite)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)];
             } else {
-                gDebugInfo[sDebugPage][sDebugSysCursor] = gDebugInfo[sDebugPage][sDebugSysCursor] - sp4;
+                WORLD(gDebugInfo)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)] = WORLD(gDebugInfo)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)] - sp4;
             }
         }
 
-        if (sDebugInfoDPadMask & R_JPAD) {
-            gDebugInfo[sDebugPage][sDebugSysCursor] = gDebugInfo[sDebugPage][sDebugSysCursor] + sp4;
+        if (WORLD(sDebugInfoDPadMask) & R_JPAD) {
+            WORLD(gDebugInfo)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)] = WORLD(gDebugInfo)[WORLD(sDebugPage)][WORLD(sDebugSysCursor)] + sp4;
         }
     }
 }
@@ -413,8 +413,8 @@ void stub_debug_5(void) {
  * count, floor misses, and an unknown wall counter) is also printed.
  */
 void try_print_debug_mario_object_info(void) {
-    if (gMarioObject != NULL) {
-        switch (sDebugPage) {
+    if (WORLD(gMarioObject) != NULL) {
+        switch (WORLD(sDebugPage)) {
             case DEBUG_PAGE_CHECKSURFACEINFO:
                 print_surfaceinfo();
                 break;
@@ -429,14 +429,14 @@ void try_print_debug_mario_object_info(void) {
         }
     }
 
-    print_debug_top_down_mapinfo("obj  %d", gObjectCounter);
+    print_debug_top_down_mapinfo("obj  %d", WORLD(gObjectCounter));
 
-    if (gNumFindFloorMisses != 0) {
-        print_debug_bottom_up("NULLBG %d", gNumFindFloorMisses);
+    if (WORLD(gNumFindFloorMisses) != 0) {
+        print_debug_bottom_up("NULLBG %d", WORLD(gNumFindFloorMisses));
     }
 
-    if (gUnknownWallCount != 0) {
-        print_debug_bottom_up("WALL   %d", gUnknownWallCount);
+    if (WORLD(gUnknownWallCount) != 0) {
+        print_debug_bottom_up("WALL   %d", WORLD(gUnknownWallCount));
     }
 }
 
@@ -445,7 +445,7 @@ void try_print_debug_mario_object_info(void) {
  * stageinfo)
  */
 void try_print_debug_mario_level_info(void) {
-    switch (sDebugPage) {
+    switch (WORLD(sDebugPage)) {
         case DEBUG_PAGE_OBJECTINFO:
             break; // no info list is printed for obj info.
         case DEBUG_PAGE_CHECKSURFACEINFO:
@@ -473,16 +473,16 @@ void try_print_debug_mario_level_info(void) {
 void try_do_mario_debug_object_spawn(void) {
     UNUSED u8 filler[4];
 
-    if (sDebugPage == DEBUG_PAGE_STAGEINFO && gDebugInfo[DEBUG_PAGE_ENEMYINFO][7] == 1) {
-        if (gPlayer1Controller->buttonPressed & R_JPAD) {
-            spawn_object_relative(0, 0, 100, 200, gCurrentObject, MODEL_KOOPA_SHELL, bhvKoopaShell);
+    if (WORLD(sDebugPage) == DEBUG_PAGE_STAGEINFO && WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][7] == 1) {
+        if (WORLD(gPlayer1Controller)->buttonPressed & R_JPAD) {
+            spawn_object_relative(0, 0, 100, 200, WORLD(gCurrentObject), MODEL_KOOPA_SHELL, bhvKoopaShell);
         }
-        if (gPlayer1Controller->buttonPressed & L_JPAD) {
-            spawn_object_relative(0, 0, 100, 200, gCurrentObject, MODEL_BREAKABLE_BOX_SMALL,
+        if (WORLD(gPlayer1Controller)->buttonPressed & L_JPAD) {
+            spawn_object_relative(0, 0, 100, 200, WORLD(gCurrentObject), MODEL_BREAKABLE_BOX_SMALL,
                                   bhvJumpingBox);
         }
-        if (gPlayer1Controller->buttonPressed & D_JPAD) {
-            spawn_object_relative(0, 0, 100, 200, gCurrentObject, MODEL_KOOPA_SHELL,
+        if (WORLD(gPlayer1Controller)->buttonPressed & D_JPAD) {
+            spawn_object_relative(0, 0, 100, 200, WORLD(gCurrentObject), MODEL_KOOPA_SHELL,
                                   bhvKoopaShellUnderwater);
         }
     }
@@ -491,32 +491,32 @@ void try_do_mario_debug_object_spawn(void) {
 // TODO: figure out what this is
 void debug_print_obj_move_flags(void) {
 #ifndef VERSION_EU // TODO: Is there a better way to diff this? static EU doesn't seem to work.
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_LANDED) {
-        print_debug_top_down_objectinfo("BOUND   %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_LANDED) {
+        print_debug_top_down_objectinfo("BOUND   %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_ON_GROUND) {
-        print_debug_top_down_objectinfo("TOUCH   %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_ON_GROUND) {
+        print_debug_top_down_objectinfo("TOUCH   %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_LEFT_GROUND) {
-        print_debug_top_down_objectinfo("TAKEOFF %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_LEFT_GROUND) {
+        print_debug_top_down_objectinfo("TAKEOFF %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_ENTERED_WATER) {
-        print_debug_top_down_objectinfo("DIVE    %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_ENTERED_WATER) {
+        print_debug_top_down_objectinfo("DIVE    %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_AT_WATER_SURFACE) {
-        print_debug_top_down_objectinfo("S WATER %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_AT_WATER_SURFACE) {
+        print_debug_top_down_objectinfo("S WATER %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_UNDERWATER_OFF_GROUND) {
-        print_debug_top_down_objectinfo("U WATER %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_UNDERWATER_OFF_GROUND) {
+        print_debug_top_down_objectinfo("U WATER %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_UNDERWATER_ON_GROUND) {
-        print_debug_top_down_objectinfo("B WATER %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_UNDERWATER_ON_GROUND) {
+        print_debug_top_down_objectinfo("B WATER %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_IN_AIR) {
-        print_debug_top_down_objectinfo("SKY     %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_IN_AIR) {
+        print_debug_top_down_objectinfo("SKY     %x", WORLD(gCurrentObject)->oMoveFlags);
     }
-    if (gCurrentObject->oMoveFlags & OBJ_MOVE_OUT_SCOPE) {
-        print_debug_top_down_objectinfo("OUT SCOPE %x", gCurrentObject->oMoveFlags);
+    if (WORLD(gCurrentObject)->oMoveFlags & OBJ_MOVE_OUT_SCOPE) {
+        print_debug_top_down_objectinfo("OUT SCOPE %x", WORLD(gCurrentObject)->oMoveFlags);
     }
 #endif
 }
@@ -524,8 +524,8 @@ void debug_print_obj_move_flags(void) {
 // unused, what is this?
 void debug_enemy_unknown(s16 *enemyArr) {
     // copy b1-b4 over to an unknown s16 array
-    enemyArr[4] = gDebugInfo[DEBUG_PAGE_ENEMYINFO][1];
-    enemyArr[5] = gDebugInfo[DEBUG_PAGE_ENEMYINFO][2];
-    enemyArr[6] = gDebugInfo[DEBUG_PAGE_ENEMYINFO][3];
-    enemyArr[7] = gDebugInfo[DEBUG_PAGE_ENEMYINFO][4];
+    enemyArr[4] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][1];
+    enemyArr[5] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][2];
+    enemyArr[6] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][3];
+    enemyArr[7] = WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][4];
 }

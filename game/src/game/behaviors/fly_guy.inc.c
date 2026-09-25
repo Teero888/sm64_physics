@@ -46,7 +46,7 @@ static void fly_guy_act_idle(void) {
                 o->oFlyGuyIdleTimer = 0;
                 o->oAction = FLY_GUY_ACT_APPROACH_MARIO;
             } else {
-                o->oFlyGuyUnusedJitter = o->oMoveAngleYaw + sFlyGuyJitterAmounts[o->oFlyGuyIdleTimer];
+                o->oFlyGuyUnusedJitter = o->oMoveAngleYaw + WORLD(sFlyGuyJitterAmounts)[o->oFlyGuyIdleTimer];
                 o->oFlyGuyIdleTimer++;
             }
         }
@@ -69,7 +69,7 @@ static void fly_guy_act_approach_mario(void) {
         // If facing toward mario and we are either near mario laterally or
         // far above him
         if (abs_angle_diff(o->oAngleToMario, o->oFaceAngleYaw) < 0x2000
-            && (o->oPosY - gMarioObject->oPosY > 400.0f || o->oDistanceToMario < 400.0f)) {
+            && (o->oPosY - WORLD(gMarioObject)->oPosY > 400.0f || o->oDistanceToMario < 400.0f)) {
             // Either shoot fire or lunge
             if (o->oBhvParams2ndByte != FLY_GUY_BP_GENERIC && random_u16() % 2) {
                 o->oAction = FLY_GUY_ACT_SHOOT_FIRE;
@@ -115,7 +115,7 @@ static void fly_guy_act_lunge(void) {
         obj_face_yaw_approach(o->oMoveAngleYaw, 0x800);
 
         // Continue moving upward until at least 200 units above mario
-        if (o->oPosY < gMarioObject->oPosY + 200.0f) {
+        if (o->oPosY < WORLD(gMarioObject)->oPosY + 200.0f) {
             obj_y_vel_approach(20.0f, 0.5f);
         } else if (obj_y_vel_approach(0.0f, 0.5f)) {
             // Wait until roll is zero
@@ -212,6 +212,6 @@ void bhv_fly_guy_update(void) {
         }
 
         cur_obj_move_standard(78);
-        obj_check_attacks(&sFlyGuyHitbox, o->oAction);
+        obj_check_attacks(&WORLD(sFlyGuyHitbox), o->oAction);
     }
 }

@@ -18,7 +18,7 @@ void guRotateF(float m[4][4], float a, float x, float y, float z) {
 
     guNormalize(&x, &y, &z);
 
-    a = a * pi_180;
+    a = a * WORLD(pi_180);
 
     sin_a = sinf(a);
     cos_a = cosf(a);

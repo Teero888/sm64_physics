@@ -9,10 +9,10 @@
  */
 void bhv_mips_init(void) {
     // Retrieve star flags for Castle Secret Stars on current save file.
-    u8 starFlags = save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(COURSE_NONE));
+    u8 starFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(COURSE_NONE));
 
     // If the player has >= 15 stars and hasn't collected first MIPS star...
-    if (save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 15
+    if (save_file_get_total_star_count(WORLD(gCurrSaveFileNum) - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 15
         && !(starFlags & SAVE_FLAG_TO_STAR_FLAG(SAVE_FLAG_COLLECTED_MIPS_STAR_1))) {
         o->oBhvParams2ndByte = MIPS_BP_15_STARS;
 #ifndef VERSION_JP
@@ -20,7 +20,7 @@ void bhv_mips_init(void) {
 #endif
     }
     // If the player has >= 50 stars and hasn't collected second MIPS star...
-    else if (save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 50
+    else if (save_file_get_total_star_count(WORLD(gCurrSaveFileNum) - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 50
              && !(starFlags & SAVE_FLAG_TO_STAR_FLAG(SAVE_FLAG_COLLECTED_MIPS_STAR_2))) {
         o->oBhvParams2ndByte = MIPS_BP_50_STARS;
 #ifndef VERSION_JP
@@ -67,7 +67,7 @@ s16 bhv_mips_find_furthest_waypoint_to_mario(void) {
         if (is_point_close_to_object(o, x, y, z, 800)) {
             // Is this further from Mario than the last waypoint?
             distanceToMario =
-                sqr(x - gMarioObject->header.gfx.pos[0]) + sqr(z - gMarioObject->header.gfx.pos[2]);
+                sqr(x - WORLD(gMarioObject)->header.gfx.pos[0]) + sqr(z - WORLD(gMarioObject)->header.gfx.pos[2]);
             if (furthestWaypointDistance < distanceToMario) {
                 furthestWaypointIndex = i;
                 furthestWaypointDistance = distanceToMario;
@@ -229,7 +229,7 @@ void bhv_mips_held(void) {
 
     o->header.gfx.node.flags |= GRAPH_RENDER_INVISIBLE;
     cur_obj_init_animation(4); // Held animation.
-    cur_obj_set_pos_relative(gMarioObject, 0, 60.0f, 100.0f);
+    cur_obj_set_pos_relative(WORLD(gMarioObject), 0, 60.0f, 100.0f);
     cur_obj_become_intangible();
 
     // If MIPS hasn't spawned his star yet...

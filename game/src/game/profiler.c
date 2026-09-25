@@ -20,19 +20,19 @@ struct ProfilerFrameData gProfilerFrameData[2];
 
 // log the current osTime to the appropriate idx for current thread5 processes.
 void profiler_log_thread5_time(enum ProfilerGameEvent eventID) {
-    gProfilerFrameData[gCurrentFrameIndex1].gameTimes[eventID] = osGetTime();
+    WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex1)].gameTimes[eventID] = osGetTime();
 
     // event ID 4 is the last profiler event for after swapping
     // buffers: switch the Info after updating.
     if (eventID == THREAD5_END) {
-        gCurrentFrameIndex1 ^= 1;
-        gProfilerFrameData[gCurrentFrameIndex1].numSoundTimes = 0;
+        WORLD(gCurrentFrameIndex1) ^= 1;
+        WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex1)].numSoundTimes = 0;
     }
 }
 
 // log the audio system before and after osTimes in pairs to the soundTimes array.
 void profiler_log_thread4_time(void) {
-    struct ProfilerFrameData *profiler = &gProfilerFrameData[gCurrentFrameIndex1];
+    struct ProfilerFrameData *profiler = &WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex1)];
 
     if (profiler->numSoundTimes < ARRAY_COUNT(profiler->soundTimes)) {
         profiler->soundTimes[profiler->numSoundTimes++] = osGetTime();
@@ -42,16 +42,16 @@ void profiler_log_thread4_time(void) {
 // log the times for gfxTimes: RSP completes, and RDP completes.
 void profiler_log_gfx_time(enum ProfilerGfxEvent eventID) {
     if (eventID == TASKS_QUEUED) {
-        gCurrentFrameIndex2 ^= 1;
-        gProfilerFrameData[gCurrentFrameIndex2].numVblankTimes = 0;
+        WORLD(gCurrentFrameIndex2) ^= 1;
+        WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex2)].numVblankTimes = 0;
     }
 
-    gProfilerFrameData[gCurrentFrameIndex2].gfxTimes[eventID] = osGetTime();
+    WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex2)].gfxTimes[eventID] = osGetTime();
 }
 
 // log the times between vblank started and ended.
 void profiler_log_vblank_time(void) {
-    struct ProfilerFrameData *profiler = &gProfilerFrameData[gCurrentFrameIndex2];
+    struct ProfilerFrameData *profiler = &WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex2)];
 
     if (profiler->numVblankTimes < ARRAY_COUNT(profiler->vblankTimes)) {
         profiler->vblankTimes[profiler->numVblankTimes++] = osGetTime();
@@ -73,8 +73,8 @@ void draw_profiler_bar(OSTime clockBase, OSTime clockStart, OSTime clockEnd, s16
     }
 
     // calculate the x coordinates of where start and end begins, respectively.
-    rectX1 = ((((durationStart * 1000000) / osClockRate * 3) / 1000) + 30);
-    rectX2 = ((((durationEnd * 1000000) / osClockRate * 3) / 1000) + 30);
+    rectX1 = ((((durationStart * 1000000) / WORLD(osClockRate) * 3) / 1000) + 30);
+    rectX2 = ((((durationEnd * 1000000) / WORLD(osClockRate) * 3) / 1000) + 30);
 
     //! I believe this is supposed to cap rectX1 and rectX2 to 320, but the
     //  code seems to use the wrong variables... it's possible that the variable
@@ -88,9 +88,9 @@ void draw_profiler_bar(OSTime clockBase, OSTime clockStart, OSTime clockEnd, s16
 
     // perform the render if start is less than end. in most cases, it should be.
     if (rectX1 < rectX2) {
-        gDPPipeSync(gDisplayListHead++);
-        gDPSetFillColor(gDisplayListHead++, color << 16 | color);
-        gDPFillRectangle(gDisplayListHead++, rectX1, posY, rectX2, posY + 2);
+        gDPPipeSync(WORLD(gDisplayListHead)++);
+        gDPSetFillColor(WORLD(gDisplayListHead)++, color << 16 | color);
+        gDPFillRectangle(WORLD(gDisplayListHead)++, rectX1, posY, rectX2, posY + 2);
     }
 }
 
@@ -98,28 +98,28 @@ void draw_reference_profiler_bars(void) {
     // Draws the reference "max" bars underneath the real thing.
 
     // Blue
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetFillColor(gDisplayListHead++,
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetFillColor(WORLD(gDisplayListHead)++,
                     GPACK_RGBA5551(40, 80, 255, 1) << 16 | GPACK_RGBA5551(40, 80, 255, 1));
-    gDPFillRectangle(gDisplayListHead++, 30, 220, 79, 222);
+    gDPFillRectangle(WORLD(gDisplayListHead)++, 30, 220, 79, 222);
 
     // Yellow
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetFillColor(gDisplayListHead++,
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetFillColor(WORLD(gDisplayListHead)++,
                     GPACK_RGBA5551(255, 255, 40, 1) << 16 | GPACK_RGBA5551(255, 255, 40, 1));
-    gDPFillRectangle(gDisplayListHead++, 79, 220, 128, 222);
+    gDPFillRectangle(WORLD(gDisplayListHead)++, 79, 220, 128, 222);
 
     // Orange
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetFillColor(gDisplayListHead++,
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetFillColor(WORLD(gDisplayListHead)++,
                     GPACK_RGBA5551(255, 120, 40, 1) << 16 | GPACK_RGBA5551(255, 120, 40, 1));
-    gDPFillRectangle(gDisplayListHead++, 128, 220, 177, 222);
+    gDPFillRectangle(WORLD(gDisplayListHead)++, 128, 220, 177, 222);
 
     // Red
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetFillColor(gDisplayListHead++,
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetFillColor(WORLD(gDisplayListHead)++,
                     GPACK_RGBA5551(255, 40, 40, 1) << 16 | GPACK_RGBA5551(255, 40, 40, 1));
-    gDPFillRectangle(gDisplayListHead++, 177, 220, 226, 222);
+    gDPFillRectangle(WORLD(gDisplayListHead)++, 177, 220, 226, 222);
 }
 
 /*
@@ -144,10 +144,10 @@ void draw_profiler_mode_1(void) {
     // the profiler logs 2 frames of data: last frame and current frame. Indexes are used
     // to keep track of the current frame, so the index is xor'd to retrieve the last frame's
     // data.
-    profiler = &gProfilerFrameData[gCurrentFrameIndex1 ^ 1];
+    profiler = &WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex1) ^ 1];
 
     // calculate the clockBase.
-    clockBase = profiler->soundTimes[0] - (16433 * osClockRate / 1000000);
+    clockBase = profiler->soundTimes[0] - (16433 * WORLD(osClockRate) / 1000000);
 
     // draw the profiler for the time it takes for level scripts to execute. (yellow)
     draw_profiler_bar(clockBase, profiler->gameTimes[0], profiler->gameTimes[1], 212,
@@ -222,7 +222,7 @@ void draw_profiler_mode_0(void) {
 
     // get the last frame profiler. gCurrentFrameIndex1 has the current frame being processed, so
     // xor it to get the last frame profiler.
-    profiler = &gProfilerFrameData[gCurrentFrameIndex1 ^ 1];
+    profiler = &WORLD(gProfilerFrameData)[WORLD(gCurrentFrameIndex1) ^ 1];
 
     // was thread 5 ran before thread 4? set the lower one to be the clockStart.
     clockStart = profiler->gameTimes[0] <= profiler->soundTimes[0] ? profiler->gameTimes[0]
@@ -296,11 +296,11 @@ void draw_profiler_mode_0(void) {
 // Draw the Profiler per frame. Toggle the mode if the player presses L while this
 // renderer is active.
 void draw_profiler(void) {
-    if (gPlayer1Controller->buttonPressed & L_TRIG) {
-        gProfilerMode ^= 1;
+    if (WORLD(gPlayer1Controller)->buttonPressed & L_TRIG) {
+        WORLD(gProfilerMode) ^= 1;
     }
 
-    if (gProfilerMode == 0) {
+    if (WORLD(gProfilerMode) == 0) {
         draw_profiler_mode_0();
     } else {
         draw_profiler_mode_1();

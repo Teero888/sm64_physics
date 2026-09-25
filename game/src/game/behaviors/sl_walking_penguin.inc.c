@@ -51,13 +51,13 @@ void bhv_sl_walking_penguin_loop(void) {
             }
 
             if (o->oSLWalkingPenguinCurStepTimer <
-                sSLWalkingPenguinErraticSteps[o->oSLWalkingPenguinCurStep].stepLength) {
+                WORLD(sSLWalkingPenguinErraticSteps)[o->oSLWalkingPenguinCurStep].stepLength) {
                 o->oSLWalkingPenguinCurStepTimer++;
             } else {
                 // Move to next step
                 o->oSLWalkingPenguinCurStepTimer = 0;
                 o->oSLWalkingPenguinCurStep++;
-                if (sSLWalkingPenguinErraticSteps[o->oSLWalkingPenguinCurStep].stepLength < 0) {
+                if (WORLD(sSLWalkingPenguinErraticSteps)[o->oSLWalkingPenguinCurStep].stepLength < 0) {
                     // Reached the end of the list, go back to the start
                     o->oSLWalkingPenguinCurStep = 0;
                 }
@@ -67,11 +67,11 @@ void bhv_sl_walking_penguin_loop(void) {
                 o->oAction++; // If reached the end of the bridge, turn around and head back.
             } else {
                 // Move and animate the penguin
-                o->oForwardVel = sSLWalkingPenguinErraticSteps[o->oSLWalkingPenguinCurStep].speed;
+                o->oForwardVel = WORLD(sSLWalkingPenguinErraticSteps)[o->oSLWalkingPenguinCurStep].speed;
 
                 cur_obj_init_animation_with_accel_and_sound(
-                    sSLWalkingPenguinErraticSteps[o->oSLWalkingPenguinCurStep].anim,
-                    sSLWalkingPenguinErraticSteps[o->oSLWalkingPenguinCurStep].animSpeed
+                    WORLD(sSLWalkingPenguinErraticSteps)[o->oSLWalkingPenguinCurStep].anim,
+                    WORLD(sSLWalkingPenguinErraticSteps)[o->oSLWalkingPenguinCurStep].animSpeed
                 );
             }
             break;

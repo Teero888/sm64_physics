@@ -39,7 +39,7 @@ void bhv_activated_back_and_forth_platform_init(void) {
     }
 
     o->collisionData =
-        segmented_to_virtual(sActivatedBackAndForthPlatformCollisionModels[platformType]);
+        segmented_to_virtual(WORLD(sActivatedBackAndForthPlatformCollisionModels)[platformType]);
 
     // Max distance the platform should move.
     // Equivalent to 50 * (oBhvParams2ndByte & 0x7F), i.e. 50 * (oBhvParams2ndByte % 128).
@@ -66,7 +66,7 @@ void bhv_activated_back_and_forth_platform_update(void) {
 
     // oVelY is used for vertical platforms' movement and also for
     // horizontal platforms' dipping up/down when Mario gets on/off them
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         o->oVelY = -6.0f;
     } else {
         o->oVelY = 6.0f;

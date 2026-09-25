@@ -42,7 +42,7 @@ extern const MacroObject ccm_seg7_area_1_macro_objs[];
 extern const Collision ccm_seg7_collision_070163F8[];
 extern const Trajectory ccm_seg7_trajectory_snowman[];
 extern const Trajectory ccm_seg7_trajectory_0701669C[];
-extern const struct MovtexQuadCollection ccm_movtex_penguin_puddle_water[];
+extern struct MovtexQuadCollection ccm_movtex_penguin_puddle_water[];
 extern const Gfx ccm_seg7_dl_0701CE30[];
 extern const Gfx ccm_seg7_dl_0701E558[];
 extern const Gfx ccm_seg7_dl_0701E6B0[];

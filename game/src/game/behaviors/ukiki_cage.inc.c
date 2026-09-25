@@ -19,7 +19,7 @@ void bhv_ukiki_cage_star_loop(void) {
             // Initialization to see if the star is collected (blue) or not (yellow).
             if (o->oTimer == 0) {
                 if (bit_shift_left(1)
-                    & save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(gCurrCourseNum))) {
+                    & save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)))) {
                     cur_obj_set_model(MODEL_TRANSPARENT_STAR);
                 }
             }
@@ -104,5 +104,5 @@ void (*sUkikiCageActions[])(void) = {
  * Main behavior loop for the cage. Only calls the relevant action.
  */
 void bhv_ukiki_cage_loop(void) {
-    cur_obj_call_action_function(sUkikiCageActions);
+    cur_obj_call_action_function(WORLD(sUkikiCageActions));
 }

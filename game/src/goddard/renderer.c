@@ -758,7 +758,7 @@ void reset_cur_dl_indices(void);
 // TODO: make a gddl_num_t?
 
 u32 get_alloc_mem_amt(void) {
-    return sAllocMemory;
+    return WORLD(sAllocMemory);
 }
 
 /**
@@ -769,75 +769,75 @@ s32 gd_get_ostime(void) {
 }
 
 f32 get_time_scale(void) {
-    return sTimeScaleFactor;
+    return WORLD(sTimeScaleFactor);
 }
 
 void dump_disp_list(void) {
-    gd_printf("%d\n", sCurrentGdDl->id);
-    gd_printf("Vtx=%d/%d, Mtx=%d/%d, Light=%d/%d, Gfx=%d/%d\n", sCurrentGdDl->curVtxIdx,
-              sCurrentGdDl->totalVtx, sCurrentGdDl->curMtxIdx, sCurrentGdDl->totalMtx,
-              sCurrentGdDl->curLightIdx, sCurrentGdDl->totalLights, sCurrentGdDl->curGfxIdx,
-              sCurrentGdDl->totalGfx);
+    gd_printf("%d\n", WORLD(sCurrentGdDl)->id);
+    gd_printf("Vtx=%d/%d, Mtx=%d/%d, Light=%d/%d, Gfx=%d/%d\n", WORLD(sCurrentGdDl)->curVtxIdx,
+              WORLD(sCurrentGdDl)->totalVtx, WORLD(sCurrentGdDl)->curMtxIdx, WORLD(sCurrentGdDl)->totalMtx,
+              WORLD(sCurrentGdDl)->curLightIdx, WORLD(sCurrentGdDl)->totalLights, WORLD(sCurrentGdDl)->curGfxIdx,
+              WORLD(sCurrentGdDl)->totalGfx);
 }
 
 /**
  * Increments the current display list's Gfx index list and returns a pointer to the next Gfx element
  */
 static Gfx *next_gfx(void) {
-    if (sCurrentGdDl->curGfxIdx >= sCurrentGdDl->totalGfx) {
+    if (WORLD(sCurrentGdDl)->curGfxIdx >= WORLD(sCurrentGdDl)->totalGfx) {
         dump_disp_list();
         fatal_printf("Gfx list overflow");
     }
 
-    return &sCurrentGdDl->gfx[sCurrentGdDl->curGfxIdx++];
+    return &WORLD(sCurrentGdDl)->gfx[WORLD(sCurrentGdDl)->curGfxIdx++];
 }
 
 /**
  * Increments the current display list's Light index list and returns a pointer to the next Light element
  */
 static Lights4 *next_light(void) {
-    if (sCurrentGdDl->curLightIdx >= sCurrentGdDl->totalLights) {
+    if (WORLD(sCurrentGdDl)->curLightIdx >= WORLD(sCurrentGdDl)->totalLights) {
         dump_disp_list();
         fatal_printf("Light list overflow");
     }
 
-    return &sCurrentGdDl->light[sCurrentGdDl->curLightIdx++];
+    return &WORLD(sCurrentGdDl)->light[WORLD(sCurrentGdDl)->curLightIdx++];
 }
 
 /**
  * Increments the current display list's matrix index list and returns a pointer to the next matrix element
  */
 static Mtx *next_mtx(void) {
-    if (sCurrentGdDl->curMtxIdx >= sCurrentGdDl->totalMtx) {
+    if (WORLD(sCurrentGdDl)->curMtxIdx >= WORLD(sCurrentGdDl)->totalMtx) {
         dump_disp_list();
         fatal_printf("Mtx list overflow");
     }
 
-    return &sCurrentGdDl->mtx[sCurrentGdDl->curMtxIdx++];
+    return &WORLD(sCurrentGdDl)->mtx[WORLD(sCurrentGdDl)->curMtxIdx++];
 }
 
 /**
  * Increments the current display list's vertex index list and returns a pointer to the next vertex element
  */
 static Vtx *next_vtx(void) {
-    if (sCurrentGdDl->curVtxIdx >= sCurrentGdDl->totalVtx) {
+    if (WORLD(sCurrentGdDl)->curVtxIdx >= WORLD(sCurrentGdDl)->totalVtx) {
         dump_disp_list();
         fatal_printf("Vtx list overflow");
     }
 
-    return &sCurrentGdDl->vtx[sCurrentGdDl->curVtxIdx++];
+    return &WORLD(sCurrentGdDl)->vtx[WORLD(sCurrentGdDl)->curVtxIdx++];
 }
 
 /**
  * Increments the current display list's viewport list and returns a pointer to the next viewport element
  */
 static Vp *next_vp(void) {
-    if (sCurrentGdDl->curVpIdx >= sCurrentGdDl->totalVp) {
+    if (WORLD(sCurrentGdDl)->curVpIdx >= WORLD(sCurrentGdDl)->totalVp) {
         dump_disp_list();
         fatal_printf("Vp list overflow");
     }
 
-    return &sCurrentGdDl->vp[sCurrentGdDl->curVpIdx++];
+    return &WORLD(sCurrentGdDl)->vp[WORLD(sCurrentGdDl)->curVpIdx++];
 }
 
 /* 249AAC -> 249AEC */
@@ -973,7 +973,7 @@ void gd_exit(UNUSED s32 code) {
 
 /* 24A1D4 -> 24A220; orig name: func_8019BA04 */
 void gd_free(void *ptr) {
-    sAllocMemory -= gd_free_mem(ptr);
+    WORLD(sAllocMemory) -= gd_free_mem(ptr);
 }
 
 /* 24A220 -> 24A318 */
@@ -981,17 +981,17 @@ void *gd_allocblock(u32 size) {
     void *block; // 1c
 
     size = ALIGN(size, 8);
-    if ((sMemBlockPoolUsed + size) > sMemBlockPoolSize) {
+    if ((WORLD(sMemBlockPoolUsed) + size) > WORLD(sMemBlockPoolSize)) {
         gd_printf("gd_allocblock(): Failed request: %dk (%d bytes)\n", size / 1024, size);
-        gd_printf("gd_allocblock(): Heap usage: %dk (%d bytes) \n", sMemBlockPoolUsed / 1024,
-                  sMemBlockPoolUsed);
+        gd_printf("gd_allocblock(): Heap usage: %dk (%d bytes) \n", WORLD(sMemBlockPoolUsed) / 1024,
+                  WORLD(sMemBlockPoolUsed));
         print_all_memtrackers();
         mem_stats();
         fatal_printf("exit");
     }
 
-    block = sMemBlockPoolBase + sMemBlockPoolUsed;
-    sMemBlockPoolUsed += size;
+    block = WORLD(sMemBlockPoolBase) + WORLD(sMemBlockPoolUsed);
+    WORLD(sMemBlockPoolUsed) += size;
     return block;
 }
 
@@ -1003,13 +1003,13 @@ void *gd_malloc(u32 size, u8 perm) {
 
     if (ptr == NULL) {
         gd_printf("gd_malloc(): Failed request: %dk (%d bytes)\n", size / 1024, size);
-        gd_printf("gd_malloc(): Heap usage: %dk (%d bytes) \n", sAllocMemory / 1024, sAllocMemory);
+        gd_printf("gd_malloc(): Heap usage: %dk (%d bytes) \n", WORLD(sAllocMemory) / 1024, WORLD(sAllocMemory));
         print_all_memtrackers();
         mem_stats();
         return NULL;
     }
 
-    sAllocMemory += size;
+    WORLD(sAllocMemory) += size;
 
     return ptr;
 }
@@ -1039,9 +1039,9 @@ void draw_indexed_dl(s32 dlNum, s32 gfxIdx) {
     Gfx *dl;
 
     if (gfxIdx != 0) {
-        dl = sGdDLArray[dlNum]->dlptr[gfxIdx - 1];  // multiple display lists (determined by frame)
+        dl = WORLD(sGdDLArray)[dlNum]->dlptr[gfxIdx - 1];  // multiple display lists (determined by frame)
     } else {
-        dl = sGdDLArray[dlNum]->gfx;  // only one display list
+        dl = WORLD(sGdDLArray)[dlNum]->gfx;  // only one display list
     }
     gSPDisplayList(next_gfx(), GD_VIRTUAL_TO_PHYSICAL(dl));
 }
@@ -1051,7 +1051,7 @@ void branch_cur_dl_to_num(s32 dlNum) {
     Gfx *dl;
     UNUSED u8 filler[8];
 
-    dl = sGdDLArray[dlNum]->gfx;
+    dl = WORLD(sGdDLArray)[dlNum]->gfx;
     gSPDisplayList(next_gfx(), GD_VIRTUAL_TO_PHYSICAL(dl));
 }
 
@@ -1059,38 +1059,38 @@ void branch_cur_dl_to_num(s32 dlNum) {
  * Unused (not called)
  */
 Gfx *get_dl_gfx(s32 num) {
-    return sGdDLArray[num]->gfx;
+    return WORLD(sGdDLArray)[num]->gfx;
 }
 
 /**
  * Creates `ObjShape`s for the stars and sparkles
  */
 void setup_stars(void) {
-    gShapeRedStar = make_shape(0, "redstar");
-    gShapeRedStar->dlNums[0] = new_gddl_from(NULL, 0);
-    gShapeRedStar->dlNums[1] = gShapeRedStar->dlNums[0];
-    sGdDLArray[gShapeRedStar->dlNums[0]]->dlptr = gd_red_star_dl_array;
-    sGdDLArray[gShapeRedStar->dlNums[1]]->dlptr = gd_red_star_dl_array;
+    WORLD(gShapeRedStar) = make_shape(0, "redstar");
+    WORLD(gShapeRedStar)->dlNums[0] = new_gddl_from(NULL, 0);
+    WORLD(gShapeRedStar)->dlNums[1] = WORLD(gShapeRedStar)->dlNums[0];
+    WORLD(sGdDLArray)[WORLD(gShapeRedStar)->dlNums[0]]->dlptr = WORLD(gd_red_star_dl_array);
+    WORLD(sGdDLArray)[WORLD(gShapeRedStar)->dlNums[1]]->dlptr = WORLD(gd_red_star_dl_array);
 
-    gShapeSilverStar = make_shape(0, "silverstar");
-    gShapeSilverStar->dlNums[0] = new_gddl_from(NULL, 0);
-    gShapeSilverStar->dlNums[1] = gShapeSilverStar->dlNums[0];
-    sGdDLArray[gShapeSilverStar->dlNums[0]]->dlptr = gd_silver_star_dl_array;
-    sGdDLArray[gShapeSilverStar->dlNums[1]]->dlptr = gd_silver_star_dl_array;
+    WORLD(gShapeSilverStar) = make_shape(0, "silverstar");
+    WORLD(gShapeSilverStar)->dlNums[0] = new_gddl_from(NULL, 0);
+    WORLD(gShapeSilverStar)->dlNums[1] = WORLD(gShapeSilverStar)->dlNums[0];
+    WORLD(sGdDLArray)[WORLD(gShapeSilverStar)->dlNums[0]]->dlptr = WORLD(gd_silver_star_dl_array);
+    WORLD(sGdDLArray)[WORLD(gShapeSilverStar)->dlNums[1]]->dlptr = WORLD(gd_silver_star_dl_array);
 
     // make_shape names of the dl array they call are misnamed (swapped)
     // "sspark" calls red sparkles and "rspark" calls silver sparkles
-    gShapeRedSpark = make_shape(0, "sspark");
-    gShapeRedSpark->dlNums[0] = new_gddl_from(NULL, 0);
-    gShapeRedSpark->dlNums[1] = gShapeRedSpark->dlNums[0];
-    sGdDLArray[gShapeRedSpark->dlNums[0]]->dlptr = gd_red_sparkle_dl_array;
-    sGdDLArray[gShapeRedSpark->dlNums[1]]->dlptr = gd_red_sparkle_dl_array;
+    WORLD(gShapeRedSpark) = make_shape(0, "sspark");
+    WORLD(gShapeRedSpark)->dlNums[0] = new_gddl_from(NULL, 0);
+    WORLD(gShapeRedSpark)->dlNums[1] = WORLD(gShapeRedSpark)->dlNums[0];
+    WORLD(sGdDLArray)[WORLD(gShapeRedSpark)->dlNums[0]]->dlptr = WORLD(gd_red_sparkle_dl_array);
+    WORLD(sGdDLArray)[WORLD(gShapeRedSpark)->dlNums[1]]->dlptr = WORLD(gd_red_sparkle_dl_array);
 
-    gShapeSilverSpark = make_shape(0, "rspark");
-    gShapeSilverSpark->dlNums[0] = new_gddl_from(NULL, 0);
-    gShapeSilverSpark->dlNums[1] = gShapeSilverSpark->dlNums[0];
-    sGdDLArray[gShapeSilverSpark->dlNums[0]]->dlptr = gd_silver_sparkle_dl_array;
-    sGdDLArray[gShapeSilverSpark->dlNums[1]]->dlptr = gd_silver_sparkle_dl_array;
+    WORLD(gShapeSilverSpark) = make_shape(0, "rspark");
+    WORLD(gShapeSilverSpark)->dlNums[0] = new_gddl_from(NULL, 0);
+    WORLD(gShapeSilverSpark)->dlNums[1] = WORLD(gShapeSilverSpark)->dlNums[0];
+    WORLD(sGdDLArray)[WORLD(gShapeSilverSpark)->dlNums[0]]->dlptr = WORLD(gd_silver_sparkle_dl_array);
+    WORLD(sGdDLArray)[WORLD(gShapeSilverSpark)->dlNums[1]]->dlptr = WORLD(gd_silver_sparkle_dl_array);
 }
 
 /* 24A8D0 -> 24AA40 */
@@ -1129,12 +1129,12 @@ void setup_timers(void) {
 
 /* 24AA40 -> 24AA58 */
 void Unknown8019C270(u8 *buf) {
-    gGdStreamBuffer = buf;
+    WORLD(gGdStreamBuffer) = buf;
 }
 
 /* 24AA58 -> 24AAA8 */
 void Unknown8019C288(s32 stickX, s32 stickY) {
-    struct GdControl *ctrl = &gGdCtrl; // 4
+    struct GdControl *ctrl = &WORLD(gGdCtrl); // 4
 
     ctrl->stickXf = (f32) stickX;
     ctrl->stickYf = (f32)(stickY / 2);
@@ -1155,10 +1155,10 @@ void gdm_init(void *blockpool, u32 size) {
     size = (size - 8) & ~7;
     // Align to next double word boundry?
     blockpool = (void *) (((uintptr_t) blockpool + 8) & ~7);
-    sMemBlockPoolBase = blockpool;
-    sMemBlockPoolSize = size;
-    sMemBlockPoolUsed = 0;
-    sAllocMemory = 0;
+    WORLD(sMemBlockPoolBase) = blockpool;
+    WORLD(sMemBlockPoolSize) = size;
+    WORLD(sMemBlockPoolUsed) = 0;
+    WORLD(sAllocMemory) = 0;
     init_mem_block_lists();
     gd_reset_sfx();
     imout();
@@ -1171,13 +1171,13 @@ void gdm_setup(void) {
     UNUSED u8 filler[4];
 
     imin("gdm_setup");
-    sYoshiSceneGrp = NULL;
-    sMarioSceneGrp = NULL;
-    sUpdateYoshiScene = FALSE;
-    sUpdateMarioScene = FALSE;
-    sCarGdDlNum = 0;
+    WORLD(sYoshiSceneGrp) = NULL;
+    WORLD(sMarioSceneGrp) = NULL;
+    WORLD(sUpdateYoshiScene) = FALSE;
+    WORLD(sUpdateMarioScene) = FALSE;
+    WORLD(sCarGdDlNum) = 0;
     osViSetSpecialFeatures(OS_VI_GAMMA_OFF);
-    osCreateMesgQueue(&sGdDMAQueue, sGdMesgBuf, ARRAY_COUNT(sGdMesgBuf));
+    osCreateMesgQueue(&WORLD(sGdDMAQueue), WORLD(sGdMesgBuf), ARRAY_COUNT(WORLD(sGdMesgBuf)));
     gd_init();
     load_shapes2();
     reset_cur_dl_indices();
@@ -1203,7 +1203,7 @@ struct ObjView *make_view_withgrp(char *name, struct ObjGroup *grp) {
     struct ObjView *view = make_view(name, (VIEW_DRAW | VIEW_ALLOC_ZBUF | VIEW_MOVEMENT), 1, 0, 0, 320, 240, grp);
     UNUSED struct ObjGroup *viewgrp = make_group(2, grp, view);
 
-    view->lights = gGdLightGroup;
+    view->lights = WORLD(gGdLightGroup);
     return view;
 }
 
@@ -1214,32 +1214,32 @@ void gdm_maketestdl(s32 id) {
     imin("gdm_maketestdl");
     switch (id) {
         case 0:
-            sYoshiSceneView = make_view_withgrp("yoshi_scene", sYoshiSceneGrp);
+            WORLD(sYoshiSceneView) = make_view_withgrp("yoshi_scene", WORLD(sYoshiSceneGrp));
             break;
         case 1:
-            reset_nets_and_gadgets(sYoshiSceneGrp);
+            reset_nets_and_gadgets(WORLD(sYoshiSceneGrp));
             break;
         case 2: // normal Mario head
-            if (sMarioSceneGrp == NULL) {
+            if (WORLD(sMarioSceneGrp) == NULL) {
                 load_mario_head(animate_mario_head_normal);
-                sMarioSceneGrp = gMarioFaceGrp; // gMarioFaceGrp set by load_mario_head
+                WORLD(sMarioSceneGrp) = WORLD(gMarioFaceGrp); // gMarioFaceGrp set by load_mario_head
                 gd_setup_cursor(NULL);
             }
-            sMSceneView = make_view_withgrp("mscene", sMarioSceneGrp);
+            WORLD(sMSceneView) = make_view_withgrp("mscene", WORLD(sMarioSceneGrp));
             break;
         case 3: // game over Mario head
-            if (sMarioSceneGrp == NULL) {
+            if (WORLD(sMarioSceneGrp) == NULL) {
                 load_mario_head(animate_mario_head_gameover);
-                sMarioSceneGrp = gMarioFaceGrp;
+                WORLD(sMarioSceneGrp) = WORLD(gMarioFaceGrp);
                 gd_setup_cursor(NULL);
             }
-            sMSceneView = make_view_withgrp("mscene", sMarioSceneGrp);
+            WORLD(sMSceneView) = make_view_withgrp("mscene", WORLD(sMarioSceneGrp));
             break;
         case 4:
-            sCarSceneView = make_view_withgrp("car_scene", sCarSceneGrp);
+            WORLD(sCarSceneView) = make_view_withgrp("car_scene", WORLD(sCarSceneGrp));
             break;
         case 5:
-            reset_nets_and_gadgets(sCarSceneGrp);
+            reset_nets_and_gadgets(WORLD(sCarSceneGrp));
             break;
         default:
             fatal_printf("gdm_maketestdl(): unknown dl");
@@ -1249,7 +1249,7 @@ void gdm_maketestdl(s32 id) {
 
 /* 24AEB8 -> 24AED0 */
 void set_time_scale(f32 factor) {
-    sTimeScaleFactor = factor;
+    WORLD(sTimeScaleFactor) = factor;
 }
 
 /* 24AED0 -> 24AF04 */
@@ -1263,15 +1263,15 @@ void Unknown8019C840(void) {
  */
 void gd_vblank(void) {
     gd_sfx_update();
-    if (sUpdateYoshiScene) {
-        apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) convert_net_verts, sYoshiSceneGrp);
+    if (WORLD(sUpdateYoshiScene)) {
+        apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) convert_net_verts, WORLD(sYoshiSceneGrp));
     }
-    if (sUpdateMarioScene) {
-        apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) convert_net_verts, sMarioSceneGrp);
+    if (WORLD(sUpdateMarioScene)) {
+        apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) convert_net_verts, WORLD(sMarioSceneGrp));
     }
-    sUpdateYoshiScene = FALSE;
-    sUpdateMarioScene = FALSE;
-    gGdFrameBufNum ^= 1;
+    WORLD(sUpdateYoshiScene) = FALSE;
+    WORLD(sUpdateMarioScene) = FALSE;
+    WORLD(gGdFrameBufNum) ^= 1;
     reset_cur_dl_indices();
     parse_p1_controller();
     update_cursor();
@@ -1283,7 +1283,7 @@ void gd_vblank(void) {
 void gd_copy_p1_contpad(OSContPad *p1cont) {
     u32 i;                                    // 24
     u8 *src = (u8 *) p1cont;             // 20
-    u8 *dest = (u8 *) &sGdContPads[0]; // 1c
+    u8 *dest = (u8 *) &WORLD(sGdContPads)[0]; // 1c
 
     for (i = 0; i < sizeof(OSContPad); i++) {
         dest[i] = src[i];
@@ -1312,60 +1312,60 @@ Gfx *gdm_gettestdl(s32 id) {
 
     switch (id) {
         case 0:
-            if (sYoshiSceneView == NULL) {
+            if (WORLD(sYoshiSceneView) == NULL) {
                 fatal_printf("gdm_gettestdl(): DL number %d undefined", id);
             }
             //! @bug Code treats `sYoshiSceneView` as group; not called in game though
             apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) update_view,
-                                        (struct ObjGroup *) sYoshiSceneView);
+                                        (struct ObjGroup *) WORLD(sYoshiSceneView));
             dobj = d_use_obj("yoshi_scene");
-            gddl = sGdDLArray[((struct ObjView *) dobj)->gdDlNum];
-            sUpdateYoshiScene = TRUE;
+            gddl = WORLD(sGdDLArray)[((struct ObjView *) dobj)->gdDlNum];
+            WORLD(sUpdateYoshiScene) = TRUE;
             break;
         case 1:
-            if (sYoshiSceneGrp == NULL) {
+            if (WORLD(sYoshiSceneGrp) == NULL) {
                 fatal_printf("gdm_gettestdl(): DL number %d undefined", id);
             }
             dobj = d_use_obj("yoshi_sh_l1");
-            gddl = sGdDLArray[((struct ObjShape *) dobj)->dlNums[gGdFrameBufNum]];
-            sUpdateYoshiScene = TRUE;
+            gddl = WORLD(sGdDLArray)[((struct ObjShape *) dobj)->dlNums[WORLD(gGdFrameBufNum)]];
+            WORLD(sUpdateYoshiScene) = TRUE;
             break;
         case GD_SCENE_REGULAR_MARIO:
         case GD_SCENE_DIZZY_MARIO:
             setup_timers();
-            update_view_and_dl(sMSceneView);
-            if (sHandView != NULL) {
-                update_view_and_dl(sHandView);
+            update_view_and_dl(WORLD(sMSceneView));
+            if (WORLD(sHandView) != NULL) {
+                update_view_and_dl(WORLD(sHandView));
             }
-            sCurrentGdDl = sMHeadMainDls[gGdFrameBufNum];
+            WORLD(sCurrentGdDl) = WORLD(sMHeadMainDls)[WORLD(gGdFrameBufNum)];
             gSPEndDisplayList(next_gfx());
-            gddl = sCurrentGdDl;
-            sUpdateMarioScene = TRUE;
+            gddl = WORLD(sCurrentGdDl);
+            WORLD(sUpdateMarioScene) = TRUE;
             break;
         case 4:
-            if (sCarSceneView == NULL) {
+            if (WORLD(sCarSceneView) == NULL) {
                 fatal_printf("gdm_gettestdl(): DL number %d undefined", id);
             }
             //! @bug Code treats `sCarSceneView` as group; not called in game though
             apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) update_view,
-                                        (struct ObjGroup *) sCarSceneView);
+                                        (struct ObjGroup *) WORLD(sCarSceneView));
             dobj = d_use_obj("car_scene");
-            gddl = sGdDLArray[((struct ObjView *) dobj)->gdDlNum];
-            sUpdateCarScene = TRUE;
+            gddl = WORLD(sGdDLArray)[((struct ObjView *) dobj)->gdDlNum];
+            WORLD(sUpdateCarScene) = TRUE;
             break;
         case 5:
-            sActiveView = sScreenView;
+            WORLD(sActiveView) = WORLD(sScreenView);
             set_gd_mtx_parameters(G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_PUSH);
             dobj = d_use_obj("testnet2");
-            sCarGdDlNum = gd_startdisplist(8);
+            WORLD(sCarGdDlNum) = gd_startdisplist(8);
 
-            if (sCarGdDlNum == 0) {
+            if (WORLD(sCarGdDlNum) == 0) {
                 fatal_printf("no memory for car DL\n");
             }
             apply_obj_draw_fn(dobj);
             gd_enddlsplist_parent();
-            gddl = sGdDLArray[sCarGdDlNum];
-            sUpdateCarScene = TRUE;
+            gddl = WORLD(sGdDLArray)[WORLD(sCarGdDlNum)];
+            WORLD(sUpdateCarScene) = TRUE;
             break;
         default:
             fatal_printf("gdm_gettestdl(): %d out of range", id);
@@ -1399,7 +1399,7 @@ void gdm_getpos(s32 id, struct GdVec3f *dst) {
  * Clamps the coordinates so that they are within the active view
  */
 static void clamp_coords_to_active_view(f32 *x, f32 *y) {
-    struct ObjView *view = sActiveView;
+    struct ObjView *view = WORLD(sActiveView);
 
     if (*x < 0.0f) {
         *x = 0.0f;
@@ -1428,12 +1428,12 @@ struct GdDisplayList *alloc_displaylist(u32 id) {
         fatal_no_dl_mem();
     }
 
-    gdDl->number = sGdDlCount++;
-    if (sGdDlCount >= MAX_GD_DLS) {
-        fatal_printf("alloc_displaylist() too many display lists %d (MAX %d)", sGdDlCount + 1,
+    gdDl->number = WORLD(sGdDlCount)++;
+    if (WORLD(sGdDlCount) >= MAX_GD_DLS) {
+        fatal_printf("alloc_displaylist() too many display lists %d (MAX %d)", WORLD(sGdDlCount) + 1,
                      MAX_GD_DLS);
     }
-    sGdDLArray[gdDl->number] = gdDl;
+    WORLD(sGdDLArray)[gdDl->number] = gdDl;
     gdDl->id = id;
     return gdDl;
 }
@@ -1529,13 +1529,13 @@ struct GdDisplayList *new_gd_dl(s32 id, s32 gfxs, s32 verts, s32 mtxs, s32 light
 
 /* 24BA48 -> 24BABC; not called */
 void gd_rsp_init(void) {
-    gSPDisplayList(next_gfx(), osVirtualToPhysical(&gd_dl_rsp_init));
+    gSPDisplayList(next_gfx(), osVirtualToPhysical(&WORLD(gd_dl_rsp_init)));
     gDPPipeSync(next_gfx());
 }
 
 /* 24BABC -> 24BB30; not called */
 void gd_rdp_init(void) {
-    gSPDisplayList(next_gfx(), osVirtualToPhysical(&gd_dl_rdp_init));
+    gSPDisplayList(next_gfx(), osVirtualToPhysical(&WORLD(gd_dl_rdp_init)));
     gDPPipeSync(next_gfx());
 }
 
@@ -1545,9 +1545,9 @@ void gd_draw_rect(f32 ulx, f32 uly, f32 lrx, f32 lry) {
     clamp_coords_to_active_view(&lrx, &lry);
 
     if (lrx > ulx && lry > uly) {
-        gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x + ulx),
-                         (u32)(uly + sActiveView->upperLeft.y), (u32)(sActiveView->upperLeft.x + lrx),
-                         (u32)(lry + sActiveView->upperLeft.y));
+        gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x + ulx),
+                         (u32)(uly + WORLD(sActiveView)->upperLeft.y), (u32)(WORLD(sActiveView)->upperLeft.x + lrx),
+                         (u32)(lry + WORLD(sActiveView)->upperLeft.y));
     }
 
     gDPPipeSync(next_gfx());
@@ -1562,17 +1562,17 @@ void gd_draw_border_rect(f32 ulx, f32 uly, f32 lrx, f32 lry) {
 
     if (lrx > ulx && lry > uly) {
         gDPFillRectangle(
-            next_gfx(), (u32)(sActiveView->upperLeft.x + ulx), (u32)(uly + sActiveView->upperLeft.y),
-            (u32)(sActiveView->upperLeft.x + ulx + 5.0f), (u32)(lry + sActiveView->upperLeft.y));
-        gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x + lrx - 5.0f),
-                         (u32)(uly + sActiveView->upperLeft.y), (u32)(sActiveView->upperLeft.x + lrx),
-                         (u32)(lry + sActiveView->upperLeft.y));
-        gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x + ulx),
-                         (u32)(uly + sActiveView->upperLeft.y), (u32)(sActiveView->upperLeft.x + lrx),
-                         (u32)(uly + sActiveView->upperLeft.y + 5.0f));
-        gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x + ulx),
-                         (u32)(lry + sActiveView->upperLeft.y - 5.0f),
-                         (u32)(sActiveView->upperLeft.x + lrx), (u32)(lry + sActiveView->upperLeft.y));
+            next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x + ulx), (u32)(uly + WORLD(sActiveView)->upperLeft.y),
+            (u32)(WORLD(sActiveView)->upperLeft.x + ulx + 5.0f), (u32)(lry + WORLD(sActiveView)->upperLeft.y));
+        gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x + lrx - 5.0f),
+                         (u32)(uly + WORLD(sActiveView)->upperLeft.y), (u32)(WORLD(sActiveView)->upperLeft.x + lrx),
+                         (u32)(lry + WORLD(sActiveView)->upperLeft.y));
+        gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x + ulx),
+                         (u32)(uly + WORLD(sActiveView)->upperLeft.y), (u32)(WORLD(sActiveView)->upperLeft.x + lrx),
+                         (u32)(uly + WORLD(sActiveView)->upperLeft.y + 5.0f));
+        gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x + ulx),
+                         (u32)(lry + WORLD(sActiveView)->upperLeft.y - 5.0f),
+                         (u32)(WORLD(sActiveView)->upperLeft.x + lrx), (u32)(lry + WORLD(sActiveView)->upperLeft.y));
     }
 
     gDPPipeSync(next_gfx());
@@ -1596,62 +1596,62 @@ void gd_dl_set_fill(struct GdColour *colour) {
 
 /* 24CDB4 -> 24CE10; orig name: func_8019E5E4 */
 void gd_dl_set_z_buffer_area(void) {
-    gDPSetDepthImage(next_gfx(), GD_LOWER_24(sActiveView->parent->zbuf));
+    gDPSetDepthImage(next_gfx(), GD_LOWER_24(WORLD(sActiveView)->parent->zbuf));
 }
 
 /* 24CE10 -> 24CF2C; orig name: func_8019E640 */
 void gd_set_color_fb(void) {
-    gDPSetColorImage(next_gfx(), G_IM_FMT_RGBA, G_IM_SIZ_16b, sActiveView->parent->lowerRight.x,
-                     GD_LOWER_24(sActiveView->parent->colourBufs[gGdFrameBufNum]));
+    gDPSetColorImage(next_gfx(), G_IM_FMT_RGBA, G_IM_SIZ_16b, WORLD(sActiveView)->parent->lowerRight.x,
+                     GD_LOWER_24(WORLD(sActiveView)->parent->colourBufs[WORLD(gGdFrameBufNum)]));
 }
 
 /* 24CF2C -> 24CFCC; orig name: func_8019E75C */
 void reset_cur_dl_indices(void) {
-    sMHeadMainDls[gGdFrameBufNum]->curGfxIdx = 0;
-    sCurrentGdDl = sDynamicMainDls[gGdFrameBufNum];
-    sCurrentGdDl->curVtxIdx = 0;
-    sCurrentGdDl->curMtxIdx = 0;
-    sCurrentGdDl->curLightIdx = 0;
-    sCurrentGdDl->curGfxIdx = 0;
-    sCurrentGdDl->curVpIdx = 0;
+    WORLD(sMHeadMainDls)[WORLD(gGdFrameBufNum)]->curGfxIdx = 0;
+    WORLD(sCurrentGdDl) = WORLD(sDynamicMainDls)[WORLD(gGdFrameBufNum)];
+    WORLD(sCurrentGdDl)->curVtxIdx = 0;
+    WORLD(sCurrentGdDl)->curMtxIdx = 0;
+    WORLD(sCurrentGdDl)->curLightIdx = 0;
+    WORLD(sCurrentGdDl)->curGfxIdx = 0;
+    WORLD(sCurrentGdDl)->curVpIdx = 0;
 }
 
 /* 24CFCC -> 24D044; orig name: func_8019E7FC */
 void begin_gddl(s32 num) {
-    sCurrentGdDl = sGdDLArray[num];
-    sCurrentGdDl->curVtxIdx = 0;
-    sCurrentGdDl->curMtxIdx = 0;
-    sCurrentGdDl->curLightIdx = 0;
-    sCurrentGdDl->curGfxIdx = 0;
-    sCurrentGdDl->curVpIdx = 0;
+    WORLD(sCurrentGdDl) = WORLD(sGdDLArray)[num];
+    WORLD(sCurrentGdDl)->curVtxIdx = 0;
+    WORLD(sCurrentGdDl)->curMtxIdx = 0;
+    WORLD(sCurrentGdDl)->curLightIdx = 0;
+    WORLD(sCurrentGdDl)->curGfxIdx = 0;
+    WORLD(sCurrentGdDl)->curVpIdx = 0;
 }
 
 /* 24D044 -> 24D064; orig name: func_8019E874 */
 void stash_current_gddl(void) {
-    sGdDlStash = sCurrentGdDl;
+    WORLD(sGdDlStash) = WORLD(sCurrentGdDl);
 }
 
 /* 24D064 -> 24D084; orig name: func_8019E894 */
 void pop_gddl_stash(void) {
-    sCurrentGdDl = sGdDlStash;
+    WORLD(sCurrentGdDl) = WORLD(sGdDlStash);
 }
 
 /* 24D084 -> 24D1D4 */
 s32 gd_startdisplist(s32 memarea) {
-    D_801BB018 = 0;
-    D_801BB01C = 1;
+    WORLD(D_801BB018) = 0;
+    WORLD(D_801BB01C) = 1;
 
     switch (memarea) {
         case 7:  // Create new display list as a child of sStaticDl
-            sCurrentGdDl = create_child_gdl(0, sStaticDl);
+            WORLD(sCurrentGdDl) = create_child_gdl(0, WORLD(sStaticDl));
             break;
         case 8:  // Use the active view's display list
-            if (sActiveView->id > 2) {
+            if (WORLD(sActiveView)->id > 2) {
                 fatal_printf("gd_startdisplist(): Too many views to display");
             }
 
-            sCurrentGdDl = sViewDls[sActiveView->id][gGdFrameBufNum];
-            cpy_remaining_gddl(sCurrentGdDl, sCurrentGdDl->parent);
+            WORLD(sCurrentGdDl) = WORLD(sViewDls)[WORLD(sActiveView)->id][WORLD(gGdFrameBufNum)];
+            cpy_remaining_gddl(WORLD(sCurrentGdDl), WORLD(sCurrentGdDl)->parent);
             break;
         default:
             fatal_printf("gd_startdisplist(): Unknown memory area");
@@ -1659,7 +1659,7 @@ s32 gd_startdisplist(s32 memarea) {
     }
     gDPPipeSync(next_gfx());
 
-    return sCurrentGdDl->number;
+    return WORLD(sCurrentGdDl)->number;
 }
 
 /* 24D1D4 -> 24D23C */
@@ -1674,21 +1674,21 @@ s32 gd_enddlsplist_parent(void) {
 
     gDPPipeSync(next_gfx());
     gSPEndDisplayList(next_gfx());
-    if (sCurrentGdDl->parent != NULL) {
-        sCurrentGdDl->parent->curVtxIdx = (sCurrentGdDl->parent->curVtxIdx + sCurrentGdDl->curVtxIdx);
-        sCurrentGdDl->parent->curMtxIdx = (sCurrentGdDl->parent->curMtxIdx + sCurrentGdDl->curMtxIdx);
-        sCurrentGdDl->parent->curLightIdx =
-            (sCurrentGdDl->parent->curLightIdx + sCurrentGdDl->curLightIdx);
-        sCurrentGdDl->parent->curGfxIdx = (sCurrentGdDl->parent->curGfxIdx + sCurrentGdDl->curGfxIdx);
-        sCurrentGdDl->parent->curVpIdx = (sCurrentGdDl->parent->curVpIdx + sCurrentGdDl->curVpIdx);
+    if (WORLD(sCurrentGdDl)->parent != NULL) {
+        WORLD(sCurrentGdDl)->parent->curVtxIdx = (WORLD(sCurrentGdDl)->parent->curVtxIdx + WORLD(sCurrentGdDl)->curVtxIdx);
+        WORLD(sCurrentGdDl)->parent->curMtxIdx = (WORLD(sCurrentGdDl)->parent->curMtxIdx + WORLD(sCurrentGdDl)->curMtxIdx);
+        WORLD(sCurrentGdDl)->parent->curLightIdx =
+            (WORLD(sCurrentGdDl)->parent->curLightIdx + WORLD(sCurrentGdDl)->curLightIdx);
+        WORLD(sCurrentGdDl)->parent->curGfxIdx = (WORLD(sCurrentGdDl)->parent->curGfxIdx + WORLD(sCurrentGdDl)->curGfxIdx);
+        WORLD(sCurrentGdDl)->parent->curVpIdx = (WORLD(sCurrentGdDl)->parent->curVpIdx + WORLD(sCurrentGdDl)->curVpIdx);
     }
-    curDlIdx = sCurrentGdDl->curGfxIdx;
+    curDlIdx = WORLD(sCurrentGdDl)->curGfxIdx;
     return curDlIdx;
 }
 
 /* 24D39C -> 24D3D8 */
 void Unknown8019EBCC(s32 num, uintptr_t gfxptr) {
-    sGdDLArray[num]->gfx = (Gfx *) (GD_LOWER_24(gfxptr) + D_801BAF28);
+    WORLD(sGdDLArray)[num]->gfx = (Gfx *) (GD_LOWER_24(gfxptr) + WORLD(D_801BAF28));
 }
 
 /* 24D3D8 -> 24D458; orig name: func_8019EC08 */
@@ -1696,7 +1696,7 @@ u32 new_gddl_from(Gfx *dl, UNUSED s32 arg1) {
     struct GdDisplayList *gddl;
 
     gddl = new_gd_dl(0, 0, 0, 0, 0, 0);
-    gddl->gfx = (Gfx *) (GD_LOWER_24((uintptr_t) dl) + D_801BAF28);
+    gddl->gfx = (Gfx *) (GD_LOWER_24((uintptr_t) dl) + WORLD(D_801BAF28));
     return gddl->number;
 }
 
@@ -1738,8 +1738,8 @@ void mat4_to_mtx(Mat4f *src, Mtx *dst) {
  * Adds a display list operation that multiplies the current matrix with `mtx`.
  */
 void gd_dl_mul_matrix(Mat4f *mtx) {
-    mat4_to_mtx(mtx, &DL_CURRENT_MTX(sCurrentGdDl));
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)), sMtxParamType | G_MTX_MUL | G_MTX_NOPUSH);
+    mat4_to_mtx(mtx, &DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(WORLD(sCurrentGdDl))), WORLD(sMtxParamType) | G_MTX_MUL | G_MTX_NOPUSH);
     next_mtx();
 }
 
@@ -1747,9 +1747,9 @@ void gd_dl_mul_matrix(Mat4f *mtx) {
  * Adds a display list operation that replaces the current matrix with `mtx`.
  */
 void gd_dl_load_matrix(Mat4f *mtx) {
-    mat4_to_mtx(mtx, &DL_CURRENT_MTX(sCurrentGdDl));
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)),
-              sMtxParamType | G_MTX_LOAD | G_MTX_NOPUSH);
+    mat4_to_mtx(mtx, &DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(WORLD(sCurrentGdDl))),
+              WORLD(sMtxParamType) | G_MTX_LOAD | G_MTX_NOPUSH);
     next_mtx();
 }
 
@@ -1758,7 +1758,7 @@ void gd_dl_load_matrix(Mat4f *mtx) {
  * identity matrix.
  */
 void gd_dl_load_identity_matrix(void) {
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&sIdnMtx), sMtxParamType | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&WORLD(sIdnMtx)), WORLD(sMtxParamType) | G_MTX_LOAD | G_MTX_NOPUSH);
 }
 
 /**
@@ -1766,22 +1766,22 @@ void gd_dl_load_identity_matrix(void) {
  * stack.
  */
 void gd_dl_push_matrix(void) {
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&sIdnMtx), sMtxParamType | G_MTX_MUL | G_MTX_PUSH);
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&WORLD(sIdnMtx)), WORLD(sMtxParamType) | G_MTX_MUL | G_MTX_PUSH);
 }
 
 /**
  * Adds a display list operation that pops a matrix from the matrix stack.
  */
 void gd_dl_pop_matrix(void) {
-    gSPPopMatrix(next_gfx(), sMtxParamType);
+    gSPPopMatrix(next_gfx(), WORLD(sMtxParamType));
 }
 
 /**
  * Adds a display list operation that translates the current matrix by `x`, `y`, and `z`.
  */
 void gd_dl_mul_trans_matrix(f32 x, f32 y, f32 z) {
-    guTranslate(&DL_CURRENT_MTX(sCurrentGdDl), x, y, z);
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)), sMtxParamType | G_MTX_MUL | G_MTX_NOPUSH);
+    guTranslate(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), x, y, z);
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(WORLD(sCurrentGdDl))), WORLD(sMtxParamType) | G_MTX_MUL | G_MTX_NOPUSH);
     next_mtx();
 }
 
@@ -1789,9 +1789,9 @@ void gd_dl_mul_trans_matrix(f32 x, f32 y, f32 z) {
  * Adds a display list operation that loads a translation matrix.
  */
 void gd_dl_load_trans_matrix(f32 x, f32 y, f32 z) {
-    guTranslate(&DL_CURRENT_MTX(sCurrentGdDl), x, y, z);
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)),
-              sMtxParamType | G_MTX_LOAD | G_MTX_NOPUSH);
+    guTranslate(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), x, y, z);
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(WORLD(sCurrentGdDl))),
+              WORLD(sMtxParamType) | G_MTX_LOAD | G_MTX_NOPUSH);
     next_mtx();
 }
 
@@ -1828,8 +1828,8 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
     gd_mat4f_lookat(&cam->unkE8, arg1, arg2, arg3, arg4, arg5, arg6, gd_sin_d(arg7), gd_cos_d(arg7),
                   0.0f);
 
-    mat4_to_mtx(&cam->unkE8, &DL_CURRENT_MTX(sCurrentGdDl));
-    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(sCurrentGdDl)),
+    mat4_to_mtx(&cam->unkE8, &DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
+    gSPMatrix(next_gfx(), osVirtualToPhysical(&DL_CURRENT_MTX(WORLD(sCurrentGdDl))),
             G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
 
     /*  col           colc          dir
@@ -1838,7 +1838,7 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
        16 17 18  19  20 21  22 23  24 25  26  27
     { { 0, 0, 0}, _, {0, 0, 0}, _, {0, 0, 0}, _}
     */
-    lookat = &D_801BE7D0[gGdFrameBufNum];
+    lookat = &WORLD(D_801BE7D0)[WORLD(gGdFrameBufNum)];
 
     lookat->l[0].l.dir[0] = LOOKAT_PACK(cam->unkE8[0][0]);
     lookat->l[0].l.dir[1] = LOOKAT_PACK(cam->unkE8[1][0]);
@@ -1865,7 +1865,7 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
     lookat->l[1].l.colc[2] = 0;
     lookat->l[1].l.pad2 = 0;
 
-    lookat = &D_801BE790[0];
+    lookat = &WORLD(D_801BE790)[0];
     lookat->l[0].l.dir[0] = 1;
     lookat->l[0].l.dir[1] = 0;
     lookat->l[0].l.dir[2] = 0;
@@ -1891,18 +1891,18 @@ void gd_dl_lookat(struct ObjCamera *cam, f32 arg1, f32 arg2, f32 arg3, f32 arg4,
     lookat->l[1].l.colc[2] = 0;
     lookat->l[1].l.pad2 = 0;
 
-    gSPLookAt(next_gfx(), osVirtualToPhysical(&D_801BE7D0[gGdFrameBufNum]));
+    gSPLookAt(next_gfx(), osVirtualToPhysical(&WORLD(D_801BE7D0)[WORLD(gGdFrameBufNum)]));
     next_mtx();
 }
 
 /* 24E1A8 -> 24E230; orig name: func_8019F9D8 */
 void check_tri_display(s32 vtxcount) {
-    D_801A86C0 = sCurrentGdDl->curVtxIdx;
-    D_801BB0B4 = 0;
+    WORLD(D_801A86C0) = WORLD(sCurrentGdDl)->curVtxIdx;
+    WORLD(D_801BB0B4) = 0;
     if (vtxcount != 3) {
         fatal_printf("cant display no tris\n");
     }
-    if (D_801BB018 != 0 || D_801BB01C != 0) {
+    if (WORLD(D_801BB018) != 0 || WORLD(D_801BB01C) != 0) {
         ;
     }
 }
@@ -1916,45 +1916,45 @@ Vtx *gd_dl_make_vertex(f32 x, f32 y, f32 z, f32 alpha) {
     s32 i;
 
     // Add the vertex index to the buffer if it doesn't already exist
-    for (i = sVertexBufStartIndex; i < (sVertexBufStartIndex + sVertexBufCount); i++) {
+    for (i = WORLD(sVertexBufStartIndex); i < (WORLD(sVertexBufStartIndex) + WORLD(sVertexBufCount)); i++) {
         // the ifs need to be separate to match...
-        if (sCurrentGdDl->vtx[i].n.ob[0] == (s16) x) {
-            if (sCurrentGdDl->vtx[i].n.ob[1] == (s16) y) {
-                if (sCurrentGdDl->vtx[i].n.ob[2] == (s16) z) {
-                    sTriangleBuf[sTriangleBufCount][D_801BB0B4++] = (s16) i;
+        if (WORLD(sCurrentGdDl)->vtx[i].n.ob[0] == (s16) x) {
+            if (WORLD(sCurrentGdDl)->vtx[i].n.ob[1] == (s16) y) {
+                if (WORLD(sCurrentGdDl)->vtx[i].n.ob[2] == (s16) z) {
+                    WORLD(sTriangleBuf)[WORLD(sTriangleBufCount)][WORLD(D_801BB0B4)++] = (s16) i;
                     return NULL;
                 }
             }
         }
     }
 
-    sVertexBufCount++;
-    sTriangleBuf[sTriangleBufCount][D_801BB0B4++] = (s16) sCurrentGdDl->curVtxIdx;
+    WORLD(sVertexBufCount)++;
+    WORLD(sTriangleBuf)[WORLD(sTriangleBufCount)][WORLD(D_801BB0B4)++] = (s16) WORLD(sCurrentGdDl)->curVtxIdx;
 
-    DL_CURRENT_VTX(sCurrentGdDl).n.ob[0] = (s16) x;
-    DL_CURRENT_VTX(sCurrentGdDl).n.ob[1] = (s16) y;
-    DL_CURRENT_VTX(sCurrentGdDl).n.ob[2] = (s16) z;
-    DL_CURRENT_VTX(sCurrentGdDl).n.flag = 0;
-    DL_CURRENT_VTX(sCurrentGdDl).n.tc[0] = sVtxCvrtTCBuf[0];
-    DL_CURRENT_VTX(sCurrentGdDl).n.tc[1] = sVtxCvrtTCBuf[1];
-    DL_CURRENT_VTX(sCurrentGdDl).n.n[0] = sVtxCvrtNormBuf[0];
-    DL_CURRENT_VTX(sCurrentGdDl).n.n[1] = sVtxCvrtNormBuf[1];
-    DL_CURRENT_VTX(sCurrentGdDl).n.n[2] = sVtxCvrtNormBuf[2];
-    DL_CURRENT_VTX(sCurrentGdDl).n.a = (u8)(alpha * 255.0f);
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.ob[0] = (s16) x;
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.ob[1] = (s16) y;
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.ob[2] = (s16) z;
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.flag = 0;
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.tc[0] = WORLD(sVtxCvrtTCBuf)[0];
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.tc[1] = WORLD(sVtxCvrtTCBuf)[1];
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.n[0] = WORLD(sVtxCvrtNormBuf)[0];
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.n[1] = WORLD(sVtxCvrtNormBuf)[1];
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.n[2] = WORLD(sVtxCvrtNormBuf)[2];
+    DL_CURRENT_VTX(WORLD(sCurrentGdDl)).n.a = (u8)(alpha * 255.0f);
 
-    vtx = &DL_CURRENT_VTX(sCurrentGdDl);
+    vtx = &DL_CURRENT_VTX(WORLD(sCurrentGdDl));
     next_vtx();
     return vtx;
 }
 
 /* 24E6C0 -> 24E724 */
 void func_8019FEF0(void) {
-    sTriangleBufCount++;
-    if (sVertexBufCount >= 12) {
+    WORLD(sTriangleBufCount)++;
+    if (WORLD(sVertexBufCount) >= 12) {
         gd_dl_flush_vertices();
         func_801A0038();
     }
-    D_801BB018 = 0;
+    WORLD(D_801BB018) = 0;
 }
 
 /**
@@ -1963,7 +1963,7 @@ void func_8019FEF0(void) {
 void gd_dl_make_triangle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 x3, f32 y3, f32 z3) {
     Vtx *vtx;
 
-    vtx = &DL_CURRENT_VTX(sCurrentGdDl);
+    vtx = &DL_CURRENT_VTX(WORLD(sCurrentGdDl));
     gd_dl_make_vertex(x1, y1, z1, 1.0f);
     gd_dl_make_vertex(x2, y2, z2, 1.0f);
     gd_dl_make_vertex(x3, y3, z3, 1.0f);
@@ -1974,26 +1974,26 @@ void gd_dl_make_triangle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 x3,
 
 /* 24E808 -> 24E840 */
 void func_801A0038(void) {
-    sVertexBufCount = 0;
-    sTriangleBufCount = 0;
-    sVertexBufStartIndex = sCurrentGdDl->curVtxIdx;
+    WORLD(sVertexBufCount) = 0;
+    WORLD(sTriangleBufCount) = 0;
+    WORLD(sVertexBufStartIndex) = WORLD(sCurrentGdDl)->curVtxIdx;
 }
 
 /* 24E840 -> 24E9BC */
 void gd_dl_flush_vertices(void) {
     UNUSED u8 filler[4];
     s32 i;
-    UNUSED s32 startvtx = sVertexBufStartIndex;
+    UNUSED s32 startvtx = WORLD(sVertexBufStartIndex);
 
-    if (sVertexBufCount != 0) {
+    if (WORLD(sVertexBufCount) != 0) {
         // load vertex data
-        gSPVertex(next_gfx(), osVirtualToPhysical(&sCurrentGdDl->vtx[sVertexBufStartIndex]), sVertexBufCount, 0);
+        gSPVertex(next_gfx(), osVirtualToPhysical(&WORLD(sCurrentGdDl)->vtx[WORLD(sVertexBufStartIndex)]), WORLD(sVertexBufCount), 0);
         // load triangle data
-        for (i = 0; i < sTriangleBufCount; i++) {
+        for (i = 0; i < WORLD(sTriangleBufCount); i++) {
             gSP1Triangle(next_gfx(),
-                sTriangleBuf[i][0] - sVertexBufStartIndex,
-                sTriangleBuf[i][1] - sVertexBufStartIndex,
-                sTriangleBuf[i][2] - sVertexBufStartIndex,
+                WORLD(sTriangleBuf)[i][0] - WORLD(sVertexBufStartIndex),
+                WORLD(sTriangleBuf)[i][1] - WORLD(sVertexBufStartIndex),
+                WORLD(sTriangleBuf)[i][2] - WORLD(sVertexBufStartIndex),
                 0);
         }
     }
@@ -2004,35 +2004,35 @@ void gd_dl_flush_vertices(void) {
  * Unused - called by func_801A520C
  */
 static void func_801A01EC(void) {
-    if (D_801BE8B0.validCount >= D_801BE8B0.msgCount) {
-        osRecvMesg(&D_801BE8B0, &sGdDMACompleteMsg, OS_MESG_BLOCK);
+    if (WORLD(D_801BE8B0).validCount >= WORLD(D_801BE8B0).msgCount) {
+        osRecvMesg(&WORLD(D_801BE8B0), &WORLD(sGdDMACompleteMsg), OS_MESG_BLOCK);
     }
-    osRecvMesg(&D_801BE8B0, &sGdDMACompleteMsg, OS_MESG_BLOCK);
+    osRecvMesg(&WORLD(D_801BE8B0), &WORLD(sGdDMACompleteMsg), OS_MESG_BLOCK);
 }
 
 /**
  * Unused - called by func_801A520C
  */
 static void func_801A025C(void) {
-    gGdFrameBufNum ^= 1;
-    osViSwapBuffer(sScreenView->parent->colourBufs[gGdFrameBufNum]);
+    WORLD(gGdFrameBufNum) ^= 1;
+    osViSwapBuffer(WORLD(sScreenView)->parent->colourBufs[WORLD(gGdFrameBufNum)]);
 }
 
 /* 24EA88 -> 24EAF4 */
 void set_render_alpha(f32 alpha) {
-    sAlpha = alpha * 255.0f;
+    WORLD(sAlpha) = alpha * 255.0f;
     update_render_mode();
 }
 
 /* 24EAF4 -> 24EB0C */
 // light id?
 void set_light_id(s32 index) {
-    sLightId = index;
+    WORLD(sLightId) = index;
 }
 
 /* 24EB0C -> 24EB24; orig name: func_801A033C */
 void set_light_num(s32 n) {
-    sNumLights = n;
+    WORLD(sNumLights) = n;
 }
 
 /* 24EB24 -> 24EC18 */
@@ -2046,11 +2046,11 @@ s32 create_mtl_gddl(UNUSED s32 mtlType) {
     dlnum = gd_startdisplist(7);
     gd_dl_material_lighting(dlnum, &blue, GD_MTL_TEX_OFF);
     gd_enddlsplist_parent();
-    sCurrentGdDl->totalVtx = sCurrentGdDl->curVtxIdx;
-    sCurrentGdDl->totalMtx = sCurrentGdDl->curMtxIdx;
-    sCurrentGdDl->totalLights = sCurrentGdDl->curLightIdx;
-    sCurrentGdDl->totalGfx = sCurrentGdDl->curGfxIdx;
-    sCurrentGdDl->totalVp = sCurrentGdDl->curVpIdx;
+    WORLD(sCurrentGdDl)->totalVtx = WORLD(sCurrentGdDl)->curVtxIdx;
+    WORLD(sCurrentGdDl)->totalMtx = WORLD(sCurrentGdDl)->curMtxIdx;
+    WORLD(sCurrentGdDl)->totalLights = WORLD(sCurrentGdDl)->curLightIdx;
+    WORLD(sCurrentGdDl)->totalGfx = WORLD(sCurrentGdDl)->curGfxIdx;
+    WORLD(sCurrentGdDl)->totalVp = WORLD(sCurrentGdDl)->curVpIdx;
     return dlnum;
 }
 
@@ -2079,7 +2079,7 @@ void gd_dl_hilite(s32 idx, // material GdDl number; offsets into hilite array
     if (idx >= 0xc8) {
         fatal_printf("too many hilites");
     }
-    hilite = &sHilites[idx];
+    hilite = &WORLD(sHilites)[idx];
 
     gDPSetPrimColor(next_gfx(), 0, 0, (s32)(colour->r * 255.0f), (s32)(colour->g * 255.0f),
                     (s32)(colour->b * 255.0f), 255);
@@ -2113,7 +2113,7 @@ void gd_dl_hilite(s32 idx, // material GdDl number; offsets into hilite array
 s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
     UNUSED u8 filler[8];
     s32 i;
-    s32 numLights = sNumLights;
+    s32 numLights = WORLD(sNumLights);
     s32 scaledColours[3];
     s32 lightDir[3];
 
@@ -2140,7 +2140,7 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
             if (id >= 200) {
                 fatal_printf("too many hilites");
             }
-            gDPSetHilite1Tile(next_gfx(), G_TX_RENDERTILE, &sHilites[id], 32, 32);
+            gDPSetHilite1Tile(next_gfx(), G_TX_RENDERTILE, &WORLD(sHilites)[id], 32, 32);
             break;
         case GD_MTL_BREAK:
             break;
@@ -2148,25 +2148,25 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
             gddl_is_loading_stub_dl(FALSE);
             gddl_is_loading_shine_dl(FALSE);
 
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[0] = colour->r * 255.0f;
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[1] = colour->g * 255.0f;
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[2] = colour->b * 255.0f;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[0] = colour->r * 255.0f;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[1] = colour->g * 255.0f;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[2] = colour->b * 255.0f;
 
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[0] = DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[0];
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[1] = DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[1];
-            DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[2] = DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[2];
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[0] = DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[0];
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[1] = DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[1];
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[2] = DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[2];
             // 801A0D04
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.col[0] = 0;
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.col[1] = 0;
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.col[2] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.col[0] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.col[1] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.col[2] = 0;
 
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.colc[0] = 0;
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.colc[1] = 0;
-            DL_CURRENT_LIGHT(sCurrentGdDl).l[0].l.colc[2] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.colc[0] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.colc[1] = 0;
+            DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[0].l.colc[2] = 0;
 
             gSPNumLights(next_gfx(), NUMLIGHTS_1);
-            gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).l), LIGHT_1);
-            gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).a), LIGHT_2);
+            gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l), LIGHT_1);
+            gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a), LIGHT_2);
             next_light();
             if (id > 0) {
                 gd_enddlsplist();
@@ -2175,44 +2175,44 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
             break;
     }
     // L801A0EF4
-    scaledColours[0] = (s32)(colour->r * sAmbScaleColour.r * 255.0f);
-    scaledColours[1] = (s32)(colour->g * sAmbScaleColour.g * 255.0f);
-    scaledColours[2] = (s32)(colour->b * sAmbScaleColour.b * 255.0f);
+    scaledColours[0] = (s32)(colour->r * WORLD(sAmbScaleColour).r * 255.0f);
+    scaledColours[1] = (s32)(colour->g * WORLD(sAmbScaleColour).g * 255.0f);
+    scaledColours[2] = (s32)(colour->b * WORLD(sAmbScaleColour).b * 255.0f);
     // 801A0FE4
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[0] = scaledColours[0];
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[1] = scaledColours[1];
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.col[2] = scaledColours[2];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[0] = scaledColours[0];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[1] = scaledColours[1];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.col[2] = scaledColours[2];
     // 801A1068
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[0] = scaledColours[0];
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[1] = scaledColours[1];
-    DL_CURRENT_LIGHT(sCurrentGdDl).a.l.colc[2] = scaledColours[2];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[0] = scaledColours[0];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[1] = scaledColours[1];
+    DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).a.l.colc[2] = scaledColours[2];
     // 801A10EC
     gSPNumLights(next_gfx(), numLights);
     for (i = 0; i < numLights; i++) { // L801A1134
-        scaledColours[0] = colour->r * sLightScaleColours[i].r * 255.0f;
-        scaledColours[1] = colour->g * sLightScaleColours[i].g * 255.0f;
-        scaledColours[2] = colour->b * sLightScaleColours[i].b * 255.0f;
+        scaledColours[0] = colour->r * WORLD(sLightScaleColours)[i].r * 255.0f;
+        scaledColours[1] = colour->g * WORLD(sLightScaleColours)[i].g * 255.0f;
+        scaledColours[2] = colour->b * WORLD(sLightScaleColours)[i].b * 255.0f;
         // 801A1260
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.col[0] = scaledColours[0];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.col[1] = scaledColours[1];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.col[2] = scaledColours[2];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.colc[0] = scaledColours[0];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.colc[1] = scaledColours[1];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.colc[2] = scaledColours[2];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.col[0] = scaledColours[0];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.col[1] = scaledColours[1];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.col[2] = scaledColours[2];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.colc[0] = scaledColours[0];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.colc[1] = scaledColours[1];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.colc[2] = scaledColours[2];
 
         // 801A13B0
-        lightDir[0] = (s8)sLightDirections[i].x;
-        lightDir[1] = (s8)sLightDirections[i].y;
-        lightDir[2] = (s8)sLightDirections[i].z;
+        lightDir[0] = (s8)WORLD(sLightDirections)[i].x;
+        lightDir[1] = (s8)WORLD(sLightDirections)[i].y;
+        lightDir[2] = (s8)WORLD(sLightDirections)[i].z;
         // 801A141C
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[0] = lightDir[0];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[1] = lightDir[1];
-        DL_CURRENT_LIGHT(sCurrentGdDl).l[i].l.dir[2] = lightDir[2];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.dir[0] = lightDir[0];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.dir[1] = lightDir[1];
+        DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i].l.dir[2] = lightDir[2];
         // 801A14C4
-        gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl).l[i]), i + 1);
+        gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(WORLD(sCurrentGdDl)).l[i]), i + 1);
     }
     // L801A1550
-    gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(sCurrentGdDl)), i + 1);
+    gSPLight(next_gfx(), osVirtualToPhysical(&DL_CURRENT_LIGHT(WORLD(sCurrentGdDl))), i + 1);
     next_light();
     gd_enddlsplist();
     return 0;
@@ -2220,16 +2220,16 @@ s32 gd_dl_material_lighting(s32 id, struct GdColour *colour, s32 material) {
 
 /* 24FDB8 -> 24FE94; orig name: func_801A15E8; only from faces? */
 void set_Vtx_norm_buf_1(struct GdVec3f *norm) {
-    sVtxCvrtNormBuf[0] = (s8)(norm->x * 127.0f);
-    sVtxCvrtNormBuf[1] = (s8)(norm->y * 127.0f);
-    sVtxCvrtNormBuf[2] = (s8)(norm->z * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[0] = (s8)(norm->x * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[1] = (s8)(norm->y * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[2] = (s8)(norm->z * 127.0f);
 }
 
 /* 24FE94 -> 24FF80; orig name: func_801A16C4; only from verts? */
 void set_Vtx_norm_buf_2(struct GdVec3f *norm) {
-    sVtxCvrtNormBuf[0] = (s8)(norm->x * 127.0f);
-    sVtxCvrtNormBuf[1] = (s8)(norm->y * 127.0f);
-    sVtxCvrtNormBuf[2] = (s8)(norm->z * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[0] = (s8)(norm->x * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[1] = (s8)(norm->y * 127.0f);
+    WORLD(sVtxCvrtNormBuf)[2] = (s8)(norm->z * 127.0f);
 
     //? are these stub functions?
     return; // @ 801A17A0
@@ -2240,10 +2240,10 @@ void set_Vtx_norm_buf_2(struct GdVec3f *norm) {
 void set_gd_mtx_parameters(s32 params) {
     switch (params) {
         case G_MTX_PROJECTION | G_MTX_MUL | G_MTX_PUSH:
-            sMtxParamType = G_MTX_PROJECTION;
+            WORLD(sMtxParamType) = G_MTX_PROJECTION;
             break;
         case G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_PUSH:
-            sMtxParamType = G_MTX_MODELVIEW;
+            WORLD(sMtxParamType) = G_MTX_MODELVIEW;
             break;
     }
 }
@@ -2254,15 +2254,15 @@ void set_gd_mtx_parameters(s32 params) {
 static void gd_dl_viewport(void) {
     Vp *vp;
 
-    vp = &DL_CURRENT_VP(sCurrentGdDl);
+    vp = &DL_CURRENT_VP(WORLD(sCurrentGdDl));
 
-    vp->vp.vscale[0] = (s16)(sActiveView->lowerRight.x * 2.0f);  // x scale
-    vp->vp.vscale[1] = (s16)(sActiveView->lowerRight.y * 2.0f);  // y scale
+    vp->vp.vscale[0] = (s16)(WORLD(sActiveView)->lowerRight.x * 2.0f);  // x scale
+    vp->vp.vscale[1] = (s16)(WORLD(sActiveView)->lowerRight.y * 2.0f);  // y scale
     vp->vp.vscale[2] = 0x1FF;  // z scale
     vp->vp.vscale[3] = 0x000;
 
-    vp->vp.vtrans[0] = (s16)((sActiveView->upperLeft.x * 4.0f) + (sActiveView->lowerRight.x * 2.0f));  // x offset
-    vp->vp.vtrans[1] = (s16)((sActiveView->upperLeft.y * 4.0f) + (sActiveView->lowerRight.y * 2.0f));  // y offset
+    vp->vp.vtrans[0] = (s16)((WORLD(sActiveView)->upperLeft.x * 4.0f) + (WORLD(sActiveView)->lowerRight.x * 2.0f));  // x offset
+    vp->vp.vtrans[1] = (s16)((WORLD(sActiveView)->upperLeft.y * 4.0f) + (WORLD(sActiveView)->lowerRight.y * 2.0f));  // y offset
     vp->vp.vtrans[2] = 0x1FF;  // z offset
     vp->vp.vtrans[3] = 0x000;
 
@@ -2272,14 +2272,14 @@ static void gd_dl_viewport(void) {
 
 /* 2501D0 -> 250300 */
 static void update_render_mode(void) {
-    if ((sActiveView->flags & VIEW_ALLOC_ZBUF) != 0) {
-        if (sAlpha != 0xff) {
+    if ((WORLD(sActiveView)->flags & VIEW_ALLOC_ZBUF) != 0) {
+        if (WORLD(sAlpha) != 0xff) {
             gDPSetRenderMode(next_gfx(), G_RM_AA_ZB_XLU_SURF, G_RM_AA_ZB_XLU_SURF2);
         } else {
             gDPSetRenderMode(next_gfx(), G_RM_AA_ZB_OPA_INTER, G_RM_NOOP2);
         }
     } else {
-        if (sAlpha != 0xff) {
+        if (WORLD(sAlpha) != 0xff) {
             gDPSetRenderMode(next_gfx(), G_RM_AA_XLU_SURF, G_RM_AA_XLU_SURF2);
         } else {
             gDPSetRenderMode(next_gfx(), G_RM_AA_ZB_OPA_INTER, G_RM_NOOP2);
@@ -2291,10 +2291,10 @@ static void update_render_mode(void) {
 void Unknown801A1B30(void) {
     gDPPipeSync(next_gfx());
     gd_set_color_fb();
-    gd_dl_set_fill(&sActiveView->colour);
-    gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x), (u32)(sActiveView->upperLeft.y),
-                     (u32)(sActiveView->upperLeft.x + sActiveView->lowerRight.x - 1.0f),
-                     (u32)(sActiveView->upperLeft.y + sActiveView->lowerRight.y - 1.0f));
+    gd_dl_set_fill(&WORLD(sActiveView)->colour);
+    gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x), (u32)(WORLD(sActiveView)->upperLeft.y),
+                     (u32)(WORLD(sActiveView)->upperLeft.x + WORLD(sActiveView)->lowerRight.x - 1.0f),
+                     (u32)(WORLD(sActiveView)->upperLeft.y + WORLD(sActiveView)->lowerRight.y - 1.0f));
     gDPPipeSync(next_gfx());
 }
 
@@ -2304,12 +2304,12 @@ void Unknown801A1E70(void) {
     gDPSetCycleType(next_gfx(), G_CYC_FILL);
     gDPSetRenderMode(next_gfx(), G_RM_OPA_SURF, G_RM_OPA_SURF2);
     gd_dl_set_z_buffer_area();
-    gDPSetColorImage(next_gfx(), G_IM_FMT_RGBA, G_IM_SIZ_16b, sActiveView->parent->lowerRight.x,
-                     GD_LOWER_24(sActiveView->parent->zbuf));
+    gDPSetColorImage(next_gfx(), G_IM_FMT_RGBA, G_IM_SIZ_16b, WORLD(sActiveView)->parent->lowerRight.x,
+                     GD_LOWER_24(WORLD(sActiveView)->parent->zbuf));
     gDPSetFillColor(next_gfx(), GPACK_ZDZ(G_MAXFBZ, 0) << 16 | GPACK_ZDZ(G_MAXFBZ, 0));
-    gDPFillRectangle(next_gfx(), (u32)(sActiveView->upperLeft.x), (u32)(sActiveView->upperLeft.y),
-                     (u32)(sActiveView->upperLeft.x + sActiveView->lowerRight.x - 1.0f),
-                     (u32)(sActiveView->upperLeft.y + sActiveView->lowerRight.y - 1.0f));
+    gDPFillRectangle(next_gfx(), (u32)(WORLD(sActiveView)->upperLeft.x), (u32)(WORLD(sActiveView)->upperLeft.y),
+                     (u32)(WORLD(sActiveView)->upperLeft.x + WORLD(sActiveView)->lowerRight.x - 1.0f),
+                     (u32)(WORLD(sActiveView)->upperLeft.y + WORLD(sActiveView)->lowerRight.y - 1.0f));
     gDPPipeSync(next_gfx());
     gd_set_color_fb();
 }
@@ -2332,7 +2332,7 @@ void gddl_is_loading_stub_dl(UNUSED s32 dlLoad) {
 /* 250B58 -> 250C18 */
 void gddl_is_loading_shine_dl(s32 dlLoad) {
     if (dlLoad) {
-        gSPDisplayList(next_gfx(), osVirtualToPhysical(&gd_dl_mario_face_shine));
+        gSPDisplayList(next_gfx(), osVirtualToPhysical(&WORLD(gd_dl_mario_face_shine)));
     } else {
         gSPTexture(next_gfx(), 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_OFF);
         gDPSetCombineMode(next_gfx(), G_CC_SHADE, G_CC_SHADE);
@@ -2393,7 +2393,7 @@ void start_view_dl(struct ObjView *view) {
 /* 251014 -> 251A1C; orig name: func_801A2844 */
 void parse_p1_controller(void) {
     u32 i;
-    struct GdControl *gdctrl = &gGdCtrl;
+    struct GdControl *gdctrl = &WORLD(gGdCtrl);
     OSContPad *currInputs;
     OSContPad *prevInputs;
 
@@ -2406,8 +2406,8 @@ void parse_p1_controller(void) {
 
     gdctrl->unk50 = gdctrl->unk4C = gdctrl->dup = gdctrl->ddown = 0;
 
-    currInputs = &sGdContPads[0];
-    prevInputs = &sPrevFrameCont[0];
+    currInputs = &WORLD(sGdContPads)[0];
+    prevInputs = &WORLD(sPrevFrameCont)[0];
     // stick values
     gdctrl->stickXf     = currInputs->stick_x;
     gdctrl->stickYf     = currInputs->stick_y;
@@ -2461,27 +2461,27 @@ void parse_p1_controller(void) {
     }
 
     if (currInputs->button & Z_TRIG && !(prevInputs->button & Z_TRIG)) {
-        sCurrDebugViewIndex++;
+        WORLD(sCurrDebugViewIndex)++;
     }
 
-    if (sCurrDebugViewIndex > sDebugViewsCount) {
-        sCurrDebugViewIndex = 0;
-    } else if (sCurrDebugViewIndex < 0) {
-        sCurrDebugViewIndex = sDebugViewsCount;
+    if (WORLD(sCurrDebugViewIndex) > WORLD(sDebugViewsCount)) {
+        WORLD(sCurrDebugViewIndex) = 0;
+    } else if (WORLD(sCurrDebugViewIndex) < 0) {
+        WORLD(sCurrDebugViewIndex) = WORLD(sDebugViewsCount);
     }
 
-    if (sCurrDebugViewIndex) {
+    if (WORLD(sCurrDebugViewIndex)) {
         deactivate_timing();
     } else {
         activate_timing();
     }
 
-    for (i = 0; ((s32) i) < sDebugViewsCount; i++) {
-        sDebugViews[i]->flags &= ~VIEW_UPDATE;
+    for (i = 0; ((s32) i) < WORLD(sDebugViewsCount); i++) {
+        WORLD(sDebugViews)[i]->flags &= ~VIEW_UPDATE;
     }
 
-    if (sCurrDebugViewIndex) {
-        sDebugViews[sCurrDebugViewIndex - 1]->flags |= VIEW_UPDATE;
+    if (WORLD(sCurrDebugViewIndex)) {
+        WORLD(sDebugViews)[WORLD(sCurrDebugViewIndex) - 1]->flags |= VIEW_UPDATE;
     }
 
     // deadzone checks
@@ -2493,17 +2493,17 @@ void parse_p1_controller(void) {
     }
 
     // clamp cursor position within screen view bounds
-    if (gdctrl->csrX < sScreenView->parent->upperLeft.x + 16.0f) {
-        gdctrl->csrX = sScreenView->parent->upperLeft.x + 16.0f;
+    if (gdctrl->csrX < WORLD(sScreenView)->parent->upperLeft.x + 16.0f) {
+        gdctrl->csrX = WORLD(sScreenView)->parent->upperLeft.x + 16.0f;
     }
-    if (gdctrl->csrX > sScreenView->parent->upperLeft.x + sScreenView->parent->lowerRight.x - 48.0f) {
-        gdctrl->csrX = sScreenView->parent->upperLeft.x + sScreenView->parent->lowerRight.x - 48.0f;
+    if (gdctrl->csrX > WORLD(sScreenView)->parent->upperLeft.x + WORLD(sScreenView)->parent->lowerRight.x - 48.0f) {
+        gdctrl->csrX = WORLD(sScreenView)->parent->upperLeft.x + WORLD(sScreenView)->parent->lowerRight.x - 48.0f;
     }
-    if (gdctrl->csrY < sScreenView->parent->upperLeft.y + 16.0f) {
-        gdctrl->csrY = sScreenView->parent->upperLeft.y + 16.0f;
+    if (gdctrl->csrY < WORLD(sScreenView)->parent->upperLeft.y + 16.0f) {
+        gdctrl->csrY = WORLD(sScreenView)->parent->upperLeft.y + 16.0f;
     }
-    if (gdctrl->csrY > sScreenView->parent->upperLeft.y + sScreenView->parent->lowerRight.y - 32.0f) {
-        gdctrl->csrY = sScreenView->parent->upperLeft.y + sScreenView->parent->lowerRight.y - 32.0f;
+    if (gdctrl->csrY > WORLD(sScreenView)->parent->upperLeft.y + WORLD(sScreenView)->parent->lowerRight.y - 32.0f) {
+        gdctrl->csrY = WORLD(sScreenView)->parent->upperLeft.y + WORLD(sScreenView)->parent->lowerRight.y - 32.0f;
     }
 
     for (i = 0; i < sizeof(OSContPad); i++) {
@@ -2515,9 +2515,9 @@ void stub_renderer_4(f32 arg0) {
     return;
 
     // dead code
-    if (D_801BD768.x * D_801A86CC.x + arg0 * 2.0f > 160.0) {
-        func_801A3370(D_801BD758.x - D_801BD768.x, -20.0f, 0.0f);
-        D_801BD768.x = D_801BD758.x;
+    if (WORLD(D_801BD768).x * WORLD(D_801A86CC).x + arg0 * 2.0f > 160.0) {
+        func_801A3370(WORLD(D_801BD758).x - WORLD(D_801BD768).x, -20.0f, 0.0f);
+        WORLD(D_801BD768).x = WORLD(D_801BD758).x;
     }
 }
 
@@ -2525,54 +2525,54 @@ void stub_renderer_4(f32 arg0) {
  * Unused
  */
 void Unknown801A32F4(s32 arg0) {
-    D_801BD774 = GD_LOWER_24(arg0) + D_801BAF28;
+    WORLD(D_801BD774) = GD_LOWER_24(arg0) + WORLD(D_801BAF28);
 }
 
 /* 251AF4 -> 251B40 */
 void func_801A3324(f32 x, f32 y, f32 z) {
-    D_801BD768.x = x;
-    D_801BD768.y = y;
-    D_801BD768.z = z;
-    D_801BD758.x = x;
-    D_801BD758.y = y;
-    D_801BD758.z = z;
+    WORLD(D_801BD768).x = x;
+    WORLD(D_801BD768).y = y;
+    WORLD(D_801BD768).z = z;
+    WORLD(D_801BD758).x = x;
+    WORLD(D_801BD758).y = y;
+    WORLD(D_801BD758).z = z;
 }
 
 /* 251B40 -> 251BC8 */
 void func_801A3370(f32 x, f32 y, f32 z) {
     gd_dl_mul_trans_matrix(x, y, z);
-    D_801BD768.x += x;
-    D_801BD768.y += y;
-    D_801BD768.z += z;
+    WORLD(D_801BD768).x += x;
+    WORLD(D_801BD768).y += y;
+    WORLD(D_801BD768).z += z;
 }
 
 /**
  * Unused
  */
 void Unknown801A33F8(f32 x, f32 y, f32 z) {
-    gd_dl_mul_trans_matrix(x - D_801BD768.x, y - D_801BD768.y, z - D_801BD768.z);
+    gd_dl_mul_trans_matrix(x - WORLD(D_801BD768).x, y - WORLD(D_801BD768).y, z - WORLD(D_801BD768).z);
 
-    D_801BD768.x = x;
-    D_801BD768.y = y;
-    D_801BD768.z = z;
+    WORLD(D_801BD768).x = x;
+    WORLD(D_801BD768).y = y;
+    WORLD(D_801BD768).z = z;
 }
 
 /**
  * Unused
  */
 void Unknown801A347C(f32 x, f32 y, f32 z) {
-    D_801A86CC.x = x;
-    D_801A86CC.y = y;
-    D_801A86CC.z = z;
+    WORLD(D_801A86CC).x = x;
+    WORLD(D_801A86CC).y = y;
+    WORLD(D_801A86CC).z = z;
     gd_dl_scale(x, y, z);
 }
 
 /* 251CB0 -> 251D44; orig name: func_801A34E0 */
 void border_active_view(void) {
-    if (sActiveView->flags & VIEW_BORDERED) {
+    if (WORLD(sActiveView)->flags & VIEW_BORDERED) {
         gd_dl_set_fill(gd_get_colour(1));
-        gd_draw_border_rect(0.0f, 0.0f, (sActiveView->lowerRight.x - 1.0f),
-                            (sActiveView->lowerRight.y - 1.0f));
+        gd_draw_border_rect(0.0f, 0.0f, (WORLD(sActiveView)->lowerRight.x - 1.0f),
+                            (WORLD(sActiveView)->lowerRight.y - 1.0f));
     }
 }
 
@@ -2621,19 +2621,19 @@ void gd_setproperty(enum GdProperty prop, f32 f1, f32 f2, f32 f3) {
             }
             break;
         case GD_PROP_AMB_COLOUR:
-            sAmbScaleColour.r = f1;
-            sAmbScaleColour.g = f2;
-            sAmbScaleColour.b = f3;
+            WORLD(sAmbScaleColour).r = f1;
+            WORLD(sAmbScaleColour).g = f2;
+            WORLD(sAmbScaleColour).b = f3;
             break;
         case GD_PROP_LIGHT_DIR:
-            sLightDirections[sLightId].x = (s32)(f1 * 120.f);
-            sLightDirections[sLightId].y = (s32)(f2 * 120.f);
-            sLightDirections[sLightId].z = (s32)(f3 * 120.f);
+            WORLD(sLightDirections)[WORLD(sLightId)].x = (s32)(f1 * 120.f);
+            WORLD(sLightDirections)[WORLD(sLightId)].y = (s32)(f2 * 120.f);
+            WORLD(sLightDirections)[WORLD(sLightId)].z = (s32)(f3 * 120.f);
             break;
         case GD_PROP_DIFUSE_COLOUR:
-            sLightScaleColours[sLightId].r = f1;
-            sLightScaleColours[sLightId].g = f2;
-            sLightScaleColours[sLightId].b = f3;
+            WORLD(sLightScaleColours)[WORLD(sLightId)].r = f1;
+            WORLD(sLightScaleColours)[WORLD(sLightId)].g = f2;
+            WORLD(sLightScaleColours)[WORLD(sLightId)].b = f3;
             break;
         case GD_PROP_CULLING:
             parm = (s32) f1;
@@ -2697,13 +2697,13 @@ void gd_create_ortho_matrix(f32 l, f32 r, f32 b, f32 t, f32 n, f32 f) {
     // Should produce G_RDPHALF_1 in Fast3D
     gSPPerspNormalize(next_gfx(), 0xFFFF);
 
-    guOrtho(&DL_CURRENT_MTX(sCurrentGdDl), l, r, b, t, n, f, 1.0f);
-    orthoMtx = GD_LOWER_29(&DL_CURRENT_MTX(sCurrentGdDl));
+    guOrtho(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), l, r, b, t, n, f, 1.0f);
+    orthoMtx = GD_LOWER_29(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
     gSPMatrix(next_gfx(), orthoMtx, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
 
     next_mtx();
-    guRotate(&DL_CURRENT_MTX(sCurrentGdDl), 0.0f, 0.0f, 0.0f, 1.0f);
-    rotMtx = GD_LOWER_29(&DL_CURRENT_MTX(sCurrentGdDl));
+    guRotate(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), 0.0f, 0.0f, 0.0f, 1.0f);
+    rotMtx = GD_LOWER_29(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
     gSPMatrix(next_gfx(), rotMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
     func_801A3324(0.0f, 0.0f, 0.0f);
@@ -2719,17 +2719,17 @@ void gd_create_perspective_matrix(f32 fovy, f32 aspect, f32 near, f32 far) {
     UNUSED u8 filler2[4];
     UNUSED f32 unused = 0.0625f;
 
-    sGdPerspTimer += 0.1;
-    guPerspective(&DL_CURRENT_MTX(sCurrentGdDl), &perspNorm, fovy, aspect, near, far, 1.0f);
+    WORLD(sGdPerspTimer) += 0.1;
+    guPerspective(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), &perspNorm, fovy, aspect, near, far, 1.0f);
 
     gSPPerspNormalize(next_gfx(), perspNorm);
 
-    perspecMtx = GD_LOWER_29(&DL_CURRENT_MTX(sCurrentGdDl));
+    perspecMtx = GD_LOWER_29(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
     gSPMatrix(next_gfx(), perspecMtx, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     next_mtx();
 
-    guRotate(&DL_CURRENT_MTX(sCurrentGdDl), 0.0f, 0.0f, 0.0f, 1.0f);
-    rotMtx = GD_LOWER_29(&DL_CURRENT_MTX(sCurrentGdDl));
+    guRotate(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)), 0.0f, 0.0f, 0.0f, 1.0f);
+    rotMtx = GD_LOWER_29(&DL_CURRENT_MTX(WORLD(sCurrentGdDl)));
     gSPMatrix(next_gfx(), rotMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     func_801A3324(0.0f, 0.0f, 0.0f);
     next_mtx();
@@ -2763,7 +2763,7 @@ s32 setup_view_buffers(const char *name, struct ObjView *view, UNUSED s32 ulx, U
             }
             view->parent = view;
         } else {
-            view->parent = sScreenView;
+            view->parent = WORLD(sScreenView);
         }
 
         if (view->flags & VIEW_Z_BUF) {
@@ -2779,17 +2779,17 @@ s32 setup_view_buffers(const char *name, struct ObjView *view, UNUSED s32 ulx, U
             }
             stop_memtracker(memtrackerName);
         } else {
-            view->zbuf = sScreenView->zbuf;
+            view->zbuf = WORLD(sScreenView)->zbuf;
         }
     } else {
-        view->parent = sScreenView;
+        view->parent = WORLD(sScreenView);
     }
 
     view->gdDlNum = 0;
     view->unk74 = 0;
 
     if (view->flags & VIEW_DEFAULT_PARENT) {
-        view->parent = D_801A86E0;
+        view->parent = WORLD(D_801A86E0);
     }
 
 //! @bug No actual return, but the return value is used.
@@ -2804,13 +2804,13 @@ s32 setup_view_buffers(const char *name, struct ObjView *view, UNUSED s32 ulx, U
 
 /* 252AF8 -> 252BAC; orig name: _InitControllers */
 void gd_init_controllers(void) {
-    OSContPad *p1cont = &sPrevFrameCont[0]; // 1c
+    OSContPad *p1cont = &WORLD(sPrevFrameCont)[0]; // 1c
     u32 i;                                  // 18
 
-    osCreateMesgQueue(&D_801BE830, D_801BE848, ARRAY_COUNT(D_801BE848));
-    osSetEventMesg(OS_EVENT_SI, &D_801BE830, (OSMesg) OS_MESG_SI_COMPLETE);
-    osContInit(&D_801BE830, &D_801BAEA0, D_801BAE60);
-    osContStartReadData(&D_801BE830);
+    osCreateMesgQueue(&WORLD(D_801BE830), WORLD(D_801BE848), ARRAY_COUNT(WORLD(D_801BE848)));
+    osSetEventMesg(OS_EVENT_SI, &WORLD(D_801BE830), (OSMesg) OS_MESG_SI_COMPLETE);
+    osContInit(&WORLD(D_801BE830), &WORLD(D_801BAEA0), WORLD(D_801BAE60));
+    osContStartReadData(&WORLD(D_801BE830));
 
     for (i = 0; i < sizeof(OSContPad); i++) {
         ((u8 *) p1cont)[i] = 0;
@@ -2857,9 +2857,9 @@ void menu_cb_recalibrate_controller(UNUSED u32 itemId) {
 
 /* 252C08 -> 252C70 */
 void func_801A4438(f32 x, f32 y, f32 z) {
-    sTextDrawPos.x = x - (sActiveView->lowerRight.x / 2.0f);
-    sTextDrawPos.y = (sActiveView->lowerRight.y / 2.0f) - y;
-    sTextDrawPos.z = z;
+    WORLD(sTextDrawPos).x = x - (WORLD(sActiveView)->lowerRight.x / 2.0f);
+    WORLD(sTextDrawPos).y = (WORLD(sActiveView)->lowerRight.y / 2.0f) - y;
+    WORLD(sTextDrawPos).z = z;
 }
 
 /* 252C70 -> 252DB4 */
@@ -2888,14 +2888,14 @@ s32 gd_gentexture(void *texture, s32 fmt, s32 size, UNUSED u32 arg3, UNUSED u32 
             fatal_printf("gd_gentexture(): bad size");
     }
 
-    sLoadedTextures[++sTextureCount] = texture;
+    WORLD(sLoadedTextures)[++WORLD(sTextureCount)] = texture;
     dl = gd_startdisplist(7);
 
     if (dl == 0) {
         fatal_printf("Cant generate DL for texture");
     }
     gd_enddlsplist_parent();
-    sTextureDisplayLists[sTextureCount] = dl;
+    WORLD(sTextureDisplayLists)[WORLD(sTextureCount)] = dl;
 
     return dl;
 }
@@ -2940,7 +2940,7 @@ void *load_texture_from_file(const char *file, s32 fmt, s32 size, u32 arg3, u32 
 /* 252F88 -> 252FAC */
 void Unknown801A47B8(struct ObjView *v) {
     if (v->flags & VIEW_SAVE_TO_GLOBAL) {
-        D_801BE994 = v;
+        WORLD(D_801BE994) = v;
     }
 }
 
@@ -2955,7 +2955,7 @@ void stub_renderer_8(UNUSED u32 arg0) {
  * Unused - called by func_801A520C and Unknown801A5344
  */
 void func_801A4808(void) {
-    while (D_801A8674 != 0) {
+    while (WORLD(D_801A8674) != 0) {
         ;
     }
 
@@ -2966,10 +2966,10 @@ void func_801A4808(void) {
 void func_801A4848(s32 linkDl) {
     struct GdDisplayList *curDl;
 
-    curDl = sCurrentGdDl;
-    sCurrentGdDl = sMHeadMainDls[gGdFrameBufNum];
+    curDl = WORLD(sCurrentGdDl);
+    WORLD(sCurrentGdDl) = WORLD(sMHeadMainDls)[WORLD(gGdFrameBufNum)];
     branch_cur_dl_to_num(linkDl);
-    sCurrentGdDl = curDl;
+    WORLD(sCurrentGdDl) = curDl;
 }
 
 /**
@@ -2991,7 +2991,7 @@ void stub_draw_label_text(UNUSED char *s) {
 
 /* 2530C0 -> 2530D8; orig name: func_801A48F0 */
 void set_active_view(struct ObjView *v) {
-    sActiveView = v;
+    WORLD(sActiveView) = v;
 }
 
 void stub_renderer_11(void) {
@@ -3005,79 +3005,79 @@ void func_801A4918(void) {
     f32 y;     // 8
     u32 ydiff; // 4
 
-    if (sHandView == NULL || sMenuView == NULL) {
+    if (WORLD(sHandView) == NULL || WORLD(sMenuView) == NULL) {
         return;
     }
 
-    x = sHandView->upperLeft.x;
-    y = sHandView->upperLeft.y;
+    x = WORLD(sHandView)->upperLeft.x;
+    y = WORLD(sHandView)->upperLeft.y;
 
-    if (!(x > sMenuView->upperLeft.x && x < sMenuView->upperLeft.x + sMenuView->lowerRight.x
-          && y > sMenuView->upperLeft.y && y < sMenuView->upperLeft.y + sMenuView->lowerRight.y)) {
+    if (!(x > WORLD(sMenuView)->upperLeft.x && x < WORLD(sMenuView)->upperLeft.x + WORLD(sMenuView)->lowerRight.x
+          && y > WORLD(sMenuView)->upperLeft.y && y < WORLD(sMenuView)->upperLeft.y + WORLD(sMenuView)->lowerRight.y)) {
         return;
     }
-    ydiff = (y - sMenuView->upperLeft.y) / 25.0f;
+    ydiff = (y - WORLD(sMenuView)->upperLeft.y) / 25.0f;
 
-    if (ydiff < sItemsInMenu) {
-        sMenuGadgets[ydiff]->drawFlags |= OBJ_HIGHLIGHTED;
+    if (ydiff < WORLD(sItemsInMenu)) {
+        WORLD(sMenuGadgets)[ydiff]->drawFlags |= OBJ_HIGHLIGHTED;
     }
 }
 
 /* 2532D4 -> 2533DC */
 void Unknown801A4B04(void) {
-    if (D_801A86AC != NULL) {
-        D_801A86AC->prevScaledTotal = 20.0f;
+    if (WORLD(D_801A86AC) != NULL) {
+        WORLD(D_801A86AC)->prevScaledTotal = 20.0f;
     }
-    if (D_801A86A4 != NULL) {
-        D_801A86A4->prevScaledTotal = (f32)((sDLGenTime * 50.0f) + 20.0f);
+    if (WORLD(D_801A86A4) != NULL) {
+        WORLD(D_801A86A4)->prevScaledTotal = (f32)((WORLD(sDLGenTime) * 50.0f) + 20.0f);
     }
-    if (D_801A86A8 != NULL) {
-        D_801A86A8->prevScaledTotal = (f32)((sDLGenTime * 50.0f) + 20.0f);
+    if (WORLD(D_801A86A8) != NULL) {
+        WORLD(D_801A86A8)->prevScaledTotal = (f32)((WORLD(sDLGenTime) * 50.0f) + 20.0f);
     }
-    sDLGenTime = get_scaled_timer_total("dlgen");
-    sRCPTime = get_scaled_timer_total("rcp");
-    sDynamicsTime = get_scaled_timer_total("dynamics");
+    WORLD(sDLGenTime) = get_scaled_timer_total("dlgen");
+    WORLD(sRCPTime) = get_scaled_timer_total("rcp");
+    WORLD(sDynamicsTime) = get_scaled_timer_total("dynamics");
 }
 
 /* 2533DC -> 253728; orig name: func_801A4C0C */
 void update_cursor(void) {
-    if (sHandView == NULL)
+    if (WORLD(sHandView) == NULL)
         return;
 
-    if (gGdCtrl.currFrame - gGdCtrl.dragStartFrame < 300) {
-        sHandView->flags |= VIEW_UPDATE;
+    if (WORLD(gGdCtrl).currFrame - WORLD(gGdCtrl).dragStartFrame < 300) {
+        WORLD(sHandView)->flags |= VIEW_UPDATE;
         // by playing the sfx every frame, it will only play once as it
         // never leaves the "sfx played last frame" buffer
         gd_play_sfx(GD_SFX_HAND_APPEAR);
     } else {
-        sHandView->flags &= ~VIEW_UPDATE;
+        WORLD(sHandView)->flags &= ~VIEW_UPDATE;
         gd_play_sfx(GD_SFX_HAND_DISAPPEAR);
     }
 
-    sHandView->upperLeft.x = (f32) gGdCtrl.csrX;
-    sHandView->upperLeft.y = (f32) gGdCtrl.csrY;
+    WORLD(sHandView)->upperLeft.x = (f32) WORLD(gGdCtrl).csrX;
+    WORLD(sHandView)->upperLeft.y = (f32) WORLD(gGdCtrl).csrY;
 
     // Make hand display list
-    begin_gddl(sHandShape->dlNums[gGdFrameBufNum]);
-    if (gGdCtrl.dragging) {
-        gd_put_sprite((u16 *) gd_texture_hand_closed, sHandView->upperLeft.x, sHandView->upperLeft.y, 0x20, 0x20);
+    begin_gddl(WORLD(sHandShape)->dlNums[WORLD(gGdFrameBufNum)]);
+    if (WORLD(gGdCtrl).dragging) {
+        gd_put_sprite((u16 *) WORLD(gd_texture_hand_closed), WORLD(sHandView)->upperLeft.x, WORLD(sHandView)->upperLeft.y, 0x20, 0x20);
     } else {
-        gd_put_sprite((u16 *) gd_texture_hand_open, sHandView->upperLeft.x, sHandView->upperLeft.y, 0x20, 0x20);
+        gd_put_sprite((u16 *) WORLD(gd_texture_hand_open), WORLD(sHandView)->upperLeft.x, WORLD(sHandView)->upperLeft.y, 0x20, 0x20);
     }
     gd_enddlsplist_parent();
 
-    if (sHandView->upperLeft.x < sHandView->parent->upperLeft.x) {
-        sHandView->upperLeft.x = sHandView->parent->upperLeft.x;
+    if (WORLD(sHandView)->upperLeft.x < WORLD(sHandView)->parent->upperLeft.x) {
+        WORLD(sHandView)->upperLeft.x = WORLD(sHandView)->parent->upperLeft.x;
     }
-    if (sHandView->upperLeft.x > (sHandView->parent->upperLeft.x + sHandView->parent->lowerRight.x)) {
-        sHandView->upperLeft.x = sHandView->parent->upperLeft.x + sHandView->parent->lowerRight.x;
+    if (WORLD(sHandView)->upperLeft.x > (WORLD(sHandView)->parent->upperLeft.x + WORLD(sHandView)->parent->lowerRight.x)) {
+        WORLD(sHandView)->upperLeft.x = WORLD(sHandView)->parent->upperLeft.x + WORLD(sHandView)->parent->lowerRight.x;
     }
 
-    if (sHandView->upperLeft.y < sHandView->parent->upperLeft.y) {
-        sHandView->upperLeft.y = sHandView->parent->upperLeft.y;
+    if (WORLD(sHandView)->upperLeft.y < WORLD(sHandView)->parent->upperLeft.y) {
+        WORLD(sHandView)->upperLeft.y = WORLD(sHandView)->parent->upperLeft.y;
     }
-    if (sHandView->upperLeft.y > (sHandView->parent->upperLeft.y + sHandView->parent->lowerRight.y)) {
-        sHandView->upperLeft.y = sHandView->parent->upperLeft.y + sHandView->parent->lowerRight.y;
+    if (WORLD(sHandView)->upperLeft.y > (WORLD(sHandView)->parent->upperLeft.y + WORLD(sHandView)->parent->lowerRight.y)) {
+        WORLD(sHandView)->upperLeft.y = WORLD(sHandView)->parent->upperLeft.y + WORLD(sHandView)->parent->lowerRight.y;
     }
 }
 
@@ -3092,9 +3092,9 @@ void Unknown801A4F58(void) {
     register s16 b;        // t2
     register s32 i;        // t3
 
-    cbufOff = sScreenView->colourBufs[gGdFrameBufNum ^ 1];
-    cbufOn = sScreenView->colourBufs[gGdFrameBufNum];
-    zbuf = sScreenView->zbuf;
+    cbufOff = WORLD(sScreenView)->colourBufs[WORLD(gGdFrameBufNum) ^ 1];
+    cbufOn = WORLD(sScreenView)->colourBufs[WORLD(gGdFrameBufNum)];
+    zbuf = WORLD(sScreenView)->zbuf;
 
     for (i = 0; i < (320 * 240); i++) { // L801A4FCC
         colour = cbufOff[i];
@@ -3136,7 +3136,7 @@ void update_view_and_dl(struct ObjView *view) {
     prevFlags = view->flags;
     update_view(view);
     if (prevFlags & VIEW_UPDATE) {
-        sCurrentGdDl = sMHeadMainDls[gGdFrameBufNum];
+        WORLD(sCurrentGdDl) = WORLD(sMHeadMainDls)[WORLD(gGdFrameBufNum)];
         if (view->gdDlNum != 0) {
             func_801A4848(view->gdDlNum);
         }
@@ -3156,11 +3156,11 @@ void func_801A520C(void) {
     parse_p1_controller();
     setup_timers();
     start_timer("dlgen");
-    apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) update_view_and_dl, gGdViewsGroup);
+    apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) update_view_and_dl, WORLD(gGdViewsGroup));
     stop_timer("dlgen");
     restart_timer("netupd");
-    if (!gGdCtrl.newStartPress) {
-        apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) Proc801A5110, gGdViewsGroup);
+    if (!WORLD(gGdCtrl).newStartPress) {
+        apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) Proc801A5110, WORLD(gGdViewsGroup));
     }
     split_timer("netupd");
     split_timer("cpu");
@@ -3170,7 +3170,7 @@ void func_801A520C(void) {
     update_cursor();
     func_801A4918();
     stop_timer("1frame");
-    sTracked1FrameTime = get_scaled_timer_total("1frame");
+    WORLD(sTracked1FrameTime) = get_scaled_timer_total("1frame");
     split_timer("cpu");
     func_801A01EC();
 }
@@ -3179,19 +3179,19 @@ void func_801A520C(void) {
  * Unused
  */
 void Unknown801A5344(void) {
-    if ((sActiveView = sScreenView) == NULL) {
+    if ((WORLD(sActiveView) = WORLD(sScreenView)) == NULL) {
         return;
     }
 
     reset_cur_dl_indices();
-    sScreenView->gdDlNum = gd_startdisplist(8);
-    start_view_dl(sScreenView);
+    WORLD(sScreenView)->gdDlNum = gd_startdisplist(8);
+    start_view_dl(WORLD(sScreenView));
     gd_set_one_cycle();
     gd_enddlsplist_parent();
-    func_801A4848(sScreenView->gdDlNum);
+    func_801A4848(WORLD(sScreenView)->gdDlNum);
     stub_renderer_9();
     func_801A4808();
-    sScreenView->gdDlNum = 0;
+    WORLD(sScreenView)->gdDlNum = 0;
 }
 
 /* 253BC8 -> 2540E0 */
@@ -3201,86 +3201,86 @@ void gd_init(void) {
     s8 *data; // 2c
 
     imin("gd_init");
-    i = (u32)(sMemBlockPoolSize - DOUBLE_SIZE_ON_64_BIT(0x3E800));
+    i = (u32)(WORLD(sMemBlockPoolSize) - DOUBLE_SIZE_ON_64_BIT(0x3E800));
     data = gd_allocblock(i);
     gd_add_mem_to_heap(i, data, 0x10);
-    sAlpha = (u16) 0xff;
-    D_801A867C = 0;
-    D_801A8680 = 0;
-    sTextureCount = 0;
-    gGdFrameBufNum = 0;
-    D_801A86BC = 1;
-    sItemsInMenu = 0;
-    sDebugViewsCount = 0;
-    sCurrDebugViewIndex = 0;
-    sGdDlCount = 0;
-    D_801A8674 = 0;
-    sLightId = 0;
-    sAmbScaleColour.r = 0.0f;
-    sAmbScaleColour.g = 0.0f;
-    sAmbScaleColour.b = 0.0f;
+    WORLD(sAlpha) = (u16) 0xff;
+    WORLD(D_801A867C) = 0;
+    WORLD(D_801A8680) = 0;
+    WORLD(sTextureCount) = 0;
+    WORLD(gGdFrameBufNum) = 0;
+    WORLD(D_801A86BC) = 1;
+    WORLD(sItemsInMenu) = 0;
+    WORLD(sDebugViewsCount) = 0;
+    WORLD(sCurrDebugViewIndex) = 0;
+    WORLD(sGdDlCount) = 0;
+    WORLD(D_801A8674) = 0;
+    WORLD(sLightId) = 0;
+    WORLD(sAmbScaleColour).r = 0.0f;
+    WORLD(sAmbScaleColour).g = 0.0f;
+    WORLD(sAmbScaleColour).b = 0.0f;
 
-    for (i = 0; i < ARRAY_COUNT(sLightScaleColours); i++) {
-        sLightScaleColours[i].r = 1.0f;
-        sLightScaleColours[i].g = 0.0f;
-        sLightScaleColours[i].b = 0.0f;
-        sLightDirections[i].x = 0;
-        sLightDirections[i].y = 120;
-        sLightDirections[i].z = 0;
+    for (i = 0; i < ARRAY_COUNT(WORLD(sLightScaleColours)); i++) {
+        WORLD(sLightScaleColours)[i].r = 1.0f;
+        WORLD(sLightScaleColours)[i].g = 0.0f;
+        WORLD(sLightScaleColours)[i].b = 0.0f;
+        WORLD(sLightDirections)[i].x = 0;
+        WORLD(sLightDirections)[i].y = 120;
+        WORLD(sLightDirections)[i].z = 0;
     }
 
-    sNumLights = NUMLIGHTS_2;
-    gd_set_identity_mat4(&sInitIdnMat4);
-    mat4_to_mtx(&sInitIdnMat4, &sIdnMtx);
+    WORLD(sNumLights) = NUMLIGHTS_2;
+    gd_set_identity_mat4(&WORLD(sInitIdnMat4));
+    mat4_to_mtx(&WORLD(sInitIdnMat4), &WORLD(sIdnMtx));
     remove_all_memtrackers();
     null_obj_lists();
     start_memtracker("total");
     remove_all_timers();
 
     start_memtracker("Static DL");
-    sStaticDl = new_gd_dl(0, 1900, 4000, 1, 300, 8);
+    WORLD(sStaticDl) = new_gd_dl(0, 1900, 4000, 1, 300, 8);
     stop_memtracker("Static DL");
 
     start_memtracker("Dynamic DLs");
-    sDynamicMainDls[0] = new_gd_dl(1, 600, 10, 200, 10, 3);
-    sDynamicMainDls[1] = new_gd_dl(1, 600, 10, 200, 10, 3);
+    WORLD(sDynamicMainDls)[0] = new_gd_dl(1, 600, 10, 200, 10, 3);
+    WORLD(sDynamicMainDls)[1] = new_gd_dl(1, 600, 10, 200, 10, 3);
     stop_memtracker("Dynamic DLs");
 
-    sMHeadMainDls[0] = new_gd_dl(1, 100, 0, 0, 0, 0);
-    sMHeadMainDls[1] = new_gd_dl(1, 100, 0, 0, 0, 0);
+    WORLD(sMHeadMainDls)[0] = new_gd_dl(1, 100, 0, 0, 0, 0);
+    WORLD(sMHeadMainDls)[1] = new_gd_dl(1, 100, 0, 0, 0, 0);
 
-    for (i = 0; i < ARRAY_COUNT(sViewDls); i++) {
-        sViewDls[i][0] = create_child_gdl(1, sDynamicMainDls[0]);
-        sViewDls[i][1] = create_child_gdl(1, sDynamicMainDls[1]);
+    for (i = 0; i < ARRAY_COUNT(WORLD(sViewDls)); i++) {
+        WORLD(sViewDls)[i][0] = create_child_gdl(1, WORLD(sDynamicMainDls)[0]);
+        WORLD(sViewDls)[i][1] = create_child_gdl(1, WORLD(sDynamicMainDls)[1]);
     }
 
-    sScreenView =
+    WORLD(sScreenView) =
         make_view("screenview2", (VIEW_2_COL_BUF | VIEW_UNK_1000 | VIEW_COLOUR_BUF | VIEW_Z_BUF), 0, 0,
                   0, 320, 240, NULL);
-    sScreenView->colour.r = 0.0f;
-    sScreenView->colour.g = 0.0f;
-    sScreenView->colour.b = 0.0f;
-    sScreenView->parent = sScreenView;
-    sScreenView->flags &= ~VIEW_UPDATE;
-    sActiveView = sScreenView;
+    WORLD(sScreenView)->colour.r = 0.0f;
+    WORLD(sScreenView)->colour.g = 0.0f;
+    WORLD(sScreenView)->colour.b = 0.0f;
+    WORLD(sScreenView)->parent = WORLD(sScreenView);
+    WORLD(sScreenView)->flags &= ~VIEW_UPDATE;
+    WORLD(sActiveView) = WORLD(sScreenView);
 
     // Zero out controller inputs
-    data = (s8 *) &gGdCtrl;
+    data = (s8 *) &WORLD(gGdCtrl);
     for (i = 0; (u32) i < sizeof(struct GdControl); i++) {
         *data++ = 0;
     }
 
     // 801A5868
-    gGdCtrl.unk88 = 1.0f;
-    gGdCtrl.unkA0 = -45.0f;
-    gGdCtrl.unkAC = 45.0f;
-    gGdCtrl.unk00 = 2;
-    gGdCtrl.newStartPress = FALSE;
-    gGdCtrl.prevFrame = &gGdCtrlPrev;
-    gGdCtrl.csrX = 160;
-    gGdCtrl.csrY = 120;
-    gGdCtrl.dragStartFrame = -1000;
-    unusedDl801BB0AC = create_mtl_gddl(4);
+    WORLD(gGdCtrl).unk88 = 1.0f;
+    WORLD(gGdCtrl).unkA0 = -45.0f;
+    WORLD(gGdCtrl).unkAC = 45.0f;
+    WORLD(gGdCtrl).unk00 = 2;
+    WORLD(gGdCtrl).newStartPress = FALSE;
+    WORLD(gGdCtrl).prevFrame = &WORLD(gGdCtrlPrev);
+    WORLD(gGdCtrl).csrX = 160;
+    WORLD(gGdCtrl).csrY = 120;
+    WORLD(gGdCtrl).dragStartFrame = -1000;
+    WORLD(unusedDl801BB0AC) = create_mtl_gddl(4);
     imout();
 }
 
@@ -3321,9 +3321,9 @@ void stub_renderer_14(UNUSED s8 *arg0) {
 void init_pick_buf(s16 *buf, s32 len) {
     buf[0] = 0;
     buf[1] = 0;
-    sPickBufLen = len;
-    sPickBuf = buf;
-    sPickBufPosition = 0;
+    WORLD(sPickBufLen) = len;
+    WORLD(sPickBuf) = buf;
+    WORLD(sPickBufPosition) = 0;
 }
 
 /**
@@ -3331,7 +3331,7 @@ void init_pick_buf(s16 *buf, s32 len) {
  * `pushname` function from IRIS GL.
  */
 void store_in_pickbuf(s16 data) {
-    sPickBuf[sPickBufPosition++] = data;
+    WORLD(sPickBuf)[WORLD(sPickBufPosition)++] = data;
 }
 
 /* 25421C -> 254250; orig name: func_801A5A4C
@@ -3339,7 +3339,7 @@ void store_in_pickbuf(s16 data) {
 ** in the pick buf is a tupple of three halves: (datasize, objtype, objnumber)
 ** (datasize is always 2) */
 s32 get_cur_pickbuf_offset(UNUSED s16 *arg0) {
-    return sPickBufPosition / 3;
+    return WORLD(sPickBufPosition) / 3;
 }
 
 /* 254250 -> 254264 */
@@ -3356,27 +3356,27 @@ void stub_renderer_17(void) {
 
 /* 254288 -> 2542B0 */
 void *Unknown801A5AB8(s32 texnum) {
-    return sLoadedTextures[texnum];
+    return WORLD(sLoadedTextures)[texnum];
 }
 
 /* 2542B0 -> 254328 */
 void Unknown801A5AE0(s32 arg0) {
-    D_801BB018 = arg0;
-    if (D_801BB01C != D_801BB018) {
-        branch_cur_dl_to_num(sTextureDisplayLists[arg0]);
-        D_801BB01C = D_801BB018;
+    WORLD(D_801BB018) = arg0;
+    if (WORLD(D_801BB01C) != WORLD(D_801BB018)) {
+        branch_cur_dl_to_num(WORLD(sTextureDisplayLists)[arg0]);
+        WORLD(D_801BB01C) = WORLD(D_801BB018);
     }
 }
 
 /* 254328 -> 2543B8; orig name: func_801A5B58 */
 void set_vtx_tc_buf(f32 tcS, f32 tcT) {
-    sVtxCvrtTCBuf[0] = (s16)(tcS * 512.0f);
-    sVtxCvrtTCBuf[1] = (s16)(tcT * 512.0f);
+    WORLD(sVtxCvrtTCBuf)[0] = (s16)(tcS * 512.0f);
+    WORLD(sVtxCvrtTCBuf)[1] = (s16)(tcT * 512.0f);
 }
 
 /* 2543B8 -> 2543F4 */
 void add_debug_view(struct ObjView *view) {
-    sDebugViews[sDebugViewsCount++] = view;
+    WORLD(sDebugViews)[WORLD(sDebugViewsCount)++] = view;
 }
 
 /* 2543F4 -> 254450; orig name: Unknown801A5C24 */
@@ -3396,7 +3396,7 @@ void Unknown801A5C80(struct ObjGroup *parentGroup) {
     label = (struct ObjLabel *) d_makeobj(D_LABEL, 0);
     d_set_rel_pos(10.0f, 230.0f, 0.0f);
     d_set_parm_ptr(PARM_PTR_CHAR, gd_strdup("FT %2.2f"));
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTracked1FrameTime);
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTracked1FrameTime));
     label->unk30 = 3;
     d_end_group("debugg");
 
@@ -3482,7 +3482,7 @@ void Unknown801A5FF8(struct ObjGroup *arg0) {
     UNUSED u8 filler[8];
 
     d_start_group("menug");
-    sMenuGadgets[0] = d_makeobj(D_GADGET, "menu0");
+    WORLD(sMenuGadgets)[0] = d_makeobj(D_GADGET, "menu0");
     d_set_obj_draw_flag(OBJ_IS_GRABBABLE);
     d_set_world_pos(5.0f, 0.0f, 0.0f);
     d_set_scale(100.0f, 20.0f, 0.0f);
@@ -3493,7 +3493,7 @@ void Unknown801A5FF8(struct ObjGroup *arg0) {
     d_set_parm_ptr(PARM_PTR_CHAR, "ITEM 1");
     d_add_valptr("menu0", 0x40000, 0, (uintptr_t) NULL);
 
-    sMenuGadgets[1] = d_makeobj(D_GADGET, "menu1");
+    WORLD(sMenuGadgets)[1] = d_makeobj(D_GADGET, "menu1");
     d_set_obj_draw_flag(OBJ_IS_GRABBABLE);
     d_set_world_pos(5.0f, 25.0f, 0.0f);
     d_set_scale(100.0f, 20.0f, 0.0f);
@@ -3504,7 +3504,7 @@ void Unknown801A5FF8(struct ObjGroup *arg0) {
     d_set_parm_ptr(PARM_PTR_CHAR, "ITEM 2");
     d_add_valptr("menu1", 0x40000, 0, (uintptr_t) NULL);
 
-    sMenuGadgets[2] = d_makeobj(D_GADGET, "menu2");
+    WORLD(sMenuGadgets)[2] = d_makeobj(D_GADGET, "menu2");
     d_set_obj_draw_flag(OBJ_IS_GRABBABLE);
     d_set_world_pos(5.0f, 50.0f, 0.0f);
     d_set_scale(100.0f, 20.0f, 0.0f);
@@ -3514,7 +3514,7 @@ void Unknown801A5FF8(struct ObjGroup *arg0) {
     d_set_rel_pos(5.0f, 18.0f, 0.0f);
     d_set_parm_ptr(PARM_PTR_CHAR, "ITEM 3");
     d_add_valptr("menu2", 0x40000, 0, (uintptr_t) NULL);
-    sItemsInMenu = 3;
+    WORLD(sItemsInMenu) = 3;
     d_end_group("menug");
 
     menugrp = (struct ObjGroup *) d_use_obj("menug");
@@ -3525,7 +3525,7 @@ void Unknown801A5FF8(struct ObjGroup *arg0) {
     menuview->colour.g = 0.0f;
     menuview->colour.b = 0.0f;
     addto_group(arg0, &menugrp->header);
-    sMenuView = menuview;
+    WORLD(sMenuView) = menuview;
 }
 
 /* 254AC0 -> 254DFC; orig name: PutSprite */
@@ -3533,7 +3533,7 @@ void gd_put_sprite(u16 *sprite, s32 x, s32 y, s32 wx, s32 wy) {
     s32 c; // 5c
     s32 r; // 58
 
-    gSPDisplayList(next_gfx(), osVirtualToPhysical(gd_dl_sprite_start_tex_block));
+    gSPDisplayList(next_gfx(), osVirtualToPhysical(WORLD(gd_dl_sprite_start_tex_block)));
     for (r = 0; r < wy; r += 32) {
         for (c = 0; c < wx; c += 32) {
              gDPLoadTextureBlock(next_gfx(), (r * 32) + sprite + c, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
@@ -3555,19 +3555,19 @@ void gd_setup_cursor(struct ObjGroup *parentgrp) {
     struct ObjGroup *mousegrp; // 30
     UNUSED struct ObjNet *net; // 2c
 
-    sHandShape = make_shape(0, "mouse");
-    sHandShape->dlNums[0] = gd_startdisplist(7);
-    gd_put_sprite((u16 *) gd_texture_hand_open, 100, 100, 32, 32);
+    WORLD(sHandShape) = make_shape(0, "mouse");
+    WORLD(sHandShape)->dlNums[0] = gd_startdisplist(7);
+    gd_put_sprite((u16 *) WORLD(gd_texture_hand_open), 100, 100, 32, 32);
     gd_enddlsplist_parent();
-    sHandShape->dlNums[1] = gd_startdisplist(7);
-    gd_put_sprite((u16 *) gd_texture_hand_open, 100, 100, 32, 32);
+    WORLD(sHandShape)->dlNums[1] = gd_startdisplist(7);
+    gd_put_sprite((u16 *) WORLD(gd_texture_hand_open), 100, 100, 32, 32);
     gd_enddlsplist_parent();
 
     d_start_group("mouseg");
     net = (struct ObjNet *) d_makeobj(D_NET, AsDynName(0));
     d_set_init_pos(0.0f, 0.0f, 0.0f);
     d_set_type(3);
-    d_set_shapeptrptr(&sHandShape);
+    d_set_shapeptrptr(&WORLD(sHandShape));
     d_end_group("mouseg");
 
     mousegrp = (struct ObjGroup *) d_use_obj("mouseg");
@@ -3575,7 +3575,7 @@ void gd_setup_cursor(struct ObjGroup *parentgrp) {
                           (VIEW_2_COL_BUF | VIEW_ALLOC_ZBUF | VIEW_1_CYCLE | VIEW_MOVEMENT | VIEW_DRAW),
                           2, 0, 0, 32, 32, mousegrp);
     mouseview->flags &= ~VIEW_UPDATE;
-    sHandView = mouseview;
+    WORLD(sHandView) = mouseview;
     if (parentgrp != NULL) {
         addto_group(parentgrp, &mousegrp->header);
     }
@@ -3616,8 +3616,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar1 = (struct ObjGadget *) d_use_obj("bar1");
     bar1->colourNum = COLOUR_WHITE;
 
@@ -3627,8 +3627,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar2 = (struct ObjGadget *) d_use_obj("bar2");
     bar2->colourNum = COLOUR_PINK;
 
@@ -3638,8 +3638,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar3 = (struct ObjGadget *) d_use_obj("bar3");
     bar3->colourNum = COLOUR_WHITE;
 
@@ -3649,8 +3649,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar4 = (struct ObjGadget *) d_use_obj("bar4");
     bar4->colourNum = COLOUR_PINK;
 
@@ -3660,8 +3660,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar5 = (struct ObjGadget *) d_use_obj("bar5");
     bar5->colourNum = COLOUR_WHITE;
 
@@ -3671,8 +3671,8 @@ void make_timer_gadgets(void) {
     d_set_scale(50.0f, 5.0f, 0.0f);
     d_set_type(4);
     d_set_parm_f(PARM_F_RANGE_MIN, 0);
-    d_set_parm_f(PARM_F_RANGE_MAX, sTimeScaleFactor);
-    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &sTimeScaleFactor);
+    d_set_parm_f(PARM_F_RANGE_MAX, WORLD(sTimeScaleFactor));
+    d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &WORLD(sTimeScaleFactor));
     bar6 = (struct ObjGadget *) d_use_obj("bar6");
     bar6->colourNum = COLOUR_PINK;
 
@@ -3689,8 +3689,8 @@ void make_timer_gadgets(void) {
         d_set_parm_f(PARM_F_RANGE_MIN, 0.0f);
         d_set_parm_f(PARM_F_RANGE_MAX, 1.0f);
         d_add_valptr(NULL, 0, OBJ_VALUE_FLOAT, (uintptr_t) &timer->prevScaledTotal);
-        sTimerGadgets[i] = (struct ObjGadget *) d_use_obj(timerNameBuf);
-        sTimerGadgets[i]->colourNum = timer->gadgetColourNum;
+        WORLD(sTimerGadgets)[i] = (struct ObjGadget *) d_use_obj(timerNameBuf);
+        WORLD(sTimerGadgets)[i]->colourNum = timer->gadgetColourNum;
 
         timerLabel = (struct ObjLabel *) d_makeobj(D_LABEL, AsDynName(0));
         d_set_rel_pos(5.0f, 14.0f, 0);

@@ -14,7 +14,7 @@ static Movtex ssl_movtex_puddle_water_data[] = {
 };
 
 // 0x07012778
-const struct MovtexQuadCollection ssl_movtex_puddle_water[] = {
+struct MovtexQuadCollection ssl_movtex_puddle_water[] = {
     {0, ssl_movtex_puddle_water_data},
     {-1, NULL},
 };
@@ -50,7 +50,7 @@ static Movtex ssl_movtex_toxbox_quicksand_short_mist[] = {
 };
 
 // 0x070127C8 - 0x070127E0
-const struct MovtexQuadCollection ssl_movtex_toxbox_quicksand_mist[] = {
+struct MovtexQuadCollection ssl_movtex_toxbox_quicksand_mist[] = {
     {51, ssl_movtex_toxbox_quicksand_large_mist},
     {52, ssl_movtex_toxbox_quicksand_short_mist},
     {-1, NULL},

@@ -67,13 +67,13 @@ struct ObjGroup *gGdViewsGroup; // @ 801B9E90
 
 /* @ 22A480 for 0x70 */
 void reset_bounding_box(void) { /* Initialize Plane? */
-    gSomeBoundingBox.minX = 10000000.0f;
-    gSomeBoundingBox.minY = 10000000.0f;
-    gSomeBoundingBox.minZ = 10000000.0f;
+    WORLD(gSomeBoundingBox).minX = 10000000.0f;
+    WORLD(gSomeBoundingBox).minY = 10000000.0f;
+    WORLD(gSomeBoundingBox).minZ = 10000000.0f;
 
-    gSomeBoundingBox.maxX = -10000000.0f;
-    gSomeBoundingBox.maxY = -10000000.0f;
-    gSomeBoundingBox.maxZ = -10000000.0f;
+    WORLD(gSomeBoundingBox).maxX = -10000000.0f;
+    WORLD(gSomeBoundingBox).maxY = -10000000.0f;
+    WORLD(gSomeBoundingBox).maxZ = -10000000.0f;
 }
 
 void add_obj_pos_to_bounding_box(struct GdObj *obj) {
@@ -82,40 +82,40 @@ void add_obj_pos_to_bounding_box(struct GdObj *obj) {
     set_cur_dynobj(obj);
     d_get_world_pos(&pos);
 
-    if (pos.x < gSomeBoundingBox.minX) {
-        gSomeBoundingBox.minX = pos.x;
+    if (pos.x < WORLD(gSomeBoundingBox).minX) {
+        WORLD(gSomeBoundingBox).minX = pos.x;
     }
 
-    if (pos.y < gSomeBoundingBox.minY) {
-        gSomeBoundingBox.minY = pos.y;
+    if (pos.y < WORLD(gSomeBoundingBox).minY) {
+        WORLD(gSomeBoundingBox).minY = pos.y;
     }
 
-    if (pos.z < gSomeBoundingBox.minZ) {
-        gSomeBoundingBox.minZ = pos.z;
+    if (pos.z < WORLD(gSomeBoundingBox).minZ) {
+        WORLD(gSomeBoundingBox).minZ = pos.z;
     }
 
-    if (pos.x > gSomeBoundingBox.maxX) {
-        gSomeBoundingBox.maxX = pos.x;
+    if (pos.x > WORLD(gSomeBoundingBox).maxX) {
+        WORLD(gSomeBoundingBox).maxX = pos.x;
     }
 
-    if (pos.y > gSomeBoundingBox.maxY) {
-        gSomeBoundingBox.maxY = pos.y;
+    if (pos.y > WORLD(gSomeBoundingBox).maxY) {
+        WORLD(gSomeBoundingBox).maxY = pos.y;
     }
 
-    if (pos.z > gSomeBoundingBox.maxZ) {
-        gSomeBoundingBox.maxZ = pos.z;
+    if (pos.z > WORLD(gSomeBoundingBox).maxZ) {
+        WORLD(gSomeBoundingBox).maxZ = pos.z;
     }
 }
 
 /* @ 22A630 for 0x70 */
 void get_some_bounding_box(struct GdBoundingBox *a0) {
-    a0->minX = gSomeBoundingBox.minX;
-    a0->minY = gSomeBoundingBox.minY;
-    a0->minZ = gSomeBoundingBox.minZ;
+    a0->minX = WORLD(gSomeBoundingBox).minX;
+    a0->minY = WORLD(gSomeBoundingBox).minY;
+    a0->minZ = WORLD(gSomeBoundingBox).minZ;
 
-    a0->maxX = gSomeBoundingBox.maxX;
-    a0->maxY = gSomeBoundingBox.maxY;
-    a0->maxZ = gSomeBoundingBox.maxZ;
+    a0->maxX = WORLD(gSomeBoundingBox).maxX;
+    a0->maxY = WORLD(gSomeBoundingBox).maxY;
+    a0->maxZ = WORLD(gSomeBoundingBox).maxZ;
 }
 
 /* @ 22A6A0 for 0x24 */
@@ -314,9 +314,9 @@ struct GdObj *make_object(enum ObjTypeFlag objType) {
     }
 
     // Add the new object to the beginning of gGdObjectList
-    gGdObjCount++;
-    objListOldHead = gGdObjectList;
-    gGdObjectList = newObj;
+    WORLD(gGdObjCount)++;
+    objListOldHead = WORLD(gGdObjectList);
+    WORLD(gGdObjectList) = newObj;
     newObj->prev = NULL;
     if (objListOldHead != NULL) {
         newObj->next = objListOldHead;
@@ -324,7 +324,7 @@ struct GdObj *make_object(enum ObjTypeFlag objType) {
     }
 
     // Fill in required fields
-    newObj->index = gGdObjCount;
+    newObj->index = WORLD(gGdObjCount);
     newObj->type = objType;
     newObj->objDrawFn = objDrawFn;
     newObj->drawFlags = 0;
@@ -487,12 +487,12 @@ void reset_plane(struct ObjPlane *plane) {
         add_obj_pos_to_bounding_box(&sp4C->vertices[i]->header);
     }
 
-    plane->boundingBox.minX = gSomeBoundingBox.minX;
-    plane->boundingBox.minY = gSomeBoundingBox.minY;
-    plane->boundingBox.minZ = gSomeBoundingBox.minZ;
-    plane->boundingBox.maxX = gSomeBoundingBox.maxX;
-    plane->boundingBox.maxY = gSomeBoundingBox.maxY;
-    plane->boundingBox.maxZ = gSomeBoundingBox.maxZ;
+    plane->boundingBox.minX = WORLD(gSomeBoundingBox).minX;
+    plane->boundingBox.minY = WORLD(gSomeBoundingBox).minY;
+    plane->boundingBox.minZ = WORLD(gSomeBoundingBox).minZ;
+    plane->boundingBox.maxX = WORLD(gSomeBoundingBox).maxX;
+    plane->boundingBox.maxY = WORLD(gSomeBoundingBox).maxY;
+    plane->boundingBox.maxZ = WORLD(gSomeBoundingBox).maxZ;
 
     if (plane->boundingBox.maxX - plane->boundingBox.minX < 100.0f) {
         plane->boundingBox.maxX += 50.0f;
@@ -514,8 +514,8 @@ struct ObjPlane *make_plane(s32 inZone, struct ObjFace *a1) {
     UNUSED u8 filler[4];
     struct ObjPlane *newPlane = (struct ObjPlane *) make_object(OBJ_TYPE_PLANES);
 
-    gGdPlaneCount++;
-    newPlane->id = gGdPlaneCount;
+    WORLD(gGdPlaneCount)++;
+    newPlane->id = WORLD(gGdPlaneCount);
     newPlane->unk18 = inZone;
     newPlane->unk40 = a1;
     reset_plane(newPlane);
@@ -530,11 +530,11 @@ struct ObjCamera *make_camera(s32 flags, struct GdObj *a1) {
 
     newCam = (struct ObjCamera *) make_object(OBJ_TYPE_CAMERAS);
 
-    gGdCameraCount++;
-    newCam->id = gGdCameraCount;
+    WORLD(gGdCameraCount)++;
+    newCam->id = WORLD(gGdCameraCount);
 
-    oldCameraHead = gGdCameraList;
-    gGdCameraList = newCam;
+    oldCameraHead = WORLD(gGdCameraList);
+    WORLD(gGdCameraList) = newCam;
 
     if (oldCameraHead != NULL) {
         newCam->next = oldCameraHead;
@@ -616,14 +616,14 @@ struct ObjView *make_view(const char *name, s32 flags, s32 projectionType, s32 u
                           struct ObjGroup *parts) {
     struct ObjView *newView = (struct ObjView *) make_object(OBJ_TYPE_VIEWS);
 
-    if (gGdViewsGroup == NULL) {
-        gGdViewsGroup = make_group(0);
+    if (WORLD(gGdViewsGroup) == NULL) {
+        WORLD(gGdViewsGroup) = make_group(0);
     }
 
-    addto_group(gGdViewsGroup, &newView->header);
+    addto_group(WORLD(gGdViewsGroup), &newView->header);
 
     newView->flags = flags | VIEW_UPDATE | VIEW_LIGHT;
-    newView->id = sGdViewInfo.count++;
+    newView->id = WORLD(sGdViewInfo).count++;
 
     if ((newView->components = parts) != NULL) {
         reset_nets_and_gadgets(parts);
@@ -762,14 +762,14 @@ struct ObjGroup *make_group(s32 count, ...) {
     struct ListNode *curLink;
 
     newGroup = (struct ObjGroup *) make_object(OBJ_TYPE_GROUPS);
-    newGroup->id = ++gGdGroupCount;
+    newGroup->id = ++WORLD(gGdGroupCount);
     newGroup->memberCount = 0;
     newGroup->firstMember = newGroup->lastMember = NULL;
 
     printf("Made group no.%d\n", newGroup->id);
 
-    oldGroupListHead = gGdGroupList;
-    gGdGroupList = newGroup;
+    oldGroupListHead = WORLD(gGdGroupList);
+    WORLD(gGdGroupList) = newGroup;
     if (oldGroupListHead != NULL) {
         newGroup->next = oldGroupListHead;
         oldGroupListHead->prev = newGroup;
@@ -909,7 +909,7 @@ void show_details(enum ObjTypeFlag type) {
             break;
     }
 
-    curObj = gGdObjectList;
+    curObj = WORLD(gGdObjectList);
     while (curObj != NULL) {
         curObjType = curObj->type;
         if (curObjType == type) {
@@ -1021,7 +1021,7 @@ static void reset_joint_or_net(struct GdObj *obj) {
  * "Dynamics" menu.
  */
 void menu_cb_reset_positions(void) {
-    apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) reset_joint_or_net, sCurrentMoveGrp);
+    apply_to_obj_types_in_group(OBJ_TYPE_NETS, (applyproc_t) reset_joint_or_net, WORLD(sCurrentMoveGrp));
 }
 
 /**
@@ -1216,7 +1216,7 @@ void func_8017E9EC(struct ObjNet *net) {
     gd_normalize_vec3f(&sp5C);
     sp18 = gd_vec3f_magnitude(&net->torque);
     gd_create_rot_mat_angular(&sp1C, &sp5C, -sp18);
-    gd_mult_mat4f(&D_801B9DC8, &sp1C, &D_801B9DC8);
+    gd_mult_mat4f(&WORLD(D_801B9DC8), &sp1C, &WORLD(D_801B9DC8));
 }
 
 /**
@@ -1257,14 +1257,14 @@ s32 func_8017EB24(struct GdObj *obj1, struct GdObj *obj2) {
     sp18.maxY = bbox1->maxY + bbox2->maxY;
     sp18.maxZ = bbox1->maxZ + bbox2->maxZ;
 
-    D_801B9E08.x = pos2.x - pos1.x;
-    D_801B9E08.y = pos2.y - pos1.y;
-    D_801B9E08.z = pos2.z - pos1.z;
+    WORLD(D_801B9E08).x = pos2.x - pos1.x;
+    WORLD(D_801B9E08).y = pos2.y - pos1.y;
+    WORLD(D_801B9E08).z = pos2.z - pos1.z;
 
-    if (D_801B9E08.x >= sp18.minX) {
-        if (D_801B9E08.x <= sp18.maxX) {
-            if (D_801B9E08.z >= sp18.minZ) {
-                if (D_801B9E08.z <= sp18.maxZ) {
+    if (WORLD(D_801B9E08).x >= sp18.minX) {
+        if (WORLD(D_801B9E08).x <= sp18.maxX) {
+            if (WORLD(D_801B9E08).z >= sp18.minZ) {
+                if (WORLD(D_801B9E08).z <= sp18.maxZ) {
                     return TRUE;
                 }
             }
@@ -1473,7 +1473,7 @@ s32 func_8017F210(struct GdObj *a0, struct GdObj *a1) {
 
 /* @ 22DB9C for 0x38; a0 might be ObjUnk200000* */
 void func_8017F3CC(struct Unk8017F3CC *a0) {
-    gd_rotate_and_translate_vec3f(&a0->unk20, D_801B9E48);
+    gd_rotate_and_translate_vec3f(&a0->unk20, WORLD(D_801B9E48));
 }
 
 /* @ 22DBD4 for 0x20 */
@@ -1775,24 +1775,24 @@ void drag_picked_object(struct GdObj *inputObj) {
     UNUSED u8 filler3[4];
     f32 dispMag;
 
-    ctrl = &gGdCtrl;
+    ctrl = &WORLD(gGdCtrl);
 
-    if (gViewUpdateCamera == NULL) {
+    if (WORLD(gViewUpdateCamera) == NULL) {
         return;
     }
 
-    dispMag = gd_vec3f_magnitude(&gViewUpdateCamera->unk40);
+    dispMag = gd_vec3f_magnitude(&WORLD(gViewUpdateCamera)->unk40);
     dispMag /= 1000.0f;
 
     displacement.x = ((f32)(ctrl->csrX - ctrl->dragStartX)) * dispMag;
     displacement.y = ((f32) - (ctrl->csrY - ctrl->dragStartY)) * dispMag;
     displacement.z = 0.0f;
 
-    gd_inverse_mat4f(&gViewUpdateCamera->unkE8, &sp40);
+    gd_inverse_mat4f(&WORLD(gViewUpdateCamera)->unkE8, &sp40);
     gd_mat4f_mult_vec3f(&displacement, &sp40);
 
     obj = inputObj;
-    if ((inputObj->drawFlags & OBJ_PICKED) && gGdCtrl.dragging) {
+    if ((inputObj->drawFlags & OBJ_PICKED) && WORLD(gGdCtrl).dragging) {
         gd_play_sfx(GD_SFX_PINCH_FACE);
         // Note: this second sfx won't play, as it is "overwritten" by the first
         if (ABS(ctrl->stickDeltaX) + ABS(ctrl->stickDeltaY) >= 11) {
@@ -1850,7 +1850,7 @@ void move_camera(struct ObjCamera *cam) {
     Mat4f *sp2C;
     struct GdControl *ctrl;
 
-    ctrl = &gGdCtrl;
+    ctrl = &WORLD(gGdCtrl);
     if (!(cam->flags & 0x10)) {
         return;
     }
@@ -2005,8 +2005,8 @@ void func_8018100C(struct ObjLight *light) {
 
     return;
     // more unreachable
-    D_801A81C0 += 1.0; //? 1.0f
-    D_801A81C4 += 0.6; //? 0.6f
+    WORLD(D_801A81C0) += 1.0; //? 1.0f
+    WORLD(D_801A81C4) += 0.6; //? 0.6f
 
     gd_set_identity_mat4(&mtx);
     gd_absrot_mat4(&mtx, GD_Y_AXIS, light->unk68.y);
@@ -2032,29 +2032,29 @@ void move_lights_in_grp(struct ObjGroup *group) {
 void move_group_members(void) {
     s32 i;
 
-    if (gGdMoveScene != 0) {
-        reset_gadgets_in_grp(sCurrentMoveGrp);
-        move_lights_in_grp(sCurrentMoveGrp);
-        move_particles_in_grp(sCurrentMoveGrp);
-        move_animators(sCurrentMoveGrp);
+    if (WORLD(gGdMoveScene) != 0) {
+        reset_gadgets_in_grp(WORLD(sCurrentMoveGrp));
+        move_lights_in_grp(WORLD(sCurrentMoveGrp));
+        move_particles_in_grp(WORLD(sCurrentMoveGrp));
+        move_animators(WORLD(sCurrentMoveGrp));
 
         for (i = 0; i <= 0; i++) {
-            move_nets(sCurrentMoveGrp);
+            move_nets(WORLD(sCurrentMoveGrp));
         }
 
-        move_cameras_in_grp(sCurrentMoveGrp);
+        move_cameras_in_grp(WORLD(sCurrentMoveGrp));
     }
 }
 
 /* @ 22FC2C for 0x98; orig name: func_8018145C */
 void proc_view_movement(struct ObjView *view) {
     imin("movement");
-    sCurrentMoveCamera = view->activeCam;
-    sCurrentMoveView = view;
-    if ((sCurrentMoveGrp = view->components) != NULL) {
+    WORLD(sCurrentMoveCamera) = view->activeCam;
+    WORLD(sCurrentMoveView) = view;
+    if ((WORLD(sCurrentMoveGrp) = view->components) != NULL) {
         move_group_members();
     }
-    if ((sCurrentMoveGrp = view->lights) != NULL) {
+    if ((WORLD(sCurrentMoveGrp) = view->lights) != NULL) {
         move_group_members();
     }
     imout();
@@ -2068,21 +2068,21 @@ void reset_nets_and_gadgets(struct ObjGroup *group) {
 
 /* @ 22FD08 for 0x9C; orig name: func_80181538*/
 void null_obj_lists(void) {
-    D_801B9E44 = 0;
-    gGdObjCount = 0;
-    gGdGroupCount = 0;
-    gGdPlaneCount = 0;
-    gGdCameraCount = 0;
-    sGdViewInfo.count = 0;
+    WORLD(D_801B9E44) = 0;
+    WORLD(gGdObjCount) = 0;
+    WORLD(gGdGroupCount) = 0;
+    WORLD(gGdPlaneCount) = 0;
+    WORLD(gGdCameraCount) = 0;
+    WORLD(sGdViewInfo).count = 0;
 
-    gGdCameraList = NULL;
-    D_801B9E50 = NULL;
-    gGdBoneList = NULL;
-    gGdJointList = NULL;
-    gGdGroupList = NULL;
-    D_801B9E80 = NULL;
-    gGdObjectList = NULL;
-    gGdViewsGroup = NULL;
+    WORLD(gGdCameraList) = NULL;
+    WORLD(D_801B9E50) = NULL;
+    WORLD(gGdBoneList) = NULL;
+    WORLD(gGdJointList) = NULL;
+    WORLD(gGdGroupList) = NULL;
+    WORLD(D_801B9E80) = NULL;
+    WORLD(gGdObjectList) = NULL;
+    WORLD(gGdViewsGroup) = NULL;
 
     reset_net_count();
     reset_joint_counts();

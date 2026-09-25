@@ -50,7 +50,7 @@ Gfx *geo_intro_super_mario_64_logo(s32 state, struct GraphNode *node, UNUSED voi
     f32 scaleZ;
 
     if (state != 1) {
-        sIntroFrameCounter = 0;
+        WORLD(sIntroFrameCounter) = 0;
     } else if (state == 1) {
         graphNode->flags = (graphNode->flags & 0xFF) | (LAYER_OPAQUE << 8);
         scaleMat = alloc_display_list(sizeof(*scaleMat));
@@ -58,21 +58,21 @@ Gfx *geo_intro_super_mario_64_logo(s32 state, struct GraphNode *node, UNUSED voi
         dlIter = dl;
 
         // determine scale based on the frame counter
-        if (sIntroFrameCounter >= 0 && sIntroFrameCounter < INTRO_STEPS_ZOOM_IN) {
+        if (WORLD(sIntroFrameCounter) >= 0 && WORLD(sIntroFrameCounter) < INTRO_STEPS_ZOOM_IN) {
             // zooming in
-            scaleX = scaleTable1[sIntroFrameCounter * 3];
-            scaleY = scaleTable1[sIntroFrameCounter * 3 + 1];
-            scaleZ = scaleTable1[sIntroFrameCounter * 3 + 2];
-        } else if (sIntroFrameCounter >= INTRO_STEPS_ZOOM_IN && sIntroFrameCounter < INTRO_STEPS_HOLD_1) {
+            scaleX = scaleTable1[WORLD(sIntroFrameCounter) * 3];
+            scaleY = scaleTable1[WORLD(sIntroFrameCounter) * 3 + 1];
+            scaleZ = scaleTable1[WORLD(sIntroFrameCounter) * 3 + 2];
+        } else if (WORLD(sIntroFrameCounter) >= INTRO_STEPS_ZOOM_IN && WORLD(sIntroFrameCounter) < INTRO_STEPS_HOLD_1) {
             // holding
             scaleX = 1.0f;
             scaleY = 1.0f;
             scaleZ = 1.0f;
-        } else if (sIntroFrameCounter >= INTRO_STEPS_HOLD_1 && sIntroFrameCounter < INTRO_STEPS_ZOOM_OUT) {
+        } else if (WORLD(sIntroFrameCounter) >= INTRO_STEPS_HOLD_1 && WORLD(sIntroFrameCounter) < INTRO_STEPS_ZOOM_OUT) {
             // zooming out
-            scaleX = scaleTable2[(sIntroFrameCounter - INTRO_STEPS_HOLD_1) * 3];
-            scaleY = scaleTable2[(sIntroFrameCounter - INTRO_STEPS_HOLD_1) * 3 + 1];
-            scaleZ = scaleTable2[(sIntroFrameCounter - INTRO_STEPS_HOLD_1) * 3 + 2];
+            scaleX = scaleTable2[(WORLD(sIntroFrameCounter) - INTRO_STEPS_HOLD_1) * 3];
+            scaleY = scaleTable2[(WORLD(sIntroFrameCounter) - INTRO_STEPS_HOLD_1) * 3 + 1];
+            scaleZ = scaleTable2[(WORLD(sIntroFrameCounter) - INTRO_STEPS_HOLD_1) * 3 + 2];
         } else {
             // disappeared
             scaleX = 0.0f;
@@ -86,7 +86,7 @@ Gfx *geo_intro_super_mario_64_logo(s32 state, struct GraphNode *node, UNUSED voi
         gSPPopMatrix(dlIter++, G_MTX_MODELVIEW);
         gSPEndDisplayList(dlIter);
 
-        sIntroFrameCounter++;
+        WORLD(sIntroFrameCounter)++;
     }
     return dl;
 }
@@ -100,13 +100,13 @@ Gfx *geo_intro_tm_copyright(s32 state, struct GraphNode *node, UNUSED void *cont
     Gfx *dlIter = NULL;
 
     if (state != 1) {  // reset
-        sTmCopyrightAlpha = 0;
+        WORLD(sTmCopyrightAlpha) = 0;
     } else if (state == 1) {  // draw
         dl = alloc_display_list(5 * sizeof(*dl));
         dlIter = dl;
         gSPDisplayList(dlIter++, dl_proj_mtx_fullscreen);
-        gDPSetEnvColor(dlIter++, 255, 255, 255, sTmCopyrightAlpha);
-        switch (sTmCopyrightAlpha) {
+        gDPSetEnvColor(dlIter++, 255, 255, 255, WORLD(sTmCopyrightAlpha));
+        switch (WORLD(sTmCopyrightAlpha)) {
             case 255: // opaque
                 graphNode->flags = (graphNode->flags & 0xFF) | (LAYER_OPAQUE << 8);
                 gDPSetRenderMode(dlIter++, G_RM_AA_OPA_SURF, G_RM_AA_OPA_SURF2);
@@ -120,10 +120,10 @@ Gfx *geo_intro_tm_copyright(s32 state, struct GraphNode *node, UNUSED void *cont
         gSPEndDisplayList(dlIter);
 
         // Once the "Super Mario 64" logo has just about zoomed fully, fade in the "TM" and copyright text
-        if (sIntroFrameCounter >= 19) {
-            sTmCopyrightAlpha += 26;
-            if (sTmCopyrightAlpha > 255) {
-                sTmCopyrightAlpha = 255;
+        if (WORLD(sIntroFrameCounter) >= 19) {
+            WORLD(sTmCopyrightAlpha) += 26;
+            if (WORLD(sTmCopyrightAlpha) > 255) {
+                WORLD(sTmCopyrightAlpha) = 255;
             }
         }
     }
@@ -161,16 +161,16 @@ static Gfx *intro_backdrop_one_image(s32 index, s8 *backgroundTable) {
     Mtx *mtx = alloc_display_list(sizeof(*mtx));
     Gfx *displayList = alloc_display_list(36 * sizeof(*displayList));
     Gfx *displayListIter = displayList;
-    const u8 *const *vIntroBgTable = segmented_to_virtual(textureTables[backgroundTable[index]]);
+    const u8 *const *vIntroBgTable = segmented_to_virtual(WORLD(textureTables)[backgroundTable[index]]);
     s32 i;
 
-    guTranslate(mtx, xCoords[index], yCoords[index], 0.0f);
+    guTranslate(mtx, WORLD(xCoords)[index], WORLD(yCoords)[index], 0.0f);
     gSPMatrix(displayListIter++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_PUSH);
     gSPDisplayList(displayListIter++, &title_screen_bg_dl_0A000118);
     for (i = 0; i < 4; i++) {
         gDPLoadTextureBlock(displayListIter++, vIntroBgTable[i], G_IM_FMT_RGBA, G_IM_SIZ_16b, 80, 20, 0,
                             G_TX_CLAMP, G_TX_CLAMP, 7, 6, G_TX_NOLOD, G_TX_NOLOD)
-        gSPDisplayList(displayListIter++, introBackgroundDlRows[i]);
+        gSPDisplayList(displayListIter++, WORLD(introBackgroundDlRows)[i]);
     }
     gSPPopMatrix(displayListIter++, G_MTX_MODELVIEW);
     gSPEndDisplayList(displayListIter);
@@ -193,7 +193,7 @@ static s8 *introBackgroundTables[] = { introBackgroundIndexTable };
 Gfx *geo_intro_regular_backdrop(s32 state, struct GraphNode *node, UNUSED void *context) {
     struct GraphNodeMore *graphNode = (struct GraphNodeMore *) node;
     s32 index = graphNode->unk18 & 0xff; // TODO: word at offset 0x18 of struct GraphNode (always ends up being 0)
-    s8 *backgroundTable = introBackgroundTables[index];
+    s8 *backgroundTable = WORLD(introBackgroundTables)[index];
     Gfx *dl = NULL;
     Gfx *dlIter = NULL;
     s32 i;
@@ -231,40 +231,40 @@ Gfx *geo_intro_gameover_backdrop(s32 state, struct GraphNode *node, UNUSED void 
     s32 i;
 
     if (state != 1) {  // reset
-        sGameOverFrameCounter = 0;
-        sGameOverTableIndex = -2;
-        for (i = 0; i < ARRAY_COUNT(gameOverBackgroundTable); i++) {
-            gameOverBackgroundTable[i] = INTRO_BACKGROUND_GAME_OVER;
+        WORLD(sGameOverFrameCounter) = 0;
+        WORLD(sGameOverTableIndex) = -2;
+        for (i = 0; i < ARRAY_COUNT(WORLD(gameOverBackgroundTable)); i++) {
+            WORLD(gameOverBackgroundTable)[i] = INTRO_BACKGROUND_GAME_OVER;
         }
     } else {  // draw
         dl = alloc_display_list(16 * sizeof(*dl));
         dlIter = dl;
-        if (sGameOverTableIndex == -2) {
-            if (sGameOverFrameCounter == 180) {
-                sGameOverTableIndex++;
-                sGameOverFrameCounter = 0;
+        if (WORLD(sGameOverTableIndex) == -2) {
+            if (WORLD(sGameOverFrameCounter) == 180) {
+                WORLD(sGameOverTableIndex)++;
+                WORLD(sGameOverFrameCounter) = 0;
             }
         } else {
             // transition tile from "Game Over" to "Super Mario 64"
-            if (sGameOverTableIndex != 11 && !(sGameOverFrameCounter & 0x1)) {
+            if (WORLD(sGameOverTableIndex) != 11 && !(WORLD(sGameOverFrameCounter) & 0x1)) {
                 // order of tiles that are flipped from "Game Over" to "Super Mario 64"
                 static s8 flipOrder[] = { 0, 1, 2, 3, 7, 11, 10, 9, 8, 4, 5, 6 };
 
-                sGameOverTableIndex++;
-                gameOverBackgroundTable[flipOrder[sGameOverTableIndex]] =
+                WORLD(sGameOverTableIndex)++;
+                WORLD(gameOverBackgroundTable)[WORLD(flipOrder)[WORLD(sGameOverTableIndex)]] =
                     INTRO_BACKGROUND_SUPER_MARIO;
             }
         }
-        if (sGameOverTableIndex != 11) {
-            sGameOverFrameCounter++;
+        if (WORLD(sGameOverTableIndex) != 11) {
+            WORLD(sGameOverFrameCounter)++;
         }
         graphNode->flags = (graphNode->flags & 0xFF) | (LAYER_OPAQUE << 8);
 
         // draw all the tiles
         gSPDisplayList(dlIter++, &dl_proj_mtx_fullscreen);
         gSPDisplayList(dlIter++, &title_screen_bg_dl_0A000100);
-        for (j = 0; j < ARRAY_COUNT(gameOverBackgroundTable); j++) {
-            gSPDisplayList(dlIter++, intro_backdrop_one_image(j, gameOverBackgroundTable));
+        for (j = 0; j < ARRAY_COUNT(WORLD(gameOverBackgroundTable)); j++) {
+            gSPDisplayList(dlIter++, intro_backdrop_one_image(j, WORLD(gameOverBackgroundTable)));
         }
         gSPDisplayList(dlIter++, &title_screen_bg_dl_0A000190);
         gSPEndDisplayList(dlIter);

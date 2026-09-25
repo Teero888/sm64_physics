@@ -44,7 +44,7 @@ s16 convert_rotation(s16 inRotation) {
 void spawn_macro_abs_yrot_2params(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 ry, s16 params) {
     if (behavior != NULL) {
         struct Object *newObj = spawn_object_abs_with_rot(
-            &gMacroObjectDefaultParent, 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
+            &WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
         newObj->oBhvParams = ((u32) params) << 16;
     }
 }
@@ -57,7 +57,7 @@ void spawn_macro_abs_yrot_2params(s32 model, const BehaviorScript *behavior, s16
 void spawn_macro_abs_yrot_param1(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 ry, s16 param) {
     if (behavior != NULL) {
         struct Object *newObj = spawn_object_abs_with_rot(
-            &gMacroObjectDefaultParent, 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
+            &WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
         newObj->oBhvParams = ((u32) param) << 24;
     }
 }
@@ -69,7 +69,7 @@ void spawn_macro_abs_yrot_param1(s32 model, const BehaviorScript *behavior, s16 
 void spawn_macro_abs_special(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 unkA, s16 unkB,
                              s16 unkC) {
     struct Object *newObj =
-        spawn_object_abs_with_rot(&gMacroObjectDefaultParent, 0, model, behavior, x, y, z, 0, 0, 0);
+        spawn_object_abs_with_rot(&WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, 0, 0);
 
     // Are all three of these values unused?
     newObj->oMacroUnk108 = (f32) unkA;
@@ -87,7 +87,7 @@ UNUSED static void spawn_macro_coin_unknown(const BehaviorScript *behavior, s16 
     struct Object *coin;
     s16 model = bhvYellowCoin == behavior ? MODEL_YELLOW_COIN : MODEL_NONE;
 
-    coin = spawn_object_abs_with_rot(&gMacroObjectDefaultParent, 0, model, behavior,
+    coin = spawn_object_abs_with_rot(&WORLD(gMacroObjectDefaultParent), 0, model, behavior,
                                      objInfo[MACRO_OBJ_X], objInfo[MACRO_OBJ_Y], objInfo[MACRO_OBJ_Z],
                                      0, convert_rotation(objInfo[MACRO_OBJ_Y_ROT]), 0);
     coin->oUnusedBhvParams = objInfo[MACRO_OBJ_PARAMS];
@@ -108,8 +108,8 @@ void spawn_macro_objects(s16 areaIndex, s16 *macroObjList) {
     struct Object *newObj;
     struct LoadedPreset preset;
 
-    gMacroObjectDefaultParent.header.gfx.areaIndex = areaIndex;
-    gMacroObjectDefaultParent.header.gfx.activeAreaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.areaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.activeAreaIndex = areaIndex;
 
     while (TRUE) {
         if (*macroObjList == -1) { // An encountered value of -1 means the list has ended.
@@ -130,9 +130,9 @@ void spawn_macro_objects(s16 areaIndex, s16 *macroObjList) {
         macroObject[MACRO_OBJ_PARAMS] = *macroObjList++;                     // Behavior params
 
         // Get the preset values from the sMacroObjectPresets list.
-        preset.model = sMacroObjectPresets[presetID].model;
-        preset.behavior = sMacroObjectPresets[presetID].behavior;
-        preset.param = sMacroObjectPresets[presetID].param;
+        preset.model = WORLD(sMacroObjectPresets)[presetID].model;
+        preset.behavior = WORLD(sMacroObjectPresets)[presetID].behavior;
+        preset.param = WORLD(sMacroObjectPresets)[presetID].param;
 
         if (preset.param != 0) {
             macroObject[MACRO_OBJ_PARAMS] =
@@ -144,7 +144,7 @@ void spawn_macro_objects(s16 areaIndex, s16 *macroObjList) {
             != RESPAWN_INFO_DONT_RESPAWN) {
             // Spawn the new macro object.
             newObj = spawn_object_abs_with_rot(
-                         &gMacroObjectDefaultParent, // Parent object
+                         &WORLD(gMacroObjectDefaultParent), // Parent object
                          0,                          // Unused
                          preset.model,               // Model ID
                          preset.behavior,            // Behavior address
@@ -180,8 +180,8 @@ void spawn_macro_objects_hardcoded(s16 areaIndex, s16 *macroObjList) {
 
     UNUSED u8 filler2[10];
 
-    gMacroObjectDefaultParent.header.gfx.areaIndex = areaIndex;
-    gMacroObjectDefaultParent.header.gfx.activeAreaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.areaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.activeAreaIndex = areaIndex;
 
     while (TRUE) {
         macroObjPreset = *macroObjList++;
@@ -250,8 +250,8 @@ void spawn_special_objects(s16 areaIndex, TerrainData **specialObjList) {
     numOfSpecialObjects = **specialObjList;
     (*specialObjList)++;
 
-    gMacroObjectDefaultParent.header.gfx.areaIndex = areaIndex;
-    gMacroObjectDefaultParent.header.gfx.activeAreaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.areaIndex = areaIndex;
+    WORLD(gMacroObjectDefaultParent).header.gfx.activeAreaIndex = areaIndex;
 
     for (i = 0; i < numOfSpecialObjects; i++) {
         presetID = (u8) **specialObjList;
@@ -265,20 +265,20 @@ void spawn_special_objects(s16 areaIndex, TerrainData **specialObjList) {
 
         offset = 0;
         while (TRUE) {
-            if (sSpecialObjectPresets[offset].presetID == presetID) {
+            if (WORLD(sSpecialObjectPresets)[offset].presetID == presetID) {
                 break;
             }
 
-            if (sSpecialObjectPresets[offset].presetID == special_null_end) {
+            if (WORLD(sSpecialObjectPresets)[offset].presetID == special_null_end) {
             }
 
             offset++;
         }
 
-        model = sSpecialObjectPresets[offset].model;
-        behavior = sSpecialObjectPresets[offset].behavior;
-        type = sSpecialObjectPresets[offset].type;
-        defaultParam = sSpecialObjectPresets[offset].defParam;
+        model = WORLD(sSpecialObjectPresets)[offset].model;
+        behavior = WORLD(sSpecialObjectPresets)[offset].behavior;
+        type = WORLD(sSpecialObjectPresets)[offset].type;
+        defaultParam = WORLD(sSpecialObjectPresets)[offset].defParam;
 
         switch (type) {
             case SPTYPE_NO_YROT_OR_PARAMS:
@@ -336,13 +336,13 @@ u32 get_special_objects_size(s16 *data) {
         offset = 0;
 
         while (TRUE) {
-            if (sSpecialObjectPresets[offset].presetID == presetID) {
+            if (WORLD(sSpecialObjectPresets)[offset].presetID == presetID) {
                 break;
             }
             offset++;
         }
 
-        switch (sSpecialObjectPresets[offset].type) {
+        switch (WORLD(sSpecialObjectPresets)[offset].type) {
             case SPTYPE_NO_YROT_OR_PARAMS:
                 break;
             case SPTYPE_YROT_NO_PARAMS:

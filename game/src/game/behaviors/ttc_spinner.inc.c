@@ -17,9 +17,9 @@ static s16 sTTCSpinnerSpeeds[] = {
  * Update function for bhvTTCSpinner.
  */
 void bhv_ttc_spinner_update(void) {
-    o->oAngleVelPitch = sTTCSpinnerSpeeds[gTTCSpeedSetting];
+    o->oAngleVelPitch = WORLD(sTTCSpinnerSpeeds)[WORLD(gTTCSpeedSetting)];
 
-    if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+    if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
         if (o->oTimer > o->oTTCChangeDirTimer) {
             o->oTTCSpinnerDir = random_sign();
             o->oTTCChangeDirTimer = random_mod_offset(30, 30, 4);

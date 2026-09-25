@@ -82,10 +82,10 @@ u32 osTvType = 1;
 static OSTime sTime;
 // Counts calls, so anything that reads it is deterministic.
 OSTime osGetTime(void) {
-    return sTime++;
+    return WORLD(sTime)++;
 }
 void osSetTime(OSTime time) {
-    sTime = time;
+    WORLD(sTime) = time;
 }
 
 // --- Cartridge DMA -------------------------------------------------------------
@@ -125,7 +125,7 @@ s32 osContStartReadData(UNUSED OSMesgQueue *mq) {
 }
 
 void osContGetReadData(OSContPad *pads) {
-    pads[0] = gHostPad;
+    pads[0] = WORLD(gHostPad);
     for (int i = 1; i < 4; ++i) {
         memset(&pads[i], 0, sizeof(pads[i]));
         pads[i].errnum = CONT_NO_RESPONSE_ERROR;
@@ -137,9 +137,9 @@ static u8 sEeprom[EEPROM_MAXBLOCKS * EEPROM_BLOCK_SIZE];
 static int sEepromFormatted;
 
 static void format_eeprom(void) {
-    if (!sEepromFormatted) {
-        memset(sEeprom, 0xff, sizeof(sEeprom));
-        sEepromFormatted = 1;
+    if (!WORLD(sEepromFormatted)) {
+        memset(WORLD(sEeprom), 0xff, sizeof(WORLD(sEeprom)));
+        WORLD(sEepromFormatted) = 1;
     }
 }
 
@@ -149,19 +149,19 @@ s32 osEepromProbe(UNUSED OSMesgQueue *mq) {
 
 s32 osEepromLongRead(UNUSED OSMesgQueue *mq, u8 address, u8 *buffer, int nbytes) {
     format_eeprom();
-    if (address * EEPROM_BLOCK_SIZE + nbytes > (int) sizeof(sEeprom)) {
+    if (address * EEPROM_BLOCK_SIZE + nbytes > (int) sizeof(WORLD(sEeprom))) {
         return -1;
     }
-    memcpy(buffer, sEeprom + address * EEPROM_BLOCK_SIZE, nbytes);
+    memcpy(buffer, WORLD(sEeprom) + address * EEPROM_BLOCK_SIZE, nbytes);
     return 0;
 }
 
 s32 osEepromLongWrite(UNUSED OSMesgQueue *mq, u8 address, u8 *buffer, int nbytes) {
     format_eeprom();
-    if (address * EEPROM_BLOCK_SIZE + nbytes > (int) sizeof(sEeprom)) {
+    if (address * EEPROM_BLOCK_SIZE + nbytes > (int) sizeof(WORLD(sEeprom))) {
         return -1;
     }
-    memcpy(sEeprom + address * EEPROM_BLOCK_SIZE, buffer, nbytes);
+    memcpy(WORLD(sEeprom) + address * EEPROM_BLOCK_SIZE, buffer, nbytes);
     return 0;
 }
 

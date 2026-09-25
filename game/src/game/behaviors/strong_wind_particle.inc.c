@@ -17,7 +17,7 @@ void bhv_strong_wind_particle_loop(void) {
     f32 distanceFromPenguin;
     f32 penguinXDist, penguinZDist;
 
-    obj_set_hitbox(o, &sStrongWindParticleHitbox);
+    obj_set_hitbox(o, &WORLD(sStrongWindParticleHitbox));
 
     if (o->oTimer == 0) {
         o->oStrongWindParticlePenguinObj = cur_obj_nearest_object_with_behavior(bhvSLWalkingPenguin);
@@ -52,7 +52,7 @@ void bhv_strong_wind_particle_loop(void) {
 // Used for the Snowman in SL and Fwoosh.
 void cur_obj_spawn_strong_wind_particles(s32 windSpread, f32 scale, f32 relPosX, f32 relPosY, f32 relPosZ) {
     // Alternate between tiny particles and regular particles each frame.
-    if (gGlobalTimer & 1) {
+    if (WORLD(gGlobalTimer) & 1) {
         // Because the tiny particles are unimportant objects, invisible wind particles are spawned to provide collision.
         // There was absolutely no reason to make the smaller particles unimportant, though...
         spawn_object_relative_with_scale(windSpread, relPosX, relPosY, relPosZ, 0.5f, o, MODEL_WHITE_PARTICLE_DL, bhvTinyStrongWindParticle);

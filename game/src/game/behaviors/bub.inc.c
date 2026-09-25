@@ -16,7 +16,7 @@ void bub_spawner_act_0(void) {
 }
 
 void bub_spawner_act_1(void) {
-    if (gMarioObject->oPosY - o->oPosY > 2000.0f) {
+    if (WORLD(gMarioObject)->oPosY - o->oPosY > 2000.0f) {
         o->oAction = 2;
     }
 }
@@ -37,7 +37,7 @@ void (*sBirdChirpChirpActions[])(void) = {
 };
 
 void bhv_bub_spawner_loop(void) {
-    cur_obj_call_action_function(sBirdChirpChirpActions);
+    cur_obj_call_action_function(WORLD(sBirdChirpChirpActions));
 }
 
 void bub_move_vertically(s32 a0) {
@@ -63,7 +63,7 @@ void bub_act_1(void) {
         o->oCheepCheepUnk108 = random_float();
     }
 
-    dy = o->oPosY - gMarioObject->oPosY;
+    dy = o->oPosY - WORLD(gMarioObject)->oPosY;
 
     if (o->oPosY < o->oCheepCheepUnkF4 - 50.0f) {
         if (dy < 0.0f) {
@@ -119,7 +119,7 @@ void bub_act_2(void) {
         o->oForwardVel = 6.0f;
     }
 
-    dy = o->oPosY - gMarioObject->oPosY;
+    dy = o->oPosY - WORLD(gMarioObject)->oPosY;
 
     if (o->oPosY < o->oCheepCheepUnkF4 - 50.0f) {
         if (dy < 0.0f) {
@@ -158,11 +158,11 @@ void (*sCheepCheepActions[])(void) = {
 
 void bhv_bub_loop(void) {
     o->oCheepCheepUnkF4 = find_water_level(o->oPosX, o->oPosZ);
-    o->oCheepCheepUnkF8 = gMarioObject->oPosY + o->oCheepCheepUnkFC;
+    o->oCheepCheepUnkF8 = WORLD(gMarioObject)->oPosY + o->oCheepCheepUnkFC;
     o->oWallHitboxRadius = 30.0f;
 
     cur_obj_update_floor_and_walls();
-    cur_obj_call_action_function(sCheepCheepActions);
+    cur_obj_call_action_function(WORLD(sCheepCheepActions));
     cur_obj_move_using_fvel_and_gravity();
 
     if (o->parentObj->oAction == 2) {

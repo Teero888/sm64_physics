@@ -65,30 +65,30 @@ s32 envfx_init_snow(s32 mode) {
             return FALSE;
 
         case ENVFX_SNOW_NORMAL:
-            gSnowParticleMaxCount = 140;
-            gSnowParticleCount = 5;
+            WORLD(gSnowParticleMaxCount) = 140;
+            WORLD(gSnowParticleCount) = 5;
             break;
 
         case ENVFX_SNOW_WATER:
-            gSnowParticleMaxCount = 30;
-            gSnowParticleCount = 30;
+            WORLD(gSnowParticleMaxCount) = 30;
+            WORLD(gSnowParticleCount) = 30;
             break;
 
         case ENVFX_SNOW_BLIZZARD:
-            gSnowParticleMaxCount = 140;
-            gSnowParticleCount = 140;
+            WORLD(gSnowParticleMaxCount) = 140;
+            WORLD(gSnowParticleCount) = 140;
             break;
     }
 
-    gEnvFxBuffer = mem_pool_alloc(gEffectsMemoryPool,
-                                  gSnowParticleMaxCount * sizeof(struct EnvFxParticle));
-    if (gEnvFxBuffer == NULL) {
+    WORLD(gEnvFxBuffer) = mem_pool_alloc(WORLD(gEffectsMemoryPool),
+                                  WORLD(gSnowParticleMaxCount) * sizeof(struct EnvFxParticle));
+    if (WORLD(gEnvFxBuffer) == NULL) {
         return FALSE;
     }
 
-    bzero(gEnvFxBuffer, gSnowParticleMaxCount * sizeof(struct EnvFxParticle));
+    bzero(WORLD(gEnvFxBuffer), WORLD(gSnowParticleMaxCount) * sizeof(struct EnvFxParticle));
 
-    gEnvFxMode = mode;
+    WORLD(gEnvFxMode) = mode;
     return TRUE;
 }
 
@@ -99,14 +99,14 @@ s32 envfx_init_snow(s32 mode) {
  * Blizzard snows starts at the maximum amount and doesn't change.
  */
 void envfx_update_snowflake_count(s32 mode, Vec3s marioPos) {
-    s32 globalTimer = gGlobalTimer;
+    s32 globalTimer = WORLD(gGlobalTimer);
     f32 waterLevel;
 
     switch (mode) {
         case ENVFX_SNOW_NORMAL:
-            if (gSnowParticleMaxCount > gSnowParticleCount) {
+            if (WORLD(gSnowParticleMaxCount) > WORLD(gSnowParticleCount)) {
                 if (!(globalTimer & 63)) {
-                    gSnowParticleCount += 5;
+                    WORLD(gSnowParticleCount) += 5;
                 }
             }
             break;
@@ -114,15 +114,15 @@ void envfx_update_snowflake_count(s32 mode, Vec3s marioPos) {
         case ENVFX_SNOW_WATER:
             waterLevel = find_water_level(marioPos[0], marioPos[2]);
 
-            gSnowParticleCount =
+            WORLD(gSnowParticleCount) =
                 (((s32)((waterLevel - 400.0f - (f32) marioPos[1]) * 0.001) << 0x10) >> 0x10) * 5;
 
-            if (gSnowParticleCount < 0) {
-                gSnowParticleCount = 0;
+            if (WORLD(gSnowParticleCount) < 0) {
+                WORLD(gSnowParticleCount) = 0;
             }
 
-            if (gSnowParticleCount > gSnowParticleMaxCount) {
-                gSnowParticleCount = gSnowParticleMaxCount;
+            if (WORLD(gSnowParticleCount) > WORLD(gSnowParticleMaxCount)) {
+                WORLD(gSnowParticleCount) = WORLD(gSnowParticleMaxCount);
             }
 
             break;
@@ -137,11 +137,11 @@ void envfx_update_snowflake_count(s32 mode, Vec3s marioPos) {
  * to none.
  */
 void envfx_cleanup_snow(void *snowParticleArray) {
-    if (gEnvFxMode != ENVFX_MODE_NONE) {
+    if (WORLD(gEnvFxMode) != ENVFX_MODE_NONE) {
         if (snowParticleArray) {
-            mem_pool_free(gEffectsMemoryPool, snowParticleArray);
+            mem_pool_free(WORLD(gEffectsMemoryPool), snowParticleArray);
         }
-        gEnvFxMode = ENVFX_MODE_NONE;
+        WORLD(gEnvFxMode) = ENVFX_MODE_NONE;
     }
 }
 
@@ -175,9 +175,9 @@ void pos_from_orbit(Vec3s origin, Vec3s result, s16 radius, s16 pitch, s16 yaw) 
  * x, y and z.
  */
 s32 envfx_is_snowflake_alive(s32 index, s32 snowCylinderX, s32 snowCylinderY, s32 snowCylinderZ) {
-    s32 x = (gEnvFxBuffer + index)->xPos;
-    s32 y = (gEnvFxBuffer + index)->yPos;
-    s32 z = (gEnvFxBuffer + index)->zPos;
+    s32 x = (WORLD(gEnvFxBuffer) + index)->xPos;
+    s32 y = (WORLD(gEnvFxBuffer) + index)->yPos;
+    s32 z = (WORLD(gEnvFxBuffer) + index)->zPos;
 
     if (sqr(x - snowCylinderX) + sqr(z - snowCylinderZ) > sqr(300)) {
         return FALSE;
@@ -206,30 +206,30 @@ s32 envfx_is_snowflake_alive(s32 index, s32 snowCylinderX, s32 snowCylinderY, s3
  */
 void envfx_update_snow_normal(s32 snowCylinderX, s32 snowCylinderY, s32 snowCylinderZ) {
     s32 i;
-    s32 deltaX = snowCylinderX - gSnowCylinderLastPos[0];
-    s32 deltaY = snowCylinderY - gSnowCylinderLastPos[1];
-    s32 deltaZ = snowCylinderZ - gSnowCylinderLastPos[2];
+    s32 deltaX = snowCylinderX - WORLD(gSnowCylinderLastPos)[0];
+    s32 deltaY = snowCylinderY - WORLD(gSnowCylinderLastPos)[1];
+    s32 deltaZ = snowCylinderZ - WORLD(gSnowCylinderLastPos)[2];
 
-    for (i = 0; i < gSnowParticleCount; i++) {
-        (gEnvFxBuffer + i)->isAlive =
+    for (i = 0; i < WORLD(gSnowParticleCount); i++) {
+        (WORLD(gEnvFxBuffer) + i)->isAlive =
             envfx_is_snowflake_alive(i, snowCylinderX, snowCylinderY, snowCylinderZ);
-        if (!(gEnvFxBuffer + i)->isAlive) {
-            (gEnvFxBuffer + i)->xPos =
+        if (!(WORLD(gEnvFxBuffer) + i)->isAlive) {
+            (WORLD(gEnvFxBuffer) + i)->xPos =
                 400.0f * random_float() - 200.0f + snowCylinderX + (s16)(deltaX * 2);
-            (gEnvFxBuffer + i)->zPos =
+            (WORLD(gEnvFxBuffer) + i)->zPos =
                 400.0f * random_float() - 200.0f + snowCylinderZ + (s16)(deltaZ * 2);
-            (gEnvFxBuffer + i)->yPos = 200.0f * random_float() + snowCylinderY;
-            (gEnvFxBuffer + i)->isAlive = TRUE;
+            (WORLD(gEnvFxBuffer) + i)->yPos = 200.0f * random_float() + snowCylinderY;
+            (WORLD(gEnvFxBuffer) + i)->isAlive = TRUE;
         } else {
-            (gEnvFxBuffer + i)->xPos += random_float() * 2 - 1.0f + (s16)(deltaX / 1.2);
-            (gEnvFxBuffer + i)->yPos -= 2 -(s16)(deltaY * 0.8);
-            (gEnvFxBuffer + i)->zPos += random_float() * 2 - 1.0f + (s16)(deltaZ / 1.2);
+            (WORLD(gEnvFxBuffer) + i)->xPos += random_float() * 2 - 1.0f + (s16)(deltaX / 1.2);
+            (WORLD(gEnvFxBuffer) + i)->yPos -= 2 -(s16)(deltaY * 0.8);
+            (WORLD(gEnvFxBuffer) + i)->zPos += random_float() * 2 - 1.0f + (s16)(deltaZ / 1.2);
         }
     }
 
-    gSnowCylinderLastPos[0] = snowCylinderX;
-    gSnowCylinderLastPos[1] = snowCylinderY;
-    gSnowCylinderLastPos[2] = snowCylinderZ;
+    WORLD(gSnowCylinderLastPos)[0] = snowCylinderX;
+    WORLD(gSnowCylinderLastPos)[1] = snowCylinderY;
+    WORLD(gSnowCylinderLastPos)[2] = snowCylinderZ;
 }
 
 /**
@@ -240,30 +240,30 @@ void envfx_update_snow_normal(s32 snowCylinderX, s32 snowCylinderY, s32 snowCyli
  */
 void envfx_update_snow_blizzard(s32 snowCylinderX, s32 snowCylinderY, s32 snowCylinderZ) {
     s32 i;
-    s32 deltaX = snowCylinderX - gSnowCylinderLastPos[0];
-    s32 deltaY = snowCylinderY - gSnowCylinderLastPos[1];
-    s32 deltaZ = snowCylinderZ - gSnowCylinderLastPos[2];
+    s32 deltaX = snowCylinderX - WORLD(gSnowCylinderLastPos)[0];
+    s32 deltaY = snowCylinderY - WORLD(gSnowCylinderLastPos)[1];
+    s32 deltaZ = snowCylinderZ - WORLD(gSnowCylinderLastPos)[2];
 
-    for (i = 0; i < gSnowParticleCount; i++) {
-        (gEnvFxBuffer + i)->isAlive =
+    for (i = 0; i < WORLD(gSnowParticleCount); i++) {
+        (WORLD(gEnvFxBuffer) + i)->isAlive =
             envfx_is_snowflake_alive(i, snowCylinderX, snowCylinderY, snowCylinderZ);
-        if (!(gEnvFxBuffer + i)->isAlive) {
-            (gEnvFxBuffer + i)->xPos =
+        if (!(WORLD(gEnvFxBuffer) + i)->isAlive) {
+            (WORLD(gEnvFxBuffer) + i)->xPos =
                 400.0f * random_float() - 200.0f + snowCylinderX + (s16)(deltaX * 2);
-            (gEnvFxBuffer + i)->zPos =
+            (WORLD(gEnvFxBuffer) + i)->zPos =
                 400.0f * random_float() - 200.0f + snowCylinderZ + (s16)(deltaZ * 2);
-            (gEnvFxBuffer + i)->yPos = 400.0f * random_float() - 200.0f + snowCylinderY;
-            (gEnvFxBuffer + i)->isAlive = TRUE;
+            (WORLD(gEnvFxBuffer) + i)->yPos = 400.0f * random_float() - 200.0f + snowCylinderY;
+            (WORLD(gEnvFxBuffer) + i)->isAlive = TRUE;
         } else {
-            (gEnvFxBuffer + i)->xPos += random_float() * 2 - 1.0f + (s16)(deltaX / 1.2) + 20.0f;
-            (gEnvFxBuffer + i)->yPos -= 5 -(s16)(deltaY * 0.8);
-            (gEnvFxBuffer + i)->zPos += random_float() * 2 - 1.0f + (s16)(deltaZ / 1.2);
+            (WORLD(gEnvFxBuffer) + i)->xPos += random_float() * 2 - 1.0f + (s16)(deltaX / 1.2) + 20.0f;
+            (WORLD(gEnvFxBuffer) + i)->yPos -= 5 -(s16)(deltaY * 0.8);
+            (WORLD(gEnvFxBuffer) + i)->zPos += random_float() * 2 - 1.0f + (s16)(deltaZ / 1.2);
         }
     }
 
-    gSnowCylinderLastPos[0] = snowCylinderX;
-    gSnowCylinderLastPos[1] = snowCylinderY;
-    gSnowCylinderLastPos[2] = snowCylinderZ;
+    WORLD(gSnowCylinderLastPos)[0] = snowCylinderX;
+    WORLD(gSnowCylinderLastPos)[1] = snowCylinderY;
+    WORLD(gSnowCylinderLastPos)[2] = snowCylinderZ;
 }
 
 /*! Unused function. Checks whether a position is laterally within 3000 units
@@ -289,14 +289,14 @@ UNUSED static s32 is_in_mystery_snow_area(s32 x, UNUSED s32 y, s32 z) {
 void envfx_update_snow_water(s32 snowCylinderX, s32 snowCylinderY, s32 snowCylinderZ) {
     s32 i;
 
-    for (i = 0; i < gSnowParticleCount; i++) {
-        (gEnvFxBuffer + i)->isAlive =
+    for (i = 0; i < WORLD(gSnowParticleCount); i++) {
+        (WORLD(gEnvFxBuffer) + i)->isAlive =
             envfx_is_snowflake_alive(i, snowCylinderX, snowCylinderY, snowCylinderZ);
-        if (!(gEnvFxBuffer + i)->isAlive) {
-            (gEnvFxBuffer + i)->xPos = 400.0f * random_float() - 200.0f + snowCylinderX;
-            (gEnvFxBuffer + i)->zPos = 400.0f * random_float() - 200.0f + snowCylinderZ;
-            (gEnvFxBuffer + i)->yPos = 400.0f * random_float() - 200.0f + snowCylinderY;
-            (gEnvFxBuffer + i)->isAlive = TRUE;
+        if (!(WORLD(gEnvFxBuffer) + i)->isAlive) {
+            (WORLD(gEnvFxBuffer) + i)->xPos = 400.0f * random_float() - 200.0f + snowCylinderX;
+            (WORLD(gEnvFxBuffer) + i)->zPos = 400.0f * random_float() - 200.0f + snowCylinderZ;
+            (WORLD(gEnvFxBuffer) + i)->yPos = 400.0f * random_float() - 200.0f + snowCylinderY;
+            (WORLD(gEnvFxBuffer) + i)->isAlive = TRUE;
         }
     }
 }
@@ -353,20 +353,20 @@ void append_snowflake_vertex_buffer(Gfx *gfx, s32 index, Vec3s vertex1, Vec3s ve
     }
 
     for (i = 0; i < 15; i += 3) {
-        vertBuf[i] = gSnowTempVtx[0];
-        (vertBuf + i)->v.ob[0] = (gEnvFxBuffer + (index + i / 3))->xPos + vertex1[0];
-        (vertBuf + i)->v.ob[1] = (gEnvFxBuffer + (index + i / 3))->yPos + vertex1[1];
-        (vertBuf + i)->v.ob[2] = (gEnvFxBuffer + (index + i / 3))->zPos + vertex1[2];
+        vertBuf[i] = WORLD(gSnowTempVtx)[0];
+        (vertBuf + i)->v.ob[0] = (WORLD(gEnvFxBuffer) + (index + i / 3))->xPos + vertex1[0];
+        (vertBuf + i)->v.ob[1] = (WORLD(gEnvFxBuffer) + (index + i / 3))->yPos + vertex1[1];
+        (vertBuf + i)->v.ob[2] = (WORLD(gEnvFxBuffer) + (index + i / 3))->zPos + vertex1[2];
 
-        vertBuf[i + 1] = gSnowTempVtx[1];
-        (vertBuf + i + 1)->v.ob[0] = (gEnvFxBuffer + (index + i / 3))->xPos + vertex2[0];
-        (vertBuf + i + 1)->v.ob[1] = (gEnvFxBuffer + (index + i / 3))->yPos + vertex2[1];
-        (vertBuf + i + 1)->v.ob[2] = (gEnvFxBuffer + (index + i / 3))->zPos + vertex2[2];
+        vertBuf[i + 1] = WORLD(gSnowTempVtx)[1];
+        (vertBuf + i + 1)->v.ob[0] = (WORLD(gEnvFxBuffer) + (index + i / 3))->xPos + vertex2[0];
+        (vertBuf + i + 1)->v.ob[1] = (WORLD(gEnvFxBuffer) + (index + i / 3))->yPos + vertex2[1];
+        (vertBuf + i + 1)->v.ob[2] = (WORLD(gEnvFxBuffer) + (index + i / 3))->zPos + vertex2[2];
 
-        vertBuf[i + 2] = gSnowTempVtx[2];
-        (vertBuf + i + 2)->v.ob[0] = (gEnvFxBuffer + (index + i / 3))->xPos + vertex3[0];
-        (vertBuf + i + 2)->v.ob[1] = (gEnvFxBuffer + (index + i / 3))->yPos + vertex3[1];
-        (vertBuf + i + 2)->v.ob[2] = (gEnvFxBuffer + (index + i / 3))->zPos + vertex3[2];
+        vertBuf[i + 2] = WORLD(gSnowTempVtx)[2];
+        (vertBuf + i + 2)->v.ob[0] = (WORLD(gEnvFxBuffer) + (index + i / 3))->xPos + vertex3[0];
+        (vertBuf + i + 2)->v.ob[1] = (WORLD(gEnvFxBuffer) + (index + i / 3))->yPos + vertex3[1];
+        (vertBuf + i + 2)->v.ob[2] = (WORLD(gEnvFxBuffer) + (index + i / 3))->zPos + vertex3[2];
     }
 
     gSPVertex(gfx, VIRTUAL_TO_PHYSICAL(vertBuf), 15, 0);
@@ -384,12 +384,12 @@ Gfx *envfx_update_snow(s32 snowMode, Vec3s marioPos, Vec3s camFrom, Vec3s camTo)
     Gfx *gfxStart;
     Gfx *gfx;
 
-    vertex1 = gSnowFlakeVertex1;
-    vertex2 = gSnowFlakeVertex2;
-    vertex3 = gSnowFlakeVertex3;
+    vertex1 = WORLD(gSnowFlakeVertex1);
+    vertex2 = WORLD(gSnowFlakeVertex2);
+    vertex3 = WORLD(gSnowFlakeVertex3);
 
     if (SM64_DRAW) {
-        gfxStart = (Gfx *) alloc_display_list((gSnowParticleCount * 6 + 3) * sizeof(Gfx));
+        gfxStart = (Gfx *) alloc_display_list((WORLD(gSnowParticleCount) * 6 + 3) * sizeof(Gfx));
         gfx = gfxStart;
 
         if (gfxStart == NULL) {
@@ -450,7 +450,7 @@ Gfx *envfx_update_snow(s32 snowMode, Vec3s marioPos, Vec3s camFrom, Vec3s camTo)
         gSPDisplayList(gfx++, &tiny_bubble_dl_0B006CD8); // snowflake with blue edge
     }
 
-    for (i = 0; i < gSnowParticleCount; i += 5) {
+    for (i = 0; i < WORLD(gSnowParticleCount); i += 5) {
         append_snowflake_vertex_buffer(gfx++, i, (s16 *) &vertex1, (s16 *) &vertex2, (s16 *) &vertex3);
 
         gSP1Triangle(gfx++, 0, 1, 2, 0);
@@ -476,7 +476,7 @@ Gfx *envfx_update_particles(s32 mode, Vec3s marioPos, Vec3s camTo, Vec3s camFrom
         return NULL;
     }
 
-    if (gEnvFxMode != ENVFX_MODE_NONE && gEnvFxMode != mode) {
+    if (WORLD(gEnvFxMode) != ENVFX_MODE_NONE && WORLD(gEnvFxMode) != mode) {
         mode = ENVFX_MODE_NONE;
     }
 
@@ -485,13 +485,13 @@ Gfx *envfx_update_particles(s32 mode, Vec3s marioPos, Vec3s camTo, Vec3s camFrom
         return gfx;
     }
 
-    if (gEnvFxMode == ENVFX_MODE_NONE && !envfx_init_snow(mode)) {
+    if (WORLD(gEnvFxMode) == ENVFX_MODE_NONE && !envfx_init_snow(mode)) {
         return NULL;
     }
 
     switch (mode) {
         case ENVFX_MODE_NONE:
-            envfx_cleanup_snow(gEnvFxBuffer);
+            envfx_cleanup_snow(WORLD(gEnvFxBuffer));
             return NULL;
 
         case ENVFX_SNOW_NORMAL:

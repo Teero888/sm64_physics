@@ -36,7 +36,7 @@ static struct ObjectHitbox sMantaRayHitbox = {
 void bhv_manta_ray_init(void) {
     struct Object *ringManager = spawn_object(o, MODEL_NONE, bhvMantaRayRingManager);
     o->parentObj = ringManager;
-    obj_set_hitbox(o, &sMantaRayHitbox);
+    obj_set_hitbox(o, &WORLD(sMantaRayHitbox));
     cur_obj_scale(2.5f);
 }
 
@@ -47,7 +47,7 @@ static void manta_ray_move(void) {
     pathStatus = 0;
 #endif
 
-    o->oPathedStartWaypoint = (struct Waypoint *) sMantaRayTraj;
+    o->oPathedStartWaypoint = (struct Waypoint *) WORLD(sMantaRayTraj);
     //! Uninitialized parameter, but the parameter is unused in the called function
     pathStatus = cur_obj_follow_path(pathStatus);
 

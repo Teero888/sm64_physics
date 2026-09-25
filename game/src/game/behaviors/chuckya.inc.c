@@ -20,20 +20,20 @@ void common_anchor_mario_behavior(f32 sp28, f32 sp2C, s32 sp30) {
             break;
 
         case 1:
-            obj_set_gfx_pos_at_obj_pos(gMarioObject, o);
+            obj_set_gfx_pos_at_obj_pos(WORLD(gMarioObject), o);
             break;
 
         case 2:
-            gMarioObject->oInteractStatus |= (INT_STATUS_MARIO_UNK2 + sp30);
-            gMarioStates[0].forwardVel = sp28;
-            gMarioStates[0].vel[1] = sp2C;
+            WORLD(gMarioObject)->oInteractStatus |= (INT_STATUS_MARIO_UNK2 + sp30);
+            WORLD(gMarioStates)[0].forwardVel = sp28;
+            WORLD(gMarioStates)[0].vel[1] = sp2C;
             o->parentObj->oChuckyaUnk88 = 0;
             break;
 
         case 3:
-            gMarioObject->oInteractStatus |= (INT_STATUS_MARIO_UNK2 | INT_STATUS_MARIO_UNK6);
-            gMarioStates[0].forwardVel = 10.0f;
-            gMarioStates[0].vel[1] = 10.0f;
+            WORLD(gMarioObject)->oInteractStatus |= (INT_STATUS_MARIO_UNK2 | INT_STATUS_MARIO_UNK6);
+            WORLD(gMarioStates)[0].forwardVel = 10.0f;
+            WORLD(gMarioStates)[0].vel[1] = 10.0f;
             o->parentObj->oChuckyaUnk88 = 0;
             break;
     }
@@ -61,8 +61,8 @@ s32 unknown_chuckya_function(s32 sp20, f32 sp24, f32 sp28, s16 sp2C) {
                 o->oAngleToMario = cur_obj_angle_to_home();
             }
         } else if (o->oDistanceToMario > sp28) {
-            if (gGlobalTimer % sp2C == 0) {
-                o->oAngleToMario = obj_angle_to_object(o, gMarioObject);
+            if (WORLD(gGlobalTimer) % sp2C == 0) {
+                o->oAngleToMario = obj_angle_to_object(o, WORLD(gMarioObject));
             }
             sp1C = 2;
         } else {
@@ -112,7 +112,7 @@ void chuckya_act_0(void) {
         o->oChuckyaUnkFC = 0;
     }
 
-    o->oAngleToMario = obj_angle_to_object(o, gMarioObject);
+    o->oAngleToMario = obj_angle_to_object(o, WORLD(gMarioObject));
 
     switch (sp28 = o->oSubAction) {
         case 0:
@@ -237,7 +237,7 @@ void (*sChuckyaActions[])(void) = {
 
 void chuckya_move(void) {
     cur_obj_update_floor_and_walls();
-    cur_obj_call_action_function(sChuckyaActions);
+    cur_obj_call_action_function(WORLD(sChuckyaActions));
     cur_obj_move_standard(-30);
     if (o->oInteractStatus & INT_STATUS_GRABBED_MARIO) {
         o->oAction = 1;

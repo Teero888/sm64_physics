@@ -190,7 +190,7 @@ void bhv_unagi_subobject_loop(void) {
                 o->parentObj->oAnimState = 0;
             }
         } else {
-            obj_check_attacks(&sUnagiHitbox, o->oAction);
+            obj_check_attacks(&WORLD(sUnagiHitbox), o->oAction);
             if (o->oBhvParams2ndByte == 3) {
                 o->parentObj->oUnagiUnk1AC = o->oDistanceToMario;
             }

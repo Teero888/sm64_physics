@@ -18,17 +18,17 @@ void bhv_donut_platform_spawner_update(void) {
     s32 i;
     s32 platformFlag;
 
-    for (i = 0, platformFlag = 1; i < ARRAY_COUNT(sDonutPlatformPositions); i++, platformFlag = platformFlag << 1) {
+    for (i = 0, platformFlag = 1; i < ARRAY_COUNT(WORLD(sDonutPlatformPositions)); i++, platformFlag = platformFlag << 1) {
         if (!(o->oDonutPlatformSpawnerSpawnedPlatforms & platformFlag)) {
-            f32 dx = gMarioObject->oPosX - sDonutPlatformPositions[i][0];
-            f32 dy = gMarioObject->oPosY - sDonutPlatformPositions[i][1];
-            f32 dz = gMarioObject->oPosZ - sDonutPlatformPositions[i][2];
+            f32 dx = WORLD(gMarioObject)->oPosX - WORLD(sDonutPlatformPositions)[i][0];
+            f32 dy = WORLD(gMarioObject)->oPosY - WORLD(sDonutPlatformPositions)[i][1];
+            f32 dz = WORLD(gMarioObject)->oPosZ - WORLD(sDonutPlatformPositions)[i][2];
             f32 marioSqDist = dx * dx + dy * dy + dz * dz;
 
             // dist > 1000 and dist < 2000
             if (marioSqDist > 1000000.0f && marioSqDist < 4000000.0f) {
-                if (spawn_object_relative(i, sDonutPlatformPositions[i][0],
-                                          sDonutPlatformPositions[i][1], sDonutPlatformPositions[i][2],
+                if (spawn_object_relative(i, WORLD(sDonutPlatformPositions)[i][0],
+                                          WORLD(sDonutPlatformPositions)[i][1], WORLD(sDonutPlatformPositions)[i][2],
                                           o, MODEL_RR_DONUT_PLATFORM, bhvDonutPlatform) != NULL) {
                     o->oDonutPlatformSpawnerSpawnedPlatforms |= platformFlag;
                 }
@@ -51,7 +51,7 @@ void bhv_donut_platform_update(void) {
         }
     } else {
         if (o->oGravity == 0.0f) {
-            if (gMarioObject->platform == o) {
+            if (WORLD(gMarioObject)->platform == o) {
                 cur_obj_shake_y(4.0f);
                 if (o->oTimer > 15) {
                     o->oGravity = -0.1f;

@@ -34,9 +34,9 @@ void bhv_wf_rotating_wooden_platform_loop(void) {
 void bhv_rotating_platform_loop(void) {
     s8 bhvParams1stByte = o->oBhvParams >> 24;
     if (o->oTimer == 0) {
-        obj_set_collision_data(o, sRotatingPlatformData[o->oBhvParams2ndByte].collisionData);
-        o->oCollisionDistance = sRotatingPlatformData[o->oBhvParams2ndByte].collisionDistance;
-        cur_obj_scale(sRotatingPlatformData[o->oBhvParams2ndByte].scale * 0.01f);
+        obj_set_collision_data(o, WORLD(sRotatingPlatformData)[o->oBhvParams2ndByte].collisionData);
+        o->oCollisionDistance = WORLD(sRotatingPlatformData)[o->oBhvParams2ndByte].collisionDistance;
+        cur_obj_scale(WORLD(sRotatingPlatformData)[o->oBhvParams2ndByte].scale * 0.01f);
     }
     o->oAngleVelYaw = bhvParams1stByte << 4;
     o->oFaceAngleYaw += o->oAngleVelYaw;

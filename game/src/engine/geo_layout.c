@@ -107,18 +107,18 @@ u32 unused_8038B894[3] = { 0 };
    cmd+0x04: void *branchTarget
 */
 void geo_layout_cmd_branch_and_link(void) {
-    gGeoLayoutStack[gGeoLayoutStackIndex++] = (uintptr_t) (gGeoLayoutCommand + CMD_PROCESS_OFFSET(8));
-    gGeoLayoutStack[gGeoLayoutStackIndex++] = (gCurGraphNodeIndex << 16) + gGeoLayoutReturnIndex;
-    gGeoLayoutReturnIndex = gGeoLayoutStackIndex;
-    gGeoLayoutCommand = segmented_to_virtual(cur_geo_cmd_ptr(0x04));
+    WORLD(gGeoLayoutStack)[WORLD(gGeoLayoutStackIndex)++] = (uintptr_t) (WORLD(gGeoLayoutCommand) + CMD_PROCESS_OFFSET(8));
+    WORLD(gGeoLayoutStack)[WORLD(gGeoLayoutStackIndex)++] = (WORLD(gCurGraphNodeIndex) << 16) + WORLD(gGeoLayoutReturnIndex);
+    WORLD(gGeoLayoutReturnIndex) = WORLD(gGeoLayoutStackIndex);
+    WORLD(gGeoLayoutCommand) = segmented_to_virtual(cur_geo_cmd_ptr(0x04));
 }
 
 // 0x01: Terminate geo layout
 void geo_layout_cmd_end(void) {
-    gGeoLayoutStackIndex = gGeoLayoutReturnIndex;
-    gGeoLayoutReturnIndex = gGeoLayoutStack[--gGeoLayoutStackIndex] & 0xFFFF;
-    gCurGraphNodeIndex = gGeoLayoutStack[gGeoLayoutStackIndex] >> 16;
-    gGeoLayoutCommand = (u8 *) gGeoLayoutStack[--gGeoLayoutStackIndex];
+    WORLD(gGeoLayoutStackIndex) = WORLD(gGeoLayoutReturnIndex);
+    WORLD(gGeoLayoutReturnIndex) = WORLD(gGeoLayoutStack)[--WORLD(gGeoLayoutStackIndex)] & 0xFFFF;
+    WORLD(gCurGraphNodeIndex) = WORLD(gGeoLayoutStack)[WORLD(gGeoLayoutStackIndex)] >> 16;
+    WORLD(gGeoLayoutCommand) = (u8 *) WORLD(gGeoLayoutStack)[--WORLD(gGeoLayoutStackIndex)];
 }
 
 /*
@@ -127,28 +127,28 @@ void geo_layout_cmd_end(void) {
 */
 void geo_layout_cmd_branch(void) {
     if (cur_geo_cmd_u8(0x01) == 1) {
-        gGeoLayoutStack[gGeoLayoutStackIndex++] = (uintptr_t) (gGeoLayoutCommand + CMD_PROCESS_OFFSET(8));
+        WORLD(gGeoLayoutStack)[WORLD(gGeoLayoutStackIndex)++] = (uintptr_t) (WORLD(gGeoLayoutCommand) + CMD_PROCESS_OFFSET(8));
     }
 
-    gGeoLayoutCommand = segmented_to_virtual(cur_geo_cmd_ptr(0x04));
+    WORLD(gGeoLayoutCommand) = segmented_to_virtual(cur_geo_cmd_ptr(0x04));
 }
 
 // 0x03: Return from branch
 void geo_layout_cmd_return(void) {
-    gGeoLayoutCommand = (u8 *) gGeoLayoutStack[--gGeoLayoutStackIndex];
+    WORLD(gGeoLayoutCommand) = (u8 *) WORLD(gGeoLayoutStack)[--WORLD(gGeoLayoutStackIndex)];
 }
 
 // 0x04: Open node
 void geo_layout_cmd_open_node(void) {
-    gCurGraphNodeList[gCurGraphNodeIndex + 1] = gCurGraphNodeList[gCurGraphNodeIndex];
-    gCurGraphNodeIndex++;
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex) + 1] = WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)];
+    WORLD(gCurGraphNodeIndex)++;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 // 0x05: Close node
 void geo_layout_cmd_close_node(void) {
-    gCurGraphNodeIndex--;
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gCurGraphNodeIndex)--;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -160,11 +160,11 @@ void geo_layout_cmd_close_node(void) {
 void geo_layout_cmd_assign_as_view(void) {
     u16 index = cur_geo_cmd_s16(0x02);
 
-    if (index < gGeoNumViews) {
-        gGeoViews[index] = gCurGraphNodeList[gCurGraphNodeIndex];
+    if (index < WORLD(gGeoNumViews)) {
+        WORLD(gGeoViews)[index] = WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)];
     }
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -178,17 +178,17 @@ void geo_layout_cmd_update_node_flags(void) {
 
     switch (operation) {
         case GEO_CMD_FLAGS_RESET:
-            gCurGraphNodeList[gCurGraphNodeIndex]->flags = flagBits;
+            WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)]->flags = flagBits;
             break;
         case GEO_CMD_FLAGS_SET:
-            gCurGraphNodeList[gCurGraphNodeIndex]->flags |= flagBits;
+            WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)]->flags |= flagBits;
             break;
         case GEO_CMD_FLAGS_CLEAR:
-            gCurGraphNodeList[gCurGraphNodeIndex]->flags &= ~flagBits;
+            WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)]->flags &= ~flagBits;
             break;
     }
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -211,23 +211,23 @@ void geo_layout_cmd_node_root(void) {
     // number of entries to allocate for gGeoViews array
     // at least 2 are allocated by default
     // cmd+0x02 = 0x00: Mario face, 0x0A: all other levels
-    gGeoNumViews = cur_geo_cmd_s16(0x02) + 2;
+    WORLD(gGeoNumViews) = cur_geo_cmd_s16(0x02) + 2;
 
-    graphNode = init_graph_node_root(gGraphNodePool, NULL, 0, x, y, width, height);
+    graphNode = init_graph_node_root(WORLD(gGraphNodePool), NULL, 0, x, y, width, height);
 
     // TODO: check type
-    gGeoViews = alloc_only_pool_alloc(gGraphNodePool, gGeoNumViews * sizeof(struct GraphNode *));
+    WORLD(gGeoViews) = alloc_only_pool_alloc(WORLD(gGraphNodePool), WORLD(gGeoNumViews) * sizeof(struct GraphNode *));
 
-    graphNode->views = gGeoViews;
-    graphNode->numViews = gGeoNumViews;
+    graphNode->views = WORLD(gGeoViews);
+    graphNode->numViews = WORLD(gGeoNumViews);
 
-    for (i = 0; i < gGeoNumViews; i++) {
-        gGeoViews[i] = NULL;
+    for (i = 0; i < WORLD(gGeoNumViews); i++) {
+        WORLD(gGeoViews)[i] = NULL;
     }
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x0C << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x0C << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -238,11 +238,11 @@ void geo_layout_cmd_node_ortho_projection(void) {
     struct GraphNodeOrthoProjection *graphNode;
     f32 scale = (f32) cur_geo_cmd_s16(0x02) / 100.0f;
 
-    graphNode = init_graph_node_ortho_projection(gGraphNodePool, NULL, scale);
+    graphNode = init_graph_node_ortho_projection(WORLD(gGraphNodePool), NULL, scale);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -263,14 +263,14 @@ void geo_layout_cmd_node_perspective(void) {
     if (cur_geo_cmd_u8(0x01) != 0) {
         // optional asm function
         frustumFunc = (GraphNodeFunc) cur_geo_cmd_ptr(0x08);
-        gGeoLayoutCommand += 4 << CMD_SIZE_SHIFT;
+        WORLD(gGeoLayoutCommand) += 4 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_perspective(gGraphNodePool, NULL, (f32) fov, near, far, frustumFunc, 0);
+    graphNode = init_graph_node_perspective(WORLD(gGraphNodePool), NULL, (f32) fov, near, far, frustumFunc, 0);
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -280,16 +280,16 @@ void geo_layout_cmd_node_perspective(void) {
 void geo_layout_cmd_node_start(void) {
     struct GraphNodeStart *graphNode;
 
-    graphNode = init_graph_node_start(gGraphNodePool, NULL);
+    graphNode = init_graph_node_start(WORLD(gGraphNodePool), NULL);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 // 0x1F: No operation
 void geo_layout_cmd_nop3(void) {
-    gGeoLayoutCommand += 0x10 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x10 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -299,11 +299,11 @@ void geo_layout_cmd_nop3(void) {
 void geo_layout_cmd_node_master_list(void) {
     struct GraphNodeMasterList *graphNode;
 
-    graphNode = init_graph_node_master_list(gGraphNodePool, NULL, cur_geo_cmd_u8(0x01));
+    graphNode = init_graph_node_master_list(WORLD(gGraphNodePool), NULL, cur_geo_cmd_u8(0x01));
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -317,11 +317,11 @@ void geo_layout_cmd_node_level_of_detail(void) {
     s16 minDistance = cur_geo_cmd_s16(0x04);
     s16 maxDistance = cur_geo_cmd_s16(0x06);
 
-    graphNode = init_graph_node_render_range(gGraphNodePool, NULL, minDistance, maxDistance);
+    graphNode = init_graph_node_render_range(WORLD(gGraphNodePool), NULL, minDistance, maxDistance);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -336,7 +336,7 @@ void geo_layout_cmd_node_switch_case(void) {
     struct GraphNodeSwitchCase *graphNode;
 
     graphNode =
-        init_graph_node_switch_case(gGraphNodePool, NULL,
+        init_graph_node_switch_case(WORLD(gGraphNodePool), NULL,
                                     cur_geo_cmd_s16(0x02), // case which is initially selected
                                     0,
                                     (GraphNodeFunc) cur_geo_cmd_ptr(0x04), // case update function
@@ -344,7 +344,7 @@ void geo_layout_cmd_node_switch_case(void) {
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -360,21 +360,21 @@ void geo_layout_cmd_node_switch_case(void) {
 */
 void geo_layout_cmd_node_camera(void) {
     struct GraphNodeCamera *graphNode;
-    s16 *cmdPos = (s16 *) &gGeoLayoutCommand[4];
+    s16 *cmdPos = (s16 *) &WORLD(gGeoLayoutCommand)[4];
 
     Vec3f pos, focus;
 
     cmdPos = read_vec3s_to_vec3f(pos, cmdPos);
     cmdPos = read_vec3s_to_vec3f(focus, cmdPos);
 
-    graphNode = init_graph_node_camera(gGraphNodePool, NULL, pos, focus,
+    graphNode = init_graph_node_camera(WORLD(gGraphNodePool), NULL, pos, focus,
                                        (GraphNodeFunc) cur_geo_cmd_ptr(0x10), cur_geo_cmd_s16(0x02));
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoViews[0] = &graphNode->fnNode.node;
+    WORLD(gGeoViews)[0] = &graphNode->fnNode.node;
 
-    gGeoLayoutCommand += 0x14 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x14 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -420,7 +420,7 @@ void geo_layout_cmd_node_translation_rotation(void) {
     s16 drawingLayer = 0;
 
     s16 params = cur_geo_cmd_u8(0x01);
-    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    s16 *cmdPos = (s16 *) WORLD(gGeoLayoutCommand);
 
     switch ((params & 0x70) >> 4) {
         case 0:
@@ -429,14 +429,14 @@ void geo_layout_cmd_node_translation_rotation(void) {
             break;
         case 1:
             cmdPos = read_vec3s(translation, &cmdPos[1]);
-            vec3s_copy(rotation, gVec3sZero);
+            vec3s_copy(rotation, WORLD(gVec3sZero));
             break;
         case 2:
             cmdPos = read_vec3s_angle(rotation, &cmdPos[1]);
-            vec3s_copy(translation, gVec3sZero);
+            vec3s_copy(translation, WORLD(gVec3sZero));
             break;
         case 3:
-            vec3s_copy(translation, gVec3sZero);
+            vec3s_copy(translation, WORLD(gVec3sZero));
             vec3s_set(rotation, 0, (cmdPos[1] << 15) / 180, 0);
             cmdPos += 2 << CMD_SIZE_SHIFT;
             break;
@@ -448,11 +448,11 @@ void geo_layout_cmd_node_translation_rotation(void) {
         cmdPos += 2 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_translation_rotation(gGraphNodePool, NULL, drawingLayer, displayList,
+    graphNode = init_graph_node_translation_rotation(WORLD(gGraphNodePool), NULL, drawingLayer, displayList,
                                                      translation, rotation);
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand = (u8 *) cmdPos;
+    WORLD(gGeoLayoutCommand) = (u8 *) cmdPos;
 }
 
 /*
@@ -472,7 +472,7 @@ void geo_layout_cmd_node_translation(void) {
 
     s16 drawingLayer = 0;
     s16 params = cur_geo_cmd_u8(0x01);
-    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    s16 *cmdPos = (s16 *) WORLD(gGeoLayoutCommand);
     void *displayList = NULL;
 
     cmdPos = read_vec3s(translation, &cmdPos[1]);
@@ -484,11 +484,11 @@ void geo_layout_cmd_node_translation(void) {
     }
 
     graphNode =
-        init_graph_node_translation(gGraphNodePool, NULL, drawingLayer, displayList, translation);
+        init_graph_node_translation(WORLD(gGraphNodePool), NULL, drawingLayer, displayList, translation);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand = (u8 *) cmdPos;
+    WORLD(gGeoLayoutCommand) = (u8 *) cmdPos;
 }
 
 /*
@@ -508,7 +508,7 @@ void geo_layout_cmd_node_rotation(void) {
 
     s16 drawingLayer = 0;
     s16 params = cur_geo_cmd_u8(0x01);
-    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    s16 *cmdPos = (s16 *) WORLD(gGeoLayoutCommand);
     void *displayList = NULL;
 
     cmdPos = read_vec3s_angle(sp2c, &cmdPos[1]);
@@ -519,11 +519,11 @@ void geo_layout_cmd_node_rotation(void) {
         cmdPos += 2 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_rotation(gGraphNodePool, NULL, drawingLayer, displayList, sp2c);
+    graphNode = init_graph_node_rotation(WORLD(gGraphNodePool), NULL, drawingLayer, displayList, sp2c);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand = (u8 *) cmdPos;
+    WORLD(gGeoLayoutCommand) = (u8 *) cmdPos;
 }
 
 /*
@@ -545,19 +545,19 @@ void geo_layout_cmd_node_scale(void) {
     if (params & 0x80) {
         displayList = cur_geo_cmd_ptr(0x08);
         drawingLayer = params & 0x0F;
-        gGeoLayoutCommand += 4 << CMD_SIZE_SHIFT;
+        WORLD(gGeoLayoutCommand) += 4 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_scale(gGraphNodePool, NULL, drawingLayer, displayList, scale);
+    graphNode = init_graph_node_scale(WORLD(gGraphNodePool), NULL, drawingLayer, displayList, scale);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 // 0x1E: No operation
 void geo_layout_cmd_nop2(void) {
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -573,16 +573,16 @@ void geo_layout_cmd_node_animated_part(void) {
     Vec3s translation;
     s32 drawingLayer = cur_geo_cmd_u8(0x01);
     void *displayList = cur_geo_cmd_ptr(0x08);
-    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    s16 *cmdPos = (s16 *) WORLD(gGeoLayoutCommand);
 
     read_vec3s(translation, &cmdPos[1]);
 
     graphNode =
-        init_graph_node_animated_part(gGraphNodePool, NULL, drawingLayer, displayList, translation);
+        init_graph_node_animated_part(WORLD(gGraphNodePool), NULL, drawingLayer, displayList, translation);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x0C << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x0C << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -600,7 +600,7 @@ void geo_layout_cmd_node_billboard(void) {
     Vec3s translation;
     s16 drawingLayer = 0;
     s16 params = cur_geo_cmd_u8(0x01);
-    s16 *cmdPos = (s16 *) gGeoLayoutCommand;
+    s16 *cmdPos = (s16 *) WORLD(gGeoLayoutCommand);
     void *displayList = NULL;
 
     cmdPos = read_vec3s(translation, &cmdPos[1]);
@@ -611,11 +611,11 @@ void geo_layout_cmd_node_billboard(void) {
         cmdPos += 2 << CMD_SIZE_SHIFT;
     }
 
-    graphNode = init_graph_node_billboard(gGraphNodePool, NULL, drawingLayer, displayList, translation);
+    graphNode = init_graph_node_billboard(WORLD(gGraphNodePool), NULL, drawingLayer, displayList, translation);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand = (u8 *) cmdPos;
+    WORLD(gGeoLayoutCommand) = (u8 *) cmdPos;
 }
 
 /*
@@ -628,11 +628,11 @@ void geo_layout_cmd_node_display_list(void) {
     s32 drawingLayer = cur_geo_cmd_u8(0x01);
     void *displayList = cur_geo_cmd_ptr(0x04);
 
-    graphNode = init_graph_node_display_list(gGraphNodePool, NULL, drawingLayer, displayList);
+    graphNode = init_graph_node_display_list(WORLD(gGraphNodePool), NULL, drawingLayer, displayList);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -647,22 +647,22 @@ void geo_layout_cmd_node_shadow(void) {
     u8 shadowSolidity = cur_geo_cmd_s16(0x04);
     s16 shadowScale = cur_geo_cmd_s16(0x06);
 
-    graphNode = init_graph_node_shadow(gGraphNodePool, NULL, shadowScale, shadowSolidity, shadowType);
+    graphNode = init_graph_node_shadow(WORLD(gGraphNodePool), NULL, shadowScale, shadowSolidity, shadowType);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 // 0x17: Create scene graph node that manages the group of all object nodes
 void geo_layout_cmd_node_object_parent(void) {
     struct GraphNodeObjectParent *graphNode;
 
-    graphNode = init_graph_node_object_parent(gGraphNodePool, NULL, &gObjParentGraphNode);
+    graphNode = init_graph_node_object_parent(WORLD(gGraphNodePool), NULL, &WORLD(gObjParentGraphNode));
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -673,13 +673,13 @@ void geo_layout_cmd_node_object_parent(void) {
 void geo_layout_cmd_node_generated(void) {
     struct GraphNodeGenerated *graphNode;
 
-    graphNode = init_graph_node_generated(gGraphNodePool, NULL,
+    graphNode = init_graph_node_generated(WORLD(gGraphNodePool), NULL,
                                           (GraphNodeFunc) cur_geo_cmd_ptr(0x04), // asm function
                                           cur_geo_cmd_s16(0x02));                // parameter
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -691,19 +691,19 @@ void geo_layout_cmd_node_background(void) {
     struct GraphNodeBackground *graphNode;
 
     graphNode = init_graph_node_background(
-        gGraphNodePool, NULL,
+        WORLD(gGraphNodePool), NULL,
         cur_geo_cmd_s16(0x02), // background ID, or RGBA5551 color if asm function is null
         (GraphNodeFunc) cur_geo_cmd_ptr(0x04), // asm function
         0);
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 // 0x1A: No operation
 void geo_layout_cmd_nop(void) {
-    gGeoLayoutCommand += 0x08 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x08 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -717,7 +717,7 @@ void geo_layout_cmd_copy_view(void) {
     s16 index = cur_geo_cmd_s16(0x02);
 
     if (index >= 0) {
-        node = gGeoViews[index];
+        node = WORLD(gGeoViews)[index];
 
         if (node->type == GRAPH_NODE_TYPE_OBJECT_PARENT) {
             node = ((struct GraphNodeObjectParent *) node)->sharedChild;
@@ -726,11 +726,11 @@ void geo_layout_cmd_copy_view(void) {
         }
     }
 
-    graphNode = init_graph_node_object_parent(gGraphNodePool, NULL, node);
+    graphNode = init_graph_node_object_parent(WORLD(gGraphNodePool), NULL, node);
 
     register_scene_graph_node(&graphNode->node);
 
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -745,14 +745,14 @@ void geo_layout_cmd_node_held_obj(void) {
     struct GraphNodeHeldObject *graphNode;
     Vec3s offset;
 
-    read_vec3s(offset, (s16 *) &gGeoLayoutCommand[0x02]);
+    read_vec3s(offset, (s16 *) &WORLD(gGeoLayoutCommand)[0x02]);
 
     graphNode = init_graph_node_held_object(
-        gGraphNodePool, NULL, NULL, offset, (GraphNodeFunc) cur_geo_cmd_ptr(0x08), cur_geo_cmd_u8(0x01));
+        WORLD(gGraphNodePool), NULL, NULL, offset, (GraphNodeFunc) cur_geo_cmd_ptr(0x08), cur_geo_cmd_u8(0x01));
 
     register_scene_graph_node(&graphNode->fnNode.node);
 
-    gGeoLayoutCommand += 0x0C << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x0C << CMD_SIZE_SHIFT;
 }
 
 /*
@@ -762,34 +762,34 @@ void geo_layout_cmd_node_held_obj(void) {
 */
 void geo_layout_cmd_node_culling_radius(void) {
     struct GraphNodeCullingRadius *graphNode;
-    graphNode = init_graph_node_culling_radius(gGraphNodePool, NULL, cur_geo_cmd_s16(0x02));
+    graphNode = init_graph_node_culling_radius(WORLD(gGraphNodePool), NULL, cur_geo_cmd_s16(0x02));
     register_scene_graph_node(&graphNode->node);
-    gGeoLayoutCommand += 0x04 << CMD_SIZE_SHIFT;
+    WORLD(gGeoLayoutCommand) += 0x04 << CMD_SIZE_SHIFT;
 }
 
 struct GraphNode *process_geo_layout(struct AllocOnlyPool *pool, void *segptr) {
     // set by register_scene_graph_node when gCurGraphNodeIndex is 0
     // and gCurRootGraphNode is NULL
-    gCurRootGraphNode = NULL;
+    WORLD(gCurRootGraphNode) = NULL;
 
-    gGeoNumViews = 0; // number of entries in gGeoViews
+    WORLD(gGeoNumViews) = 0; // number of entries in gGeoViews
 
-    gCurGraphNodeList[0] = 0;
-    gCurGraphNodeIndex = 0; // incremented by cmd_open_node, decremented by cmd_close_node
+    WORLD(gCurGraphNodeList)[0] = 0;
+    WORLD(gCurGraphNodeIndex) = 0; // incremented by cmd_open_node, decremented by cmd_close_node
 
-    gGeoLayoutStackIndex = 2;
-    gGeoLayoutReturnIndex = 2; // stack index is often copied here?
+    WORLD(gGeoLayoutStackIndex) = 2;
+    WORLD(gGeoLayoutReturnIndex) = 2; // stack index is often copied here?
 
-    gGeoLayoutCommand = segmented_to_virtual(segptr);
+    WORLD(gGeoLayoutCommand) = segmented_to_virtual(segptr);
 
-    gGraphNodePool = pool;
+    WORLD(gGraphNodePool) = pool;
 
-    gGeoLayoutStack[0] = 0;
-    gGeoLayoutStack[1] = 0;
+    WORLD(gGeoLayoutStack)[0] = 0;
+    WORLD(gGeoLayoutStack)[1] = 0;
 
-    while (gGeoLayoutCommand != NULL) {
-        GeoLayoutJumpTable[gGeoLayoutCommand[0x00]]();
+    while (WORLD(gGeoLayoutCommand) != NULL) {
+        WORLD(GeoLayoutJumpTable)[WORLD(gGeoLayoutCommand)[0x00]]();
     }
 
-    return gCurRootGraphNode;
+    return WORLD(gCurRootGraphNode);
 }

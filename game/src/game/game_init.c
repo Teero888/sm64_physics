@@ -85,42 +85,42 @@ struct DemoInput gRecordedDemoInput = { 0 };
  * Sets the initial RDP (Reality Display Processor) rendering settings.
  */
 void init_rdp(void) {
-    gDPPipeSync(gDisplayListHead++);
-    gDPPipelineMode(gDisplayListHead++, G_PM_1PRIMITIVE);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPPipelineMode(WORLD(gDisplayListHead)++, G_PM_1PRIMITIVE);
 
-    gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    gDPSetCombineMode(gDisplayListHead++, G_CC_SHADE, G_CC_SHADE);
+    gDPSetScissor(WORLD(gDisplayListHead)++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    gDPSetCombineMode(WORLD(gDisplayListHead)++, G_CC_SHADE, G_CC_SHADE);
 
-    gDPSetTextureLOD(gDisplayListHead++, G_TL_TILE);
-    gDPSetTextureLUT(gDisplayListHead++, G_TT_NONE);
-    gDPSetTextureDetail(gDisplayListHead++, G_TD_CLAMP);
-    gDPSetTexturePersp(gDisplayListHead++, G_TP_PERSP);
-    gDPSetTextureFilter(gDisplayListHead++, G_TF_BILERP);
-    gDPSetTextureConvert(gDisplayListHead++, G_TC_FILT);
+    gDPSetTextureLOD(WORLD(gDisplayListHead)++, G_TL_TILE);
+    gDPSetTextureLUT(WORLD(gDisplayListHead)++, G_TT_NONE);
+    gDPSetTextureDetail(WORLD(gDisplayListHead)++, G_TD_CLAMP);
+    gDPSetTexturePersp(WORLD(gDisplayListHead)++, G_TP_PERSP);
+    gDPSetTextureFilter(WORLD(gDisplayListHead)++, G_TF_BILERP);
+    gDPSetTextureConvert(WORLD(gDisplayListHead)++, G_TC_FILT);
 
-    gDPSetCombineKey(gDisplayListHead++, G_CK_NONE);
-    gDPSetAlphaCompare(gDisplayListHead++, G_AC_NONE);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-    gDPSetColorDither(gDisplayListHead++, G_CD_MAGICSQ);
-    gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+    gDPSetCombineKey(WORLD(gDisplayListHead)++, G_CK_NONE);
+    gDPSetAlphaCompare(WORLD(gDisplayListHead)++, G_AC_NONE);
+    gDPSetRenderMode(WORLD(gDisplayListHead)++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPSetColorDither(WORLD(gDisplayListHead)++, G_CD_MAGICSQ);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_FILL);
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
     gDPSetAlphaDither(gDisplayListHead++, G_AD_PATTERN);
 #endif
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 }
 
 /**
  * Sets the initial RSP (Reality Signal Processor) settings.
  */
 void init_rsp(void) {
-    gSPClearGeometryMode(gDisplayListHead++, G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG
+    gSPClearGeometryMode(WORLD(gDisplayListHead)++, G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG
                         | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD);
 
-    gSPSetGeometryMode(gDisplayListHead++, G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK | G_LIGHTING);
+    gSPSetGeometryMode(WORLD(gDisplayListHead)++, G_SHADE | G_SHADING_SMOOTH | G_CULL_BACK | G_LIGHTING);
 
-    gSPNumLights(gDisplayListHead++, NUMLIGHTS_1);
-    gSPTexture(gDisplayListHead++, 0, 0, 0, G_TX_RENDERTILE, G_OFF);
+    gSPNumLights(WORLD(gDisplayListHead)++, NUMLIGHTS_1);
+    gSPTexture(WORLD(gDisplayListHead)++, 0, 0, 0, G_TX_RENDERTILE, G_OFF);
 
     // @bug Failing to set the clip ratio will result in warped triangles in F3DEX2
     // without this change: https://jrra.zone/n64/doc/n64man/gsp/gSPClipRatio.htm
@@ -133,16 +133,16 @@ void init_rsp(void) {
  * Initialize the z buffer for the current frame.
  */
 void init_z_buffer(void) {
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetDepthSource(gDisplayListHead++, G_ZS_PIXEL);
-    gDPSetDepthImage(gDisplayListHead++, gPhysicalZBuffer);
+    gDPSetDepthSource(WORLD(gDisplayListHead)++, G_ZS_PIXEL);
+    gDPSetDepthImage(WORLD(gDisplayListHead)++, WORLD(gPhysicalZBuffer));
 
-    gDPSetColorImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, gPhysicalZBuffer);
-    gDPSetFillColor(gDisplayListHead++,
+    gDPSetColorImage(WORLD(gDisplayListHead)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, WORLD(gPhysicalZBuffer));
+    gDPSetFillColor(WORLD(gDisplayListHead)++,
                     GPACK_ZDZ(G_MAXFBZ, 0) << 16 | GPACK_ZDZ(G_MAXFBZ, 0));
 
-    gDPFillRectangle(gDisplayListHead++, 0, BORDER_HEIGHT, SCREEN_WIDTH - 1,
+    gDPFillRectangle(WORLD(gDisplayListHead)++, 0, BORDER_HEIGHT, SCREEN_WIDTH - 1,
                      SCREEN_HEIGHT - 1 - BORDER_HEIGHT);
 }
 
@@ -150,12 +150,12 @@ void init_z_buffer(void) {
  * Tells the RDP which of the three framebuffers it shall draw to.
  */
 void select_framebuffer(void) {
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
-    gDPSetColorImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH,
-                     gPhysicalFramebuffers[sRenderingFramebuffer]);
-    gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, SCREEN_WIDTH,
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_1CYCLE);
+    gDPSetColorImage(WORLD(gDisplayListHead)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH,
+                     WORLD(gPhysicalFramebuffers)[WORLD(sRenderingFramebuffer)]);
+    gDPSetScissor(WORLD(gDisplayListHead)++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, SCREEN_WIDTH,
                   SCREEN_HEIGHT - BORDER_HEIGHT);
 }
 
@@ -164,19 +164,19 @@ void select_framebuffer(void) {
  * Information about the color argument: https://jrra.zone/n64/doc/n64man/gdp/gDPSetFillColor.htm
  */
 void clear_framebuffer(s32 color) {
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-    gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+    gDPSetRenderMode(WORLD(gDisplayListHead)++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_FILL);
 
-    gDPSetFillColor(gDisplayListHead++, color);
-    gDPFillRectangle(gDisplayListHead++,
+    gDPSetFillColor(WORLD(gDisplayListHead)++, color);
+    gDPFillRectangle(WORLD(gDisplayListHead)++,
                      GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0), BORDER_HEIGHT,
                      GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0) - 1, SCREEN_HEIGHT - BORDER_HEIGHT - 1);
 
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_1CYCLE);
 }
 
 /**
@@ -193,30 +193,30 @@ void clear_viewport(Vp *viewport, s32 color) {
     vpLrx = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(SCREEN_WIDTH - vpLrx);
 #endif
 
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-    gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+    gDPSetRenderMode(WORLD(gDisplayListHead)++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_FILL);
 
-    gDPSetFillColor(gDisplayListHead++, color);
-    gDPFillRectangle(gDisplayListHead++, vpUlx, vpUly, vpLrx, vpLry);
+    gDPSetFillColor(WORLD(gDisplayListHead)++, color);
+    gDPFillRectangle(WORLD(gDisplayListHead)++, vpUlx, vpUly, vpLrx, vpLry);
 
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_1CYCLE);
 }
 
 /**
  * Draw the horizontal screen borders.
  */
 void draw_screen_borders(void) {
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 
-    gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
-    gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+    gDPSetScissor(WORLD(gDisplayListHead)++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    gDPSetRenderMode(WORLD(gDisplayListHead)++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_FILL);
 
-    gDPSetFillColor(gDisplayListHead++, GPACK_RGBA5551(0, 0, 0, 0) << 16 | GPACK_RGBA5551(0, 0, 0, 0));
+    gDPSetFillColor(WORLD(gDisplayListHead)++, GPACK_RGBA5551(0, 0, 0, 0) << 16 | GPACK_RGBA5551(0, 0, 0, 0));
 
 #if BORDER_HEIGHT != 0
     gDPFillRectangle(gDisplayListHead++, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0), 0,
@@ -237,7 +237,7 @@ void make_viewport_clip_rect(Vp *viewport) {
     s16 vpLrx = (viewport->vp.vtrans[0] + viewport->vp.vscale[0]) / 4 - 1;
     s16 vpLry = (viewport->vp.vtrans[1] + viewport->vp.vscale[1]) / 4 - 1;
 
-    gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, vpUlx, vpPly, vpLrx, vpLry);
+    gDPSetScissor(WORLD(gDisplayListHead)++, G_SC_NON_INTERLACE, vpUlx, vpPly, vpLrx, vpLry);
 }
 
 /**
@@ -245,27 +245,27 @@ void make_viewport_clip_rect(Vp *viewport) {
  * If you plan on using gSPLoadUcode, make sure to add OS_TASK_LOADABLE to the flags member.
  */
 void create_gfx_task_structure(void) {
-    s32 entries = gDisplayListHead - gGfxPool->buffer;
+    s32 entries = WORLD(gDisplayListHead) - WORLD(gGfxPool)->buffer;
 
-    gGfxSPTask->msgqueue = &gGfxVblankQueue;
-    gGfxSPTask->msg = (OSMesg) 2;
-    gGfxSPTask->task.t.type = M_GFXTASK;
-    gGfxSPTask->task.t.ucode_boot = rspF3DBootStart;
-    gGfxSPTask->task.t.ucode_boot_size = ((u8 *) rspF3DBootEnd - (u8 *) rspF3DBootStart);
-    gGfxSPTask->task.t.flags = 0;
-    gGfxSPTask->task.t.ucode = rspF3DStart;
-    gGfxSPTask->task.t.ucode_data = rspF3DDataStart;
-    gGfxSPTask->task.t.ucode_size = SP_UCODE_SIZE; // (this size is ignored)
-    gGfxSPTask->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
-    gGfxSPTask->task.t.dram_stack = (u64 *) gGfxSPTaskStack;
-    gGfxSPTask->task.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
-    gGfxSPTask->task.t.output_buff = gGfxSPTaskOutputBuffer;
-    gGfxSPTask->task.t.output_buff_size =
+    WORLD(gGfxSPTask)->msgqueue = &WORLD(gGfxVblankQueue);
+    WORLD(gGfxSPTask)->msg = (OSMesg) 2;
+    WORLD(gGfxSPTask)->task.t.type = M_GFXTASK;
+    WORLD(gGfxSPTask)->task.t.ucode_boot = WORLD(rspF3DBootStart);
+    WORLD(gGfxSPTask)->task.t.ucode_boot_size = ((u8 *) WORLD(rspF3DBootEnd) - (u8 *) WORLD(rspF3DBootStart));
+    WORLD(gGfxSPTask)->task.t.flags = 0;
+    WORLD(gGfxSPTask)->task.t.ucode = WORLD(rspF3DStart);
+    WORLD(gGfxSPTask)->task.t.ucode_data = WORLD(rspF3DDataStart);
+    WORLD(gGfxSPTask)->task.t.ucode_size = SP_UCODE_SIZE; // (this size is ignored)
+    WORLD(gGfxSPTask)->task.t.ucode_data_size = SP_UCODE_DATA_SIZE;
+    WORLD(gGfxSPTask)->task.t.dram_stack = (u64 *) WORLD(gGfxSPTaskStack);
+    WORLD(gGfxSPTask)->task.t.dram_stack_size = SP_DRAM_STACK_SIZE8;
+    WORLD(gGfxSPTask)->task.t.output_buff = gGfxSPTaskOutputBuffer;
+    WORLD(gGfxSPTask)->task.t.output_buff_size =
         (u64 *)((u8 *) gGfxSPTaskOutputBuffer + sizeof(gGfxSPTaskOutputBuffer));
-    gGfxSPTask->task.t.data_ptr = (u64 *) &gGfxPool->buffer;
-    gGfxSPTask->task.t.data_size = entries * sizeof(Gfx);
-    gGfxSPTask->task.t.yield_data_ptr = (u64 *) gGfxSPTaskYieldBuffer;
-    gGfxSPTask->task.t.yield_data_size = OS_YIELD_DATA_SIZE;
+    WORLD(gGfxSPTask)->task.t.data_ptr = (u64 *) &WORLD(gGfxPool)->buffer;
+    WORLD(gGfxSPTask)->task.t.data_size = entries * sizeof(Gfx);
+    WORLD(gGfxSPTask)->task.t.yield_data_ptr = (u64 *) WORLD(gGfxSPTaskYieldBuffer);
+    WORLD(gGfxSPTask)->task.t.yield_data_size = OS_YIELD_DATA_SIZE;
 }
 
 /**
@@ -284,12 +284,12 @@ void init_rcp(void) {
  */
 void end_master_display_list(void) {
     draw_screen_borders();
-    if (gShowProfiler) {
+    if (WORLD(gShowProfiler)) {
         draw_profiler();
     }
 
-    gDPFullSync(gDisplayListHead++);
-    gSPEndDisplayList(gDisplayListHead++);
+    gDPFullSync(WORLD(gDisplayListHead)++);
+    gSPEndDisplayList(WORLD(gDisplayListHead)++);
 
     create_gfx_task_structure();
 }
@@ -302,15 +302,15 @@ void draw_reset_bars(void) {
     s32 fbNum;
     u64 *fbPtr;
 
-    if (gResetTimer != 0 && gNmiResetBarsTimer < 15) {
-        if (sRenderedFramebuffer == 0) {
+    if (WORLD(gResetTimer) != 0 && WORLD(gNmiResetBarsTimer) < 15) {
+        if (WORLD(sRenderedFramebuffer) == 0) {
             fbNum = 2;
         } else {
-            fbNum = sRenderedFramebuffer - 1;
+            fbNum = WORLD(sRenderedFramebuffer) - 1;
         }
 
-        fbPtr = (u64 *) PHYSICAL_TO_VIRTUAL(gPhysicalFramebuffers[fbNum]);
-        fbPtr += gNmiResetBarsTimer++ * (SCREEN_WIDTH / 4);
+        fbPtr = (u64 *) PHYSICAL_TO_VIRTUAL(WORLD(gPhysicalFramebuffers)[fbNum]);
+        fbPtr += WORLD(gNmiResetBarsTimer)++ * (SCREEN_WIDTH / 4);
 
         for (width = 0; width < ((SCREEN_HEIGHT / 16) + 1); width++) {
             // Loop must be one line to match on -O2
@@ -320,37 +320,37 @@ void draw_reset_bars(void) {
     }
 
     osWritebackDCacheAll();
-    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
-    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
+    osRecvMesg(&WORLD(gGameVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
+    osRecvMesg(&WORLD(gGameVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
 }
 
 /**
  * Initial settings for the first rendered frame.
  */
 void render_init(void) {
-    gGfxPool = &gGfxPools[0];
-    set_segment_base_addr(1, gGfxPool->buffer);
-    gGfxSPTask = &gGfxPool->spTask;
-    gDisplayListHead = gGfxPool->buffer;
-    gGfxPoolEnd = (u8 *)(gGfxPool->buffer + GFX_POOL_SIZE);
+    WORLD(gGfxPool) = &WORLD(gGfxPools)[0];
+    set_segment_base_addr(1, WORLD(gGfxPool)->buffer);
+    WORLD(gGfxSPTask) = &WORLD(gGfxPool)->spTask;
+    WORLD(gDisplayListHead) = WORLD(gGfxPool)->buffer;
+    WORLD(gGfxPoolEnd) = (u8 *)(WORLD(gGfxPool)->buffer + GFX_POOL_SIZE);
     init_rcp();
     clear_framebuffer(0);
     end_master_display_list();
-    exec_display_list(&gGfxPool->spTask);
+    exec_display_list(&WORLD(gGfxPool)->spTask);
 
-    sRenderingFramebuffer++;
-    gGlobalTimer++;
+    WORLD(sRenderingFramebuffer)++;
+    WORLD(gGlobalTimer)++;
 }
 
 /**
  * Selects the location of the F3D output buffer (gDisplayListHead).
  */
 void select_gfx_pool(void) {
-    gGfxPool = &gGfxPools[gGlobalTimer % ARRAY_COUNT(gGfxPools)];
-    set_segment_base_addr(1, gGfxPool->buffer);
-    gGfxSPTask = &gGfxPool->spTask;
-    gDisplayListHead = gGfxPool->buffer;
-    gGfxPoolEnd = (u8 *) (gGfxPool->buffer + GFX_POOL_SIZE);
+    WORLD(gGfxPool) = &WORLD(gGfxPools)[WORLD(gGlobalTimer) % ARRAY_COUNT(WORLD(gGfxPools))];
+    set_segment_base_addr(1, WORLD(gGfxPool)->buffer);
+    WORLD(gGfxSPTask) = &WORLD(gGfxPool)->spTask;
+    WORLD(gDisplayListHead) = WORLD(gGfxPool)->buffer;
+    WORLD(gGfxPoolEnd) = (u8 *) (WORLD(gGfxPool)->buffer + GFX_POOL_SIZE);
 }
 
 /**
@@ -362,24 +362,24 @@ void select_gfx_pool(void) {
  */
 void display_and_vsync(void) {
     profiler_log_thread5_time(BEFORE_DISPLAY_LISTS);
-    osRecvMesg(&gGfxVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
-    if (gGoddardVblankCallback != NULL) {
-        gGoddardVblankCallback();
-        gGoddardVblankCallback = NULL;
+    osRecvMesg(&WORLD(gGfxVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
+    if (WORLD(gGoddardVblankCallback) != NULL) {
+        WORLD(gGoddardVblankCallback)();
+        WORLD(gGoddardVblankCallback) = NULL;
     }
-    exec_display_list(&gGfxPool->spTask);
+    exec_display_list(&WORLD(gGfxPool)->spTask);
     profiler_log_thread5_time(AFTER_DISPLAY_LISTS);
-    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
-    osViSwapBuffer((void *) PHYSICAL_TO_VIRTUAL(gPhysicalFramebuffers[sRenderedFramebuffer]));
+    osRecvMesg(&WORLD(gGameVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
+    osViSwapBuffer((void *) PHYSICAL_TO_VIRTUAL(WORLD(gPhysicalFramebuffers)[WORLD(sRenderedFramebuffer)]));
     profiler_log_thread5_time(THREAD5_END);
-    osRecvMesg(&gGameVblankQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
-    if (++sRenderedFramebuffer == 3) {
-        sRenderedFramebuffer = 0;
+    osRecvMesg(&WORLD(gGameVblankQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
+    if (++WORLD(sRenderedFramebuffer) == 3) {
+        WORLD(sRenderedFramebuffer) = 0;
     }
-    if (++sRenderingFramebuffer == 3) {
-        sRenderingFramebuffer = 0;
+    if (++WORLD(sRenderingFramebuffer) == 3) {
+        WORLD(sRenderingFramebuffer) = 0;
     }
-    gGlobalTimer++;
+    WORLD(gGlobalTimer)++;
 }
 
 // Controls
@@ -392,10 +392,10 @@ void display_and_vsync(void) {
 UNUSED static void record_demo(void) {
     // Record the player's button mask and current rawStickX and rawStickY.
     u8 buttonMask =
-        ((gPlayer1Controller->buttonDown & (A_BUTTON | B_BUTTON | Z_TRIG | START_BUTTON)) >> 8)
-        | (gPlayer1Controller->buttonDown & (U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS));
-    s8 rawStickX = gPlayer1Controller->rawStickX;
-    s8 rawStickY = gPlayer1Controller->rawStickY;
+        ((WORLD(gPlayer1Controller)->buttonDown & (A_BUTTON | B_BUTTON | Z_TRIG | START_BUTTON)) >> 8)
+        | (WORLD(gPlayer1Controller)->buttonDown & (U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS));
+    s8 rawStickX = WORLD(gPlayer1Controller)->rawStickX;
+    s8 rawStickY = WORLD(gPlayer1Controller)->rawStickY;
 
     // If the stick is in deadzone, set its value to 0 to
     // nullify the effects. We do not record deadzone inputs.
@@ -409,14 +409,14 @@ UNUSED static void record_demo(void) {
 
     // Record the distinct input and timer so long as they are unique.
     // If the timer hits 0xFF, reset the timer for the next demo input.
-    if (gRecordedDemoInput.timer == 0xFF || buttonMask != gRecordedDemoInput.buttonMask
-        || rawStickX != gRecordedDemoInput.rawStickX || rawStickY != gRecordedDemoInput.rawStickY) {
-        gRecordedDemoInput.timer = 0;
-        gRecordedDemoInput.buttonMask = buttonMask;
-        gRecordedDemoInput.rawStickX = rawStickX;
-        gRecordedDemoInput.rawStickY = rawStickY;
+    if (WORLD(gRecordedDemoInput).timer == 0xFF || buttonMask != WORLD(gRecordedDemoInput).buttonMask
+        || rawStickX != WORLD(gRecordedDemoInput).rawStickX || rawStickY != WORLD(gRecordedDemoInput).rawStickY) {
+        WORLD(gRecordedDemoInput).timer = 0;
+        WORLD(gRecordedDemoInput).buttonMask = buttonMask;
+        WORLD(gRecordedDemoInput).rawStickX = rawStickX;
+        WORLD(gRecordedDemoInput).rawStickY = rawStickY;
     }
-    gRecordedDemoInput.timer++;
+    WORLD(gRecordedDemoInput).timer++;
 }
 
 /**
@@ -464,36 +464,36 @@ void adjust_analog_stick(struct Controller *controller) {
  */
 void run_demo_inputs(void) {
     // Eliminate the unused bits.
-    gControllers[0].controllerData->button &= VALID_BUTTONS;
+    WORLD(gControllers)[0].controllerData->button &= VALID_BUTTONS;
 
     // Check if a demo inputs list exists and if so,
     // run the active demo input list.
-    if (gCurrDemoInput != NULL) {
+    if (WORLD(gCurrDemoInput) != NULL) {
         // Clear player 2's inputs if they exist. Player 2's controller
         // cannot be used to influence a demo. At some point, Nintendo
         // may have planned for there to be a demo where 2 players moved
         // around instead of just one, so clearing player 2's influence from
         // the demo had to have been necessary to perform this. Co-op mode, perhaps?
-        if (gControllers[1].controllerData != NULL) {
-            gControllers[1].controllerData->stick_x = 0;
-            gControllers[1].controllerData->stick_y = 0;
-            gControllers[1].controllerData->button = 0;
+        if (WORLD(gControllers)[1].controllerData != NULL) {
+            WORLD(gControllers)[1].controllerData->stick_x = 0;
+            WORLD(gControllers)[1].controllerData->stick_y = 0;
+            WORLD(gControllers)[1].controllerData->button = 0;
         }
 
         // The timer variable being 0 at the current input means the demo is over.
         // Set the button to the END_DEMO mask to end the demo.
-        if (gCurrDemoInput->timer == 0) {
-            gControllers[0].controllerData->stick_x = 0;
-            gControllers[0].controllerData->stick_y = 0;
-            gControllers[0].controllerData->button = END_DEMO;
+        if (WORLD(gCurrDemoInput)->timer == 0) {
+            WORLD(gControllers)[0].controllerData->stick_x = 0;
+            WORLD(gControllers)[0].controllerData->stick_y = 0;
+            WORLD(gControllers)[0].controllerData->button = END_DEMO;
         } else {
             // Backup the start button if it is pressed, since we don't want the
             // demo input to override the mask where start may have been pressed.
-            u16 startPushed = gControllers[0].controllerData->button & START_BUTTON;
+            u16 startPushed = WORLD(gControllers)[0].controllerData->button & START_BUTTON;
 
             // Perform the demo inputs by assigning the current button mask and the stick inputs.
-            gControllers[0].controllerData->stick_x = gCurrDemoInput->rawStickX;
-            gControllers[0].controllerData->stick_y = gCurrDemoInput->rawStickY;
+            WORLD(gControllers)[0].controllerData->stick_x = WORLD(gCurrDemoInput)->rawStickX;
+            WORLD(gControllers)[0].controllerData->stick_y = WORLD(gCurrDemoInput)->rawStickY;
 
             // To assign the demo input, the button information is stored in
             // an 8-bit mask rather than a 16-bit mask. this is because only
@@ -502,15 +502,15 @@ void run_demo_inputs(void) {
             // upper 4 bits (A, B, Z, and Start) and shift then left by 8 to
             // match the correct input mask. We then add this to the masked
             // lower 4 bits to get the correct button mask.
-            gControllers[0].controllerData->button =
-                ((gCurrDemoInput->buttonMask & 0xF0) << 8) + ((gCurrDemoInput->buttonMask & 0xF));
+            WORLD(gControllers)[0].controllerData->button =
+                ((WORLD(gCurrDemoInput)->buttonMask & 0xF0) << 8) + ((WORLD(gCurrDemoInput)->buttonMask & 0xF));
 
             // If start was pushed, put it into the demo sequence being input to end the demo.
-            gControllers[0].controllerData->button |= startPushed;
+            WORLD(gControllers)[0].controllerData->button |= startPushed;
 
             // Run the current demo input's timer down. if it hits 0, advance the demo input list.
-            if (--gCurrDemoInput->timer == 0) {
-                gCurrDemoInput++;
+            if (--WORLD(gCurrDemoInput)->timer == 0) {
+                WORLD(gCurrDemoInput)++;
             }
         }
     }
@@ -523,9 +523,9 @@ void read_controller_inputs(void) {
     s32 i;
 
     // If any controllers are plugged in, update the controller information.
-    if (gControllerBits) {
-        osRecvMesg(&gSIEventMesgQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
-        osContGetReadData(&gControllerPads[0]);
+    if (WORLD(gControllerBits)) {
+        osRecvMesg(&WORLD(gSIEventMesgQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
+        osContGetReadData(&WORLD(gControllerPads)[0]);
 #if ENABLE_RUMBLE
         release_rumble_pak_control();
 #endif
@@ -533,7 +533,7 @@ void read_controller_inputs(void) {
     run_demo_inputs();
 
     for (i = 0; i < 2; i++) {
-        struct Controller *controller = &gControllers[i];
+        struct Controller *controller = &WORLD(gControllers)[i];
 
         // if we're receiving inputs, update the controller struct with the new button info.
         if (controller->controllerData != NULL) {
@@ -558,13 +558,13 @@ void read_controller_inputs(void) {
     // For some reason, player 1's inputs are copied to player 3's port.
     // This potentially may have been a way the developers "recorded"
     // the inputs for demos, despite record_demo existing.
-    gPlayer3Controller->rawStickX = gPlayer1Controller->rawStickX;
-    gPlayer3Controller->rawStickY = gPlayer1Controller->rawStickY;
-    gPlayer3Controller->stickX = gPlayer1Controller->stickX;
-    gPlayer3Controller->stickY = gPlayer1Controller->stickY;
-    gPlayer3Controller->stickMag = gPlayer1Controller->stickMag;
-    gPlayer3Controller->buttonPressed = gPlayer1Controller->buttonPressed;
-    gPlayer3Controller->buttonDown = gPlayer1Controller->buttonDown;
+    WORLD(gPlayer3Controller)->rawStickX = WORLD(gPlayer1Controller)->rawStickX;
+    WORLD(gPlayer3Controller)->rawStickY = WORLD(gPlayer1Controller)->rawStickY;
+    WORLD(gPlayer3Controller)->stickX = WORLD(gPlayer1Controller)->stickX;
+    WORLD(gPlayer3Controller)->stickY = WORLD(gPlayer1Controller)->stickY;
+    WORLD(gPlayer3Controller)->stickMag = WORLD(gPlayer1Controller)->stickMag;
+    WORLD(gPlayer3Controller)->buttonPressed = WORLD(gPlayer1Controller)->buttonPressed;
+    WORLD(gPlayer3Controller)->buttonDown = WORLD(gPlayer1Controller)->buttonDown;
 }
 
 /**
@@ -575,13 +575,13 @@ void init_controllers(void) {
 
     // Set controller 1 to point to the set of status/pads for input 1 and
     // init the controllers.
-    gControllers[0].statusData = &gControllerStatuses[0];
-    gControllers[0].controllerData = &gControllerPads[0];
-    osContInit(&gSIEventMesgQueue, &gControllerBits, &gControllerStatuses[0]);
+    WORLD(gControllers)[0].statusData = &WORLD(gControllerStatuses)[0];
+    WORLD(gControllers)[0].controllerData = &WORLD(gControllerPads)[0];
+    osContInit(&WORLD(gSIEventMesgQueue), &WORLD(gControllerBits), &WORLD(gControllerStatuses)[0]);
 
     // Strangely enough, the EEPROM probe for save data is done in this function.
     // Save Pak detection?
-    gEepromProbe = osEepromProbe(&gSIEventMesgQueue);
+    WORLD(gEepromProbe) = osEepromProbe(&WORLD(gSIEventMesgQueue));
 
     // Loop over the 4 ports and link the controller structs to the appropriate
     // status and pad. Interestingly, although there are pointers to 3 controllers,
@@ -590,7 +590,7 @@ void init_controllers(void) {
     // cannot be used, despite being referenced in various code.
     for (cont = 0, port = 0; port < 4 && cont < 2; port++) {
         // Is controller plugged in?
-        if (gControllerBits & (1 << port)) {
+        if (WORLD(gControllerBits) & (1 << port)) {
             // The game allows you to have just 1 controller plugged
             // into any port in order to play the game. this was probably
             // so if any of the ports didn't work, you can have controllers
@@ -598,8 +598,8 @@ void init_controllers(void) {
 #if ENABLE_RUMBLE
             gControllers[cont].port = port;
 #endif
-            gControllers[cont].statusData = &gControllerStatuses[port];
-            gControllers[cont++].controllerData = &gControllerPads[port];
+            WORLD(gControllers)[cont].statusData = &WORLD(gControllerStatuses)[port];
+            WORLD(gControllers)[cont++].controllerData = &WORLD(gControllerPads)[port];
         }
     }
 }
@@ -616,21 +616,21 @@ void setup_game_memory(void) {
     // Setup general Segment 0
     set_segment_base_addr(0, (void *) 0x80000000);
     // Create Mesg Queues
-    osCreateMesgQueue(&gGfxVblankQueue, gGfxMesgBuf, ARRAY_COUNT(gGfxMesgBuf));
-    osCreateMesgQueue(&gGameVblankQueue, gGameMesgBuf, ARRAY_COUNT(gGameMesgBuf));
+    osCreateMesgQueue(&WORLD(gGfxVblankQueue), WORLD(gGfxMesgBuf), ARRAY_COUNT(WORLD(gGfxMesgBuf)));
+    osCreateMesgQueue(&WORLD(gGameVblankQueue), WORLD(gGameMesgBuf), ARRAY_COUNT(WORLD(gGameMesgBuf)));
     // Setup z buffer and framebuffer
-    gPhysicalZBuffer = VIRTUAL_TO_PHYSICAL(gZBuffer);
-    gPhysicalFramebuffers[0] = VIRTUAL_TO_PHYSICAL(gFramebuffer0);
-    gPhysicalFramebuffers[1] = VIRTUAL_TO_PHYSICAL(gFramebuffer1);
-    gPhysicalFramebuffers[2] = VIRTUAL_TO_PHYSICAL(gFramebuffer2);
+    WORLD(gPhysicalZBuffer) = VIRTUAL_TO_PHYSICAL(WORLD(gZBuffer));
+    WORLD(gPhysicalFramebuffers)[0] = VIRTUAL_TO_PHYSICAL(gFramebuffer0);
+    WORLD(gPhysicalFramebuffers)[1] = VIRTUAL_TO_PHYSICAL(gFramebuffer1);
+    WORLD(gPhysicalFramebuffers)[2] = VIRTUAL_TO_PHYSICAL(gFramebuffer2);
     // Setup Mario Animations
-    gMarioAnimsMemAlloc = main_pool_alloc(0x4000, MEMORY_POOL_LEFT);
-    set_segment_base_addr(17, (void *) gMarioAnimsMemAlloc);
-    setup_dma_table_list(&gMarioAnimsBuf, gMarioAnims, gMarioAnimsMemAlloc);
+    WORLD(gMarioAnimsMemAlloc) = main_pool_alloc(0x4000, MEMORY_POOL_LEFT);
+    set_segment_base_addr(17, (void *) WORLD(gMarioAnimsMemAlloc));
+    setup_dma_table_list(&WORLD(gMarioAnimsBuf), gMarioAnims, WORLD(gMarioAnimsMemAlloc));
     // Setup Demo Inputs List
-    gDemoInputsMemAlloc = main_pool_alloc(0x800, MEMORY_POOL_LEFT);
-    set_segment_base_addr(24, (void *) gDemoInputsMemAlloc);
-    setup_dma_table_list(&gDemoInputsBuf, gDemoInputs, gDemoInputsMemAlloc);
+    WORLD(gDemoInputsMemAlloc) = main_pool_alloc(0x800, MEMORY_POOL_LEFT);
+    set_segment_base_addr(24, (void *) WORLD(gDemoInputsMemAlloc));
+    setup_dma_table_list(&WORLD(gDemoInputsBuf), WORLD(gDemoInputs), WORLD(gDemoInputsMemAlloc));
     // Setup Level Script Entry
     load_segment(0x10, _entrySegmentRomStart, _entrySegmentRomEnd, MEMORY_POOL_LEFT);
     // Setup Segment 2 (Fonts, Text, etc)
@@ -660,7 +660,7 @@ void thread5_game_loop(UNUSED void *arg) {
 
     save_file_load_all();
 
-    set_vblank_handler(2, &gGameVblankHandler, &gGameVblankQueue, (OSMesg) 1);
+    set_vblank_handler(2, &WORLD(gGameVblankHandler), &WORLD(gGameVblankQueue), (OSMesg) 1);
 
     // Point address to the entry point into the level script data.
     addr = segmented_to_virtual(level_script_entry);
@@ -671,7 +671,7 @@ void thread5_game_loop(UNUSED void *arg) {
 
     while (TRUE) {
         // If the reset timer is active, run the process to reset the game.
-        if (gResetTimer != 0) {
+        if (WORLD(gResetTimer) != 0) {
             draw_reset_bars();
             continue;
         }
@@ -679,11 +679,11 @@ void thread5_game_loop(UNUSED void *arg) {
 
         // If any controllers are plugged in, start read the data for when
         // read_controller_inputs is called later.
-        if (gControllerBits) {
+        if (WORLD(gControllerBits)) {
 #if ENABLE_RUMBLE
             block_until_rumble_pak_free();
 #endif
-            osContStartReadData(&gSIEventMesgQueue);
+            osContStartReadData(&WORLD(gSIEventMesgQueue));
         }
 
         audio_game_loop_tick();
@@ -694,10 +694,10 @@ void thread5_game_loop(UNUSED void *arg) {
         display_and_vsync();
 
         // when debug info is enabled, print the "BUF %d" information.
-        if (gShowDebugText) {
+        if (WORLD(gShowDebugText)) {
             // subtract the end of the gfx pool with the display list to obtain the
             // amount of free space remaining.
-            print_text_fmt_int(180, 20, "BUF %d", gGfxPoolEnd - (u8 *) gDisplayListHead);
+            print_text_fmt_int(180, 20, "BUF %d", WORLD(gGfxPoolEnd) - (u8 *) WORLD(gDisplayListHead));
         }
     }
 }

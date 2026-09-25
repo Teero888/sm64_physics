@@ -29,7 +29,7 @@ static Movtex sl_movtex_ice_bully_water_data[] = {
 };
 
 // 0x0700FA70 - 0x0700FA88
-const struct MovtexQuadCollection sl_movtex_water[] = {
+struct MovtexQuadCollection sl_movtex_water[] = {
     {0, sl_movtex_snowman_water_data},
     {1, sl_movtex_ice_bully_water_data},
     {-1, NULL},

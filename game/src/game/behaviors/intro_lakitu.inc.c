@@ -14,11 +14,11 @@ void intro_lakitu_set_offset_from_camera(struct Object *obj, Vec3f offset) {
     Vec3s focusAngles;
     s16 offsetPitch, offsetYaw;
 
-    vec3f_add(offset, gCamera->pos);
-    vec3f_get_dist_and_angle(gCamera->pos, gCamera->focus,
+    vec3f_add(offset, WORLD(gCamera)->pos);
+    vec3f_get_dist_and_angle(WORLD(gCamera)->pos, WORLD(gCamera)->focus,
                              &dist, &focusAngles[0], &focusAngles[1]);
-    vec3f_get_dist_and_angle(gCamera->pos, offset, &dist, &offsetPitch, &offsetYaw);
-    vec3f_set_dist_and_angle(gCamera->pos, offset, dist,
+    vec3f_get_dist_and_angle(WORLD(gCamera)->pos, offset, &dist, &offsetPitch, &offsetYaw);
+    vec3f_set_dist_and_angle(WORLD(gCamera)->pos, offset, dist,
                              focusAngles[0] + offsetPitch, focusAngles[1] + offsetYaw);
     vec3f_to_object_pos(obj, offset);
 }
@@ -84,7 +84,7 @@ void bhv_intro_lakitu_loop(void) {
             o->oIntroLakituCloud =
                 spawn_object_relative_with_scale(CLOUD_BP_LAKITU_CLOUD, 0, 0, 0, 2.0f, o, MODEL_MIST, bhvCloud);
 
-            if (gCamera->cutscene == CUTSCENE_END_WAVING) {
+            if (WORLD(gCamera)->cutscene == CUTSCENE_END_WAVING) {
                 o->oAction = 100;
             } else {
                 o->oAction++;
@@ -94,18 +94,18 @@ void bhv_intro_lakitu_loop(void) {
         case 1:
             cur_obj_enable_rendering();
 
-            if ((gCutsceneTimer > 350) && (gCutsceneTimer < 458)) {
-                o->oPosX = gCamera->pos[0];
-                o->oPosY = gCamera->pos[1] + 500.0f;
-                o->oPosZ = gCamera->pos[2];
+            if ((WORLD(gCutsceneTimer) > 350) && (WORLD(gCutsceneTimer) < 458)) {
+                o->oPosX = WORLD(gCamera)->pos[0];
+                o->oPosY = WORLD(gCamera)->pos[1] + 500.0f;
+                o->oPosZ = WORLD(gCamera)->pos[2];
             }
 
-            if (gCutsceneTimer > 52) {
+            if (WORLD(gCutsceneTimer) > 52) {
                 cur_obj_play_sound_1(SOUND_AIR_LAKITU_FLY_HIGHPRIO);
             }
 
-            if (intro_lakitu_set_pos_and_focus(o, gIntroLakituStartToPipeOffsetFromCamera,
-                                               gIntroLakituStartToPipeFocus) == 1) {
+            if (intro_lakitu_set_pos_and_focus(o, WORLD(gIntroLakituStartToPipeOffsetFromCamera),
+                                               WORLD(gIntroLakituStartToPipeFocus)) == 1) {
                 o->oAction++;
             }
 
@@ -142,7 +142,7 @@ void bhv_intro_lakitu_loop(void) {
             break;
 
         case 2:
-            if (gCutsceneTimer > TIMER1) {
+            if (WORLD(gCutsceneTimer) > TIMER1) {
                 o->oAction++;
 
                 o->oIntroLakituUnk100 = 1400.0f;
@@ -197,7 +197,7 @@ void bhv_intro_lakitu_loop(void) {
             cur_obj_enable_rendering();
 
             vec3f_set(sp64, -100.0f, 100.0f, 300.0f);
-            offset_rotated(sp4C, gCamera->pos, sp64, sMarioCamState->faceAngle);
+            offset_rotated(sp4C, WORLD(gCamera)->pos, sp64, WORLD(sMarioCamState)->faceAngle);
             vec3f_to_object_pos(o, sp4C);
 
             o->oMoveAnglePitch = 0x1000;
@@ -216,7 +216,7 @@ void bhv_intro_lakitu_loop(void) {
                 o->oMoveAngleYaw += 0x78;
                 o->oMoveAnglePitch += 0x40;
                 o->oFaceAngleYaw = camera_approach_s16_symmetric(
-                                       o->oFaceAngleYaw, calculate_yaw(sp4C, gCamera->pos), 0x200);
+                                       o->oFaceAngleYaw, calculate_yaw(sp4C, WORLD(gCamera)->pos), 0x200);
             }
 
             if (o->oTimer > 105) {
@@ -234,7 +234,7 @@ void bhv_intro_lakitu_loop(void) {
 
             o->oForwardVel = approach_f32_asymptotic(o->oForwardVel, 60.0f, 0.05f);
             o->oFaceAngleYaw = camera_approach_s16_symmetric(
-                                   o->oFaceAngleYaw, calculate_yaw(sp4C, gCamera->pos), 0x200);
+                                   o->oFaceAngleYaw, calculate_yaw(sp4C, WORLD(gCamera)->pos), 0x200);
 
             if (o->oTimer < 62) {
                 o->oMoveAngleYaw = approach_s16_asymptotic(o->oMoveAngleYaw, 0x1800, 0x1E);

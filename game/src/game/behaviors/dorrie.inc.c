@@ -10,8 +10,8 @@ void dorrie_raise_head(void) {
     xzDisp = 440.0f * (coss(o->oDorrieNeckAngle) - coss(startAngle));
     yDisp = 440.0f * (sins(o->oDorrieNeckAngle) - sins(startAngle));
 
-    set_mario_pos(gMarioObject->oPosX + xzDisp * sins(o->oMoveAngleYaw), gMarioObject->oPosY - yDisp,
-                  gMarioObject->oPosZ + xzDisp * coss(o->oMoveAngleYaw));
+    set_mario_pos(WORLD(gMarioObject)->oPosX + xzDisp * sins(o->oMoveAngleYaw), WORLD(gMarioObject)->oPosY - yDisp,
+                  WORLD(gMarioObject)->oPosZ + xzDisp * coss(o->oMoveAngleYaw));
 }
 
 void dorrie_act_move(void) {
@@ -29,8 +29,8 @@ void dorrie_act_move(void) {
         o->oForwardVel = 0.0f;
         o->oDorrieYawVel = 0;
     } else {
-        if (gMarioObject->platform == o) {
-            targetYaw = gMarioObject->oFaceAngleYaw;
+        if (WORLD(gMarioObject)->platform == o) {
+            targetYaw = WORLD(gMarioObject)->oFaceAngleYaw;
             targetSpeed = 10;
         } else {
             s16 circularTurn = 0x4000 - atan2s(2000.0f, o->oDorrieDistToHome - 2000.0f);
@@ -64,7 +64,7 @@ void dorrie_act_lower_head(void) {
 #ifdef VERSION_JP
         if (o->oTimer > 150) {
             dorrie_begin_head_raise(FALSE);
-        } else if (gMarioObject->platform == o) {
+        } else if (WORLD(gMarioObject)->platform == o) {
             if (o->oDorrieForwardDistToMario > 830.0f
                 && set_mario_npc_dialog(MARIO_DIALOG_LOOK_UP) == MARIO_DIALOG_STATUS_START) {
                 dorrie_begin_head_raise(TRUE);
@@ -73,7 +73,7 @@ void dorrie_act_lower_head(void) {
             }
         }
 #else
-        if (gMarioObject->platform == o) {
+        if (WORLD(gMarioObject)->platform == o) {
             if (o->oDorrieOffsetY == -17.0f && o->oDorrieForwardDistToMario > 780.0f
                 && set_mario_npc_dialog(MARIO_DIALOG_LOOK_UP) == MARIO_DIALOG_STATUS_START) {
                 dorrie_begin_head_raise(TRUE);
@@ -132,7 +132,7 @@ void bhv_dorrie_update(void) {
 
         o->oDorrieGroundPounded = cur_obj_is_mario_ground_pounding_platform();
 
-        if (gMarioObject->platform == o) {
+        if (WORLD(gMarioObject)->platform == o) {
             maxOffsetY = -17.0f;
             if (o->oDorrieOffsetY >= 0.0f) {
                 if (o->oDorrieGroundPounded) {

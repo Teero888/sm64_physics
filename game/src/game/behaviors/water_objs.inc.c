@@ -20,7 +20,7 @@ void bhv_water_air_bubble_loop(void) {
     } else {
         cur_obj_become_tangible();
         cur_obj_forward_vel_approach_upward(2.0f, 10.0f);
-        o->oMoveAngleYaw = obj_angle_to_object(o, gMarioObject);
+        o->oMoveAngleYaw = obj_angle_to_object(o, WORLD(gMarioObject));
         cur_obj_move_using_fvel_and_gravity();
     }
 
@@ -74,7 +74,7 @@ void bhv_small_water_wave_loop(void) {
     if (o->oPosY > sp1C) {
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
         o->oPosY += 5.0f;
-        if (gFreeObjectList.next != NULL) {
+        if (WORLD(gFreeObjectList).next != NULL) {
             spawn_object(o, MODEL_SMALL_WATER_SPLASH, bhvObjectWaterSplash);
         }
     }
@@ -116,7 +116,7 @@ void bhv_small_bubbles_loop(void) {
 }
 
 void bhv_fish_group_loop(void) {
-    if ((gMarioCurrentRoom == 15 || gMarioCurrentRoom == 7) && (gGlobalTimer & 1)) {
+    if ((WORLD(gMarioCurrentRoom) == 15 || WORLD(gMarioCurrentRoom) == 7) && (WORLD(gGlobalTimer) & 1)) {
         spawn_object(o, MODEL_WHITE_PARTICLE_SMALL, bhvSmallParticleBubbles);
     }
 }

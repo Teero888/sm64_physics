@@ -13,7 +13,7 @@ static Movtex castle_courtyard_movtex_star_statue_water_data[] = {
     MOV_TEX_END(),
 };
 
-const struct MovtexQuadCollection castle_courtyard_movtex_star_statue_water[] = {
+struct MovtexQuadCollection castle_courtyard_movtex_star_statue_water[] = {
     {0, castle_courtyard_movtex_star_statue_water_data},
     {-1, NULL},
 };

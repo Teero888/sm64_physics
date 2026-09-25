@@ -26,7 +26,7 @@ void bhv_lll_rotating_hexagonal_ring_loop(void) {
 
     switch (o->oAction) {
         case 0:
-            if (gMarioObject->platform == o) {
+            if (WORLD(gMarioObject)->platform == o) {
                 o->oAction++;
             }
 
@@ -42,7 +42,7 @@ void bhv_lll_rotating_hexagonal_ring_loop(void) {
             break;
 
         case 2:
-            if (gMarioObject->platform != o) {
+            if (WORLD(gMarioObject)->platform != o) {
                 o->oAction++;
             }
 

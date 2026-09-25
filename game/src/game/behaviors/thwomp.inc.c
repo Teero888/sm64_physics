@@ -58,5 +58,5 @@ void (*sGrindelThwompActions[])(void) = {
 };
 
 void bhv_grindel_thwomp_loop(void) {
-    cur_obj_call_action_function(sGrindelThwompActions);
+    cur_obj_call_action_function(WORLD(sGrindelThwompActions));
 }

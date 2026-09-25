@@ -9,8 +9,8 @@ static u32 sPrevSfx;  // bitset of sound effects that were playing on the previo
  * Stops all sound effects
  */
 void gd_reset_sfx(void) {
-    sPrevSfx = GD_SFX_NONE;
-    sCurrSfx = GD_SFX_NONE;
+    WORLD(sPrevSfx) = GD_SFX_NONE;
+    WORLD(sCurrSfx) = GD_SFX_NONE;
 }
 
 /**
@@ -18,15 +18,15 @@ void gd_reset_sfx(void) {
  * This is used by geo_draw_mario_head_goddard to start new sounds.
  */
 u32 gd_new_sfx_to_play(void) {
-    return ~sPrevSfx & sCurrSfx;
+    return ~WORLD(sPrevSfx) & WORLD(sCurrSfx);
 }
 
 /**
  * Called at the start of a frame.
  */
 void gd_sfx_update(void) {
-    sPrevSfx = sCurrSfx;
-    sCurrSfx = GD_SFX_NONE;
+    WORLD(sPrevSfx) = WORLD(sCurrSfx);
+    WORLD(sCurrSfx) = GD_SFX_NONE;
 }
 
 /**
@@ -34,5 +34,5 @@ void gd_sfx_update(void) {
  * frame to keep the sound effect playing.
  */
 void gd_play_sfx(enum GdSfx sfx) {
-    sCurrSfx |= sfx;
+    WORLD(sCurrSfx) |= sfx;
 }

@@ -126,30 +126,30 @@ void add_to_dynobj_list(struct GdObj *, DynObjName);
  * Store the active dynamic `GdObj` into a one object stash.
  */
 void d_stash_dynobj(void) {
-    sStashedDynObjInfo = sDynListCurInfo;
-    sStashedDynObj = sDynListCurObj;
+    WORLD(sStashedDynObjInfo) = WORLD(sDynListCurInfo);
+    WORLD(sStashedDynObj) = WORLD(sDynListCurObj);
 }
 
 /**
  * Set the stashed `GdObj` as the active dynamic `GdObj`.
  */
 void d_unstash_dynobj(void) {
-    sDynListCurObj = sStashedDynObj;
-    sDynListCurInfo = sStashedDynObjInfo;
+    WORLD(sDynListCurObj) = WORLD(sStashedDynObj);
+    WORLD(sDynListCurInfo) = WORLD(sStashedDynObjInfo);
 }
 
 /**
  * Reset dynlist related variables to a starting state
  */
 void reset_dynlist(void) {
-    sUnnamedObjCount = 0;
-    sLoadedDynObjs = 0;
-    sDynNameSuffix[0] = '\0';
-    sGdDynObjList = NULL;
-    sDynListCurObj = NULL;
-    sDynNetCount = 0;
-    sUseIntegerNames = FALSE;
-    gd_strcpy(sNullDynObjInfo.name, "NullObj");
+    WORLD(sUnnamedObjCount) = 0;
+    WORLD(sLoadedDynObjs) = 0;
+    WORLD(sDynNameSuffix)[0] = '\0';
+    WORLD(sGdDynObjList) = NULL;
+    WORLD(sDynListCurObj) = NULL;
+    WORLD(sDynNetCount) = 0;
+    WORLD(sUseIntegerNames) = FALSE;
+    gd_strcpy(WORLD(sNullDynObjInfo).name, "NullObj");
 }
 
 /**
@@ -333,7 +333,7 @@ struct GdObj *proc_dynlist(struct DynList *dylist) {
         dylist++;
     }
 
-    return sDynListCurObj;
+    return WORLD(sDynListCurObj);
 }
 
 /**
@@ -345,12 +345,12 @@ struct GdObj *proc_dynlist(struct DynList *dylist) {
 void d_set_name_suffix(char *str) {
     if (str != NULL) {
         if (str[0] == '\0') {
-            sprintf(sDynNameSuffix, "__%d", ++sUnnamedObjCount);
+            sprintf(WORLD(sDynNameSuffix), "__%d", ++WORLD(sUnnamedObjCount));
         } else {
-            gd_strcpy(sDynNameSuffix, str);
+            gd_strcpy(WORLD(sDynNameSuffix), str);
         }
     } else {
-        sDynNameSuffix[0] = '\0';
+        WORLD(sDynNameSuffix)[0] = '\0';
     }
 }
 
@@ -367,7 +367,7 @@ void d_append_to_name_suffix(char *str) {
 
     if (str != NULL) {
         if (str[0] == '\0') {
-            sprintf(buf, "__%d", ++sUnnamedObjCount);
+            sprintf(buf, "__%d", ++WORLD(sUnnamedObjCount));
         } else {
             gd_strcpy(buf, str);
         }
@@ -375,21 +375,21 @@ void d_append_to_name_suffix(char *str) {
         buf[0] = '\0';
     }
 
-    gd_strcat(sDynNameSuffix, buf);
+    gd_strcat(WORLD(sDynNameSuffix), buf);
 }
 
 /**
  * Stash the current string that is appended to a created dynamic `GdObj` name.
  */
 static void stash_name_suffix(void) {
-    gd_strcpy(sStashedDynNameSuffix, sDynNameSuffix);
+    gd_strcpy(WORLD(sStashedDynNameSuffix), WORLD(sDynNameSuffix));
 }
 
 /**
  * Pop the stash for the string that is appended to a created dynamic `GdObj` name.
  */
 static void unstash_name_suffix(void) {
-    gd_strcpy(sDynNameSuffix, sStashedDynNameSuffix);
+    gd_strcpy(WORLD(sDynNameSuffix), WORLD(sStashedDynNameSuffix));
 }
 
 /**
@@ -403,21 +403,21 @@ static struct DynObjInfo *get_dynobj_info(DynObjName name) {
     char buf[0x100];
     s32 i;
 
-    if (sLoadedDynObjs == 0) {
+    if (WORLD(sLoadedDynObjs) == 0) {
         return NULL;
     }
 
-    if (sUseIntegerNames) {
+    if (WORLD(sUseIntegerNames)) {
         sprintf(buf, "N%d", DynNameAsInt(name));
     } else {
         gd_strcpy(buf, DynNameAsStr(name));
     }
 
-    gd_strcat(buf, sDynNameSuffix);
+    gd_strcat(buf, WORLD(sDynNameSuffix));
     foundDynobj = NULL;
-    for (i = 0; i < sLoadedDynObjs; i++) {
-        if (gd_str_not_equal(sGdDynObjList[i].name, buf) == 0) {
-            foundDynobj = &sGdDynObjList[i];
+    for (i = 0; i < WORLD(sLoadedDynObjs); i++) {
+        if (gd_str_not_equal(WORLD(sGdDynObjList)[i].name, buf) == 0) {
+            foundDynobj = &WORLD(sGdDynObjList)[i];
             break;
         }
     }
@@ -435,13 +435,13 @@ static struct DynObjInfo *get_dynobj_info(DynObjName name) {
 void reset_dynamic_objs(void) {
     UNUSED u8 filler[4];
 
-    if (sLoadedDynObjs == 0) {
+    if (WORLD(sLoadedDynObjs) == 0) {
         return;
     }
 
-    gd_free(sGdDynObjList);
-    sLoadedDynObjs = 0;
-    sGdDynObjList = NULL;
+    gd_free(WORLD(sGdDynObjList));
+    WORLD(sLoadedDynObjs) = 0;
+    WORLD(sGdDynObjList) = NULL;
 }
 
 /**
@@ -452,14 +452,14 @@ void d_add_net_with_subgroup(UNUSED s32 a0, DynObjName name) {
     d_makeobj(D_NET, name);
     d_set_obj_draw_flag(OBJ_INVISIBLE);
     // this creates a string to append to the names of the objs created after this
-    sprintf(sDynNetNameSuffix, "c%d", ++sDynNetCount);
+    sprintf(WORLD(sDynNetNameSuffix), "c%d", ++WORLD(sDynNetCount));
     d_set_type(4);
     stash_name_suffix();
-    d_set_name_suffix(sDynNetNameSuffix);
+    d_set_name_suffix(WORLD(sDynNetNameSuffix));
     d_start_group(name);
     unstash_name_suffix();
     d_use_obj(name);
-    sParentObjInfo = sDynListCurInfo;
+    WORLD(sParentObjInfo) = WORLD(sDynListCurInfo);
 }
 
 /**
@@ -468,11 +468,11 @@ void d_add_net_with_subgroup(UNUSED s32 a0, DynObjName name) {
 void d_end_net_with_subgroup(DynObjName name) {
     d_use_obj(name);
     stash_name_suffix();
-    d_set_name_suffix(sDynNetNameSuffix);
+    d_set_name_suffix(WORLD(sDynNetNameSuffix));
     d_end_group(name);
     d_set_nodegroup(name);
     unstash_name_suffix();
-    sParentObjInfo = NULL;
+    WORLD(sParentObjInfo) = NULL;
 }
 
 /**
@@ -484,14 +484,14 @@ void d_end_net_with_subgroup(DynObjName name) {
  * @param name   Name for created `ObjJoint`
  */
 void d_attach_joint_to_net(UNUSED s32 arg0, DynObjName name) {
-    UNUSED struct DynObjInfo *curInfo = sDynListCurInfo;
+    UNUSED struct DynObjInfo *curInfo = WORLD(sDynListCurInfo);
     UNUSED u8 filler[8];
 
     d_makeobj(D_JOINT, name);
     d_set_type(3);
     d_set_shapeptrptr(NULL);
-    d_attach_to(0xD, sParentObjInfo->obj);
-    sParentObjInfo = sDynListCurInfo;
+    d_attach_to(0xD, WORLD(sParentObjInfo)->obj);
+    WORLD(sParentObjInfo) = WORLD(sDynListCurInfo);
 }
 
 /**
@@ -535,48 +535,48 @@ void add_to_dynobj_list(struct GdObj *newobj, DynObjName name) {
 
     start_memtracker("dynlist");
 
-    if (sGdDynObjList == NULL) {
-        sGdDynObjList = gd_malloc_temp(DYNOBJ_LIST_SIZE * sizeof(struct DynObjInfo));
-        if (sGdDynObjList == NULL) {
+    if (WORLD(sGdDynObjList) == NULL) {
+        WORLD(sGdDynObjList) = gd_malloc_temp(DYNOBJ_LIST_SIZE * sizeof(struct DynObjInfo));
+        if (WORLD(sGdDynObjList) == NULL) {
             fatal_printf("dMakeObj(): Cant allocate dynlist memory");
         }
     }
 
     stop_memtracker("dynlist");
 
-    if (sUseIntegerNames) {
+    if (WORLD(sUseIntegerNames)) {
         sprintf(idbuf, "N%d", DynNameAsInt(name));
         name = NULL;
     } else {
-        sprintf(idbuf, "U%d", ((u32) sLoadedDynObjs) + 1);
+        sprintf(idbuf, "U%d", ((u32) WORLD(sLoadedDynObjs)) + 1);
     }
 
     if (DynNameAsStr(name) != NULL) {
         if (get_dynobj_info(name) != NULL) {
             fatal_printf("dMakeObj(\"%s\"): Object with same name already exists", DynNameAsStr(name));
         }
-        gd_strcpy(sGdDynObjList[sLoadedDynObjs].name, DynNameAsStr(name));
+        gd_strcpy(WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].name, DynNameAsStr(name));
     } else {
-        gd_strcpy(sGdDynObjList[sLoadedDynObjs].name, idbuf);
+        gd_strcpy(WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].name, idbuf);
     }
 
-    gd_strcat(sGdDynObjList[sLoadedDynObjs].name, sDynNameSuffix);
+    gd_strcat(WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].name, WORLD(sDynNameSuffix));
 
-    if (gd_strlen(sGdDynObjList[sLoadedDynObjs].name) > (DYNOBJ_NAME_SIZE - 1)) {
-        fatal_printf("dyn list obj name too long '%s'", sGdDynObjList[sLoadedDynObjs].name);
+    if (gd_strlen(WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].name) > (DYNOBJ_NAME_SIZE - 1)) {
+        fatal_printf("dyn list obj name too long '%s'", WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].name);
     }
 
-    sGdDynObjList[sLoadedDynObjs].num = sLoadedDynObjs;
-    sDynListCurInfo = &sGdDynObjList[sLoadedDynObjs];
-    sGdDynObjList[sLoadedDynObjs++].obj = newobj;
+    WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)].num = WORLD(sLoadedDynObjs);
+    WORLD(sDynListCurInfo) = &WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)];
+    WORLD(sGdDynObjList)[WORLD(sLoadedDynObjs)++].obj = newobj;
 
     // A good place to bounds-check your array is
     // after you finish writing a new member to it.
-    if (sLoadedDynObjs >= DYNOBJ_LIST_SIZE) {
+    if (WORLD(sLoadedDynObjs) >= DYNOBJ_LIST_SIZE) {
         fatal_printf("dMakeObj(): Too many dynlist objects");
     }
 
-    sDynListCurObj = newobj;
+    WORLD(sDynListCurObj) = newobj;
 }
 
 /**
@@ -587,9 +587,9 @@ void add_to_dynobj_list(struct GdObj *newobj, DynObjName name) {
  * @retval NULL if `name` is `NULL` or if `DynObjName`s are interpreted as strings
  */
 static char *integer_name_to_string(DynObjName name) {
-    if (DynNameAsInt(name) != 0 && sUseIntegerNames) {
-        sprintf(sIntToStringBuf, "N%d", DynNameAsInt(name));
-        return sIntToStringBuf;
+    if (DynNameAsInt(name) != 0 && WORLD(sUseIntegerNames)) {
+        sprintf(WORLD(sIntToStringBuf), "N%d", DynNameAsInt(name));
+        return WORLD(sIntToStringBuf);
     }
 
     return NULL;
@@ -625,7 +625,7 @@ struct GdObj *d_makeobj(enum DObjTypes type, DynObjName name) {
             break;
         case D_DATA_GRP:
             d_makeobj(D_GROUP, name);
-            ((struct ObjGroup *) sDynListCurObj)->linkType = 1;
+            ((struct ObjGroup *) WORLD(sDynListCurObj))->linkType = 1;
 //! @bug Returns garbage when making `D_DATA_GRP` object
 #ifdef AVOID_UB
             return NULL;
@@ -677,7 +677,7 @@ struct GdObj *d_makeobj(enum DObjTypes type, DynObjName name) {
             break;
         case D_LIGHT:
             dobj = &make_light(0, NULL, 0)->header;
-            addto_group(gGdLightGroup, dobj);
+            addto_group(WORLD(gGdLightGroup), dobj);
             break;
         default:
             fatal_printf("dMakeObj(): Unkown object type");
@@ -695,7 +695,7 @@ struct GdObj *d_makeobj(enum DObjTypes type, DynObjName name) {
 void d_attach(DynObjName name) {
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -704,12 +704,12 @@ void d_attach(DynObjName name) {
         fatal_printf("dAttach(\"%s\"): Undefined object", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAttach()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -721,13 +721,13 @@ void d_attach_to(s32 flag, struct GdObj *obj) {
     UNUSED u8 filler1[4];
     struct ObjGroup *attgrp;
     UNUSED u8 filler2[8];
-    UNUSED struct DynObjInfo *curInfo = sDynListCurInfo;
+    UNUSED struct DynObjInfo *curInfo = WORLD(sDynListCurInfo);
     struct GdVec3f currObjPos; // transformed into attach offset
     struct GdVec3f objPos;
 
     d_stash_dynobj();
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -755,14 +755,14 @@ void d_attach_to(s32 flag, struct GdObj *obj) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAttachTo()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 
-    if (group_contains_obj(attgrp, sDynListCurObj)) {
+    if (group_contains_obj(attgrp, WORLD(sDynListCurObj))) {
         return;
     }
 
-    addto_group(attgrp, sDynListCurObj);
+    addto_group(attgrp, WORLD(sDynListCurObj));
 
     if (flag & 9) {
         d_get_world_pos(&currObjPos);
@@ -775,26 +775,26 @@ void d_attach_to(s32 flag, struct GdObj *obj) {
     }
 
     d_unstash_dynobj();
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->attachFlags = flag;
-            ((struct ObjJoint *) sDynListCurObj)->attachedToObj = obj;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->attachFlags = flag;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->attachedToObj = obj;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->attachFlags = flag;
-            ((struct ObjNet *) sDynListCurObj)->attachedToObj = obj;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->attachFlags = flag;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->attachedToObj = obj;
             break;
         case OBJ_TYPE_PARTICLES:
-            ((struct ObjParticle *) sDynListCurObj)->attachFlags = flag;
-            ((struct ObjParticle *) sDynListCurObj)->attachedToObj = obj;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->attachFlags = flag;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->attachedToObj = obj;
             break;
         case OBJ_TYPE_ANIMATORS:
-            ((struct ObjAnimator *) sDynListCurObj)->attachFlags = flag;
-            ((struct ObjAnimator *) sDynListCurObj)->attachedToObj = obj;
+            ((struct ObjAnimator *) WORLD(sDynListCurObj))->attachFlags = flag;
+            ((struct ObjAnimator *) WORLD(sDynListCurObj))->attachedToObj = obj;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAttachTo()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 
     if (flag & 9) {
@@ -812,7 +812,7 @@ void d_attachto_dynid(s32 flag, DynObjName name) {
     if (name == NULL) {
         return;
     }
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1006,7 +1006,7 @@ void chk_shapegen(struct ObjShape *shape) {
             }
 
             vtxbuf = gd_malloc_temp(VTX_BUF_SIZE * sizeof(struct ObjVertex *));
-            oldObjHead = gGdObjectList;
+            oldObjHead = WORLD(gGdObjectList);
 
             for (i = 0; i < vtxdata->count; i++) {
                 vtx = gd_make_vertex(vtxdata->data[i][0], vtxdata->data[i][1], vtxdata->data[i][2]);
@@ -1016,7 +1016,7 @@ void chk_shapegen(struct ObjShape *shape) {
 
             madeVtx = make_group_of_type(OBJ_TYPE_VERTICES, oldObjHead, NULL);
 
-            oldObjHead = gGdObjectList;
+            oldObjHead = WORLD(gGdObjectList);
             for (i = 0; i < facedata->count; i++) {
                 //! @bug Call to `make_face_with_colour()` compiles incorrectly
                 //!      due to Goddard only declaring the functions,
@@ -1082,7 +1082,7 @@ void d_set_nodegroup(DynObjName name) {
     struct DynObjInfo *info; // sp2C
     UNUSED u8 filler[8];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1091,25 +1091,25 @@ void d_set_nodegroup(DynObjName name) {
         fatal_printf("dSetNodeGroup(\"%s\"): Undefined group", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->unk1C8 = (struct ObjGroup *) info->obj;
-            ((struct ObjNet *) sDynListCurObj)->unk1D0 = (struct ObjGroup *) info->obj;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->unk1C8 = (struct ObjGroup *) info->obj;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->unk1D0 = (struct ObjGroup *) info->obj;
             break;
         case OBJ_TYPE_SHAPES:
-            ((struct ObjShape *) sDynListCurObj)->vtxGroup = (struct ObjGroup *) info->obj;
-            chk_shapegen((struct ObjShape *) sDynListCurObj);
+            ((struct ObjShape *) WORLD(sDynListCurObj))->vtxGroup = (struct ObjGroup *) info->obj;
+            chk_shapegen((struct ObjShape *) WORLD(sDynListCurObj));
             break;
         case OBJ_TYPE_GADGETS:
-            ((struct ObjGadget *) sDynListCurObj)->unk54 = (struct ObjGroup *) info->obj;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->unk54 = (struct ObjGroup *) info->obj;
             break;
         case OBJ_TYPE_ANIMATORS:
-            ((struct ObjAnimator *) sDynListCurObj)->animdataGrp = (struct ObjGroup *) info->obj;
-            alloc_animdata((struct ObjAnimator *) sDynListCurObj);
+            ((struct ObjAnimator *) WORLD(sDynListCurObj))->animdataGrp = (struct ObjGroup *) info->obj;
+            alloc_animdata((struct ObjAnimator *) WORLD(sDynListCurObj));
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetNodeGroup()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1119,7 +1119,7 @@ void d_set_nodegroup(DynObjName name) {
 void d_set_matgroup(DynObjName name) {
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1128,14 +1128,14 @@ void d_set_matgroup(DynObjName name) {
         fatal_printf("dSetMatGroup(\"%s\"): Undefined group", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_SHAPES:
-            ((struct ObjShape *) sDynListCurObj)->mtlGroup = (struct ObjGroup *) info->obj;
-            chk_shapegen((struct ObjShape *) sDynListCurObj);
+            ((struct ObjShape *) WORLD(sDynListCurObj))->mtlGroup = (struct ObjGroup *) info->obj;
+            chk_shapegen((struct ObjShape *) WORLD(sDynListCurObj));
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetMatGroup()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1148,16 +1148,16 @@ void d_set_matgroup(DynObjName name) {
 void d_set_texture_st(UNUSED f32 s, UNUSED f32 t) {
     UNUSED u8 filler[8];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
             break; // ifdef-ed out?
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetTextureST()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1165,17 +1165,17 @@ void d_set_texture_st(UNUSED f32 s, UNUSED f32 t) {
  * Set the texture pointer of the current dynamic `ObjMaterial`.
  */
 void d_use_texture(void *texture) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_MATERIALS:
-            ((struct ObjMaterial *) sDynListCurObj)->texture = texture;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->texture = texture;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dUseTexture()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1186,7 +1186,7 @@ void d_use_texture(void *texture) {
 void d_set_skinshape(DynObjName name) {
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1195,13 +1195,13 @@ void d_set_skinshape(DynObjName name) {
         fatal_printf("dSetSkinShape(\"%s\"): Undefined object", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->skinGrp = ((struct ObjShape *) info->obj)->vtxGroup;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->skinGrp = ((struct ObjShape *) info->obj)->vtxGroup;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetSkinShape()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1214,7 +1214,7 @@ void d_set_skinshape(DynObjName name) {
 void d_map_materials(DynObjName name) {
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1223,7 +1223,7 @@ void d_map_materials(DynObjName name) {
         fatal_printf("dMapMaterials(\"%s\"): Undefined group", DynNameAsStr(name));
     }
 
-    map_face_materials((struct ObjGroup *) sDynListCurObj, (struct ObjGroup *) info->obj);
+    map_face_materials((struct ObjGroup *) WORLD(sDynListCurObj), (struct ObjGroup *) info->obj);
 }
 
 /**
@@ -1237,7 +1237,7 @@ void d_map_materials(DynObjName name) {
 void d_map_vertices(DynObjName name) {
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1246,7 +1246,7 @@ void d_map_vertices(DynObjName name) {
         fatal_printf("dMapVertices(\"%s\"): Undefined group", DynNameAsStr(name));
     }
 
-    map_vertices((struct ObjGroup *) sDynListCurObj, (struct ObjGroup *) info->obj);
+    map_vertices((struct ObjGroup *) WORLD(sDynListCurObj), (struct ObjGroup *) info->obj);
 }
 
 /**
@@ -1259,7 +1259,7 @@ void d_set_planegroup(DynObjName name) {
     struct DynObjInfo *info;
     UNUSED u8 filler[8];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1268,17 +1268,17 @@ void d_set_planegroup(DynObjName name) {
         fatal_printf("dSetPlaneGroup(\"%s\"): Undefined group", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->unk1CC = (struct ObjGroup *) info->obj;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->unk1CC = (struct ObjGroup *) info->obj;
             break;
         case OBJ_TYPE_SHAPES:
-            ((struct ObjShape *) sDynListCurObj)->faceGroup = (struct ObjGroup *) info->obj;
-            chk_shapegen((struct ObjShape *) sDynListCurObj);
+            ((struct ObjShape *) WORLD(sDynListCurObj))->faceGroup = (struct ObjGroup *) info->obj;
+            chk_shapegen((struct ObjShape *) WORLD(sDynListCurObj));
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetPlaneGroup()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1289,7 +1289,7 @@ void d_set_planegroup(DynObjName name) {
 void d_set_shapeptrptr(struct ObjShape **shpPtrptr) {
     struct ObjShape *defaultptr = NULL;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -1297,29 +1297,29 @@ void d_set_shapeptrptr(struct ObjShape **shpPtrptr) {
         shpPtrptr = &defaultptr;
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->shapePtr = *shpPtrptr;
-            ((struct ObjJoint *) sDynListCurObj)->colourNum = 0;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->shapePtr = *shpPtrptr;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->colourNum = 0;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->shapePtr = *shpPtrptr;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->shapePtr = *shpPtrptr;
             break;
         case OBJ_TYPE_BONES:
-            ((struct ObjBone *) sDynListCurObj)->shapePtr = *shpPtrptr;
+            ((struct ObjBone *) WORLD(sDynListCurObj))->shapePtr = *shpPtrptr;
             break;
         case OBJ_TYPE_GADGETS:
-            ((struct ObjGadget *) sDynListCurObj)->shapePtr = *shpPtrptr;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->shapePtr = *shpPtrptr;
             break;
         case OBJ_TYPE_PARTICLES:
-            ((struct ObjParticle *) sDynListCurObj)->shapePtr = *shpPtrptr;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->shapePtr = *shpPtrptr;
             break;
         case OBJ_TYPE_LIGHTS:
-            ((struct ObjLight *) sDynListCurObj)->unk9C = *shpPtrptr;
+            ((struct ObjLight *) WORLD(sDynListCurObj))->unk9C = *shpPtrptr;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetShapePtrPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1338,26 +1338,26 @@ void d_set_shapeptr(DynObjName name) {
         fatal_printf("dSetShapePtr(\"%s\"): Undefined object", DynNameAsStr(name));
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->shapePtr = (struct ObjShape *) info->obj;
-            ((struct ObjJoint *) sDynListCurObj)->colourNum = 0;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->shapePtr = (struct ObjShape *) info->obj;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->colourNum = 0;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->shapePtr = (struct ObjShape *) info->obj;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->shapePtr = (struct ObjShape *) info->obj;
             break;
         case OBJ_TYPE_BONES:
-            ((struct ObjBone *) sDynListCurObj)->shapePtr = (struct ObjShape *) info->obj;
+            ((struct ObjBone *) WORLD(sDynListCurObj))->shapePtr = (struct ObjShape *) info->obj;
             break;
         case OBJ_TYPE_GADGETS:
-            ((struct ObjGadget *) sDynListCurObj)->shapePtr = (struct ObjShape *) info->obj;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->shapePtr = (struct ObjShape *) info->obj;
             break;
         case OBJ_TYPE_PARTICLES:
-            ((struct ObjParticle *) sDynListCurObj)->shapePtr = (struct ObjShape *) info->obj;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->shapePtr = (struct ObjShape *) info->obj;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetShapePtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1370,8 +1370,8 @@ struct GdObj *d_use_obj(DynObjName name) {
         fatal_printf("dUseObj(\"%s\"): Undefined object", DynNameAsStr(name));
     }
 
-    sDynListCurObj = info->obj;
-    sDynListCurInfo = info;
+    WORLD(sDynListCurObj) = info->obj;
+    WORLD(sDynListCurInfo) = info;
 
     return info->obj;
 }
@@ -1382,8 +1382,8 @@ struct GdObj *d_use_obj(DynObjName name) {
  * dynmaic object system.
  */
 void set_cur_dynobj(struct GdObj *obj) {
-    sDynListCurObj = obj;
-    sDynListCurInfo = &sNullDynObjInfo;
+    WORLD(sDynListCurObj) = obj;
+    WORLD(sDynListCurInfo) = &WORLD(sNullDynObjInfo);
 }
 
 /**
@@ -1408,9 +1408,9 @@ void d_end_group(DynObjName name) {
     }
 
     dynGrp = (struct ObjGroup *) info->obj;
-    for (i = info->num + 1; i < sLoadedDynObjs; i++) {
-        if (sGdDynObjList[i].obj->type != OBJ_TYPE_GROUPS) {
-            addto_group(dynGrp, sGdDynObjList[i].obj);
+    for (i = info->num + 1; i < WORLD(sLoadedDynObjs); i++) {
+        if (WORLD(sGdDynObjList)[i].obj->type != OBJ_TYPE_GROUPS) {
+            addto_group(dynGrp, WORLD(sGdDynObjList)[i].obj);
         }
     }
 }
@@ -1428,7 +1428,7 @@ void d_addto_group(DynObjName name) {
     }
 
     targetGrp = (struct ObjGroup *) info->obj;
-    addto_group(targetGrp, sDynListCurObj);
+    addto_group(targetGrp, WORLD(sDynListCurObj));
 }
 
 /**
@@ -1438,7 +1438,7 @@ void d_addto_group(DynObjName name) {
  * @param isIntBool `TRUE` to interpret ids as integers
  */
 void d_use_integer_names(s32 isIntBool) {
-    sUseIntegerNames = isIntBool;
+    WORLD(sUseIntegerNames) = isIntBool;
 }
 
 /**
@@ -1447,14 +1447,14 @@ void d_use_integer_names(s32 isIntBool) {
  */
 void d_set_init_pos(f32 x, f32 y, f32 z) {
     UNUSED u8 filler1[12];
-    struct GdObj *dynobj = sDynListCurObj; // sp28
+    struct GdObj *dynobj = WORLD(sDynListCurObj); // sp28
     UNUSED u8 filler2[4];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->worldPos.x = x;
             ((struct ObjJoint *) dynobj)->worldPos.y = y;
@@ -1496,7 +1496,7 @@ void d_set_init_pos(f32 x, f32 y, f32 z) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetInitPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1505,13 +1505,13 @@ void d_set_init_pos(f32 x, f32 y, f32 z) {
  * values of the input `GdVec3f` are copied into the object.
  */
 void d_set_velocity(const struct GdVec3f *vel) {
-    struct GdObj *dynobj = sDynListCurObj;
+    struct GdObj *dynobj = WORLD(sDynListCurObj);
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->velocity.x = vel->x;
             ((struct ObjJoint *) dynobj)->velocity.y = vel->y;
@@ -1524,7 +1524,7 @@ void d_set_velocity(const struct GdVec3f *vel) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetVelocity()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1534,13 +1534,13 @@ void d_set_velocity(const struct GdVec3f *vel) {
  * @param[out] dst values are copied to this `GdVec3f`
  */
 void d_get_velocity(struct GdVec3f *dst) {
-    struct GdObj *dynobj = sDynListCurObj;
+    struct GdObj *dynobj = WORLD(sDynListCurObj);
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             dst->x = ((struct ObjJoint *) dynobj)->velocity.x;
             dst->y = ((struct ObjJoint *) dynobj)->velocity.y;
@@ -1564,13 +1564,13 @@ void d_get_velocity(struct GdVec3f *dst) {
  * @note Not called
  */
 void d_set_torque(const struct GdVec3f *src) {
-    struct GdObj *dynobj = sDynListCurObj;
+    struct GdObj *dynobj = WORLD(sDynListCurObj);
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
             ((struct ObjNet *) dynobj)->torque.x = src->x;
             ((struct ObjNet *) dynobj)->torque.y = src->y;
@@ -1578,7 +1578,7 @@ void d_set_torque(const struct GdVec3f *src) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetTorque()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1587,13 +1587,13 @@ void d_set_torque(const struct GdVec3f *src) {
  * store in `dst`.
  */
 void d_get_init_pos(struct GdVec3f *dst) {
-    struct GdObj *dynobj = sDynListCurObj;
+    struct GdObj *dynobj = WORLD(sDynListCurObj);
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             dst->x = ((struct ObjJoint *) dynobj)->initPos.x;
             dst->y = ((struct ObjJoint *) dynobj)->initPos.y;
@@ -1611,7 +1611,7 @@ void d_get_init_pos(struct GdVec3f *dst) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetInitPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1620,13 +1620,13 @@ void d_get_init_pos(struct GdVec3f *dst) {
  * store in `dst`.
  */
 void d_get_init_rot(struct GdVec3f *dst) {
-    struct GdObj *dynobj = sDynListCurObj;
+    struct GdObj *dynobj = WORLD(sDynListCurObj);
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             dst->x = ((struct ObjJoint *) dynobj)->unk6C.x;
             dst->y = ((struct ObjJoint *) dynobj)->unk6C.y;
@@ -1642,7 +1642,7 @@ void d_get_init_rot(struct GdVec3f *dst) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetInitRot()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1653,14 +1653,14 @@ void d_get_init_rot(struct GdVec3f *dst) {
  *       for an `ObjCamera`.
  */
 void d_set_rel_pos(f32 x, f32 y, f32 z) {
-    struct GdObj *dynobj = sDynListCurObj; // sp34
+    struct GdObj *dynobj = WORLD(sDynListCurObj); // sp34
     UNUSED struct GdVec3f unusedVec;       // sp28
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->unk3C.x = x;
             ((struct ObjJoint *) dynobj)->unk3C.y = y;
@@ -1708,7 +1708,7 @@ void d_set_rel_pos(f32 x, f32 y, f32 z) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetRelPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1716,13 +1716,13 @@ void d_set_rel_pos(f32 x, f32 y, f32 z) {
  * Offset the current position of the current dynamic object.
  */
 void d_addto_rel_pos(struct GdVec3f *src) {
-    struct GdObj *dynobj = sDynListCurObj; // sp24
+    struct GdObj *dynobj = WORLD(sDynListCurObj); // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
             ((struct ObjVertex *) dynobj)->pos.x += src->x;
             ((struct ObjVertex *) dynobj)->pos.y += src->y;
@@ -1740,7 +1740,7 @@ void d_addto_rel_pos(struct GdVec3f *src) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAddToRelPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1748,34 +1748,34 @@ void d_addto_rel_pos(struct GdVec3f *src) {
  * Store the current dynamic object's position into `dst`.
  */
 void d_get_rel_pos(struct GdVec3f *dst) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
-            dst->x = ((struct ObjVertex *) sDynListCurObj)->pos.x;
-            dst->y = ((struct ObjVertex *) sDynListCurObj)->pos.y;
-            dst->z = ((struct ObjVertex *) sDynListCurObj)->pos.z;
+            dst->x = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.x;
+            dst->y = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.y;
+            dst->z = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.z;
             break;
         case OBJ_TYPE_JOINTS:
-            dst->x = ((struct ObjJoint *) sDynListCurObj)->unk3C.x;
-            dst->y = ((struct ObjJoint *) sDynListCurObj)->unk3C.y;
-            dst->z = ((struct ObjJoint *) sDynListCurObj)->unk3C.z;
+            dst->x = ((struct ObjJoint *) WORLD(sDynListCurObj))->unk3C.x;
+            dst->y = ((struct ObjJoint *) WORLD(sDynListCurObj))->unk3C.y;
+            dst->z = ((struct ObjJoint *) WORLD(sDynListCurObj))->unk3C.z;
             break;
         case OBJ_TYPE_CAMERAS:
-            dst->x = ((struct ObjCamera *) sDynListCurObj)->unk40.x;
-            dst->y = ((struct ObjCamera *) sDynListCurObj)->unk40.y;
-            dst->z = ((struct ObjCamera *) sDynListCurObj)->unk40.z;
+            dst->x = ((struct ObjCamera *) WORLD(sDynListCurObj))->unk40.x;
+            dst->y = ((struct ObjCamera *) WORLD(sDynListCurObj))->unk40.y;
+            dst->z = ((struct ObjCamera *) WORLD(sDynListCurObj))->unk40.z;
             break;
         case OBJ_TYPE_PARTICLES:
-            dst->x = ((struct ObjParticle *) sDynListCurObj)->pos.x;
-            dst->y = ((struct ObjParticle *) sDynListCurObj)->pos.y;
-            dst->z = ((struct ObjParticle *) sDynListCurObj)->pos.z;
+            dst->x = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.x;
+            dst->y = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.y;
+            dst->z = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetRelPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1784,20 +1784,20 @@ void d_get_rel_pos(struct GdVec3f *dst) {
  * dynamic object.
  */
 struct ObjGroup *d_get_att_objgroup(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            return ((struct ObjJoint *) sDynListCurObj)->attachedObjsGrp;
+            return ((struct ObjJoint *) WORLD(sDynListCurObj))->attachedObjsGrp;
             break; // lol
         case OBJ_TYPE_NETS:
-            return ((struct ObjNet *) sDynListCurObj)->attachedObjsGrp;
+            return ((struct ObjNet *) WORLD(sDynListCurObj))->attachedObjsGrp;
             break; // lol
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetAttObjGroup()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -1806,20 +1806,20 @@ struct ObjGroup *d_get_att_objgroup(void) {
  * Return a pointer to the object that the current dynamic object is attached to.
  */
 struct GdObj *d_get_att_to_obj(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            return ((struct ObjJoint *) sDynListCurObj)->attachedToObj;
+            return ((struct ObjJoint *) WORLD(sDynListCurObj))->attachedToObj;
             break; // lol
         case OBJ_TYPE_NETS:
-            return ((struct ObjNet *) sDynListCurObj)->attachedToObj;
+            return ((struct ObjNet *) WORLD(sDynListCurObj))->attachedToObj;
             break; // lol
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetAttToObj()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -1830,12 +1830,12 @@ struct GdObj *d_get_att_to_obj(void) {
 void d_get_scale(struct GdVec3f *dst) {
     struct GdObj *dynobj; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             dst->x = ((struct ObjJoint *) dynobj)->scale.x;
             dst->y = ((struct ObjJoint *) dynobj)->scale.y;
@@ -1853,7 +1853,7 @@ void d_get_scale(struct GdVec3f *dst) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetScale()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1863,12 +1863,12 @@ void d_get_scale(struct GdVec3f *dst) {
 void d_set_att_offset(const struct GdVec3f *off) {
     struct GdObj *dynobj; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->attachOffset.x = off->x;
             ((struct ObjJoint *) dynobj)->attachOffset.y = off->y;
@@ -1891,7 +1891,7 @@ void d_set_att_offset(const struct GdVec3f *off) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetAttOffset()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1907,13 +1907,13 @@ void d_set_att_to_offset(UNUSED u32 a) {
     struct GdObj *dynobj; // sp3c
     UNUSED u8 filler[24];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
+    dynobj = WORLD(sDynListCurObj);
     d_stash_dynobj();
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             set_cur_dynobj(((struct ObjJoint *) dynobj)->attachedToObj);
             break;
@@ -1925,12 +1925,12 @@ void d_set_att_to_offset(UNUSED u32 a) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetAttToOffset()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("dSetAttOffset(): Object '%s' isnt attached to anything",
-                     sStashedDynObjInfo->name);
+                     WORLD(sStashedDynObjInfo)->name);
     }
     d_set_att_to_offset(a);
     d_unstash_dynobj();
@@ -1942,26 +1942,26 @@ void d_set_att_to_offset(UNUSED u32 a) {
  * @note Not called
  */
 void d_get_att_offset(struct GdVec3f *dst) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            dst->x = ((struct ObjJoint *) sDynListCurObj)->attachOffset.x;
-            dst->y = ((struct ObjJoint *) sDynListCurObj)->attachOffset.y;
-            dst->z = ((struct ObjJoint *) sDynListCurObj)->attachOffset.z;
+            dst->x = ((struct ObjJoint *) WORLD(sDynListCurObj))->attachOffset.x;
+            dst->y = ((struct ObjJoint *) WORLD(sDynListCurObj))->attachOffset.y;
+            dst->z = ((struct ObjJoint *) WORLD(sDynListCurObj))->attachOffset.z;
             break;
         case OBJ_TYPE_NETS:
-            dst->x = ((struct ObjNet *) sDynListCurObj)->attachOffset.x;
-            dst->y = ((struct ObjNet *) sDynListCurObj)->attachOffset.y;
-            dst->z = ((struct ObjNet *) sDynListCurObj)->attachOffset.z;
+            dst->x = ((struct ObjNet *) WORLD(sDynListCurObj))->attachOffset.x;
+            dst->y = ((struct ObjNet *) WORLD(sDynListCurObj))->attachOffset.y;
+            dst->z = ((struct ObjNet *) WORLD(sDynListCurObj))->attachOffset.z;
             break;
         case OBJ_TYPE_PARTICLES:
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetAttOffset()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -1971,23 +1971,23 @@ void d_get_att_offset(struct GdVec3f *dst) {
 s32 d_get_att_flags(void) {
     s32 attflag; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            attflag = ((struct ObjJoint *) sDynListCurObj)->attachFlags;
+            attflag = ((struct ObjJoint *) WORLD(sDynListCurObj))->attachFlags;
             break;
         case OBJ_TYPE_NETS:
-            attflag = ((struct ObjNet *) sDynListCurObj)->attachFlags;
+            attflag = ((struct ObjNet *) WORLD(sDynListCurObj))->attachFlags;
             break;
         case OBJ_TYPE_PARTICLES:
-            attflag = ((struct ObjParticle *) sDynListCurObj)->attachFlags;
+            attflag = ((struct ObjParticle *) WORLD(sDynListCurObj))->attachFlags;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetAttFlags()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 
     return attflag;
@@ -1999,44 +1999,44 @@ s32 d_get_att_flags(void) {
  * @note Sets the upper left coordinates of an `ObjView`
  */
 void d_set_world_pos(f32 x, f32 y, f32 z) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_CAMERAS:
-            ((struct ObjCamera *) sDynListCurObj)->worldPos.x = x;
-            ((struct ObjCamera *) sDynListCurObj)->worldPos.y = y;
-            ((struct ObjCamera *) sDynListCurObj)->worldPos.z = z;
+            ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.x = x;
+            ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.y = y;
+            ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.z = z;
             break;
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->worldPos.x = x;
-            ((struct ObjJoint *) sDynListCurObj)->worldPos.y = y;
-            ((struct ObjJoint *) sDynListCurObj)->worldPos.z = z;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.x = x;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.y = y;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.z = z;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->worldPos.x = x;
-            ((struct ObjNet *) sDynListCurObj)->worldPos.y = y;
-            ((struct ObjNet *) sDynListCurObj)->worldPos.z = z;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.x = x;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.y = y;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.z = z;
             break;
         case OBJ_TYPE_GADGETS:
-            ((struct ObjGadget *) sDynListCurObj)->worldPos.x = x;
-            ((struct ObjGadget *) sDynListCurObj)->worldPos.y = y;
-            ((struct ObjGadget *) sDynListCurObj)->worldPos.z = z;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.x = x;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.y = y;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.z = z;
             break;
         case OBJ_TYPE_VIEWS:
-            ((struct ObjView *) sDynListCurObj)->upperLeft.x = x;
-            ((struct ObjView *) sDynListCurObj)->upperLeft.y = y;
-            ((struct ObjView *) sDynListCurObj)->upperLeft.z = z;
+            ((struct ObjView *) WORLD(sDynListCurObj))->upperLeft.x = x;
+            ((struct ObjView *) WORLD(sDynListCurObj))->upperLeft.y = y;
+            ((struct ObjView *) WORLD(sDynListCurObj))->upperLeft.z = z;
             break;
         case OBJ_TYPE_VERTICES:
-            ((struct ObjVertex *) sDynListCurObj)->pos.x = x;
-            ((struct ObjVertex *) sDynListCurObj)->pos.y = y;
-            ((struct ObjVertex *) sDynListCurObj)->pos.z = z;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.x = x;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.y = y;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.z = z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetWorldPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2047,7 +2047,7 @@ void d_set_world_pos(f32 x, f32 y, f32 z) {
 void d_set_normal(f32 x, f32 y, f32 z) {
     struct GdVec3f normal; // sp1C
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -2056,15 +2056,15 @@ void d_set_normal(f32 x, f32 y, f32 z) {
     normal.z = z;
     gd_normalize_vec3f(&normal);
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
-            ((struct ObjVertex *) sDynListCurObj)->normal.x = normal.x;
-            ((struct ObjVertex *) sDynListCurObj)->normal.y = normal.y;
-            ((struct ObjVertex *) sDynListCurObj)->normal.z = normal.z;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->normal.x = normal.x;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->normal.y = normal.y;
+            ((struct ObjVertex *) WORLD(sDynListCurObj))->normal.z = normal.z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetNormal()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2075,20 +2075,20 @@ void d_set_normal(f32 x, f32 y, f32 z) {
  * @note Not called.
  */
 struct GdVec3f *d_get_world_pos_ptr(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
-            return &((struct ObjVertex *) sDynListCurObj)->pos;
+            return &((struct ObjVertex *) WORLD(sDynListCurObj))->pos;
             break;
         case OBJ_TYPE_PARTICLES:
-            return &((struct ObjParticle *) sDynListCurObj)->pos;
+            return &((struct ObjParticle *) WORLD(sDynListCurObj))->pos;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetWorldPosPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -2097,40 +2097,40 @@ struct GdVec3f *d_get_world_pos_ptr(void) {
  * Copy the world position of the current dynamic object into `dst`.
  */
 void d_get_world_pos(struct GdVec3f *dst) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_VERTICES:
-            dst->x = ((struct ObjVertex *) sDynListCurObj)->pos.x;
-            dst->y = ((struct ObjVertex *) sDynListCurObj)->pos.y;
-            dst->z = ((struct ObjVertex *) sDynListCurObj)->pos.z;
+            dst->x = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.x;
+            dst->y = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.y;
+            dst->z = ((struct ObjVertex *) WORLD(sDynListCurObj))->pos.z;
             break;
         case OBJ_TYPE_JOINTS:
-            dst->x = ((struct ObjJoint *) sDynListCurObj)->worldPos.x;
-            dst->y = ((struct ObjJoint *) sDynListCurObj)->worldPos.y;
-            dst->z = ((struct ObjJoint *) sDynListCurObj)->worldPos.z;
+            dst->x = ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.x;
+            dst->y = ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.y;
+            dst->z = ((struct ObjJoint *) WORLD(sDynListCurObj))->worldPos.z;
             break;
         case OBJ_TYPE_NETS:
-            dst->x = ((struct ObjNet *) sDynListCurObj)->worldPos.x;
-            dst->y = ((struct ObjNet *) sDynListCurObj)->worldPos.y;
-            dst->z = ((struct ObjNet *) sDynListCurObj)->worldPos.z;
+            dst->x = ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.x;
+            dst->y = ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.y;
+            dst->z = ((struct ObjNet *) WORLD(sDynListCurObj))->worldPos.z;
             break;
         case OBJ_TYPE_PARTICLES:
-            dst->x = ((struct ObjParticle *) sDynListCurObj)->pos.x;
-            dst->y = ((struct ObjParticle *) sDynListCurObj)->pos.y;
-            dst->z = ((struct ObjParticle *) sDynListCurObj)->pos.z;
+            dst->x = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.x;
+            dst->y = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.y;
+            dst->z = ((struct ObjParticle *) WORLD(sDynListCurObj))->pos.z;
             break;
         case OBJ_TYPE_CAMERAS:
-            dst->x = ((struct ObjCamera *) sDynListCurObj)->worldPos.x;
-            dst->y = ((struct ObjCamera *) sDynListCurObj)->worldPos.y;
-            dst->z = ((struct ObjCamera *) sDynListCurObj)->worldPos.z;
+            dst->x = ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.x;
+            dst->y = ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.y;
+            dst->z = ((struct ObjCamera *) WORLD(sDynListCurObj))->worldPos.z;
             break;
         case OBJ_TYPE_BONES:
-            dst->x = ((struct ObjBone *) sDynListCurObj)->worldPos.x;
-            dst->y = ((struct ObjBone *) sDynListCurObj)->worldPos.y;
-            dst->z = ((struct ObjBone *) sDynListCurObj)->worldPos.z;
+            dst->x = ((struct ObjBone *) WORLD(sDynListCurObj))->worldPos.x;
+            dst->y = ((struct ObjBone *) WORLD(sDynListCurObj))->worldPos.y;
+            dst->z = ((struct ObjBone *) WORLD(sDynListCurObj))->worldPos.z;
             break;
         case OBJ_TYPE_SHAPES:
             dst->x = dst->y = dst->z = 0.0f;
@@ -2139,44 +2139,44 @@ void d_get_world_pos(struct GdVec3f *dst) {
             dst->x = dst->y = dst->z = 0.0f;
             break;
         case OBJ_TYPE_GADGETS:
-            dst->x = ((struct ObjGadget *) sDynListCurObj)->worldPos.x;
-            dst->y = ((struct ObjGadget *) sDynListCurObj)->worldPos.y;
-            dst->z = ((struct ObjGadget *) sDynListCurObj)->worldPos.z;
+            dst->x = ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.x;
+            dst->y = ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.y;
+            dst->z = ((struct ObjGadget *) WORLD(sDynListCurObj))->worldPos.z;
             break;
         case OBJ_TYPE_PLANES:
-            dst->x = ((struct ObjPlane *) sDynListCurObj)->boundingBox.minX;
-            dst->y = ((struct ObjPlane *) sDynListCurObj)->boundingBox.minY;
-            dst->z = ((struct ObjPlane *) sDynListCurObj)->boundingBox.minZ;
+            dst->x = ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.minX;
+            dst->y = ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.minY;
+            dst->z = ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.minZ;
 
-            dst->x += ((struct ObjPlane *) sDynListCurObj)->boundingBox.maxX;
-            dst->y += ((struct ObjPlane *) sDynListCurObj)->boundingBox.maxY;
-            dst->z += ((struct ObjPlane *) sDynListCurObj)->boundingBox.maxZ;
+            dst->x += ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.maxX;
+            dst->y += ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.maxY;
+            dst->z += ((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox.maxZ;
 
             dst->x *= 0.5; //? 0.5f
             dst->y *= 0.5; //? 0.5f
             dst->z *= 0.5; //? 0.5f
             break;
         case OBJ_TYPE_ZONES:
-            dst->x = ((struct ObjZone *) sDynListCurObj)->boundingBox.minX;
-            dst->y = ((struct ObjZone *) sDynListCurObj)->boundingBox.minY;
-            dst->z = ((struct ObjZone *) sDynListCurObj)->boundingBox.minZ;
+            dst->x = ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.minX;
+            dst->y = ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.minY;
+            dst->z = ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.minZ;
 
-            dst->x += ((struct ObjZone *) sDynListCurObj)->boundingBox.maxX;
-            dst->y += ((struct ObjZone *) sDynListCurObj)->boundingBox.maxY;
-            dst->z += ((struct ObjZone *) sDynListCurObj)->boundingBox.maxZ;
+            dst->x += ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.maxX;
+            dst->y += ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.maxY;
+            dst->z += ((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox.maxZ;
 
             dst->x *= 0.5; //? 0.5f
             dst->y *= 0.5; //? 0.5f
             dst->z *= 0.5; //? 0.5f
             break;
         case OBJ_TYPE_LIGHTS:
-            dst->x = ((struct ObjLight *) sDynListCurObj)->position.x;
-            dst->y = ((struct ObjLight *) sDynListCurObj)->position.y;
-            dst->z = ((struct ObjLight *) sDynListCurObj)->position.z;
+            dst->x = ((struct ObjLight *) WORLD(sDynListCurObj))->position.x;
+            dst->y = ((struct ObjLight *) WORLD(sDynListCurObj))->position.y;
+            dst->z = ((struct ObjLight *) WORLD(sDynListCurObj))->position.z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetWorldPos()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2198,13 +2198,13 @@ void d_make_vertex(struct GdVec3f *pos) {
 void d_set_scale(f32 x, f32 y, f32 z) {
     struct GdObj *initDynobj;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    initDynobj = sDynListCurObj;
+    initDynobj = WORLD(sDynListCurObj);
     d_stash_dynobj();
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) initDynobj)->scale.x = x;
             ((struct ObjJoint *) initDynobj)->scale.y = y;
@@ -2234,7 +2234,7 @@ void d_set_scale(f32 x, f32 y, f32 z) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetScale()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     d_unstash_dynobj();
 }
@@ -2246,12 +2246,12 @@ void d_set_rotation(f32 x, f32 y, f32 z) {
     struct GdObj *dynobj; // sp2C
     UNUSED u8 filler[4];
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->unk6C.x = x;
             ((struct ObjJoint *) dynobj)->unk6C.y = y;
@@ -2264,7 +2264,7 @@ void d_set_rotation(f32 x, f32 y, f32 z) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetRotation()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2272,19 +2272,19 @@ void d_set_rotation(f32 x, f32 y, f32 z) {
  * Set the center of gravity of the current dynamic `ObjNet`.
  */
 void d_center_of_gravity(f32 x, f32 y, f32 z) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->centerOfGravity.x = x;
-            ((struct ObjNet *) sDynListCurObj)->centerOfGravity.y = y;
-            ((struct ObjNet *) sDynListCurObj)->centerOfGravity.z = z;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->centerOfGravity.x = x;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->centerOfGravity.y = y;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->centerOfGravity.z = z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dCofG()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2292,19 +2292,19 @@ void d_center_of_gravity(f32 x, f32 y, f32 z) {
  * Set the shape offset of the current dynamic `ObjJoint`.
  */
 void d_set_shape_offset(f32 x, f32 y, f32 z) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->shapeOffset.x = x;
-            ((struct ObjJoint *) sDynListCurObj)->shapeOffset.y = y;
-            ((struct ObjJoint *) sDynListCurObj)->shapeOffset.z = z;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->shapeOffset.x = x;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->shapeOffset.y = y;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->shapeOffset.z = z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dShapeOffset()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2319,11 +2319,11 @@ void d_add_valptr(DynObjName name, u32 vflags, enum ValPtrType type, size_t offs
     struct ObjValPtr *valptr;
     struct DynObjInfo *info;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
+    dynobj = WORLD(sDynListCurObj);
 
     if (vflags == 0x40000) {
         // value is an object field, and objId is the name of the object
@@ -2338,7 +2338,7 @@ void d_add_valptr(DynObjName name, u32 vflags, enum ValPtrType type, size_t offs
         valptr = make_valptr(name, vflags, type, offset);
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_GADGETS:
             if (((struct ObjGadget *) dynobj)->valueGrp == NULL) {
                 ((struct ObjGadget *) dynobj)->valueGrp = make_group(0);
@@ -2350,7 +2350,7 @@ void d_add_valptr(DynObjName name, u32 vflags, enum ValPtrType type, size_t offs
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAddValPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2361,18 +2361,18 @@ void d_add_valptr(DynObjName name, u32 vflags, enum ValPtrType type, size_t offs
 void d_add_valproc(valptrproc_t proc) {
     struct GdObj *dynobj;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_LABELS:
             ((struct ObjLabel *) dynobj)->valfn = proc;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dAddValProc()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2386,13 +2386,13 @@ void d_link_with_ptr(void *ptr) {
     struct ObjValPtr *valptr; // sp30
     struct ListNode *link;        // sp2C
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
+    dynobj = WORLD(sDynListCurObj);
     imin("dLinkWithPtr");
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_CAMERAS:
             ((struct ObjCamera *) dynobj)->unk30 = ptr;
             break;
@@ -2439,7 +2439,7 @@ void d_link_with_ptr(void *ptr) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dLinkWithPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     imout();
 }
@@ -2450,9 +2450,9 @@ void d_link_with_ptr(void *ptr) {
  */
 void d_link_with(DynObjName name) {
     struct DynObjInfo *info;                       // sp1C
-    struct DynObjInfo *origInfo = sDynListCurInfo; // sp18
+    struct DynObjInfo *origInfo = WORLD(sDynListCurInfo); // sp18
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
@@ -2467,7 +2467,7 @@ void d_link_with(DynObjName name) {
 
     d_link_with_ptr(info->obj);
     set_cur_dynobj(origInfo->obj);
-    sDynListCurInfo = origInfo;
+    WORLD(sDynListCurInfo) = origInfo;
 }
 
 /**
@@ -2476,12 +2476,12 @@ void d_link_with(DynObjName name) {
 void d_set_flags(s32 flags) {
     struct GdObj *dynobj; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
             ((struct ObjJoint *) dynobj)->flags |= flags;
             break;
@@ -2508,7 +2508,7 @@ void d_set_flags(s32 flags) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetFlags()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2516,29 +2516,29 @@ void d_set_flags(s32 flags) {
  * Clear object specific flags from the current dynamic object.
  */
 void d_clear_flags(s32 flags) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->flags &= ~flags;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->flags &= ~flags;
             break;
         case OBJ_TYPE_BONES:
-            ((struct ObjBone *) sDynListCurObj)->unk104 &= ~flags;
+            ((struct ObjBone *) WORLD(sDynListCurObj))->unk104 &= ~flags;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->flags &= ~flags;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->flags &= ~flags;
             break;
         case OBJ_TYPE_CAMERAS:
-            ((struct ObjCamera *) sDynListCurObj)->flags &= ~flags;
+            ((struct ObjCamera *) WORLD(sDynListCurObj))->flags &= ~flags;
             break;
         case OBJ_TYPE_PARTICLES:
-            ((struct ObjParticle *) sDynListCurObj)->flags &= ~flags;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->flags &= ~flags;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dClrFlags()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2548,53 +2548,53 @@ void d_clear_flags(s32 flags) {
  * range.
  */
 void d_set_parm_f(enum DParmF param, f32 val) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_SHAPES:
             switch (param) {
                 case PARM_F_ALPHA:
-                    ((struct ObjShape *) sDynListCurObj)->alpha = val;
+                    ((struct ObjShape *) WORLD(sDynListCurObj))->alpha = val;
                     break;
                 default:
                     fatal_printf("%s: Object '%s'(%x) does not support this function.",
-                                 "dSetParmf() - unsupported parm.", sDynListCurInfo->name,
-                                 sDynListCurObj->type);
+                                 "dSetParmf() - unsupported parm.", WORLD(sDynListCurInfo)->name,
+                                 WORLD(sDynListCurObj)->type);
             }
             break;
         case OBJ_TYPE_GADGETS:
             switch (param) {
                 case PARM_F_RANGE_MIN:
-                    ((struct ObjGadget *) sDynListCurObj)->rangeMin = val;
+                    ((struct ObjGadget *) WORLD(sDynListCurObj))->rangeMin = val;
                     break;
                 case PARM_F_RANGE_MAX:
-                    ((struct ObjGadget *) sDynListCurObj)->rangeMax = val;
+                    ((struct ObjGadget *) WORLD(sDynListCurObj))->rangeMax = val;
                     break;
                 case PARM_F_VARVAL:
-                    ((struct ObjGadget *) sDynListCurObj)->varval.f = val;
+                    ((struct ObjGadget *) WORLD(sDynListCurObj))->varval.f = val;
                     break;
                 default:
                     fatal_printf("%s: Object '%s'(%x) does not support this function.",
-                                 "dSetParmf() - unsupported parm.", sDynListCurInfo->name,
-                                 sDynListCurObj->type);
+                                 "dSetParmf() - unsupported parm.", WORLD(sDynListCurInfo)->name,
+                                 WORLD(sDynListCurObj)->type);
             }
             break;
         case OBJ_TYPE_VERTICES:
             switch (param) {
                 case PARM_F_ALPHA:
-                    ((struct ObjVertex *) sDynListCurObj)->alpha = val;
+                    ((struct ObjVertex *) WORLD(sDynListCurObj))->alpha = val;
                     break;
                 default:
                     fatal_printf("%s: Object '%s'(%x) does not support this function.",
-                                 "dSetParmf() - unsupported parm.", sDynListCurInfo->name,
-                                 sDynListCurObj->type);
+                                 "dSetParmf() - unsupported parm.", WORLD(sDynListCurInfo)->name,
+                                 WORLD(sDynListCurObj)->type);
             }
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetParmf()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2604,15 +2604,15 @@ void d_set_parm_f(enum DParmF param, f32 val) {
  * but it can also set the vertices for an `ObjFace`.
  */
 void d_set_parm_ptr(enum DParmPtr param, void *ptr) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_LABELS:
             switch (param) {
                 case PARM_PTR_CHAR:
-                    ((struct ObjLabel *) sDynListCurObj)->fmtstr = ptr;
+                    ((struct ObjLabel *) WORLD(sDynListCurObj))->fmtstr = ptr;
                     break;
                 default:
                     fatal_printf("Bad parm");
@@ -2621,7 +2621,7 @@ void d_set_parm_ptr(enum DParmPtr param, void *ptr) {
         case OBJ_TYPE_VIEWS:
             switch (param) {
                 case PARM_PTR_CHAR:
-                    ((struct ObjView *) sDynListCurObj)->namePtr = ptr;
+                    ((struct ObjView *) WORLD(sDynListCurObj))->namePtr = ptr;
                     break;
                 default:
                     fatal_printf("Bad parm");
@@ -2631,12 +2631,12 @@ void d_set_parm_ptr(enum DParmPtr param, void *ptr) {
             switch (param) {
                 case PARM_PTR_OBJ_VTX:
                     // Don't allow more than 4 vertices in a face
-                    if (((struct ObjFace *) sDynListCurObj)->vtxCount >= 4) {
+                    if (((struct ObjFace *) WORLD(sDynListCurObj))->vtxCount >= 4) {
                         fatal_printf("dsetparmp() too many points");
                     }
                     // `ptr` here is a vertex index, not an actual pointer.
                     // These vertex indices later get converted to `ObjVertex` pointers when `find_thisface_verts` is called.
-                    ((struct ObjFace *) sDynListCurObj)->vertices[((struct ObjFace *) sDynListCurObj)->vtxCount++] = ptr;
+                    ((struct ObjFace *) WORLD(sDynListCurObj))->vertices[((struct ObjFace *) WORLD(sDynListCurObj))->vtxCount++] = ptr;
                     break;
                 default:
                     fatal_printf("Bad parm");
@@ -2644,7 +2644,7 @@ void d_set_parm_ptr(enum DParmPtr param, void *ptr) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetParmp()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2652,24 +2652,24 @@ void d_set_parm_ptr(enum DParmPtr param, void *ptr) {
  * Set the generic drawing flags for the current dynamic object.
  */
 void d_set_obj_draw_flag(enum ObjDrawingFlags flag) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    sDynListCurObj->drawFlags |= flag;
+    WORLD(sDynListCurObj)->drawFlags |= flag;
 }
 
 /**
  * Set an object specific type field for the current dynamic object.
  */
 void d_set_type(s32 type) {
-    struct GdObj *dynobj = sDynListCurObj; // sp24
+    struct GdObj *dynobj = WORLD(sDynListCurObj); // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
             ((struct ObjNet *) dynobj)->netType = type;
             break;
@@ -2690,7 +2690,7 @@ void d_set_type(s32 type) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetType()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2698,13 +2698,13 @@ void d_set_type(s32 type) {
  * Set the specific object ID field for the current dynamic object.
  */
 void d_set_id(s32 id) {
-    struct GdObj *dynobj = sDynListCurObj; // sp24
+    struct GdObj *dynobj = WORLD(sDynListCurObj); // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_MATERIALS:
             ((struct ObjMaterial *) dynobj)->id = id;
             break;
@@ -2719,7 +2719,7 @@ void d_set_id(s32 id) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetID()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2731,37 +2731,37 @@ void d_set_id(s32 id) {
 void d_set_colour_num(s32 colornum) {
     struct GdColour *rgbcolor;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->colourNum = colornum;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->colourNum = colornum;
             break;
         case OBJ_TYPE_PARTICLES:
-            ((struct ObjParticle *) sDynListCurObj)->colourNum = colornum;
+            ((struct ObjParticle *) WORLD(sDynListCurObj))->colourNum = colornum;
             break;
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->colourNum = colornum;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->colourNum = colornum;
             break;
         case OBJ_TYPE_GADGETS:
-            ((struct ObjGadget *) sDynListCurObj)->colourNum = colornum;
+            ((struct ObjGadget *) WORLD(sDynListCurObj))->colourNum = colornum;
             break;
         case OBJ_TYPE_FACES:
             rgbcolor = gd_get_colour(colornum);
             if (rgbcolor != NULL) {
-                ((struct ObjFace *) sDynListCurObj)->colour.r = rgbcolor->r;
-                ((struct ObjFace *) sDynListCurObj)->colour.g = rgbcolor->g;
-                ((struct ObjFace *) sDynListCurObj)->colour.b = rgbcolor->b;
-                ((struct ObjFace *) sDynListCurObj)->colourNum = colornum;
+                ((struct ObjFace *) WORLD(sDynListCurObj))->colour.r = rgbcolor->r;
+                ((struct ObjFace *) WORLD(sDynListCurObj))->colour.g = rgbcolor->g;
+                ((struct ObjFace *) WORLD(sDynListCurObj))->colour.b = rgbcolor->b;
+                ((struct ObjFace *) WORLD(sDynListCurObj))->colourNum = colornum;
             } else {
                 fatal_printf("dSetColNum: Unkown colour number");
             }
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dColourNum()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2769,17 +2769,17 @@ void d_set_colour_num(s32 colornum) {
  * Set the material ID of the current dynamic `ObjFace`.
  */
 void d_set_material(UNUSED void *a0, s32 mtlId) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_FACES:
-            ((struct ObjFace *) sDynListCurObj)->mtlId = mtlId;
+            ((struct ObjFace *) WORLD(sDynListCurObj))->mtlId = mtlId;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetMaterial()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2787,19 +2787,19 @@ void d_set_material(UNUSED void *a0, s32 mtlId) {
  * Set the friction vec of the current dynamic `ObjJoint`.
  */
 void d_friction(f32 x, f32 y, f32 z) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            ((struct ObjJoint *) sDynListCurObj)->friction.x = x;
-            ((struct ObjJoint *) sDynListCurObj)->friction.y = y;
-            ((struct ObjJoint *) sDynListCurObj)->friction.z = z;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->friction.x = x;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->friction.y = y;
+            ((struct ObjJoint *) WORLD(sDynListCurObj))->friction.z = z;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dFriction()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2807,17 +2807,17 @@ void d_friction(f32 x, f32 y, f32 z) {
  * Set the spring constant of the current dynamic `ObjBone`.
  */
 void d_set_spring(f32 spring) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_BONES:
-            ((struct ObjBone *) sDynListCurObj)->spring = spring;
+            ((struct ObjBone *) WORLD(sDynListCurObj))->spring = spring;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetSpring()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2825,19 +2825,19 @@ void d_set_spring(f32 spring) {
  * Set the ambient color of the current dynamic `ObjMaterial`.
  */
 void d_set_ambient(f32 r, f32 g, f32 b) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_MATERIALS:
-            ((struct ObjMaterial *) sDynListCurObj)->Ka.r = r;
-            ((struct ObjMaterial *) sDynListCurObj)->Ka.g = g;
-            ((struct ObjMaterial *) sDynListCurObj)->Ka.b = b;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Ka.r = r;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Ka.g = g;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Ka.b = b;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetAmbient()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2845,24 +2845,24 @@ void d_set_ambient(f32 r, f32 g, f32 b) {
  * Set the diffuse color of the current dynamic `ObjMaterial` or `ObjLight`.
  */
 void d_set_diffuse(f32 r, f32 g, f32 b) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_MATERIALS:
-            ((struct ObjMaterial *) sDynListCurObj)->Kd.r = r;
-            ((struct ObjMaterial *) sDynListCurObj)->Kd.g = g;
-            ((struct ObjMaterial *) sDynListCurObj)->Kd.b = b;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Kd.r = r;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Kd.g = g;
+            ((struct ObjMaterial *) WORLD(sDynListCurObj))->Kd.b = b;
             break;
         case OBJ_TYPE_LIGHTS:
-            ((struct ObjLight *) sDynListCurObj)->diffuse.r = r;
-            ((struct ObjLight *) sDynListCurObj)->diffuse.g = g;
-            ((struct ObjLight *) sDynListCurObj)->diffuse.b = b;
+            ((struct ObjLight *) WORLD(sDynListCurObj))->diffuse.r = r;
+            ((struct ObjLight *) WORLD(sDynListCurObj))->diffuse.g = g;
+            ((struct ObjLight *) WORLD(sDynListCurObj))->diffuse.b = b;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetDiffuse()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2870,17 +2870,17 @@ void d_set_diffuse(f32 r, f32 g, f32 b) {
  * Set the control type of the current dynamic `ObjNet`.
  */
 void d_set_control_type(s32 ctrltype) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            ((struct ObjNet *) sDynListCurObj)->ctrlType = ctrltype;
+            ((struct ObjNet *) WORLD(sDynListCurObj))->ctrlType = ctrltype;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dControlType()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2890,22 +2890,22 @@ void d_set_control_type(s32 ctrltype) {
  * a global bounding box at (0,0) is returned.
  */
 struct GdBoundingBox *d_get_bounding_box(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            return &((struct ObjNet *) sDynListCurObj)->boundingBox;
+            return &((struct ObjNet *) WORLD(sDynListCurObj))->boundingBox;
             break;
         case OBJ_TYPE_PLANES:
-            return &((struct ObjPlane *) sDynListCurObj)->boundingBox;
+            return &((struct ObjPlane *) WORLD(sDynListCurObj))->boundingBox;
             break;
         case OBJ_TYPE_ZONES:
-            return &((struct ObjZone *) sDynListCurObj)->boundingBox;
+            return &((struct ObjZone *) WORLD(sDynListCurObj))->boundingBox;
             break;
         default:
-            return &sNullBoundingBox;
+            return &WORLD(sNullBoundingBox);
     }
 }
 
@@ -2915,12 +2915,12 @@ struct GdBoundingBox *d_get_bounding_box(void) {
 void d_get_matrix(Mat4f *dst) {
     struct GdObj *dynobj; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
             gd_copy_mat4f(&((struct ObjNet *) dynobj)->mat128, dst);
             break;
@@ -2939,7 +2939,7 @@ void d_get_matrix(Mat4f *dst) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetMatrix()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2947,26 +2947,26 @@ void d_get_matrix(Mat4f *dst) {
  * Set the matrix of the current dynamic object by copying `src` into the object.
  */
 void d_set_matrix(Mat4f *src) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            gd_copy_mat4f(src, &((struct ObjNet *) sDynListCurObj)->mat128);
+            gd_copy_mat4f(src, &((struct ObjNet *) WORLD(sDynListCurObj))->mat128);
             //! @bug When setting an `ObjNet` matrix, the source is copied twice
             //!      due to a probable copy-paste line repeat error
-            gd_copy_mat4f(src, &((struct ObjNet *) sDynListCurObj)->mat128);
+            gd_copy_mat4f(src, &((struct ObjNet *) WORLD(sDynListCurObj))->mat128);
             break;
         case OBJ_TYPE_JOINTS:
-            gd_copy_mat4f(src, &((struct ObjJoint *) sDynListCurObj)->matE8);
+            gd_copy_mat4f(src, &((struct ObjJoint *) WORLD(sDynListCurObj))->matE8);
             break;
         case OBJ_TYPE_CAMERAS:
-            gd_copy_mat4f(src, &((struct ObjCamera *) sDynListCurObj)->unk64);
+            gd_copy_mat4f(src, &((struct ObjCamera *) WORLD(sDynListCurObj))->unk64);
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetMatrix()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2975,20 +2975,20 @@ void d_set_matrix(Mat4f *src) {
  * the input matrix `src`.
  */
 void d_set_rot_mtx(Mat4f *src) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            gd_copy_mat4f(src, &((struct ObjJoint *) sDynListCurObj)->mat128);
+            gd_copy_mat4f(src, &((struct ObjJoint *) WORLD(sDynListCurObj))->mat128);
             break;
         case OBJ_TYPE_NETS:
-            gd_copy_mat4f(src, &((struct ObjNet *) sDynListCurObj)->mat168);
+            gd_copy_mat4f(src, &((struct ObjNet *) WORLD(sDynListCurObj))->mat168);
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetRMatrix()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -2996,18 +2996,18 @@ void d_set_rot_mtx(Mat4f *src) {
  * Get a pointer to the current dynamic object's rotation matrix.
  */
 Mat4f *d_get_rot_mtx_ptr(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            return &((struct ObjJoint *) sDynListCurObj)->mat128;
+            return &((struct ObjJoint *) WORLD(sDynListCurObj))->mat128;
         case OBJ_TYPE_NETS:
-            return &((struct ObjNet *) sDynListCurObj)->mat168;
+            return &((struct ObjNet *) WORLD(sDynListCurObj))->mat168;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetRMatrixPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -3019,12 +3019,12 @@ Mat4f *d_get_rot_mtx_ptr(void) {
 void d_set_i_matrix(Mat4f *src) {
     struct GdObj *dynobj;
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
             gd_copy_mat4f(src, &((struct ObjNet *) dynobj)->matE8);
             break;
@@ -3038,7 +3038,7 @@ void d_set_i_matrix(Mat4f *src) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetIMatrix()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }
 
@@ -3046,26 +3046,26 @@ void d_set_i_matrix(Mat4f *src) {
  * Get a pointer to the current dynamic object's matrix.
  */
 Mat4f *d_get_matrix_ptr(void) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
-            return &((struct ObjNet *) sDynListCurObj)->mat128;
+            return &((struct ObjNet *) WORLD(sDynListCurObj))->mat128;
             break;
         case OBJ_TYPE_CAMERAS:
-            return &((struct ObjCamera *) sDynListCurObj)->unk64;
+            return &((struct ObjCamera *) WORLD(sDynListCurObj))->unk64;
             break;
         case OBJ_TYPE_BONES:
-            return &((struct ObjBone *) sDynListCurObj)->mat70;
+            return &((struct ObjBone *) WORLD(sDynListCurObj))->mat70;
             break;
         case OBJ_TYPE_JOINTS:
-            return &((struct ObjJoint *) sDynListCurObj)->matE8;
+            return &((struct ObjJoint *) WORLD(sDynListCurObj))->matE8;
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetMatrixPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -3077,12 +3077,12 @@ Mat4f *d_get_matrix_ptr(void) {
 Mat4f *d_get_i_mtx_ptr(void) {
     struct GdObj *dynobj; // sp24
 
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    dynobj = sDynListCurObj;
-    switch (sDynListCurObj->type) {
+    dynobj = WORLD(sDynListCurObj);
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_NETS:
             return &((struct ObjNet *) dynobj)->matE8;
             break;
@@ -3091,7 +3091,7 @@ Mat4f *d_get_i_mtx_ptr(void) {
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dGetIMatrixPtr()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
     // No null return due to `fatal_printf()` being a non-returning function?
 }
@@ -3122,17 +3122,17 @@ f32 d_calc_world_dist_btwn(struct GdObj *obj1, struct GdObj *obj2) {
  * The input weight value is out of 100.
  */
 void d_set_skin_weight(s32 vtxId, f32 percentWeight) {
-    if (sDynListCurObj == NULL) {
+    if (WORLD(sDynListCurObj) == NULL) {
         fatal_printf("proc_dynlist(): No current object");
     }
 
-    switch (sDynListCurObj->type) {
+    switch (WORLD(sDynListCurObj)->type) {
         case OBJ_TYPE_JOINTS:
-            set_skin_weight((struct ObjJoint *) sDynListCurObj, vtxId, NULL,
+            set_skin_weight((struct ObjJoint *) WORLD(sDynListCurObj), vtxId, NULL,
                             percentWeight / 100.0);
             break;
         default:
             fatal_printf("%s: Object '%s'(%x) does not support this function.", "dSetSkinWeight()",
-                         sDynListCurInfo->name, sDynListCurObj->type);
+                         WORLD(sDynListCurInfo)->name, WORLD(sDynListCurObj)->type);
     }
 }

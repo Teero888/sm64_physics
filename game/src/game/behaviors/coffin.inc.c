@@ -34,10 +34,10 @@ void bhv_coffin_spawner_loop(void) {
     if (o->oAction == COFFIN_SPAWNER_ACT_COFFINS_UNLOADED) {
         if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
             for (i = 0; i < 6; i++) {
-                relativeZ = coffinRelativePos[i].z;
+                relativeZ = WORLD(coffinRelativePos)[i].z;
 
                 // Behavior param of 0 for all even i, 1 for all odd
-                coffin = spawn_object_relative(i & 1, coffinRelativePos[i].x, 0, relativeZ, o,
+                coffin = spawn_object_relative(i & 1, WORLD(coffinRelativePos)[i].x, 0, relativeZ, o,
                                                MODEL_BBH_WOODEN_TOMB, bhvCoffin);
 
                 // Never true, game would enter a while(1) before it could.
@@ -87,8 +87,8 @@ void coffin_act_idle(void) {
             f32 yawCos = coss(o->oFaceAngleYaw);
             f32 yawSin = sins(o->oFaceAngleYaw);
 
-            f32 dx = gMarioObject->oPosX - o->oPosX;
-            f32 dz = gMarioObject->oPosZ - o->oPosZ;
+            f32 dx = WORLD(gMarioObject)->oPosX - o->oPosX;
+            f32 dz = WORLD(gMarioObject)->oPosZ - o->oPosZ;
 
             f32 distForwards = dx * yawCos + dz * yawSin;
             f32 distSideways = dz * yawCos - dx * yawSin;
@@ -96,8 +96,8 @@ void coffin_act_idle(void) {
             // This checks a box around the coffin and if it has been a bit since it stood up.
             // It also checks in the case Mario is squished, so he doesn't get permanently squished.
             if (o->oTimer > 60
-                && (o->oDistanceToMario > 100.0f || gMarioState->action == ACT_SQUISHED)
-                && gMarioObject->oPosY - o->oPosY < 200.0f && absf(distForwards) < 140.0f
+                && (o->oDistanceToMario > 100.0f || WORLD(gMarioState)->action == ACT_SQUISHED)
+                && WORLD(gMarioObject)->oPosY - o->oPosY < 200.0f && absf(distForwards) < 140.0f
                 && distSideways < 150.0f && distSideways > -450.0f) {
                 cur_obj_play_sound_2(SOUND_GENERAL_BUTTON_PRESS_2_LOWPRIO);
                 o->oAction = COFFIN_ACT_STAND_UP;
@@ -122,11 +122,11 @@ void coffin_act_stand_up(void) {
             o->oAction = COFFIN_ACT_IDLE;
             o->oFaceAngleRoll = 0;
         } else if (o->oTimer > 30) {
-            if (gGlobalTimer % 4 == 0) {
+            if (WORLD(gGlobalTimer) % 4 == 0) {
                 cur_obj_play_sound_2(SOUND_GENERAL_ELEVATOR_MOVE_2);
             }
             // Shake the coffin while its standing
-            o->oFaceAngleRoll = 400 * (gGlobalTimer % 2) - 200;
+            o->oFaceAngleRoll = 400 * (WORLD(gGlobalTimer) % 2) - 200;
         }
 
         o->oAngleVelPitch = 0;

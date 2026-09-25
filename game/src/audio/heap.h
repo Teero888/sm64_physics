@@ -12,8 +12,8 @@
 #define SOUND_LOAD_STATUS_4              4
 #define SOUND_LOAD_STATUS_5              5
 
-#define IS_BANK_LOAD_COMPLETE(bankId) (gBankLoadStatus[bankId] >= SOUND_LOAD_STATUS_COMPLETE)
-#define IS_SEQ_LOAD_COMPLETE(seqId) (gSeqLoadStatus[seqId] >= SOUND_LOAD_STATUS_COMPLETE)
+#define IS_BANK_LOAD_COMPLETE(bankId) (WORLD(gBankLoadStatus)[bankId] >= SOUND_LOAD_STATUS_COMPLETE)
+#define IS_SEQ_LOAD_COMPLETE(seqId) (WORLD(gSeqLoadStatus)[seqId] >= SOUND_LOAD_STATUS_COMPLETE)
 
 struct SoundAllocPool {
     u8 *start;

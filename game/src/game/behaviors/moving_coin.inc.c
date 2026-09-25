@@ -27,7 +27,7 @@ static struct ObjectHitbox sMovingBlueCoinHitbox = {
 s32 coin_step(s16 *collisionFlagsPtr) {
     *collisionFlagsPtr = object_step();
 
-    obj_check_floor_death(*collisionFlagsPtr, sObjFloor);
+    obj_check_floor_death(*collisionFlagsPtr, WORLD(sObjFloor));
 
     if ((*collisionFlagsPtr & OBJ_COL_FLAG_GROUNDED)
         && !(*collisionFlagsPtr & OBJ_COL_FLAG_NO_Y_VEL)) {
@@ -55,7 +55,7 @@ void bhv_moving_yellow_coin_init(void) {
     o->oFriction = 1.0f;
     o->oBuoyancy = 1.5f;
 
-    obj_set_hitbox(o, &sMovingYellowCoinHitbox);
+    obj_set_hitbox(o, &WORLD(sMovingYellowCoinHitbox));
 }
 
 void bhv_moving_yellow_coin_loop(void) {
@@ -100,7 +100,7 @@ void bhv_moving_blue_coin_init(void) {
     o->oFriction = 1.0f;
     o->oBuoyancy = 1.5f;
 
-    obj_set_hitbox(o, &sMovingBlueCoinHitbox);
+    obj_set_hitbox(o, &WORLD(sMovingBlueCoinHitbox));
 }
 
 void bhv_moving_blue_coin_loop(void) {
@@ -144,7 +144,7 @@ void bhv_blue_coin_sliding_jumping_init(void) {
     o->oFriction = 0.98;
     o->oBuoyancy = 1.5;
 
-    obj_set_hitbox(o, &sMovingBlueCoinHitbox);
+    obj_set_hitbox(o, &WORLD(sMovingBlueCoinHitbox));
 }
 
 void blue_coin_sliding_away_from_mario(void) {

@@ -14,15 +14,15 @@ static struct ObjectHitbox sCollectStarHitbox = {
 
 void bhv_collect_star_init(void) {
     s8 starIndex = (o->oBhvParams >> 24) & 0xFF;
-    u8 currentLevelStarFlags = save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(gCurrCourseNum));
+    u8 currentLevelStarFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)));
 
     if (currentLevelStarFlags & (1 << starIndex)) {
-        o->header.gfx.sharedChild = gLoadedGraphNodes[MODEL_TRANSPARENT_STAR];
+        o->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[MODEL_TRANSPARENT_STAR];
     } else {
-        o->header.gfx.sharedChild = gLoadedGraphNodes[MODEL_STAR];
+        o->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[MODEL_STAR];
     }
 
-    obj_set_hitbox(o, &sCollectStarHitbox);
+    obj_set_hitbox(o, &WORLD(sCollectStarHitbox));
 }
 
 void bhv_collect_star_loop(void) {
@@ -41,7 +41,7 @@ void bhv_star_spawn_init(void) {
     o->oForwardVel = o->oStarSpawnDisFromHome / 30.0f;
     o->oStarSpawnUnkFC = o->oPosY;
 
-    if (o->oBhvParams2ndByte == 0 || gCurrCourseNum == COURSE_BBH) {
+    if (o->oBhvParams2ndByte == 0 || WORLD(gCurrCourseNum) == COURSE_BBH) {
         cutscene_object(CUTSCENE_STAR_SPAWN, o);
     } else {
         cutscene_object(CUTSCENE_RED_COIN_STAR_SPAWN, o);
@@ -98,7 +98,7 @@ void bhv_star_spawn_loop(void) {
         case 3:
             o->oFaceAngleYaw += 0x800;
             if (o->oTimer == 20) {
-                gObjCutsceneDone = TRUE;
+                WORLD(gObjCutsceneDone) = TRUE;
                 clear_time_stop_flags(TIME_STOP_ENABLED | TIME_STOP_MARIO_AND_DOORS);
                 o->activeFlags &= ~ACTIVE_FLAG_INITIATED_TIME_STOP;
             }
@@ -142,7 +142,7 @@ void spawn_no_exit_star(f32 homeX, f32 homeY, f32 homeZ) {
 void bhv_hidden_red_coin_star_init(void) {
     s16 count;
 
-    if (gCurrCourseNum != COURSE_JRB) {
+    if (WORLD(gCurrCourseNum) != COURSE_JRB) {
         spawn_object(o, MODEL_TRANSPARENT_STAR, bhvRedCoinStarMarker);
     }
 
@@ -158,7 +158,7 @@ void bhv_hidden_red_coin_star_init(void) {
 }
 
 void bhv_hidden_red_coin_star_loop(void) {
-    gRedCoinsCollected = o->oHiddenStarTriggerCounter;
+    WORLD(gRedCoinsCollected) = o->oHiddenStarTriggerCounter;
 
     switch (o->oAction) {
         case 0:

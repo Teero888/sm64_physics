@@ -39,7 +39,7 @@
  * specific behaviors. Few functions besides the bhv_ functions are used elsewhere in the repo.
  */
 
-#define o gCurrentObject
+#define o WORLD(gCurrentObject)
 
 #define OBJ_COL_FLAG_GROUNDED   (1 << 0)
 #define OBJ_COL_FLAG_HIT_WALL   (1 << 1)
@@ -77,7 +77,7 @@ extern void *inside_castle_seg7_trajectory_mips;
  * Possibly a function with stubbed code.
  */
 void set_yoshi_as_not_dead(void) {
-    sYoshiDead = FALSE;
+    WORLD(sYoshiDead) = FALSE;
 }
 
 /**
@@ -96,12 +96,12 @@ Gfx UNUSED *geo_obj_transparency_something(s32 callContext, struct GraphNode *no
     gfxHead = NULL;
 
     if (callContext == GEO_CONTEXT_RENDER) {
-        heldObject = (struct Object *) gCurGraphNodeObject;
+        heldObject = (struct Object *) WORLD(gCurGraphNodeObject);
         obj = (struct Object *) node;
         unusedObject = (struct Object *) node;
 
-        if (gCurGraphNodeHeldObject != NULL) {
-            heldObject = gCurGraphNodeHeldObject->objNode;
+        if (WORLD(gCurGraphNodeHeldObject) != NULL) {
+            heldObject = WORLD(gCurGraphNodeHeldObject)->objNode;
         }
 
         gfxHead = alloc_display_list(3 * sizeof(Gfx));
@@ -212,7 +212,7 @@ void obj_orient_graph(struct Object *obj, f32 normalX, f32 normalY, f32 normalZ)
     Mat4 *throwMatrix;
 
     // Passes on orienting certain objects that shouldn't be oriented, like boulders.
-    if (!sOrientObjWithFloor) {
+    if (!WORLD(sOrientObjWithFloor)) {
         return;
     }
 
@@ -393,7 +393,7 @@ void obj_update_pos_vel_xz(void) {
  * if underwater.
  */
 void obj_splash(s32 waterY, s32 objY) {
-    u32 globalTimer = gGlobalTimer;
+    u32 globalTimer = WORLD(gGlobalTimer);
 
     // Spawns waves if near surface of water and plays a noise if entering.
     if ((f32)(waterY + 30) > o->oPosY && o->oPosY > (f32)(waterY - 30)) {
@@ -432,14 +432,14 @@ s16 object_step(void) {
         collisionFlags += OBJ_COL_FLAG_HIT_WALL;
     }
 
-    floorY = find_floor(objX + objVelX, objY, objZ + objVelZ, &sObjFloor);
-    if (turn_obj_away_from_steep_floor(sObjFloor, floorY, objVelX, objVelZ) == 1) {
+    floorY = find_floor(objX + objVelX, objY, objZ + objVelZ, &WORLD(sObjFloor));
+    if (turn_obj_away_from_steep_floor(WORLD(sObjFloor), floorY, objVelX, objVelZ) == 1) {
         waterY = find_water_level(objX + objVelX, objZ + objVelZ);
         if (waterY > objY) {
-            calc_new_obj_vel_and_pos_y_underwater(sObjFloor, floorY, objVelX, objVelZ, waterY);
+            calc_new_obj_vel_and_pos_y_underwater(WORLD(sObjFloor), floorY, objVelX, objVelZ, waterY);
             collisionFlags += OBJ_COL_FLAG_UNDERWATER;
         } else {
-            calc_new_obj_vel_and_pos_y(sObjFloor, floorY, objVelX, objVelZ);
+            calc_new_obj_vel_and_pos_y(WORLD(sObjFloor), floorY, objVelX, objVelZ);
         }
     } else {
         // Treat any awkward floors similar to a wall.
@@ -467,9 +467,9 @@ s16 object_step(void) {
  */
 s16 object_step_without_floor_orient(void) {
     s16 collisionFlags = 0;
-    sOrientObjWithFloor = FALSE;
+    WORLD(sOrientObjWithFloor) = FALSE;
     collisionFlags = object_step();
-    sOrientObjWithFloor = TRUE;
+    WORLD(sOrientObjWithFloor) = TRUE;
 
     return collisionFlags;
 }
@@ -494,9 +494,9 @@ void obj_move_xyz_using_fvel_and_yaw(struct Object *obj) {
  * Checks if a point is within distance from Mario's graphical position. Test is exclusive.
  */
 s8 is_point_within_radius_of_mario(f32 x, f32 y, f32 z, s32 dist) {
-    f32 mGfxX = gMarioObject->header.gfx.pos[0];
-    f32 mGfxY = gMarioObject->header.gfx.pos[1];
-    f32 mGfxZ = gMarioObject->header.gfx.pos[2];
+    f32 mGfxX = WORLD(gMarioObject)->header.gfx.pos[0];
+    f32 mGfxY = WORLD(gMarioObject)->header.gfx.pos[1];
+    f32 mGfxZ = WORLD(gMarioObject)->header.gfx.pos[2];
 
     if ((x - mGfxX) * (x - mGfxX) + (y - mGfxY) * (y - mGfxY) + (z - mGfxZ) * (z - mGfxZ)
         < (f32)(dist * dist)) {
@@ -656,20 +656,20 @@ s8 current_mario_room_check(s16 room) {
 
     // Since object surfaces have room 0, this tests if the surface is an
     // object first and uses the last room if so.
-    if (gMarioCurrentRoom == 0) {
-        if (room == sPrevCheckMarioRoom) {
+    if (WORLD(gMarioCurrentRoom) == 0) {
+        if (room == WORLD(sPrevCheckMarioRoom)) {
             return TRUE;
         } else {
             return FALSE;
         }
     } else {
-        if (room == gMarioCurrentRoom) {
+        if (room == WORLD(gMarioCurrentRoom)) {
             result = TRUE;
         } else {
             result = FALSE;
         }
 
-        sPrevCheckMarioRoom = gMarioCurrentRoom;
+        WORLD(sPrevCheckMarioRoom) = WORLD(gMarioCurrentRoom);
     }
 
     return result;
@@ -680,7 +680,7 @@ s8 current_mario_room_check(s16 room) {
  */
 s16 trigger_obj_dialog_when_facing(s32 *inDialog, s16 dialogID, f32 dist, s32 actionArg) {
     if ((is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, (s32) dist) == TRUE
-         && obj_check_if_facing_toward_angle(o->oFaceAngleYaw, gMarioObject->header.gfx.angle[1] + 0x8000, 0x1000) == TRUE
+         && obj_check_if_facing_toward_angle(o->oFaceAngleYaw, WORLD(gMarioObject)->header.gfx.angle[1] + 0x8000, 0x1000) == TRUE
          && obj_check_if_facing_toward_angle(o->oMoveAngleYaw, o->oAngleToMario, 0x1000) == TRUE)
         || (*inDialog == TRUE)) {
         *inDialog = TRUE;
@@ -774,22 +774,22 @@ s8 sDebugTimer = 0;
  */
 UNUSED s8 debug_sequence_tracker(s16 debugInputSequence[]) {
     // If end of sequence reached, return true.
-    if (debugInputSequence[sDebugSequenceTracker] == 0) {
-        sDebugSequenceTracker = 0;
+    if (debugInputSequence[WORLD(sDebugSequenceTracker)] == 0) {
+        WORLD(sDebugSequenceTracker) = 0;
         return TRUE;
     }
 
     // If the third controller button pressed is next in sequence, reset timer and progress to next value.
-    if (debugInputSequence[sDebugSequenceTracker] & gPlayer3Controller->buttonPressed) {
-        sDebugSequenceTracker++;
-        sDebugTimer = 0;
+    if (debugInputSequence[WORLD(sDebugSequenceTracker)] & WORLD(gPlayer3Controller)->buttonPressed) {
+        WORLD(sDebugSequenceTracker)++;
+        WORLD(sDebugTimer) = 0;
     // If wrong input or timer reaches 10, reset sequence progress.
-    } else if (sDebugTimer == 10 || gPlayer3Controller->buttonPressed != 0) {
-        sDebugSequenceTracker = 0;
-        sDebugTimer = 0;
+    } else if (WORLD(sDebugTimer) == 10 || WORLD(gPlayer3Controller)->buttonPressed != 0) {
+        WORLD(sDebugSequenceTracker) = 0;
+        WORLD(sDebugTimer) = 0;
         return FALSE;
     }
-    sDebugTimer++;
+    WORLD(sDebugTimer)++;
 
     return FALSE;
 }

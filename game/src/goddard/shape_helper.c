@@ -122,9 +122,9 @@ struct ObjMaterial *find_or_add_new_mtl(struct ObjGroup *, s32, f32, f32, f32);
 /* @ 245A50 for 0x40 */
 /* Something to do with shape list/group initialization? */
 void func_80197280(void) {
-    sGdShapeCount = 0;
-    sGdShapeListHead = NULL;
-    gGdLightGroup = make_group(0);
+    WORLD(sGdShapeCount) = 0;
+    WORLD(sGdShapeListHead) = NULL;
+    WORLD(gGdLightGroup) = make_group(0);
 }
 
 /**
@@ -270,17 +270,17 @@ struct ObjShape *make_shape(s32 flag, const char *name) {
         gd_strcpy(newShape->name, "NoName");
     }
 
-    sGdShapeCount++;
+    WORLD(sGdShapeCount)++;
 
-    curShapeHead = sGdShapeListHead;
-    sGdShapeListHead = newShape;
+    curShapeHead = WORLD(sGdShapeListHead);
+    WORLD(sGdShapeListHead) = newShape;
 
     if (curShapeHead != NULL) {
         newShape->nextShape = curShapeHead;
         curShapeHead->prevShape = newShape;
     }
 
-    newShape->id = sGdShapeCount;
+    newShape->id = WORLD(sGdShapeCount);
     newShape->flag = flag;
 
     newShape->vtxCount = 0;
@@ -303,13 +303,13 @@ struct ObjShape *make_shape(s32 flag, const char *name) {
 
 /* @ 2461A4 for 0x30; orig name: func_801979D4 */
 void clear_buf_to_cr(void) {
-    sGdLineBufCsr = 0;
-    sGdLineBuf[sGdLineBufCsr] = '\r';
+    WORLD(sGdLineBufCsr) = 0;
+    WORLD(sGdLineBuf)[WORLD(sGdLineBufCsr)] = '\r';
 }
 
 /* @ 2461D4 for 0x2c; orig name: func_80197A04 */
 s8 get_current_buf_char(void) {
-    return sGdLineBuf[sGdLineBufCsr];
+    return WORLD(sGdLineBuf)[WORLD(sGdLineBufCsr)];
 }
 
 /* @ 246200 for 0x64; orig name: func_80197A30 */
@@ -318,17 +318,17 @@ s8 get_and_advance_buf(void) {
         return '\0';
     }
 
-    return sGdLineBuf[sGdLineBufCsr++];
+    return WORLD(sGdLineBuf)[WORLD(sGdLineBufCsr)++];
 }
 
 /* @ 246264 for 0x80; orig name: func_80197A94 */
 s8 load_next_line_into_buf(void) {
-    sGdLineBufCsr = 0;
+    WORLD(sGdLineBufCsr) = 0;
 
-    if (gd_feof(sGdShapeFile) != 0) {
-        sGdLineBuf[sGdLineBufCsr] = '\0';
+    if (gd_feof(WORLD(sGdShapeFile)) != 0) {
+        WORLD(sGdLineBuf)[WORLD(sGdLineBufCsr)] = '\0';
     } else {
-        gd_fread_line(sGdLineBuf, 0xFF, sGdShapeFile);
+        gd_fread_line(WORLD(sGdLineBuf), 0xFF, WORLD(sGdShapeFile));
     }
 
     return get_current_buf_char();
@@ -472,23 +472,23 @@ void Unknown80198068(UNUSED f32 a0) {
 
 /* @ 24684C for 0x6C */
 void func_8019807C(struct ObjVertex *vtx) {
-    gd_rot_2d_vec(D_801BAC60.x, &vtx->pos.y, &vtx->pos.z);
-    gd_rot_2d_vec(D_801BAC60.y, &vtx->pos.x, &vtx->pos.z);
-    gd_rot_2d_vec(D_801BAC60.z, &vtx->pos.x, &vtx->pos.y);
+    gd_rot_2d_vec(WORLD(D_801BAC60).x, &vtx->pos.y, &vtx->pos.z);
+    gd_rot_2d_vec(WORLD(D_801BAC60).y, &vtx->pos.x, &vtx->pos.z);
+    gd_rot_2d_vec(WORLD(D_801BAC60).z, &vtx->pos.x, &vtx->pos.y);
 }
 
 /* @ 2468B8 for 0x6C */
 void func_801980E8(f32 *a0) {
-    gd_rot_2d_vec(D_801BAC60.x, &a0[1], &a0[2]);
-    gd_rot_2d_vec(D_801BAC60.y, &a0[0], &a0[2]);
-    gd_rot_2d_vec(D_801BAC60.z, &a0[0], &a0[1]);
+    gd_rot_2d_vec(WORLD(D_801BAC60).x, &a0[1], &a0[2]);
+    gd_rot_2d_vec(WORLD(D_801BAC60).y, &a0[0], &a0[2]);
+    gd_rot_2d_vec(WORLD(D_801BAC60).z, &a0[0], &a0[1]);
 }
 
 /* @ 246924 for 0x30 */
 void Unknown80198154(f32 x, f32 y, f32 z) {
-    D_801BAC60.x = x;
-    D_801BAC60.y = y;
-    D_801BAC60.z = z;
+    WORLD(D_801BAC60).x = x;
+    WORLD(D_801BAC60).y = y;
+    WORLD(D_801BAC60).z = z;
 }
 
 /* @ 246954 for 0x6c */
@@ -512,9 +512,9 @@ void scale_obj_position(struct GdObj *obj) {
     set_cur_dynobj(obj);
     d_get_rel_pos(&pos);
 
-    pos.x *= sVertexScaleFactor.x;
-    pos.y *= sVertexScaleFactor.y;
-    pos.z *= sVertexScaleFactor.z;
+    pos.x *= WORLD(sVertexScaleFactor).x;
+    pos.y *= WORLD(sVertexScaleFactor).y;
+    pos.z *= WORLD(sVertexScaleFactor).z;
 
     d_set_rel_pos(pos.x, pos.y, pos.z);
     d_set_init_pos(pos.x, pos.y, pos.z);
@@ -527,18 +527,18 @@ void translate_obj_position(struct GdObj *obj) {
     set_cur_dynobj(obj);
     d_get_rel_pos(&pos);
 
-    pos.x += sVertexTranslateOffset.x;
-    pos.y += sVertexTranslateOffset.y;
-    pos.z += sVertexTranslateOffset.z;
+    pos.x += WORLD(sVertexTranslateOffset).x;
+    pos.y += WORLD(sVertexTranslateOffset).y;
+    pos.z += WORLD(sVertexTranslateOffset).z;
 
     d_set_rel_pos(pos.x, pos.y, pos.z);
 }
 
 /* @ 246B1C for 0x88 */
 void scale_verts_in_shape(struct ObjShape *shape, f32 x, f32 y, f32 z) {
-    sVertexScaleFactor.x = x;
-    sVertexScaleFactor.y = y;
-    sVertexScaleFactor.z = z;
+    WORLD(sVertexScaleFactor).x = x;
+    WORLD(sVertexScaleFactor).y = y;
+    WORLD(sVertexScaleFactor).z = z;
 
     if (shape->vtxGroup != NULL) {
         apply_to_obj_types_in_group(OBJ_TYPE_ALL, (applyproc_t) scale_obj_position, shape->vtxGroup);
@@ -548,9 +548,9 @@ void scale_verts_in_shape(struct ObjShape *shape, f32 x, f32 y, f32 z) {
 /* @ 246BA4 for 0x70; not called */
 // Guessing on the type of a0
 void translate_verts_in_shape(struct ObjShape *shape, f32 x, f32 y, f32 z) {
-    sVertexTranslateOffset.x = x;
-    sVertexTranslateOffset.y = y;
-    sVertexTranslateOffset.z = z;
+    WORLD(sVertexTranslateOffset).x = x;
+    WORLD(sVertexTranslateOffset).y = y;
+    WORLD(sVertexTranslateOffset).z = z;
 
     apply_to_obj_types_in_group(OBJ_TYPE_ALL, (applyproc_t) translate_obj_position, shape->vtxGroup);
 }
@@ -566,38 +566,38 @@ void Unknown80198444(struct ObjVertex *vtx) {
     if (distance != 0.0) {
         distance = gd_sqrt_d(distance); // sqrtd?
 
-        if (distance > D_801A8668) {
-            D_801A8668 = distance;
+        if (distance > WORLD(D_801A8668)) {
+            WORLD(D_801A8668) = distance;
         }
     }
 }
 
 /* @ 246CF4 for 0xc4 */
 void Unknown80198524(struct ObjVertex *vtx) {
-    vtx->pos.x -= sShapeCenter.x;
-    vtx->pos.y -= sShapeCenter.y;
-    vtx->pos.z -= sShapeCenter.z;
+    vtx->pos.x -= WORLD(sShapeCenter).x;
+    vtx->pos.y -= WORLD(sShapeCenter).y;
+    vtx->pos.z -= WORLD(sShapeCenter).z;
 
-    vtx->pos.x /= D_801A8668;
-    vtx->pos.y /= D_801A8668;
-    vtx->pos.z /= D_801A8668;
+    vtx->pos.x /= WORLD(D_801A8668);
+    vtx->pos.y /= WORLD(D_801A8668);
+    vtx->pos.z /= WORLD(D_801A8668);
 }
 
 /* @ 246DB8 for 0x11c */
 void Unknown801985E8(struct ObjShape *shape) {
     struct GdBoundingBox bbox;
 
-    D_801A8668 = 0.0;
+    WORLD(D_801A8668) = 0.0;
     reset_bounding_box();
     apply_to_obj_types_in_group(OBJ_TYPE_VERTICES, (applyproc_t) Unknown80198444, shape->vtxGroup);
 
     get_some_bounding_box(&bbox);
 
-    sShapeCenter.x = (f32)((bbox.minX + bbox.maxX) / 2.0); //? 2.0f
-    sShapeCenter.y = (f32)((bbox.minY + bbox.maxY) / 2.0); //? 2.0f
-    sShapeCenter.z = (f32)((bbox.minZ + bbox.maxZ) / 2.0); //? 2.0f
+    WORLD(sShapeCenter).x = (f32)((bbox.minX + bbox.maxX) / 2.0); //? 2.0f
+    WORLD(sShapeCenter).y = (f32)((bbox.minY + bbox.maxY) / 2.0); //? 2.0f
+    WORLD(sShapeCenter).z = (f32)((bbox.minZ + bbox.maxZ) / 2.0); //? 2.0f
 
-    gd_print_vec("c=", &sShapeCenter);
+    gd_print_vec("c=", &WORLD(sShapeCenter));
 
     apply_to_obj_types_in_group(OBJ_TYPE_VERTICES, (applyproc_t) Unknown80198524, shape->vtxGroup);
 }
@@ -738,7 +738,7 @@ void get_OBJ_shape(struct ObjShape *shape) {
     faceClr.g = 0.5f;
     faceClr.b = 1.0f;
 
-    sGdLineBufCsr = 0;
+    WORLD(sGdLineBufCsr) = 0;
 
     while (scan_to_next_non_whitespace()) {
         switch (get_and_advance_buf()) {
@@ -927,18 +927,18 @@ void read_ARK_shape(struct ObjShape *shape, char *fileName) {
     sp48.y = 0.5f;
     sp48.z = 1.0f;
 
-    sGdShapeFile = gd_fopen(fileName, "rb");
+    WORLD(sGdShapeFile) = gd_fopen(fileName, "rb");
 
-    if (sGdShapeFile == NULL) {
+    if (WORLD(sGdShapeFile) == NULL) {
         fatal_printf("Cant load shape '%s'", fileName);
     }
 
-    gd_fread(fileInfo.bytes, 0x48, 1, sGdShapeFile);
+    gd_fread(fileInfo.bytes, 0x48, 1, WORLD(sGdShapeFile));
     stub_renderer_12(&fileInfo.bytes[0x40]); // face count?
     stub_renderer_12(&fileInfo.bytes[0x44]);
 
     while (fileInfo.data.word40-- > 0) {
-        gd_fread(faceInfo.bytes, 0x10, 1, sGdShapeFile);
+        gd_fread(faceInfo.bytes, 0x10, 1, WORLD(sGdShapeFile));
         stub_renderer_14(&faceInfo.bytes[0x0]);
         stub_renderer_14(&faceInfo.bytes[0x4]);
         stub_renderer_14(&faceInfo.bytes[0x8]);
@@ -953,7 +953,7 @@ void read_ARK_shape(struct ObjShape *shape, char *fileName) {
 
         while (faceInfo.data.faceCount-- > 0) {
             shape->faceCount++;
-            gd_fread(face.bytes, 0x10, 1, sGdShapeFile);
+            gd_fread(face.bytes, 0x10, 1, WORLD(sGdShapeFile));
             stub_renderer_14(&face.bytes[0x4]); // read word as f32?
             stub_renderer_14(&face.bytes[0x8]);
             stub_renderer_14(&face.bytes[0xC]);
@@ -968,14 +968,14 @@ void read_ARK_shape(struct ObjShape *shape, char *fileName) {
 
             if (face.data.vtxCount > 3) {
                 while (face.data.vtxCount-- > 0) {
-                    gd_fread(vtx.bytes, 0x18, 1, sGdShapeFile);
+                    gd_fread(vtx.bytes, 0x18, 1, WORLD(sGdShapeFile));
                 }
                 continue;
             }
 
             while (face.data.vtxCount-- > 0) {
                 shape->vtxCount++;
-                gd_fread(vtx.bytes, 0x18, 1, sGdShapeFile);
+                gd_fread(vtx.bytes, 0x18, 1, WORLD(sGdShapeFile));
                 stub_renderer_14(&vtx.bytes[0x00]);
                 stub_renderer_14(&vtx.bytes[0x04]);
                 stub_renderer_14(&vtx.bytes[0x08]);
@@ -1004,7 +1004,7 @@ void read_ARK_shape(struct ObjShape *shape, char *fileName) {
 
     shape->vtxGroup = make_group_of_type(OBJ_TYPE_VERTICES, (struct GdObj *) sp38, NULL);
     shape->faceGroup = group_faces_in_mtl_grp(shape->mtlGroup, (struct GdObj *) sp40, NULL);
-    gd_fclose(sGdShapeFile);
+    gd_fclose(WORLD(sGdShapeFile));
 }
 
 /* @ 247E30 for 0x148; orig name: Unknown80199660 */
@@ -1018,14 +1018,14 @@ struct GdFile *get_shape_from_file(struct ObjShape *shape, char *fileName) {
     if (gd_str_contains(fileName, ".ark")) {
         read_ARK_shape(shape, fileName);
     } else {
-        sGdShapeFile = gd_fopen(fileName, "r");
+        WORLD(sGdShapeFile) = gd_fopen(fileName, "r");
 
-        if (sGdShapeFile == NULL) {
+        if (WORLD(sGdShapeFile) == NULL) {
             fatal_printf("Cant open shape '%s'", fileName);
         }
 
-        sGdLineBufCsr = 0;
-        sGdLineBuf[sGdLineBufCsr] = '\0';
+        WORLD(sGdLineBufCsr) = 0;
+        WORLD(sGdLineBuf)[WORLD(sGdLineBufCsr)] = '\0';
         load_next_line_into_buf();
 
         if (is_next_buf_word("3DG1")) {
@@ -1038,12 +1038,12 @@ struct GdFile *get_shape_from_file(struct ObjShape *shape, char *fileName) {
         printf("Num Faces=%d\n", shape->faceCount);
         printf("\n");
 
-        gd_fclose(sGdShapeFile);
+        gd_fclose(WORLD(sGdShapeFile));
     }
 
     stop_memtracker(fileName);
 
-    return sGdShapeFile;
+    return WORLD(sGdShapeFile);
 }
 
 /* @ 247F78 for 0x69c; orig name: Unknown801997A8 */
@@ -1115,24 +1115,24 @@ struct ObjShape *make_grid_shape(enum ObjTypeFlag gridType, s32 a1, s32 a2, s32 
             gridShape->faceCount += 2;
             if (a1 != a2) {
                 if ((row + col) & 1) {
-                    D_801BAC9C = make_face_with_material(mtl1);
-                    D_801BACA0 = make_face_with_material(mtl1);
+                    WORLD(D_801BAC9C) = make_face_with_material(mtl1);
+                    WORLD(D_801BACA0) = make_face_with_material(mtl1);
                 } else {
-                    D_801BAC9C = make_face_with_material(mtl2);
-                    D_801BACA0 = make_face_with_material(mtl2);
+                    WORLD(D_801BAC9C) = make_face_with_material(mtl2);
+                    WORLD(D_801BACA0) = make_face_with_material(mtl2);
                 }
             } else {
-                D_801BAC9C = make_face_with_material(mtl1);
-                D_801BACA0 = make_face_with_material(mtl2);
+                WORLD(D_801BAC9C) = make_face_with_material(mtl1);
+                WORLD(D_801BACA0) = make_face_with_material(mtl2);
             }
 
             if (sp40 == NULL) {
-                sp40 = D_801BAC9C;
+                sp40 = WORLD(D_801BAC9C);
             }
 
-            add_3_vtx_to_face(D_801BAC9C, objBuf[row][col + 1], objBuf[row + 1][col + 1],
+            add_3_vtx_to_face(WORLD(D_801BAC9C), objBuf[row][col + 1], objBuf[row + 1][col + 1],
                               objBuf[row][col]);
-            add_3_vtx_to_face(D_801BACA0, objBuf[row + 1][col + 1], objBuf[row + 1][col],
+            add_3_vtx_to_face(WORLD(D_801BACA0), objBuf[row + 1][col + 1], objBuf[row + 1][col],
                               objBuf[row][col]);
         }
     }
@@ -1166,10 +1166,10 @@ void Unknown80199E44(UNUSED s32 a0, struct GdObj *a1, struct GdObj *a2, UNUSED s
 
 /* @ 248658 for 0x5c */
 void Unknown80199E88(struct ObjFace *face) {
-    D_801BAC74 = make_plane(FALSE, face);
+    WORLD(D_801BAC74) = make_plane(FALSE, face);
 
-    if (D_801BAC78 == NULL) {
-        D_801BAC78 = D_801BAC74;
+    if (WORLD(D_801BAC78) == NULL) {
+        WORLD(D_801BAC78) = WORLD(D_801BAC74);
     }
 }
 
@@ -1181,10 +1181,10 @@ struct ObjNet *make_netfromshape(struct ObjShape *shape) {
         fatal_printf("make_netfromshape(): null shape ptr");
     }
 
-    D_801BAC78 = NULL;
+    WORLD(D_801BAC78) = NULL;
     apply_to_obj_types_in_group(OBJ_TYPE_FACES, (applyproc_t) Unknown80199E88, shape->faceGroup);
-    D_801BAD08 = make_group_of_type(OBJ_TYPE_PLANES, (struct GdObj *) D_801BAC78, NULL);
-    newNet = make_net(0, shape, NULL, D_801BAD08, shape->vtxGroup);
+    WORLD(D_801BAD08) = make_group_of_type(OBJ_TYPE_PLANES, (struct GdObj *) WORLD(D_801BAC78), NULL);
+    newNet = make_net(0, shape, NULL, WORLD(D_801BAD08), shape->vtxGroup);
     newNet->netType = 1;
 
     return newNet;
@@ -1218,7 +1218,7 @@ void animate_mario_head_gameover(struct ObjAnimator *self) {
  */
 void animate_mario_head_normal(struct ObjAnimator *self) {
     s32 state = 0; // TODO: label these states
-    s32 aBtnPressed = gGdCtrl.dragging;
+    s32 aBtnPressed = WORLD(gGdCtrl).dragging;
 
     switch (self->state) {
         case 0:
@@ -1320,7 +1320,7 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     animator->controlFunc = aniFn;
     d_use_integer_names(FALSE);
     // FIXME: make segment address work once seg4 is disassembled
-    gMarioFaceGrp = (struct ObjGroup *) load_dynlist(dynlist_mario_master);
+    WORLD(gMarioFaceGrp) = (struct ObjGroup *) load_dynlist(WORLD(dynlist_mario_master));
     stop_memtracker("mario face");
 
     // Make camera
@@ -1333,8 +1333,8 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     camera->lookAt.y = 200.0f;
     camera->lookAt.z = 0.0f;
 
-    addto_group(gMarioFaceGrp, &camera->header);
-    addto_group(gMarioFaceGrp, &animator->header);
+    addto_group(WORLD(gMarioFaceGrp), &camera->header);
+    addto_group(WORLD(gMarioFaceGrp), &animator->header);
 
     d_set_name_suffix(NULL);  // stop adding "l" to generated dynobj names
 
@@ -1344,38 +1344,38 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     particle->unk60 = 3;
     particle->unk64 = 3;
     particle->attachedToObj = &camera->header;
-    particle->shapePtr = gShapeSilverSpark;
-    addto_group(gGdLightGroup, &particle->header);
+    particle->shapePtr = WORLD(gShapeSilverSpark);
+    addto_group(WORLD(gGdLightGroup), &particle->header);
 
     particle = make_particle(0, COLOUR_WHITE, 0.0f, 0.0f, 0.0f);
     particle->unk60 = 3;
     particle->unk64 = 2;
     particle->attachedToObj = d_use_obj("N228l"); // DYNOBJ_SILVER_STAR_LIGHT
-    particle->shapePtr = gShapeSilverSpark;
-    addto_group(gGdLightGroup, &particle->header);
+    particle->shapePtr = WORLD(gShapeSilverSpark);
+    addto_group(WORLD(gGdLightGroup), &particle->header);
 
     particle = make_particle(0, COLOUR_RED, 0.0f, 0.0f, 0.0f);
     particle->unk60 = 3;
     particle->unk64 = 2;
     particle->attachedToObj = d_use_obj("N231l"); // DYNOBJ_RED_STAR_LIGHT
-    particle->shapePtr = gShapeRedSpark;
-    addto_group(gGdLightGroup, &particle->header);
+    particle->shapePtr = WORLD(gShapeRedSpark);
+    addto_group(WORLD(gGdLightGroup), &particle->header);
 
     mainShapesGrp = (struct ObjGroup *) d_use_obj("N1000l");  // DYNOBJ_MARIO_MAIN_SHAPES_GROUP
     create_gddl_for_shapes(mainShapesGrp);
-    sp38 = gGdObjectList;
+    sp38 = WORLD(gGdObjectList);
 
     // Make grabbers to move the face with the cursor
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, -500.0f, 0.0f, -150.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, -500.0f, 0.0f, -150.0f);
     faceJoint = d_use_obj("N167l");  // DYNOBJ_MARIO_LEFT_EAR_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 500.0f, 0.0f, -150.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 500.0f, 0.0f, -150.0f);
     faceJoint = d_use_obj("N176l");  // DYNOBJ_MARIO_RIGHT_EAR_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 0.0f, 700.0f, 300.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 0.0f, 700.0f, 300.0f);
     faceJoint = d_use_obj("N131l");  // DYNOBJ_MARIO_CAP_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
@@ -1389,22 +1389,22 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     faceJoint = d_use_obj("N65l");  // DYNOBJ_MARIO_RIGHT_EYEBROW_MPART_JOINT_1
     addto_group(grabberJoint->attachedObjsGrp, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 0.0f, 0.0f, 600.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 0.0f, 0.0f, 600.0f);
     faceJoint = d_use_obj("N185l");  // DYNOBJ_MARIO_NOSE_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 0.0f, -300.0f, 300.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 0.0f, -300.0f, 300.0f);
     faceJoint = d_use_obj("N194l");  // DYNOBJ_MARIO_LEFT_JAW_JOINT
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 250.0f, -150.0f, 300.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 250.0f, -150.0f, 300.0f);
     faceJoint = d_use_obj("N158l");  // DYNOBJ_MARIO_RIGHT_LIP_CORNER_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
     faceJoint = d_use_obj("N15l");  // DYNOBJ_MARIO_LEFT_MUSTACHE_JOINT_1
     addto_group(grabberJoint->attachedObjsGrp, faceJoint);
 
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, -250.0f, -150.0f, 300.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, -250.0f, -150.0f, 300.0f);
     faceJoint = d_use_obj("N149l");  // DYNOBJ_MARIO_LEFT_LIP_CORNER_JOINT_1
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
 
@@ -1412,7 +1412,7 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     addto_group(grabberJoint->attachedObjsGrp, faceJoint);
 
     // make the left eye follow cursor
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, 100.0f, 200.0f, 400.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, 100.0f, 200.0f, 400.0f);
     faceJoint = d_use_obj("N112l");  // DYNOBJ_MARIO_RIGHT_EYE_UNKNOWN_NET
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
     grabberJoint->updateFunc = eye_joint_update_func;
@@ -1420,7 +1420,7 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     grabberJoint->header.drawFlags &= ~OBJ_IS_GRABBABLE;
 
     // make the right eye follow cursor
-    grabberJoint = make_grabber_joint(sGrabJointTestShape, 0, -100.0f, 200.0f, 400.0f);
+    grabberJoint = make_grabber_joint(WORLD(sGrabJointTestShape), 0, -100.0f, 200.0f, 400.0f);
     faceJoint = d_use_obj("N96l");  // DYNOBJ_MARIO_LEFT_EYE_UNKNOWN_NET
     grabberJoint->attachedObjsGrp = make_group(1, faceJoint);
     grabberJoint->updateFunc = eye_joint_update_func;
@@ -1430,8 +1430,8 @@ s32 load_mario_head(void (*aniFn)(struct ObjAnimator *)) {
     sp48 = make_group_of_type(OBJ_TYPE_JOINTS, sp38, NULL);
     sp54 = make_net(0, NULL, sp48, NULL, NULL);
     sp54->netType = 3;
-    addto_group(gMarioFaceGrp, &sp48->header);
-    addto_groupfirst(gMarioFaceGrp, &sp54->header);
+    addto_group(WORLD(gMarioFaceGrp), &sp48->header);
+    addto_groupfirst(WORLD(gMarioFaceGrp), &sp54->header);
 
     return 0;
 }
@@ -1442,16 +1442,16 @@ void load_shapes2(void) {
     reset_dynlist();
     func_80197280();
 
-    sCubeShape = make_shape(0, "cube");
+    WORLD(sCubeShape) = make_shape(0, "cube");
 
-    gSpotShape = (struct ObjShape *) load_dynlist(dynlist_spot_shape);
-    scale_verts_in_shape(gSpotShape, 200.0f, 200.0f, 200.0f);
+    WORLD(gSpotShape) = (struct ObjShape *) load_dynlist(WORLD(dynlist_spot_shape));
+    scale_verts_in_shape(WORLD(gSpotShape), 200.0f, 200.0f, 200.0f);
 
-    sGrabJointTestShape = (struct ObjShape *) load_dynlist(dynlist_test_cube);
-    scale_verts_in_shape(sGrabJointTestShape, 30.0f, 30.0f, 30.0f);
+    WORLD(sGrabJointTestShape) = (struct ObjShape *) load_dynlist(WORLD(dynlist_test_cube));
+    scale_verts_in_shape(WORLD(sGrabJointTestShape), 30.0f, 30.0f, 30.0f);
 
-    sCubeShapeGroup = make_group_of_type(OBJ_TYPE_SHAPES, &sCubeShape->header, NULL);
-    create_gddl_for_shapes(sCubeShapeGroup);
+    WORLD(sCubeShapeGroup) = make_group_of_type(OBJ_TYPE_SHAPES, &WORLD(sCubeShape)->header, NULL);
+    create_gddl_for_shapes(WORLD(sCubeShapeGroup));
 
     imout();
 }
@@ -1460,7 +1460,7 @@ void load_shapes2(void) {
 struct ObjGroup *Unknown8019AB98(UNUSED u32 a0) {
     struct ObjLight *light1;
     struct ObjLight *light2;
-    struct GdObj *oldObjHead = gGdObjectList; // obj head node before making lights
+    struct GdObj *oldObjHead = WORLD(gGdObjectList); // obj head node before making lights
 
     light1 = make_light(0, NULL, 0);
     light1->position.x = 100.0f;
@@ -1495,9 +1495,9 @@ struct ObjGroup *Unknown8019AB98(UNUSED u32 a0) {
     light2->unk80.y = 4.0f;
     light2->unk80.z = -2.0f;
 
-    gGdLightGroup = make_group_of_type(OBJ_TYPE_LIGHTS, oldObjHead, NULL);
+    WORLD(gGdLightGroup) = make_group_of_type(OBJ_TYPE_LIGHTS, oldObjHead, NULL);
 
-    return gGdLightGroup;
+    return WORLD(gGdLightGroup);
 }
 
 /* @ 249594 for 0x100 */
@@ -1507,7 +1507,7 @@ struct ObjGroup *Unknown8019ADC4(UNUSED u32 a0) {
     struct GdObj *oldObjHead;
 
     unusedLight = make_light(0, NULL, 0);
-    oldObjHead = gGdObjectList;
+    oldObjHead = WORLD(gGdObjectList);
     newLight = make_light(0, NULL, 0);
 
     newLight->position.x = 0.0f;
@@ -1520,17 +1520,17 @@ struct ObjGroup *Unknown8019ADC4(UNUSED u32 a0) {
 
     newLight->unk30 = 1.0f;
 
-    gGdLightGroup = make_group_of_type(OBJ_TYPE_LIGHTS, oldObjHead, NULL);
+    WORLD(gGdLightGroup) = make_group_of_type(OBJ_TYPE_LIGHTS, oldObjHead, NULL);
 
-    return gGdLightGroup;
+    return WORLD(gGdLightGroup);
 }
 
 /* @ 249694 for 0x5c */
 struct ObjGroup *Unknown8019AEC4(UNUSED u32 a0) {
     UNUSED u8 filler[8];
-    UNUSED struct GdObj *sp1C = gGdObjectList;
+    UNUSED struct GdObj *sp1C = WORLD(gGdObjectList);
 
-    gGdLightGroup = make_group(0);
+    WORLD(gGdLightGroup) = make_group(0);
 
-    return gGdLightGroup;
+    return WORLD(gGdLightGroup);
 }

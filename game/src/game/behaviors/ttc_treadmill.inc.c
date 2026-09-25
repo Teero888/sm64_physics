@@ -26,26 +26,26 @@ extern s16 ttc_movtex_tris_small_surface_treadmill[];
 
 void bhv_ttc_treadmill_init(void) {
     o->collisionData = segmented_to_virtual(
-        sTTCTreadmillCollisionModels[o->oBhvParams2ndByte & TTC_TREADMILL_BP_FLAG_MASK]);
+        WORLD(sTTCTreadmillCollisionModels)[o->oBhvParams2ndByte & TTC_TREADMILL_BP_FLAG_MASK]);
 
-    o->oTTCTreadmillBigSurface = segmented_to_virtual(ttc_movtex_tris_big_surface_treadmill);
-    o->oTTCTreadmillSmallSurface = segmented_to_virtual(ttc_movtex_tris_small_surface_treadmill);
+    o->oTTCTreadmillBigSurface = segmented_to_virtual(WORLD(ttc_movtex_tris_big_surface_treadmill));
+    o->oTTCTreadmillSmallSurface = segmented_to_virtual(WORLD(ttc_movtex_tris_small_surface_treadmill));
 
-    *o->oTTCTreadmillBigSurface = *o->oTTCTreadmillSmallSurface = sTTCTreadmillSpeeds[gTTCSpeedSetting];
+    *o->oTTCTreadmillBigSurface = *o->oTTCTreadmillSmallSurface = WORLD(sTTCTreadmillSpeeds)[WORLD(gTTCSpeedSetting)];
 
-    sMasterTreadmill = NULL;
+    WORLD(sMasterTreadmill) = NULL;
 }
 
 /**
  * Update function for bhvTTCTreadmill. It calls cur_obj_compute_vel_xz afterward.
  */
 void bhv_ttc_treadmill_update(void) {
-    if (sMasterTreadmill == o || sMasterTreadmill == NULL) {
-        sMasterTreadmill = o;
+    if (WORLD(sMasterTreadmill) == o || WORLD(sMasterTreadmill) == NULL) {
+        WORLD(sMasterTreadmill) = o;
 
         cur_obj_play_sound_1(SOUND_ENV_ELEVATOR2);
 
-        if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+        if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
             // Stay still for 5 frames, then accelerate toward the target speed
             // until it's time to switch
             if (o->oTimer > o->oTTCTreadmillTimeUntilSwitch) {

@@ -15,11 +15,11 @@ void bhv_end_birds_2_loop(void) {
             break;
 
         case 1:
-            vec3f_get_dist_and_angle(gCamera->pos, gCamera->focus, &sp34, &sp32,
+            vec3f_get_dist_and_angle(WORLD(gCamera)->pos, WORLD(gCamera)->focus, &sp34, &sp32,
                                      &sp30);
             sp30 += 0x1000;
             sp32 += 0; // nice work, Nintendo
-            vec3f_set_dist_and_angle(gCamera->pos, sp3C, 14000.0f, sp32, sp30);
+            vec3f_set_dist_and_angle(WORLD(gCamera)->pos, sp3C, 14000.0f, sp32, sp30);
             obj_rotate_towards_point(o, sp3C, 0, 0, 8, 8);
 
             if ((o->oEndBirdUnk104 == 0.0f) && (o->oTimer == 0)) {

@@ -38,8 +38,8 @@ static s16 sTTC2DRotatorTimeBetweenTurns[][4] = {
  */
 void bhv_ttc_2d_rotator_init(void) {
     o->oTTC2DRotatorMinTimeUntilNextTurn =
-        sTTC2DRotatorTimeBetweenTurns[o->oBhvParams2ndByte][gTTCSpeedSetting];
-    o->oTTC2DRotatorIncrement = o->oTTC2DRotatorSpeed = sTTC2DRotatorSpeeds[o->oBhvParams2ndByte];
+        WORLD(sTTC2DRotatorTimeBetweenTurns)[o->oBhvParams2ndByte][WORLD(gTTCSpeedSetting)];
+    o->oTTC2DRotatorIncrement = o->oTTC2DRotatorSpeed = WORLD(sTTC2DRotatorSpeeds)[o->oBhvParams2ndByte];
 }
 
 /**
@@ -63,7 +63,7 @@ void bhv_ttc_2d_rotator_update(void) {
             o->oTTC2DRotatorTargetYaw += o->oTTC2DRotatorIncrement;
             o->oTimer = 0;
 
-            if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+            if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
                 // If ready for a change in direction, then pick a new
                 // direction
                 if (o->oTTC2DRotatorRandomDirTimer == 0) {

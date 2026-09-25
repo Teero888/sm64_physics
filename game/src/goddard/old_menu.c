@@ -52,9 +52,9 @@ void Unknown8018B7A8(void *a0) {
     set_cur_dynobj(a0);
     d_get_init_pos(&sp1C);
 
-    sp1C.x += sStaticVec.x;
-    sp1C.y += sStaticVec.y;
-    sp1C.z += sStaticVec.z;
+    sp1C.x += WORLD(sStaticVec).x;
+    sp1C.y += WORLD(sStaticVec).y;
+    sp1C.z += WORLD(sStaticVec).z;
     d_set_world_pos(sp1C.x, sp1C.y, sp1C.z);
 }
 
@@ -66,7 +66,7 @@ void Unknown8018B7A8(void *a0) {
 static void menu_cb_default_settings(intptr_t itemId) {
     struct ObjGroup *group = (struct ObjGroup *)itemId;  // Unpack pointer from menu item ID
     apply_to_obj_types_in_group(OBJ_TYPE_GADGETS, (applyproc_t) reset_gadget_default, group);
-    apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) stub_renderer_6, gGdViewsGroup);
+    apply_to_obj_types_in_group(OBJ_TYPE_VIEWS, (applyproc_t) stub_renderer_6, WORLD(gGdViewsGroup));
 }
 
 /**
@@ -78,7 +78,7 @@ static void add_item_to_default_settings_menu(struct ObjGroup *group) {
     if (group->debugPrint == 1) {
         // Convert pointer to integer and store it as the menu item ID.
         sprintf(buf, "| %s %%x%d", group->name, (u32) (intptr_t) group);
-        gd_strcat(sDefSettingsMenuStr, buf);
+        gd_strcat(WORLD(sDefSettingsMenuStr), buf);
     }
 }
 
@@ -90,9 +90,9 @@ long create_gui_menu(struct ObjGroup *grp) {
     long defaultSettingMenuId;
     long contTypeMenuId;
 
-    gd_strcpy(sDefSettingsMenuStr, "Default Settings %t %F");
+    gd_strcpy(WORLD(sDefSettingsMenuStr), "Default Settings %t %F");
     apply_to_obj_types_in_group(OBJ_TYPE_GROUPS, (applyproc_t) add_item_to_default_settings_menu, grp);
-    defaultSettingMenuId = defpup(sDefSettingsMenuStr, &menu_cb_default_settings);
+    defaultSettingMenuId = defpup(WORLD(sDefSettingsMenuStr), &menu_cb_default_settings);
 
     contTypeMenuId = defpup(
         "Control Type %t %F"
@@ -163,10 +163,10 @@ void set_objvalue(union ObjVarVal *src, enum ValPtrType type, void *base, size_t
 void set_static_gdgt_value(struct ObjValPtr *vp) {
     switch (vp->datatype) {
         case OBJ_VALUE_FLOAT:
-            set_objvalue(&sCurGadgetPtr->varval, OBJ_VALUE_FLOAT, vp->obj, vp->offset);
+            set_objvalue(&WORLD(sCurGadgetPtr)->varval, OBJ_VALUE_FLOAT, vp->obj, vp->offset);
             break;
         case OBJ_VALUE_INT:
-            set_objvalue(&sCurGadgetPtr->varval, OBJ_VALUE_INT, vp->obj, vp->offset);
+            set_objvalue(&WORLD(sCurGadgetPtr)->varval, OBJ_VALUE_INT, vp->obj, vp->offset);
             break;
     }
 }
@@ -175,7 +175,7 @@ void set_static_gdgt_value(struct ObjValPtr *vp) {
 static void reset_gadget_default(struct ObjGadget *gdgt) {
     UNUSED u8 filler[4];
 
-    sCurGadgetPtr = gdgt;
+    WORLD(sCurGadgetPtr) = gdgt;
     apply_to_obj_types_in_group(OBJ_TYPE_VALPTRS, (applyproc_t) set_static_gdgt_value, gdgt->valueGrp);
 }
 
@@ -186,9 +186,9 @@ void adjust_gadget(struct ObjGadget *gdgt, s32 a1, s32 a2) {
     struct ObjValPtr *vp;
 
     if (gdgt->type == 1) {
-        gdgt->sliderPos += a2 * (-sCurrentMoveCamera->unk40.z * 1.0E-5);
+        gdgt->sliderPos += a2 * (-WORLD(sCurrentMoveCamera)->unk40.z * 1.0E-5);
     } else if (gdgt->type == 2) {
-        gdgt->sliderPos += a1 * (-sCurrentMoveCamera->unk40.z * 1.0E-5);
+        gdgt->sliderPos += a1 * (-WORLD(sCurrentMoveCamera)->unk40.z * 1.0E-5);
     }
 
     // slider position must be between 0 and 1 (inclusive)

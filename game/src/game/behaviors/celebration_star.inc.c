@@ -1,27 +1,27 @@
 // celebration_star.inc.c
 
 void bhv_celebration_star_init(void) {
-    o->oHomeX = gMarioObject->header.gfx.pos[0];
-    o->oPosY = gMarioObject->header.gfx.pos[1] + 30.0f;
-    o->oHomeZ = gMarioObject->header.gfx.pos[2];
-    o->oMoveAngleYaw = gMarioObject->header.gfx.angle[1] + 0x8000;
+    o->oHomeX = WORLD(gMarioObject)->header.gfx.pos[0];
+    o->oPosY = WORLD(gMarioObject)->header.gfx.pos[1] + 30.0f;
+    o->oHomeZ = WORLD(gMarioObject)->header.gfx.pos[2];
+    o->oMoveAngleYaw = WORLD(gMarioObject)->header.gfx.angle[1] + 0x8000;
     o->oCelebStarDiameterOfRotation = 100;
 #if BUGFIX_STAR_BOWSER_KEY
-    if (gCurrLevelNum == LEVEL_BOWSER_1 || gCurrLevelNum == LEVEL_BOWSER_2) {
-        o->header.gfx.sharedChild = gLoadedGraphNodes[MODEL_BOWSER_KEY];
+    if (WORLD(gCurrLevelNum) == LEVEL_BOWSER_1 || WORLD(gCurrLevelNum) == LEVEL_BOWSER_2) {
+        o->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[MODEL_BOWSER_KEY];
         o->oFaceAnglePitch = 0;
         o->oFaceAngleRoll = 0xC000;
         cur_obj_scale(0.1f);
         o->oCelebStarUnkF4 = 1;
     } else {
-        o->header.gfx.sharedChild = gLoadedGraphNodes[MODEL_STAR];
+        o->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[MODEL_STAR];
         o->oFaceAnglePitch = 0;
         o->oFaceAngleRoll = 0;
         cur_obj_scale(0.4f);
         o->oCelebStarUnkF4 = 0;
     }
 #else
-    o->header.gfx.sharedChild = gLoadedGraphNodes[MODEL_STAR];
+    o->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[MODEL_STAR];
     cur_obj_scale(0.4f);
     o->oFaceAnglePitch = 0;
     o->oFaceAngleRoll = 0;
@@ -60,7 +60,7 @@ void celeb_star_act_face_camera(void) {
 #endif
         o->oFaceAngleYaw += 0x1000;
     } else {
-        o->oFaceAngleYaw = gMarioObject->header.gfx.angle[1];
+        o->oFaceAngleYaw = WORLD(gMarioObject)->header.gfx.angle[1];
     }
 
     if (o->oTimer == 59) {

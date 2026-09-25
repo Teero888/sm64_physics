@@ -20,38 +20,38 @@ void door_animation_and_reset(s32 sp18) {
 
 void set_door_camera_event(void) {
     if (segmented_to_virtual(bhvDoor) == o->behavior) {
-        gPlayerCameraState->cameraEvent = CAM_EVENT_DOOR;
+        WORLD(gPlayerCameraState)->cameraEvent = CAM_EVENT_DOOR;
     } else {
-        gPlayerCameraState->cameraEvent = CAM_EVENT_DOOR_WARP;
+        WORLD(gPlayerCameraState)->cameraEvent = CAM_EVENT_DOOR_WARP;
     }
-    gPlayerCameraState->usedObj = o;
+    WORLD(gPlayerCameraState)->usedObj = o;
 }
 
 void play_door_open_noise(void) {
     s32 sp1C = cur_obj_has_model(MODEL_HMC_METAL_DOOR);
     if (o->oTimer == 0) {
-        cur_obj_play_sound_2(sDoorOpenSounds[sp1C]);
-        gTimeStopState |= TIME_STOP_MARIO_OPENED_DOOR;
+        cur_obj_play_sound_2(WORLD(sDoorOpenSounds)[sp1C]);
+        WORLD(gTimeStopState) |= TIME_STOP_MARIO_OPENED_DOOR;
     }
     if (o->oTimer == 70) {
-        cur_obj_play_sound_2(sDoorCloseSounds[sp1C]);
+        cur_obj_play_sound_2(WORLD(sDoorCloseSounds)[sp1C]);
     }
 }
 
 void play_warp_door_open_noise(void) {
     s32 sp1C = cur_obj_has_model(MODEL_HMC_METAL_DOOR);
     if (o->oTimer == 30) {
-        cur_obj_play_sound_2(sDoorCloseSounds[sp1C]);
+        cur_obj_play_sound_2(WORLD(sDoorCloseSounds)[sp1C]);
     }
 }
 
 void bhv_door_loop(void) {
     s32 sp1C = 0;
 
-    while (sDoorActions[sp1C].flag != 0xFFFFFFFF) {
-        if (cur_obj_clear_interact_status_flag(sDoorActions[sp1C].flag)) {
+    while (WORLD(sDoorActions)[sp1C].flag != 0xFFFFFFFF) {
+        if (cur_obj_clear_interact_status_flag(WORLD(sDoorActions)[sp1C].flag)) {
             set_door_camera_event();
-            cur_obj_change_action(sDoorActions[sp1C].action);
+            cur_obj_change_action(WORLD(sDoorActions)[sp1C].action);
         }
         sp1C++;
     }
@@ -112,28 +112,28 @@ void bhv_door_init(void) {
     }
 
     if (o->oDoorUnkF8 > 0 && o->oDoorUnkF8 < 60) {
-        gDoorAdjacentRooms[o->oDoorUnkF8][0] = o->oDoorUnkFC;
-        gDoorAdjacentRooms[o->oDoorUnkF8][1] = o->oDoorUnk100;
+        WORLD(gDoorAdjacentRooms)[o->oDoorUnkF8][0] = o->oDoorUnkFC;
+        WORLD(gDoorAdjacentRooms)[o->oDoorUnkF8][1] = o->oDoorUnk100;
     }
 }
 
 void bhv_star_door_loop_2(void) {
     s32 sp4 = FALSE;
 
-    if (gMarioCurrentRoom != 0) {
-        if (o->oDoorUnkF8 == gMarioCurrentRoom) {
+    if (WORLD(gMarioCurrentRoom) != 0) {
+        if (o->oDoorUnkF8 == WORLD(gMarioCurrentRoom)) {
             sp4 = TRUE;
-        } else if (gMarioCurrentRoom == o->oDoorUnkFC) {
+        } else if (WORLD(gMarioCurrentRoom) == o->oDoorUnkFC) {
             sp4 = TRUE;
-        } else if (gMarioCurrentRoom == o->oDoorUnk100) {
+        } else if (WORLD(gMarioCurrentRoom) == o->oDoorUnk100) {
             sp4 = TRUE;
-        } else if (gDoorAdjacentRooms[gMarioCurrentRoom][0] == o->oDoorUnkFC) {
+        } else if (WORLD(gDoorAdjacentRooms)[WORLD(gMarioCurrentRoom)][0] == o->oDoorUnkFC) {
             sp4 = TRUE;
-        } else if (gDoorAdjacentRooms[gMarioCurrentRoom][0] == o->oDoorUnk100) {
+        } else if (WORLD(gDoorAdjacentRooms)[WORLD(gMarioCurrentRoom)][0] == o->oDoorUnk100) {
             sp4 = TRUE;
-        } else if (gDoorAdjacentRooms[gMarioCurrentRoom][1] == o->oDoorUnkFC) {
+        } else if (WORLD(gDoorAdjacentRooms)[WORLD(gMarioCurrentRoom)][1] == o->oDoorUnkFC) {
             sp4 = TRUE;
-        } else if (gDoorAdjacentRooms[gMarioCurrentRoom][1] == o->oDoorUnk100) {
+        } else if (WORLD(gDoorAdjacentRooms)[WORLD(gMarioCurrentRoom)][1] == o->oDoorUnk100) {
             sp4 = TRUE;
         }
     } else {
@@ -142,7 +142,7 @@ void bhv_star_door_loop_2(void) {
 
     if (sp4 == TRUE) {
         o->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
-        D_8035FEE4++;
+        WORLD(D_8035FEE4)++;
     }
 
     if (!sp4) {

@@ -58,5 +58,5 @@ void bhv_clam_loop(void) {
             break;
     }
 
-    obj_check_attacks(&sClamShellHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sClamShellHitbox), o->oAction);
 }

@@ -23,7 +23,7 @@ struct TumblingBridgeData sTumblingBridgeData[] = {
 void bhv_tumbling_bridge_platform_loop(void) {
     switch (o->oAction) {
         case 0:
-            if (gMarioObject->platform == o) {
+            if (WORLD(gMarioObject)->platform == o) {
                 o->oAction++;
                 o->oTumblingBridgeUnkF4 = random_sign() * 0x80;
             }
@@ -70,16 +70,16 @@ void tumbling_bridge_act_1(void) {
     s32 relativePlatformY = 0;
     s32 relativeInitialPlatformY = 0;
 
-    for (i = 0; i < sTumblingBridgeData[bridgeID].numBridgeSections; i++) {
+    for (i = 0; i < WORLD(sTumblingBridgeData)[bridgeID].numBridgeSections; i++) {
         relativePlatformX = 0;
         relativePlatformZ = 0;
 
         if (bridgeID == TUMBLING_BRIDGE_BP_BITFS) {
-            relativePlatformX = sTumblingBridgeData[bridgeID].bridgeRelativeStartingXorZ
-                                + sTumblingBridgeData[bridgeID].platformWidth * i;
+            relativePlatformX = WORLD(sTumblingBridgeData)[bridgeID].bridgeRelativeStartingXorZ
+                                + WORLD(sTumblingBridgeData)[bridgeID].platformWidth * i;
         } else {
-            relativePlatformZ = sTumblingBridgeData[bridgeID].bridgeRelativeStartingXorZ
-                                + sTumblingBridgeData[bridgeID].platformWidth * i;
+            relativePlatformZ = WORLD(sTumblingBridgeData)[bridgeID].bridgeRelativeStartingXorZ
+                                + WORLD(sTumblingBridgeData)[bridgeID].platformWidth * i;
         }
 
         if (cur_obj_has_behavior(bhvLLLTumblingBridge)) {
@@ -91,9 +91,9 @@ void tumbling_bridge_act_1(void) {
 
         platformObj = spawn_object_relative(
             0, relativePlatformX, relativePlatformY + relativeInitialPlatformY, relativePlatformZ, o,
-            sTumblingBridgeData[bridgeID].model, bhvTumblingBridgePlatform);
+            WORLD(sTumblingBridgeData)[bridgeID].model, bhvTumblingBridgePlatform);
 
-        obj_set_collision_data(platformObj, sTumblingBridgeData[bridgeID].collision);
+        obj_set_collision_data(platformObj, WORLD(sTumblingBridgeData)[bridgeID].collision);
     }
 
     o->oAction = 2;
@@ -128,5 +128,5 @@ void (*sTumblingBridgeActions[])(void) = {
 };
 
 void bhv_tumbling_bridge_loop(void) {
-    cur_obj_call_action_function(sTumblingBridgeActions);
+    cur_obj_call_action_function(WORLD(sTumblingBridgeActions));
 }

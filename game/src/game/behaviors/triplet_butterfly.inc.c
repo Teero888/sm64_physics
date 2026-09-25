@@ -90,16 +90,16 @@ static void triplet_butterfly_act_activate(void) {
     if (o->oTimer > 20) {
         if (o->oTripletButterflyModel == 0) {
             spawn_object_relative_with_scale(0, 0, -40, 0, 1.5f, o, MODEL_SMOKE, bhvWhitePuffSmoke2);
-            o->oTripletButterflyModel = sTripletButterflyActivationData[o->oTripletButterflyType].model;
+            o->oTripletButterflyModel = WORLD(sTripletButterflyActivationData)[o->oTripletButterflyType].model;
             cur_obj_set_model(o->oTripletButterflyModel);
             obj_set_billboard(o);
             o->oTripletButterflyScale = 0.0f;
             o->oHomeY = o->oPosY;
         } else if (o->oTripletButterflyScale
-                   >= sTripletButterflyActivationData[o->oTripletButterflyType].scale) {
+                   >= WORLD(sTripletButterflyActivationData)[o->oTripletButterflyType].scale) {
             if (o->oTripletButterflyType != TRIPLET_BUTTERFLY_TYPE_EXPLODES) {
                 spawn_object(o, o->oTripletButterflyModel,
-                             sTripletButterflyActivationData[o->oTripletButterflyType].behavior);
+                             WORLD(sTripletButterflyActivationData)[o->oTripletButterflyType].behavior);
                 obj_mark_for_deletion(o);
             } else {
                 o->oAction = TRIPLET_BUTTERFLY_ACT_EXPLODE;
@@ -108,7 +108,7 @@ static void triplet_butterfly_act_activate(void) {
         }
 
         o->oTripletButterflyScale +=
-            sTripletButterflyActivationData[o->oTripletButterflyType].scale / 30.0f;
+            WORLD(sTripletButterflyActivationData)[o->oTripletButterflyType].scale / 30.0f;
         if (o->oTripletButterflyType == TRIPLET_BUTTERFLY_TYPE_EXPLODES) {
             o->oGraphYOffset = 250.0f * o->oTripletButterflyScale;
             o->oPosY = o->oHomeY - o->oGraphYOffset;
@@ -117,7 +117,7 @@ static void triplet_butterfly_act_activate(void) {
 }
 
 static void triplet_butterfly_act_explode(void) {
-    obj_check_attacks(&sTripletButterflyExplodeHitbox, -1);
+    obj_check_attacks(&WORLD(sTripletButterflyExplodeHitbox), -1);
 
     if (o->oAction == -1 || (o->oMoveFlags & OBJ_MOVE_HIT_WALL) || o->oTimer >= 158) {
         o->oPosY += o->oGraphYOffset;

@@ -3,9 +3,9 @@
 void bhv_1up_interact(void) {
     UNUSED u8 filler[4];
 
-    if (obj_check_if_collided_with_object(o, gMarioObject) == TRUE) {
-        play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);
-        gMarioState->numLives++;
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
+        play_sound(SOUND_GENERAL_COLLECT_1UP, WORLD(gGlobalSoundSource));
+        WORLD(gMarioState)->numLives++;
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
 #if ENABLE_RUMBLE
         queue_rumble_data(5, 80);
@@ -45,12 +45,12 @@ void one_up_loop_in_air(void) {
 }
 
 void pole_1up_move_towards_mario(void) {
-    f32 sp34 = gMarioObject->header.gfx.pos[0] - o->oPosX;
-    f32 sp30 = gMarioObject->header.gfx.pos[1] + 120.0f - o->oPosY;
-    f32 sp2C = gMarioObject->header.gfx.pos[2] - o->oPosZ;
+    f32 sp34 = WORLD(gMarioObject)->header.gfx.pos[0] - o->oPosX;
+    f32 sp30 = WORLD(gMarioObject)->header.gfx.pos[1] + 120.0f - o->oPosY;
+    f32 sp2C = WORLD(gMarioObject)->header.gfx.pos[2] - o->oPosZ;
     s16 sp2A = atan2s(sqrtf(sqr(sp34) + sqr(sp2C)), sp30);
 
-    obj_turn_toward_object(o, gMarioObject, 16, 0x1000);
+    obj_turn_toward_object(o, WORLD(gMarioObject), 16, 0x1000);
 
     o->oMoveAnglePitch = approach_s16_symmetric(o->oMoveAnglePitch, sp2A, 0x1000);
     o->oVelY = sins(o->oMoveAnglePitch) * 30.0f;
@@ -84,7 +84,7 @@ void bhv_1up_walking_loop(void) {
             }
 
             if (o->oTimer == 0) {
-                play_sound(SOUND_GENERAL2_1UP_APPEAR, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_1UP_APPEAR, WORLD(gGlobalSoundSource));
             }
 
             one_up_loop_in_air();
@@ -123,7 +123,7 @@ void bhv_1up_running_away_loop(void) {
             }
 
             if (o->oTimer == 0) {
-                play_sound(SOUND_GENERAL2_1UP_APPEAR, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_1UP_APPEAR, WORLD(gGlobalSoundSource));
             }
 
             one_up_loop_in_air();
@@ -233,7 +233,7 @@ void bhv_1up_hidden_loop(void) {
                 o->oVelY = 40.0f;
                 o->oAction = 3;
                 o->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
-                play_sound(SOUND_GENERAL2_1UP_APPEAR, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_1UP_APPEAR, WORLD(gGlobalSoundSource));
             }
             break;
 
@@ -267,7 +267,7 @@ void bhv_1up_hidden_loop(void) {
 }
 
 void bhv_1up_hidden_trigger_loop(void) {
-    if (obj_check_if_collided_with_object(o, gMarioObject) == TRUE) {
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         struct Object *hidden1Up = cur_obj_nearest_object_with_behavior(bhvHidden1Up);
         if (hidden1Up != NULL) {
             hidden1Up->oHidden1UpNumTouchedTriggers++;
@@ -287,7 +287,7 @@ void bhv_1up_hidden_in_pole_loop(void) {
                 o->oVelY = 40.0f;
                 o->oAction = 3;
                 o->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
-                play_sound(SOUND_GENERAL2_1UP_APPEAR, gGlobalSoundSource);
+                play_sound(SOUND_GENERAL2_1UP_APPEAR, WORLD(gGlobalSoundSource));
             }
             break;
 
@@ -314,7 +314,7 @@ void bhv_1up_hidden_in_pole_loop(void) {
 }
 
 void bhv_1up_hidden_in_pole_trigger_loop(void) {
-    if (obj_check_if_collided_with_object(o, gMarioObject) == TRUE) {
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         struct Object *hidden1Up = cur_obj_nearest_object_with_behavior(bhvHidden1UpInPole);
         if (hidden1Up != NULL) {
             hidden1Up->oHidden1UpNumTouchedTriggers++;

@@ -82,17 +82,17 @@ void bhv_tilting_inverted_pyramid_loop(void) {
     Mat4 *transform = &o->transform;
     UNUSED u8 filler2[28];
 
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         get_mario_pos(&mx, &my, &mz);
 
-        dist[0] = gMarioObject->oPosX - o->oPosX;
-        dist[1] = gMarioObject->oPosY - o->oPosY;
-        dist[2] = gMarioObject->oPosZ - o->oPosZ;
+        dist[0] = WORLD(gMarioObject)->oPosX - o->oPosX;
+        dist[1] = WORLD(gMarioObject)->oPosY - o->oPosY;
+        dist[2] = WORLD(gMarioObject)->oPosZ - o->oPosZ;
         linear_mtxf_mul_vec3f(*transform, posBeforeRotation, dist);
 
-        dx = gMarioObject->oPosX - o->oPosX;
+        dx = WORLD(gMarioObject)->oPosX - o->oPosX;
         dy = 500.0f;
-        dz = gMarioObject->oPosZ - o->oPosZ;
+        dz = WORLD(gMarioObject)->oPosZ - o->oPosZ;
         d = sqrtf(dx * dx + dy * dy + dz * dz);
 
         //! Always true since dy = 500, making d >= 500.

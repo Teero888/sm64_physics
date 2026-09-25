@@ -21,7 +21,7 @@ static Vec3f sKleptoTargetPositions[] = {
 static u8 sKleptoAttackHandlers[] = { 2, 2, 5, 5, 2, 2 };
 
 static void klepto_target_mario(void) {
-    o->oKleptoDistanceToTarget = lateral_dist_between_objects(gMarioObject, o);
+    o->oKleptoDistanceToTarget = lateral_dist_between_objects(WORLD(gMarioObject), o);
     o->oKleptoUnk1B0 = obj_turn_pitch_toward_mario(250.0f, 0);
     o->oKleptoYawToTarget = o->oAngleToMario;
     o->oKleptoUnk1AE = -60;
@@ -102,8 +102,8 @@ static void klepto_change_target(void) {
         f32 minTargetDist = 99999.0f;
 
         for (i = 0; i < 3; i++) {
-            dx = gMarioObject->oPosX - sKleptoTargetPositions[i][0];
-            dz = gMarioObject->oPosZ - sKleptoTargetPositions[i][2];
+            dx = WORLD(gMarioObject)->oPosX - WORLD(sKleptoTargetPositions)[i][0];
+            dz = WORLD(gMarioObject)->oPosZ - WORLD(sKleptoTargetPositions)[i][2];
 
             targetDist = sqrtf(dx * dx + dz * dz);
             if (targetDist < minTargetDist) {
@@ -118,9 +118,9 @@ static void klepto_change_target(void) {
     o->oKleptoUnkF8 = 400 * absi(newTarget - o->oKleptoTargetNumber);
     o->oKleptoTargetNumber = newTarget;
 
-    o->oHomeX = sKleptoTargetPositions[o->oKleptoTargetNumber][0];
-    o->oHomeY = sKleptoTargetPositions[o->oKleptoTargetNumber][1] + o->oKleptoUnkF8;
-    o->oHomeZ = sKleptoTargetPositions[o->oKleptoTargetNumber][2];
+    o->oHomeX = WORLD(sKleptoTargetPositions)[o->oKleptoTargetNumber][0];
+    o->oHomeY = WORLD(sKleptoTargetPositions)[o->oKleptoTargetNumber][1] + o->oKleptoUnkF8;
+    o->oHomeZ = WORLD(sKleptoTargetPositions)[o->oKleptoTargetNumber][2];
 
     o->oKleptoUnkFC = cur_obj_lateral_dist_to_home() / 2;
 }
@@ -221,7 +221,7 @@ static void klepto_act_dive_at_mario(void) {
             }
         }
     } else {
-        f32 dy = o->oPosY - gMarioObject->oPosY;
+        f32 dy = o->oPosY - WORLD(gMarioObject)->oPosY;
 
         if (o->oSoundStateID == 3) {
             cur_obj_set_anim_if_at_end(4);
@@ -241,8 +241,8 @@ static void klepto_act_dive_at_mario(void) {
                 }
             }
 
-            if (gMarioStates[0].action != ACT_SLEEPING
-                && !(gMarioStates[0].action & (ACT_FLAG_SHORT_HITBOX | ACT_FLAG_BUTT_OR_STOMACH_SLIDE))
+            if (WORLD(gMarioStates)[0].action != ACT_SLEEPING
+                && !(WORLD(gMarioStates)[0].action & (ACT_FLAG_SHORT_HITBOX | ACT_FLAG_BUTT_OR_STOMACH_SLIDE))
                 && o->oDistanceToMario < 200.0f && dy > 50.0f && dy < 90.0f
                 && mario_lose_cap_to_enemy(1)) {
                 o->oAnimState = KLEPTO_ANIM_STATE_HOLDING_CAP;
@@ -357,7 +357,7 @@ void bhv_klepto_update(void) {
                 break;
         }
 
-        if (obj_handle_attacks(&sKleptoHitbox, o->oAction, sKleptoAttackHandlers)) {
+        if (obj_handle_attacks(&WORLD(sKleptoHitbox), o->oAction, WORLD(sKleptoAttackHandlers))) {
             cur_obj_play_sound_2(SOUND_OBJ_KLEPTO2);
 
             if (o->oAnimState == KLEPTO_ANIM_STATE_HOLDING_CAP) {
@@ -375,8 +375,8 @@ void bhv_klepto_update(void) {
             o->oFlags &= ~OBJ_FLAG_SET_FACE_YAW_TO_MOVE_YAW;
 
             cur_obj_become_intangible();
-        } else if (gMarioStates[0].action == ACT_SLEEPING
-                   || (gMarioStates[0].action
+        } else if (WORLD(gMarioStates)[0].action == ACT_SLEEPING
+                   || (WORLD(gMarioStates)[0].action
                        & (ACT_FLAG_SHORT_HITBOX | ACT_FLAG_BUTT_OR_STOMACH_SLIDE))) {
             cur_obj_become_intangible();
         } else {

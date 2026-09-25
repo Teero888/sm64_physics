@@ -30,7 +30,7 @@ void add_tree_leaf_particles(struct MarioState *m) {
 
     if (m->usedObj->behavior == segmented_to_virtual(bhvTree)) {
         // make leaf effect spawn higher on the Shifting Sand Land palm tree
-        if (gCurrLevelNum == LEVEL_SSL) {
+        if (WORLD(gCurrLevelNum) == LEVEL_SSL) {
             leafHeight = 250.0f;
         } else {
             leafHeight = 100.0f;
@@ -378,7 +378,7 @@ void update_hang_stationary(struct MarioState *m) {
     m->slideVelZ = 0.0f;
 
     m->pos[1] = m->ceilHeight - 160.0f;
-    vec3f_copy(m->vel, gVec3fZero);
+    vec3f_copy(m->vel, WORLD(gVec3fZero));
     vec3f_copy(m->marioObj->header.gfx.pos, m->pos);
 }
 

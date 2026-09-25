@@ -43,22 +43,22 @@ void empty_mem_block(struct GMemBlock *block) {
     switch (block->blockType) {
         case G_MEM_BLOCK_FREE:
             if (block->prev == NULL) {
-                sFreeBlockListHead = block->next;
+                WORLD(sFreeBlockListHead) = block->next;
             }
             break;
         case G_MEM_BLOCK_USED:
             if (block->prev == NULL) {
-                sUsedBlockListHead = block->next;
+                WORLD(sUsedBlockListHead) = block->next;
             }
             break;
     }
 
-    block->next = sEmptyBlockListHead;
+    block->next = WORLD(sEmptyBlockListHead);
     if (block->next != NULL) {
-        sEmptyBlockListHead->prev = block;
+        WORLD(sEmptyBlockListHead)->prev = block;
     }
 
-    sEmptyBlockListHead = block;
+    WORLD(sEmptyBlockListHead) = block;
     block->prev = NULL;
     block->ptr = NULL;
     block->size = 0;
@@ -101,36 +101,36 @@ struct GMemBlock *into_free_memblock(struct GMemBlock *block) {
 struct GMemBlock *make_mem_block(u32 blockType, u8 permFlag) {
     struct GMemBlock *newMemBlock;
 
-    if (sEmptyBlockListHead == NULL) {
-        sEmptyBlockListHead = (struct GMemBlock *) gd_allocblock(sizeof(struct GMemBlock));
+    if (WORLD(sEmptyBlockListHead) == NULL) {
+        WORLD(sEmptyBlockListHead) = (struct GMemBlock *) gd_allocblock(sizeof(struct GMemBlock));
 
-        if (sEmptyBlockListHead == NULL) {
+        if (WORLD(sEmptyBlockListHead) == NULL) {
             fatal_printf("MakeMemBlock() unable to allocate");
         }
 
-        sEmptyBlockListHead->next = NULL;
-        sEmptyBlockListHead->prev = NULL;
+        WORLD(sEmptyBlockListHead)->next = NULL;
+        WORLD(sEmptyBlockListHead)->prev = NULL;
     }
 
-    newMemBlock = sEmptyBlockListHead;
-    if ((sEmptyBlockListHead = newMemBlock->next) != NULL) {
+    newMemBlock = WORLD(sEmptyBlockListHead);
+    if ((WORLD(sEmptyBlockListHead) = newMemBlock->next) != NULL) {
         newMemBlock->next->prev = NULL;
     }
 
     switch (blockType) {
         case G_MEM_BLOCK_FREE:
-            newMemBlock->next = sFreeBlockListHead;
+            newMemBlock->next = WORLD(sFreeBlockListHead);
             if (newMemBlock->next != NULL) {
-                sFreeBlockListHead->prev = newMemBlock;
+                WORLD(sFreeBlockListHead)->prev = newMemBlock;
             }
-            sFreeBlockListHead = newMemBlock;
+            WORLD(sFreeBlockListHead) = newMemBlock;
             break;
         case G_MEM_BLOCK_USED:
-            newMemBlock->next = sUsedBlockListHead;
+            newMemBlock->next = WORLD(sUsedBlockListHead);
             if (newMemBlock->next != NULL) {
-                sUsedBlockListHead->prev = newMemBlock;
+                WORLD(sUsedBlockListHead)->prev = newMemBlock;
             }
-            sUsedBlockListHead = newMemBlock;
+            WORLD(sUsedBlockListHead) = newMemBlock;
             break;
         default:
             fatal_printf("unkown memblock type");
@@ -154,7 +154,7 @@ u32 gd_free_mem(void *ptr) {
     u32 bytesFreed;
     register u8 *targetBlock = ptr;
 
-    for (curBlock = sUsedBlockListHead; curBlock != NULL; curBlock = curBlock->next) {
+    for (curBlock = WORLD(sUsedBlockListHead); curBlock != NULL; curBlock = curBlock->next) {
         if (targetBlock == curBlock->ptr) {
             bytesFreed = curBlock->size;
             into_free_memblock(curBlock);
@@ -179,7 +179,7 @@ void *gd_request_mem(u32 size, u8 permanence) {
     struct GMemBlock *newBlock;
 
     newBlock = make_mem_block(G_MEM_BLOCK_USED, permanence);
-    curBlock = sFreeBlockListHead;
+    curBlock = WORLD(sFreeBlockListHead);
 
     while (curBlock != NULL) {
         if (curBlock->permFlag & permanence) {
@@ -242,9 +242,9 @@ struct GMemBlock *gd_add_mem_to_heap(u32 size, void *addr, u8 permanence) {
  * NULL the various `GMemBlock` list heads
  */
 void init_mem_block_lists(void) {
-    sFreeBlockListHead = NULL;
-    sUsedBlockListHead = NULL;
-    sEmptyBlockListHead = NULL;
+    WORLD(sFreeBlockListHead) = NULL;
+    WORLD(sUsedBlockListHead) = NULL;
+    WORLD(sEmptyBlockListHead) = NULL;
 }
 
 /**
@@ -289,26 +289,26 @@ void mem_stats(void) {
     struct GMemBlock *list;
 
     gd_printf("Perm Used blocks:\n");
-    list = sUsedBlockListHead;
+    list = WORLD(sUsedBlockListHead);
     print_list_stats(list, FALSE, PERM_G_MEM_BLOCK);
     gd_printf("\n");
 
     gd_printf("Perm Free blocks:\n");
-    list = sFreeBlockListHead;
+    list = WORLD(sFreeBlockListHead);
     print_list_stats(list, FALSE, PERM_G_MEM_BLOCK);
     gd_printf("\n");
 
     gd_printf("Temp Used blocks:\n");
-    list = sUsedBlockListHead;
+    list = WORLD(sUsedBlockListHead);
     print_list_stats(list, FALSE, TEMP_G_MEM_BLOCK);
     gd_printf("\n");
 
     gd_printf("Temp Free blocks:\n");
-    list = sFreeBlockListHead;
+    list = WORLD(sFreeBlockListHead);
     print_list_stats(list, FALSE, TEMP_G_MEM_BLOCK);
     gd_printf("\n");
 
     gd_printf("Empty blocks:\n");
-    list = sEmptyBlockListHead;
+    list = WORLD(sEmptyBlockListHead);
     print_list_stats(list, FALSE, PERM_G_MEM_BLOCK | TEMP_G_MEM_BLOCK);
 }

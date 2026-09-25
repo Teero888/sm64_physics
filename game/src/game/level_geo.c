@@ -20,18 +20,18 @@ Gfx *geo_envfx_main(s32 callContext, struct GraphNode *node, Mat4 mtxf) {
     void *particleList;
     Gfx *gfx = NULL;
 
-    if (callContext == GEO_CONTEXT_RENDER && gCurGraphNodeCamera != NULL) {
+    if (callContext == GEO_CONTEXT_RENDER && WORLD(gCurGraphNodeCamera) != NULL) {
         struct GraphNodeGenerated *execNode = (struct GraphNodeGenerated *) node;
         u32 *params = &execNode->parameter; // accessed a s32 as 2 u16s by pointing to the variable and
                                             // casting to a local struct as necessary.
 
-        if (GET_HIGH_U16_OF_32(*params) != gAreaUpdateCounter) {
-            UNUSED struct Camera *sp2C = gCurGraphNodeCamera->config.camera;
+        if (GET_HIGH_U16_OF_32(*params) != WORLD(gAreaUpdateCounter)) {
+            UNUSED struct Camera *sp2C = WORLD(gCurGraphNodeCamera)->config.camera;
             s32 snowMode = GET_LOW_U16_OF_32(*params);
 
-            vec3f_to_vec3s(camTo, gCurGraphNodeCamera->focus);
-            vec3f_to_vec3s(camFrom, gCurGraphNodeCamera->pos);
-            vec3f_to_vec3s(marioPos, gPlayerCameraState->pos);
+            vec3f_to_vec3s(camTo, WORLD(gCurGraphNodeCamera)->focus);
+            vec3f_to_vec3s(camFrom, WORLD(gCurGraphNodeCamera)->pos);
+            vec3f_to_vec3s(marioPos, WORLD(gPlayerCameraState)->pos);
             particleList = envfx_update_particles(snowMode, marioPos, camTo, camFrom);
             if (particleList != NULL) {
                 Mtx *mtx = alloc_display_list(sizeof(*mtx));
@@ -42,13 +42,13 @@ Gfx *geo_envfx_main(s32 callContext, struct GraphNode *node, Mat4 mtxf) {
                 gSPBranchList(&gfx[1], VIRTUAL_TO_PHYSICAL(particleList));
                 execNode->fnNode.node.flags = (execNode->fnNode.node.flags & 0xFF) | 0x400;
             }
-            SET_HIGH_U16_OF_32(*params, gAreaUpdateCounter);
+            SET_HIGH_U16_OF_32(*params, WORLD(gAreaUpdateCounter));
         }
     } else if (callContext == GEO_CONTEXT_AREA_INIT) {
         // Give these arguments some dummy values. Not used in ENVFX_MODE_NONE
-        vec3s_copy(camTo, gVec3sZero);
-        vec3s_copy(camFrom, gVec3sZero);
-        vec3s_copy(marioPos, gVec3sZero);
+        vec3s_copy(camTo, WORLD(gVec3sZero));
+        vec3s_copy(camFrom, WORLD(gVec3sZero));
+        vec3s_copy(marioPos, WORLD(gVec3sZero));
         envfx_update_particles(ENVFX_MODE_NONE, marioPos, camTo, camFrom);
     }
 
@@ -66,13 +66,13 @@ Gfx *geo_skybox_main(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) 
     if (callContext == GEO_CONTEXT_AREA_LOAD) {
         backgroundNode->unused = 0;
     } else if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
-        struct GraphNodeCamera *camNode = (struct GraphNodeCamera *) gCurGraphNodeRoot->views[0];
+        struct GraphNodeCamera *camNode = (struct GraphNodeCamera *) WORLD(gCurGraphNodeRoot)->views[0];
         struct GraphNodePerspective *camFrustum =
             (struct GraphNodePerspective *) camNode->fnNode.node.parent;
 
-        gfx = create_skybox_facing_camera(0, backgroundNode->background, camFrustum->fov, gLakituState.pos[0],
-                            gLakituState.pos[1], gLakituState.pos[2], gLakituState.focus[0],
-                            gLakituState.focus[1], gLakituState.focus[2]);
+        gfx = create_skybox_facing_camera(0, backgroundNode->background, camFrustum->fov, WORLD(gLakituState).pos[0],
+                            WORLD(gLakituState).pos[1], WORLD(gLakituState).pos[2], WORLD(gLakituState).focus[0],
+                            WORLD(gLakituState).focus[1], WORLD(gLakituState).focus[2]);
     }
 
     return gfx;

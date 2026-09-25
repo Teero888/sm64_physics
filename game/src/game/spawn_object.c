@@ -93,7 +93,7 @@ struct Object *try_allocate_object(struct ObjectNode *destList, struct ObjectNod
     }
 
     geo_remove_child(&nextObj->gfx.node);
-    geo_add_child(&gObjParentGraphNode, &nextObj->gfx.node);
+    geo_add_child(&WORLD(gObjParentGraphNode), &nextObj->gfx.node);
 
     return (struct Object *) nextObj;
 }
@@ -134,8 +134,8 @@ void init_free_object_list(void) {
     s32 poolLength = OBJECT_POOL_CAPACITY;
 
     // Add the first object in the pool to the free list
-    struct Object *obj = &gObjectPool[0];
-    gFreeObjectList.next = (struct ObjectNode *) obj;
+    struct Object *obj = &WORLD(gObjectPool)[0];
+    WORLD(gFreeObjectList).next = (struct ObjectNode *) obj;
 
     // Link each object in the pool to the following object
     for (i = 0; i < poolLength - 1; i++) {
@@ -192,12 +192,12 @@ void unload_object(struct Object *obj) {
     obj->header.gfx.throwMatrix = NULL;
     stop_sounds_from_source(obj->header.gfx.cameraToObject);
     geo_remove_child(&obj->header.gfx.node);
-    geo_add_child(&gObjParentGraphNode, &obj->header.gfx.node);
+    geo_add_child(&WORLD(gObjParentGraphNode), &obj->header.gfx.node);
 
     obj->header.gfx.node.flags &= ~GRAPH_RENDER_BILLBOARD;
     obj->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
 
-    deallocate_object(&gFreeObjectList, &obj->header);
+    deallocate_object(&WORLD(gFreeObjectList), &obj->header);
 }
 
 /**
@@ -207,7 +207,7 @@ void unload_object(struct Object *obj) {
  */
 struct Object *allocate_object(struct ObjectNode *objList) {
     s32 i;
-    struct Object *obj = try_allocate_object(objList, &gFreeObjectList);
+    struct Object *obj = try_allocate_object(objList, &WORLD(gFreeObjectList));
 
     // The object list is full if the newly created pointer is NULL.
     // If this happens, we first attempt to unload unimportant objects
@@ -224,8 +224,8 @@ struct Object *allocate_object(struct ObjectNode *objList) {
         } else {
             // If an unimportant object does exist, unload it and take its slot.
             unload_object(unimportantObj);
-            obj = try_allocate_object(objList, &gFreeObjectList);
-            if (gCurrentObject == obj) {
+            obj = try_allocate_object(objList, &WORLD(gFreeObjectList));
+            if (WORLD(gCurrentObject) == obj) {
                 //! Uh oh, the unimportant object was in the middle of
                 //  updating! This could cause some interesting logic errors,
                 //  but I don't know of any unimportant objects that spawn
@@ -270,7 +270,7 @@ struct Object *allocate_object(struct ObjectNode *objList) {
     obj->oHealth = 2048;
 
     obj->oCollisionDistance = 1000.0f;
-    if (gCurrLevelNum == LEVEL_TTC) {
+    if (WORLD(gCurrLevelNum) == LEVEL_TTC) {
         obj->oDrawingDistance = 2000.0f;
     } else {
         obj->oDrawingDistance = 4000.0f;
@@ -324,7 +324,7 @@ struct Object *create_object(const BehaviorScript *bhvScript) {
         objListIndex = OBJ_LIST_DEFAULT;
     }
 
-    objList = &gObjectLists[objListIndex];
+    objList = &WORLD(gObjectLists)[objListIndex];
     obj = allocate_object(objList);
 
     obj->curBhvCommand = bhvScript;

@@ -34,7 +34,7 @@ extern const Collision castle_grounds_seg7_collision_level[];
 extern const MacroObject castle_grounds_seg7_macro_objs[];
 extern const Collision castle_grounds_seg7_collision_moat_grills[];
 extern const Collision castle_grounds_seg7_collision_cannon_grill[];
-extern const struct MovtexQuadCollection castle_grounds_movtex_water[];
+extern struct MovtexQuadCollection castle_grounds_movtex_water[];
 extern Movtex castle_grounds_movtex_tris_waterfall[];
 extern const Gfx castle_grounds_dl_waterfall[];
 

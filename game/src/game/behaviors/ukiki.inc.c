@@ -27,7 +27,7 @@ void handle_cap_ukiki_reset(void) {
  */
 s32 is_cap_ukiki_and_mario_has_normal_cap_on_head(void) {
     if (o->oBhvParams2ndByte == UKIKI_BP_CAP
-        && does_mario_have_normal_cap_on_head(gMarioState)) {
+        && does_mario_have_normal_cap_on_head(WORLD(gMarioState))) {
         return TRUE;
     }
 
@@ -40,10 +40,10 @@ s32 is_cap_ukiki_and_mario_has_normal_cap_on_head(void) {
 Gfx *geo_update_projectile_pos_from_parent_copy(s32 run,UNUSED struct GraphNode *node, Mat4 mtx) {
     if (run == TRUE) {
         Mat4 mtx2;
-        struct Object *obj = (struct Object *) gCurGraphNodeObject; // TODO: change global type to Object pointer
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject); // TODO: change global type to Object pointer
 
         if (obj->prevObj != NULL) {
-            create_transformation_from_matrices(mtx2, mtx, *gCurGraphNodeCamera->matrixPtr);
+            create_transformation_from_matrices(mtx2, mtx, *WORLD(gCurGraphNodeCamera)->matrixPtr);
             obj_update_pos_from_parent_transformation(mtx2, obj->prevObj);
             obj_set_gfx_pos_from_pos(obj->prevObj);
         }
@@ -137,17 +137,17 @@ void ukiki_act_idle(void) {
 
     // Jump away from Mario after stealing his cap.
     if (o->oUkikiTextState == UKIKI_TEXT_STOLE_CAP) {
-        o->oMoveAngleYaw = gMarioObject->oMoveAngleYaw + 0x8000;
+        o->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw + 0x8000;
 
         if (check_if_moving_over_floor(50.0f, 150.0f)) {
             o->oAction = UKIKI_ACT_JUMP;
         } else {
-            o->oMoveAngleYaw = gMarioObject->oMoveAngleYaw + 0x4000;
+            o->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw + 0x4000;
 
             if (check_if_moving_over_floor(50.0f, 150.0f)) {
                 o->oAction = UKIKI_ACT_JUMP;
             } else {
-                o->oMoveAngleYaw = gMarioObject->oMoveAngleYaw - 0x4000;
+                o->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw - 0x4000;
                 if (check_if_moving_over_floor(50.0f, 150.0f)) {
                     o->oAction = UKIKI_ACT_JUMP;
                 }
@@ -350,7 +350,7 @@ void ukiki_act_go_to_cage(void) {
         case UKIKI_SUB_ACT_CAGE_RUN_TO_CAGE:
             cur_obj_init_animation_with_sound(UKIKI_ANIM_RUN);
 
-            o->oPathedStartWaypoint = (struct Waypoint *) sCageUkikiPath;
+            o->oPathedStartWaypoint = (struct Waypoint *) WORLD(sCageUkikiPath);
 
             if (cur_obj_follow_path(0) != PATH_REACHED_END) {
                 o->oForwardVel = 10.0f;
@@ -472,7 +472,7 @@ void ukiki_free_loop(void) {
     s32 steepSlopeAngleDegrees;
 
     cur_obj_update_floor_and_walls();
-    cur_obj_call_action_function(sUkikiActions);
+    cur_obj_call_action_function(WORLD(sUkikiActions));
 
     if (o->oAction == UKIKI_ACT_GO_TO_CAGE || o->oAction == UKIKI_ACT_RETURN_HOME) {
         steepSlopeAngleDegrees = -88;
@@ -484,7 +484,7 @@ void ukiki_free_loop(void) {
     handle_cap_ukiki_reset();
 
     if (!(o->oMoveFlags & OBJ_MOVE_MASK_IN_WATER)) {
-        exec_anim_sound_state(sUkikiSoundStates);
+        exec_anim_sound_state(WORLD(sUkikiSoundStates));
     }
 }
 
@@ -495,7 +495,7 @@ void ukiki_free_loop(void) {
  * Possibly unused so AnimState could be used for wearing a cap?
  */
 UNUSED static void ukiki_blink_timer(void) {
-    if (gGlobalTimer % 50 < 7) {
+    if (WORLD(gGlobalTimer) % 50 < 7) {
         o->oAnimState = UKIKI_ANIM_STATE_EYE_CLOSED;
     } else {
         o->oAnimState = UKIKI_ANIM_STATE_DEFAULT;
@@ -516,9 +516,9 @@ void cage_ukiki_held_loop(void) {
                 break;
 
             case UKIKI_TEXT_CAGE_TEXTBOX:
-                if (gDialogResponse != DIALOG_RESPONSE_NONE) {
+                if (WORLD(gDialogResponse) != DIALOG_RESPONSE_NONE) {
                     set_mario_npc_dialog(MARIO_DIALOG_STOP);
-                    if (gDialogResponse == DIALOG_RESPONSE_YES) {
+                    if (WORLD(gDialogResponse) == DIALOG_RESPONSE_YES) {
                         o->oInteractionSubtype |= INT_SUBTYPE_DROP_IMMEDIATELY;
                         o->oUkikiTextState = UKIKI_TEXT_GO_TO_CAGE;
                     } else {
@@ -612,7 +612,7 @@ void bhv_ukiki_loop(void) {
 
         case HELD_HELD:
             cur_obj_unrender_set_action_and_anim(UKIKI_ANIM_HELD, 0);
-            obj_copy_pos(o, gMarioObject);
+            obj_copy_pos(o, WORLD(gMarioObject));
 
             if (o->oBhvParams2ndByte == UKIKI_BP_CAP) {
                 cap_ukiki_held_loop();

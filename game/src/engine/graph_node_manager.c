@@ -62,18 +62,18 @@ s16 *read_vec3s_angle(Vec3s dst, s16 *src) {
  */
 void register_scene_graph_node(struct GraphNode *graphNode) {
     if (graphNode != NULL) {
-        gCurGraphNodeList[gCurGraphNodeIndex] = graphNode;
+        WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex)] = graphNode;
 
-        if (gCurGraphNodeIndex == 0) {
-            if (gCurRootGraphNode == NULL) {
-                gCurRootGraphNode = graphNode;
+        if (WORLD(gCurGraphNodeIndex) == 0) {
+            if (WORLD(gCurRootGraphNode) == NULL) {
+                WORLD(gCurRootGraphNode) = graphNode;
             }
         } else {
-            if (gCurGraphNodeList[gCurGraphNodeIndex - 1]->type == GRAPH_NODE_TYPE_OBJECT_PARENT) {
-                ((struct GraphNodeObjectParent *) gCurGraphNodeList[gCurGraphNodeIndex - 1])
+            if (WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex) - 1]->type == GRAPH_NODE_TYPE_OBJECT_PARENT) {
+                ((struct GraphNodeObjectParent *) WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex) - 1])
                     ->sharedChild = graphNode;
             } else {
-                geo_add_child(gCurGraphNodeList[gCurGraphNodeIndex - 1], graphNode);
+                geo_add_child(WORLD(gCurGraphNodeList)[WORLD(gCurGraphNodeIndex) - 1], graphNode);
             }
         }
     }

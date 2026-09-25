@@ -16,7 +16,7 @@
  * objects. (King Bobomb, Bowser, King Whomp)
  */
 void exec_anim_sound_state(struct SoundState *soundStates) {
-    s32 stateIdx = gCurrentObject->oSoundStateID;
+    s32 stateIdx = WORLD(gCurrentObject)->oSoundStateID;
 
     switch (soundStates[stateIdx].playSound) {
         // since we have an array of sound states corresponding to
@@ -49,7 +49,7 @@ void exec_anim_sound_state(struct SoundState *soundStates) {
  * (Breakable walls, King Bobomb exploding, etc)
  */
 void create_sound_spawner(s32 soundMagic) {
-    struct Object *obj = spawn_object(gCurrentObject, 0, bhvSoundSpawner);
+    struct Object *obj = spawn_object(WORLD(gCurrentObject), 0, bhvSoundSpawner);
 
     obj->oSoundEffectUnkF4 = soundMagic;
 }
@@ -60,14 +60,14 @@ void create_sound_spawner(s32 soundMagic) {
  * separate left/right leg functions that went unused.
  */
 void cur_obj_play_sound_1(s32 soundMagic) {
-    if (gCurrentObject->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
-        play_sound(soundMagic, gCurrentObject->header.gfx.cameraToObject);
+    if (WORLD(gCurrentObject)->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
+        play_sound(soundMagic, WORLD(gCurrentObject)->header.gfx.cameraToObject);
     }
 }
 
 void cur_obj_play_sound_2(s32 soundMagic) {
-    if (gCurrentObject->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
-        play_sound(soundMagic, gCurrentObject->header.gfx.cameraToObject);
+    if (WORLD(gCurrentObject)->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
+        play_sound(soundMagic, WORLD(gCurrentObject)->header.gfx.cameraToObject);
 #if ENABLE_RUMBLE
         if (soundMagic == SOUND_OBJ_BOWSER_WALK) {
             queue_rumble_data(3, 60);

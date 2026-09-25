@@ -478,7 +478,7 @@ s32 act_double_jump(struct MarioState *m) {
 }
 
 s32 act_triple_jump(struct MarioState *m) {
-    if (gSpecialTripleJump) {
+    if (WORLD(gSpecialTripleJump)) {
         return set_mario_action(m, ACT_SPECIAL_TRIPLE_JUMP, 0);
     }
 
@@ -1834,7 +1834,7 @@ s32 act_flying(struct MarioState *m) {
     if (startPitch <= 0 && m->faceAngle[0] > 0 && m->forwardVel >= 48.0f) {
         play_sound(SOUND_ACTION_FLYING_FAST, m->marioObj->header.gfx.cameraToObject);
 #ifndef VERSION_JP
-        play_sound(SOUND_MARIO_YAHOO_WAHA_YIPPEE + ((gAudioRandom % 5) << 16),
+        play_sound(SOUND_MARIO_YAHOO_WAHA_YIPPEE + ((WORLD(gAudioRandom) % 5) << 16),
                    m->marioObj->header.gfx.cameraToObject);
 #endif
 #if ENABLE_RUMBLE
@@ -1850,7 +1850,7 @@ s32 act_flying(struct MarioState *m) {
 s32 act_riding_hoot(struct MarioState *m) {
     if (!(m->input & INPUT_A_DOWN) || (m->marioObj->oInteractStatus & INT_STATUS_MARIO_UNK7)) {
         m->usedObj->oInteractStatus = 0;
-        m->usedObj->oHootMarioReleaseTime = gGlobalTimer;
+        m->usedObj->oHootMarioReleaseTime = WORLD(gGlobalTimer);
 
         play_sound_if_no_flag(m, SOUND_MARIO_UH, MARIO_MARIO_SOUND_PLAYED);
 #if ENABLE_RUMBLE

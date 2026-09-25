@@ -103,7 +103,7 @@ static void cloud_fwoosh_update(void) {
  * unloads, and when fwoosh blows wind.
  */
 static void cloud_act_main(void) {
-    s16 localOffsetPhase = 0x800 * gGlobalTimer;
+    s16 localOffsetPhase = 0x800 * WORLD(gGlobalTimer);
     f32 localOffset;
 
     if (o->parentObj != o) {
@@ -178,7 +178,7 @@ void bhv_cloud_part_update(void) {
         s16 angleFromCenter = o->parentObj->oFaceAngleYaw + 0x10000 / 5 * o->oBhvParams2ndByte;
 
         // Takes 32 frames to cycle
-        s16 localOffsetPhase = 0x800 * gGlobalTimer + 0x4000 * o->oBhvParams2ndByte;
+        s16 localOffsetPhase = 0x800 * WORLD(gGlobalTimer) + 0x4000 * o->oBhvParams2ndByte;
         f32 localOffset;
 
         f32 cloudRadius;
@@ -198,7 +198,7 @@ void bhv_cloud_part_update(void) {
         o->oPosX = o->parentObj->oCloudCenterX + cloudRadius * sins(angleFromCenter) + localOffset;
 
         o->oPosY =
-            o->parentObj->oCloudCenterY + localOffset + scale * sCloudPartHeights[o->oBhvParams2ndByte];
+            o->parentObj->oCloudCenterY + localOffset + scale * WORLD(sCloudPartHeights)[o->oBhvParams2ndByte];
 
         o->oPosZ = o->parentObj->oPosZ + cloudRadius * coss(angleFromCenter) + localOffset;
 

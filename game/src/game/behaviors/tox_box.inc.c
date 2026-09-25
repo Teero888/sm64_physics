@@ -145,7 +145,7 @@ void tox_box_act_unused_idle(void) {
 }
 
 void tox_box_act_init(void) {
-    s8 *actionTable = sToxBoxActionTables[o->oBhvParams2ndByte];
+    s8 *actionTable = WORLD(sToxBoxActionTables)[o->oBhvParams2ndByte];
     o->oAction = cur_obj_set_action_table(actionTable);
 }
 
@@ -161,6 +161,6 @@ void (*sToxBoxActions[])(void) = {
 };
 
 void bhv_tox_box_loop(void) {
-    cur_obj_call_action_function(sToxBoxActions);
+    cur_obj_call_action_function(WORLD(sToxBoxActions));
     load_object_collision_model();
 }

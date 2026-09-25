@@ -24,7 +24,7 @@ static s8 sTTCMovingBarRandomDelays[] = { 1, 12, 55, 100 };
  */
 void bhv_ttc_moving_bar_init(void) {
     // If on still setting, then stick out
-    if ((o->oTTCMovingBarDelay = sTTCMovingBarDelays[gTTCSpeedSetting]) == 0) {
+    if ((o->oTTCMovingBarDelay = WORLD(sTTCMovingBarDelays)[WORLD(gTTCSpeedSetting)]) == 0) {
         o->oTTCMovingBarOffset = 250.0f;
     }
 
@@ -45,9 +45,9 @@ static void ttc_moving_bar_act_wait(void) {
         if (o->oTTCMovingBarStoppedTimer != 0) {
             o->oTTCMovingBarStoppedTimer--;
         } else {
-            if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+            if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
                 // Set the delay for the next cycle
-                o->oTTCMovingBarDelay = sTTCMovingBarRandomDelays[random_u16() & 0x03];
+                o->oTTCMovingBarDelay = WORLD(sTTCMovingBarRandomDelays)[random_u16() & 0x03];
 
                 // With 50% probability, pause after pulling back
                 if (random_u16() % 2 == 0) {
@@ -120,7 +120,7 @@ static void ttc_moving_bar_act_extend(void) {
 
         // When we pass neutral on random setting, then stop immediately with
         // 25% probability (fake out)
-        if (gTTCSpeedSetting == TTC_SPEED_RANDOM
+        if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM
             && o->oTTCMovingBarOffset * o->oTTCMovingBarStartOffset < 0.0f && random_u16() % 4 == 0) {
             ttc_moving_bar_reset();
         }

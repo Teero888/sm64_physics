@@ -31,13 +31,13 @@ void mr_blizzard_spawn_white_particles(s8 count, s8 offsetY, s8 forwardVelBase, 
         /* sizeRange:       */ 5.0f,
     };
 
-    D_80331A00.count = count;
-    D_80331A00.offsetY = offsetY;
-    D_80331A00.forwardVelBase = forwardVelBase;
-    D_80331A00.velYBase = velYBase;
-    D_80331A00.sizeBase = sizeBase;
+    WORLD(D_80331A00).count = count;
+    WORLD(D_80331A00).offsetY = offsetY;
+    WORLD(D_80331A00).forwardVelBase = forwardVelBase;
+    WORLD(D_80331A00).velYBase = velYBase;
+    WORLD(D_80331A00).sizeBase = sizeBase;
 
-    cur_obj_spawn_particles(&D_80331A00);
+    cur_obj_spawn_particles(&WORLD(D_80331A00));
 }
 
 /**
@@ -377,7 +377,7 @@ void bhv_mr_blizzard_update(void) {
 
     cur_obj_scale(o->oMrBlizzardScale);
     cur_obj_move_standard(78);
-    obj_check_attacks(&sMrBlizzardHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sMrBlizzardHitbox), o->oAction);
 }
 
 /**
@@ -433,7 +433,7 @@ struct ObjectHitbox sMrBlizzardSnowballHitbox = {
 static void mr_blizzard_snowball_act_2(void) {
     // Set snowball to interact with walls, floors, and Mario.
     cur_obj_update_floor_and_walls();
-    obj_check_attacks(&sMrBlizzardSnowballHitbox, -1);
+    obj_check_attacks(&WORLD(sMrBlizzardSnowballHitbox), -1);
 
     // If snowball collides with the ground, delete snowball.
     if (o->oAction == -1 || o->oMoveFlags & (OBJ_MOVE_MASK_ON_GROUND | OBJ_MOVE_ENTERED_WATER)) {

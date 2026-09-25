@@ -40,8 +40,8 @@ extern const Collision wdw_seg7_collision_07018528[];
 extern const Collision wdw_seg7_collision_express_elevator_platform[];
 extern const Collision wdw_seg7_collision_rect_floating_platform[];
 extern const Collision wdw_seg7_collision_070186B4[];
-extern const struct MovtexQuadCollection wdw_movtex_area1_water[];
-extern const struct MovtexQuadCollection wdw_movtex_area2_water[];
+extern struct MovtexQuadCollection wdw_movtex_area1_water[];
+extern struct MovtexQuadCollection wdw_movtex_area2_water[];
 
 // script
 extern const LevelScript level_wdw_entry[];

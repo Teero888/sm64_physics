@@ -12,7 +12,7 @@ static struct RacingPenguinData sRacingPenguinData[] = {
 };
 
 void bhv_racing_penguin_init(void) {
-    if (gMarioState->numStars == 120) {
+    if (WORLD(gMarioState)->numStars == 120) {
         cur_obj_scale(8.0f);
         o->header.gfx.scale[1] = 5.0f;
         o->oBhvParams2ndByte = RACING_PENGUIN_BP_FAT;
@@ -20,14 +20,14 @@ void bhv_racing_penguin_init(void) {
 }
 
 static void racing_penguin_act_wait_for_mario(void) {
-    if (o->oTimer > o->oRacingPenguinInitTextCooldown && o->oPosY - gMarioObject->oPosY <= 0.0f
+    if (o->oTimer > o->oRacingPenguinInitTextCooldown && o->oPosY - WORLD(gMarioObject)->oPosY <= 0.0f
         && cur_obj_can_mario_activate_textbox_2(400.0f, 400.0f)) {
         o->oAction = RACING_PENGUIN_ACT_SHOW_INIT_TEXT;
     }
 }
 
 static void racing_penguin_act_show_init_text(void) {
-    s32 response = obj_update_race_proposition_dialog(sRacingPenguinData[o->oBhvParams2ndByte].dialogID);
+    s32 response = obj_update_race_proposition_dialog(WORLD(sRacingPenguinData)[o->oBhvParams2ndByte].dialogID);
 
     if (response == DIALOG_RESPONSE_YES) {
         struct Object *child;
@@ -64,7 +64,7 @@ static void racing_penguin_act_race(void) {
         o->oRacingPenguinReachedBottom = TRUE;
         o->oAction = RACING_PENGUIN_ACT_FINISH_RACE;
     } else {
-        f32 targetSpeed = o->oPosY - gMarioObject->oPosY;
+        f32 targetSpeed = o->oPosY - WORLD(gMarioObject)->oPosY;
         f32 minSpeed = 70.0f;
 
         cur_obj_play_sound_1(SOUND_AIR_ROUGH_SLIDE);
@@ -182,13 +182,13 @@ void bhv_racing_penguin_update(void) {
 
     cur_obj_move_standard(78);
     cur_obj_align_gfx_with_floor();
-    cur_obj_push_mario_away_from_cylinder(sRacingPenguinData[o->oBhvParams2ndByte].radius,
-                                          sRacingPenguinData[o->oBhvParams2ndByte].height);
+    cur_obj_push_mario_away_from_cylinder(WORLD(sRacingPenguinData)[o->oBhvParams2ndByte].radius,
+                                          WORLD(sRacingPenguinData)[o->oBhvParams2ndByte].height);
 }
 
 void bhv_penguin_race_finish_line_update(void) {
     if ((o->parentObj->oRacingPenguinReachedBottom
-         || (o->oDistanceToMario < 1000.0f && gMarioObject->oPosZ - o->oPosZ < 0.0f))
+         || (o->oDistanceToMario < 1000.0f && WORLD(gMarioObject)->oPosZ - o->oPosZ < 0.0f))
         && !o->parentObj->oRacingPenguinReachedBottom) {
         o->parentObj->oRacingPenguinMarioWon = TRUE;
     }

@@ -14,7 +14,7 @@ static Movtex wf_movtex_water_data[] = {
 };
 
 // 0x7011E08
-const struct MovtexQuadCollection wf_movtex_water[] = {
+struct MovtexQuadCollection wf_movtex_water[] = {
     {0, wf_movtex_water_data},
     {-1, NULL},
 };

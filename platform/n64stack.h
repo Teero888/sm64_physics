@@ -14,7 +14,7 @@ struct n64_frame {
 };
 
 // The modelled stack pointer inside the innermost instrumented function.
-extern uint32_t gN64StackPointer;
+extern __thread uint32_t gN64StackPointer __attribute__((tls_model("initial-exec")));
 
 void n64stack_register(const struct n64_frame *frames, unsigned count);
 

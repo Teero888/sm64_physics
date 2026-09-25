@@ -107,7 +107,7 @@ void bhv_wiggler_body_part_update(void) {
     if (o->parentObj->oAction == WIGGLER_ACT_SHRINK) {
         cur_obj_become_intangible();
     } else {
-        obj_check_attacks(&sWigglerBodyPartHitbox, o->oAction);
+        obj_check_attacks(&WORLD(sWigglerBodyPartHitbox), o->oAction);
     }
 }
 
@@ -116,7 +116,7 @@ void bhv_wiggler_body_part_update(void) {
  */
 void wiggler_init_segments(void) {
     s32 i;
-    struct ChainSegment *segments = mem_pool_alloc(gObjectMemoryPool, 4 * sizeof(struct ChainSegment));
+    struct ChainSegment *segments = mem_pool_alloc(WORLD(gObjectMemoryPool), 4 * sizeof(struct ChainSegment));
 
     if (segments != NULL) {
         // Each segment represents the global position and orientation of each
@@ -225,7 +225,7 @@ static void wiggler_act_walk(void) {
 
         // If Mario is positioned below the wiggler, assume he entered through the
         // lower cave entrance, so don't display text.
-        if (gMarioObject->oPosY < o->oPosY || cur_obj_update_dialog_with_cutscene(
+        if (WORLD(gMarioObject)->oPosY < o->oPosY || cur_obj_update_dialog_with_cutscene(
             MARIO_DIALOG_LOOK_UP, DIALOG_FLAG_NONE, CUTSCENE_DIALOG, DIALOG_150)) {
             o->oWigglerTextStatus = WIGGLER_TEXT_STATUS_COMPLETED_DIALOG;
         }
@@ -234,7 +234,7 @@ static void wiggler_act_walk(void) {
         //  to 4 until after this runs the first time. It indexes out of bounds
         //  and uses the value 113762.3 for one frame on US. This is fixed up
         //  in wiggler_init_segments if AVOID_UB is defined.
-        obj_forward_vel_approach(sWigglerSpeeds[o->oHealth - 1], 1.0f);
+        obj_forward_vel_approach(WORLD(sWigglerSpeeds)[o->oHealth - 1], 1.0f);
 
         if (o->oWigglerWalkAwayFromWallTimer != 0) {
             o->oWigglerWalkAwayFromWallTimer--;
@@ -271,8 +271,8 @@ static void wiggler_act_walk(void) {
 
         // For the first two seconds of walking, stay invulnerable
         if (o->oTimer < 60) {
-            obj_check_attacks(&sWigglerHitbox, o->oAction);
-        } else if (obj_handle_attacks(&sWigglerHitbox, o->oAction, sWigglerAttackHandlers)) {
+            obj_check_attacks(&WORLD(sWigglerHitbox), o->oAction);
+        } else if (obj_handle_attacks(&WORLD(sWigglerHitbox), o->oAction, WORLD(sWigglerAttackHandlers))) {
             if (o->oAction != WIGGLER_ACT_JUMPED_ON) {
                 o->oAction = WIGGLER_ACT_KNOCKBACK;
             }
@@ -325,7 +325,7 @@ static void wiggler_act_jumped_on(void) {
         o->oTimer = 0;
     }
 
-    obj_check_attacks(&sWigglerHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sWigglerHitbox), o->oAction);
 }
 
 /**
@@ -343,7 +343,7 @@ static void wiggler_act_knockback(void) {
         o->oMoveAngleYaw = o->oFaceAngleYaw;
     }
 
-    obj_check_attacks(&sWigglerHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sWigglerHitbox), o->oAction);
 }
 
 /**

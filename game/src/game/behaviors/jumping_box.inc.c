@@ -43,10 +43,10 @@ void (*sJumpingBoxActions[])(void) = {
 void jumping_box_free_update(void) {
     cur_obj_set_model(MODEL_BREAKABLE_BOX);
     cur_obj_scale(0.5f);
-    obj_set_hitbox(o, &sJumpingBoxHitbox);
+    obj_set_hitbox(o, &WORLD(sJumpingBoxHitbox));
     cur_obj_update_floor_and_walls();
     cur_obj_move_standard(78);
-    cur_obj_call_action_function(sJumpingBoxActions);
+    cur_obj_call_action_function(WORLD(sJumpingBoxActions));
 }
 
 void bhv_jumping_box_loop(void) {
@@ -56,7 +56,7 @@ void bhv_jumping_box_loop(void) {
             break;
 
         case HELD_HELD:
-            obj_copy_pos(o, gMarioObject);
+            obj_copy_pos(o, WORLD(gMarioObject));
             cur_obj_set_model(MODEL_BREAKABLE_BOX_SMALL);
             cur_obj_unrender_set_action_and_anim(-1, 0);
             break;

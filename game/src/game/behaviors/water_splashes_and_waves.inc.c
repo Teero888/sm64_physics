@@ -12,7 +12,7 @@ struct WaterDropletParams sWaterSplashDropletParams = {
 };
 
 // Water droplets from Mario jumping in shallow water.
-struct WaterDropletParams gShallowWaterSplashDropletParams = {
+const struct WaterDropletParams gShallowWaterSplashDropletParams = {
     /* Flags */ WATER_DROPLET_FLAG_RAND_ANGLE | WATER_DROPLET_FLAG_SET_Y_TO_WATER_LEVEL,
     /* Model */ MODEL_WHITE_PARTICLE_SMALL,
     /* Behavior */ bhvWaterDroplet,
@@ -34,7 +34,7 @@ struct WaterDropletParams sWaterDropletFishParams = {
 };
 
 // Water droplets from Mario running in shallow water.
-struct WaterDropletParams gShallowWaterWaveDropletParams = {
+const struct WaterDropletParams gShallowWaterWaveDropletParams = {
     /* Flags */ WATER_DROPLET_FLAG_RAND_ANGLE_INCR_PLUS_8000 | WATER_DROPLET_FLAG_RAND_ANGLE | WATER_DROPLET_FLAG_SET_Y_TO_WATER_LEVEL,
     /* Model */ MODEL_WHITE_PARTICLE_SMALL,
     /* Behavior */ bhvWaterDroplet,
@@ -54,7 +54,7 @@ void bhv_water_splash_spawn_droplets(void) {
 
     if (o->oPosY > FLOOR_LOWER_LIMIT_MISC) { // Make sure it is not at the default water level
         for (i = 0; i < 3; i++) {
-            spawn_water_droplet(o, &sWaterSplashDropletParams);
+            spawn_water_droplet(o, &WORLD(sWaterSplashDropletParams));
         }
     }
 }
@@ -90,10 +90,10 @@ void bhv_water_droplet_loop(void) {
 }
 
 void bhv_idle_water_wave_loop(void) {
-    obj_copy_pos(o, gMarioObject);
-    o->oPosY = gMarioStates[0].waterLevel + 5;
-    if (!(gMarioObject->oMarioParticleFlags & ACTIVE_PARTICLE_IDLE_WATER_WAVE)) {
-        gMarioObject->oActiveParticleFlags &= (u16) ~ACTIVE_PARTICLE_IDLE_WATER_WAVE;
+    obj_copy_pos(o, WORLD(gMarioObject));
+    o->oPosY = WORLD(gMarioStates)[0].waterLevel + 5;
+    if (!(WORLD(gMarioObject)->oMarioParticleFlags & ACTIVE_PARTICLE_IDLE_WATER_WAVE)) {
+        WORLD(gMarioObject)->oActiveParticleFlags &= (u16) ~ACTIVE_PARTICLE_IDLE_WATER_WAVE;
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     }
 }
@@ -111,7 +111,7 @@ void bhv_bubble_splash_init(void) {
 void bhv_shallow_water_splash_init(void) {
     // Have a 1 in 256 chance to spawn the fish particle easter egg.
     if ((random_u16() & 0xFF) <= 0) { // Strange
-        struct Object *fishObj = spawn_water_droplet(o, &sWaterDropletFishParams);
+        struct Object *fishObj = spawn_water_droplet(o, &WORLD(sWaterDropletFishParams));
         obj_init_animation_with_sound(fishObj, blue_fish_seg3_anims_0301C2B0, 0);
     }
 }
@@ -119,7 +119,7 @@ void bhv_shallow_water_splash_init(void) {
 void bhv_wave_trail_shrink(void) {
     f32 waterLevel = find_water_level(o->oPosX, o->oPosZ);
     // Destroy every other water wave to space them out (this is a terrible way of doing it)
-    if ((o->oTimer == 0) && (gGlobalTimer & 1)) {
+    if ((o->oTimer == 0) && (WORLD(gGlobalTimer) & 1)) {
         obj_mark_for_deletion(o);
     }
     o->oPosY = waterLevel + 5.0f;

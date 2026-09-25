@@ -28,7 +28,7 @@ void bhv_snow_mound_spawn_loop(void) {
     struct Object *snowMound;
 
     if (!is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 6000)
-        || o->oPosY + 1000.0f < gMarioObject->header.gfx.pos[1]) {
+        || o->oPosY + 1000.0f < WORLD(gMarioObject)->header.gfx.pos[1]) {
         return;
     }
 

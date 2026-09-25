@@ -34,7 +34,7 @@ void bhv_small_bully_init(void) {
     o->oFriction = 0.91;
     o->oBuoyancy = 1.3;
 
-    obj_set_hitbox(o, &sSmallBullyHitbox);
+    obj_set_hitbox(o, &WORLD(sSmallBullyHitbox));
 }
 
 void bhv_big_bully_init(void) {
@@ -48,7 +48,7 @@ void bhv_big_bully_init(void) {
     o->oFriction = 0.93;
     o->oBuoyancy = 1.3;
 
-    obj_set_hitbox(o, &sBigBullyHitbox);
+    obj_set_hitbox(o, &WORLD(sBigBullyHitbox));
 }
 
 void bully_check_mario_collision(void) {
@@ -78,7 +78,7 @@ void bully_act_chase_mario(void) {
 
     if (o->oTimer < 10) {
         o->oForwardVel = 3.0;
-        obj_turn_toward_object(o, gMarioObject, 16, 0x1000);
+        obj_turn_toward_object(o, WORLD(gMarioObject), 16, 0x1000);
     } else if (o->oBhvParams2ndByte == BULLY_BP_SIZE_SMALL) {
         o->oForwardVel = 20.0;
         if (o->oTimer > 30) {
@@ -103,7 +103,7 @@ void bully_act_knockback(void) {
         o->oBullyKBTimerAndMinionKOCounter++;
         o->oFlags |= OBJ_FLAG_SET_FACE_YAW_TO_MOVE_YAW;
         o->oMoveAngleYaw = o->oFaceAngleYaw;
-        obj_turn_toward_object(o, gMarioObject, 16, 0x500);
+        obj_turn_toward_object(o, WORLD(gMarioObject), 16, 0x500);
     } else {
         o->header.gfx.animInfo.animFrame = 0;
     }
@@ -178,7 +178,7 @@ void bully_step(void) {
     collisionFlags = object_step();
     bully_backup_check(collisionFlags);
     bully_play_stomping_sound();
-    obj_check_floor_death(collisionFlags, sObjFloor);
+    obj_check_floor_death(collisionFlags, WORLD(sObjFloor));
 
     if (o->oBullySubtype & BULLY_STYPE_CHILL) {
         if (o->oPosY < 1030.0f) {

@@ -66,12 +66,22 @@ FORCE_BSS struct MainPoolBlock *sPoolListHeadR;
 static struct MainPoolState *gMainPoolState = NULL;
 
 uintptr_t set_segment_base_addr(s32 segment, void *addr) {
-    sSegmentTable[segment] = (uintptr_t) addr & 0x1FFFFFFF;
-    return sSegmentTable[segment];
+#ifdef NO_SEGMENTED_MEMORY
+    // Library: the whole address. The N64's physical address (its lower 29
+    // bits) means nothing natively, and only drawing uses the table.
+    WORLD(sSegmentTable)[segment] = (uintptr_t) addr;
+#else
+    WORLD(sSegmentTable)[segment] = (uintptr_t) addr & 0x1FFFFFFF;
+#endif
+    return WORLD(sSegmentTable)[segment];
 }
 
 void *get_segment_base_addr(s32 segment) {
-    return (void *) (sSegmentTable[segment] | 0x80000000);
+#ifdef NO_SEGMENTED_MEMORY
+    return (void *) WORLD(sSegmentTable)[segment];
+#else
+    return (void *) (WORLD(sSegmentTable)[segment] | 0x80000000);
+#endif
 }
 
 #ifndef NO_SEGMENTED_MEMORY
@@ -117,17 +127,17 @@ void main_pool_init(UNUSED_CN void *start, void *end) {
 #if defined(VERSION_CN) && !defined(USE_EXT_RAM)
     sPoolStart = (u8 *) ALIGN16((uintptr_t) &gZBufferEnd) + 16;
 #else
-    sPoolStart = (u8 *) ALIGN16((uintptr_t) start) + 16;
+    WORLD(sPoolStart) = (u8 *) ALIGN16((uintptr_t) start) + 16;
 #endif
-    sPoolEnd = (u8 *) ALIGN16((uintptr_t) end - 15) - 16;
-    sPoolFreeSpace = sPoolEnd - sPoolStart;
+    WORLD(sPoolEnd) = (u8 *) ALIGN16((uintptr_t) end - 15) - 16;
+    WORLD(sPoolFreeSpace) = WORLD(sPoolEnd) - WORLD(sPoolStart);
 
-    sPoolListHeadL = (struct MainPoolBlock *) (sPoolStart - 16);
-    sPoolListHeadR = (struct MainPoolBlock *) sPoolEnd;
-    sPoolListHeadL->prev = NULL;
-    sPoolListHeadL->next = NULL;
-    sPoolListHeadR->prev = NULL;
-    sPoolListHeadR->next = NULL;
+    WORLD(sPoolListHeadL) = (struct MainPoolBlock *) (WORLD(sPoolStart) - 16);
+    WORLD(sPoolListHeadR) = (struct MainPoolBlock *) WORLD(sPoolEnd);
+    WORLD(sPoolListHeadL)->prev = NULL;
+    WORLD(sPoolListHeadL)->next = NULL;
+    WORLD(sPoolListHeadR)->prev = NULL;
+    WORLD(sPoolListHeadR)->next = NULL;
 }
 
 /**
@@ -140,22 +150,22 @@ void *main_pool_alloc(u32 size, u32 side) {
     void *addr = NULL;
 
     size = ALIGN16(size) + 16;
-    if (size != 0 && sPoolFreeSpace >= size) {
-        sPoolFreeSpace -= size;
+    if (size != 0 && WORLD(sPoolFreeSpace) >= size) {
+        WORLD(sPoolFreeSpace) -= size;
         if (side == MEMORY_POOL_LEFT) {
-            newListHead = (struct MainPoolBlock *) ((u8 *) sPoolListHeadL + size);
-            sPoolListHeadL->next = newListHead;
-            newListHead->prev = sPoolListHeadL;
+            newListHead = (struct MainPoolBlock *) ((u8 *) WORLD(sPoolListHeadL) + size);
+            WORLD(sPoolListHeadL)->next = newListHead;
+            newListHead->prev = WORLD(sPoolListHeadL);
             newListHead->next = NULL;
-            addr = (u8 *) sPoolListHeadL + 16;
-            sPoolListHeadL = newListHead;
+            addr = (u8 *) WORLD(sPoolListHeadL) + 16;
+            WORLD(sPoolListHeadL) = newListHead;
         } else {
-            newListHead = (struct MainPoolBlock *) ((u8 *) sPoolListHeadR - size);
-            sPoolListHeadR->prev = newListHead;
-            newListHead->next = sPoolListHeadR;
+            newListHead = (struct MainPoolBlock *) ((u8 *) WORLD(sPoolListHeadR) - size);
+            WORLD(sPoolListHeadR)->prev = newListHead;
+            newListHead->next = WORLD(sPoolListHeadR);
             newListHead->prev = NULL;
-            sPoolListHeadR = newListHead;
-            addr = (u8 *) sPoolListHeadR + 16;
+            WORLD(sPoolListHeadR) = newListHead;
+            addr = (u8 *) WORLD(sPoolListHeadR) + 16;
         }
     }
     return addr;
@@ -171,22 +181,22 @@ u32 main_pool_free(void *addr) {
     struct MainPoolBlock *block = (struct MainPoolBlock *) ((u8 *) addr - 16);
     struct MainPoolBlock *oldListHead = (struct MainPoolBlock *) ((u8 *) addr - 16);
 
-    if (oldListHead < sPoolListHeadL) {
+    if (oldListHead < WORLD(sPoolListHeadL)) {
         while (oldListHead->next != NULL) {
             oldListHead = oldListHead->next;
         }
-        sPoolListHeadL = block;
-        sPoolListHeadL->next = NULL;
-        sPoolFreeSpace += (uintptr_t) oldListHead - (uintptr_t) sPoolListHeadL;
+        WORLD(sPoolListHeadL) = block;
+        WORLD(sPoolListHeadL)->next = NULL;
+        WORLD(sPoolFreeSpace) += (uintptr_t) oldListHead - (uintptr_t) WORLD(sPoolListHeadL);
     } else {
         while (oldListHead->prev != NULL) {
             oldListHead = oldListHead->prev;
         }
-        sPoolListHeadR = block->next;
-        sPoolListHeadR->prev = NULL;
-        sPoolFreeSpace += (uintptr_t) sPoolListHeadR - (uintptr_t) oldListHead;
+        WORLD(sPoolListHeadR) = block->next;
+        WORLD(sPoolListHeadR)->prev = NULL;
+        WORLD(sPoolFreeSpace) += (uintptr_t) WORLD(sPoolListHeadR) - (uintptr_t) oldListHead;
     }
-    return sPoolFreeSpace;
+    return WORLD(sPoolFreeSpace);
 }
 
 /**
@@ -199,7 +209,7 @@ void *main_pool_realloc(void *addr, u32 size) {
     void *newAddr = NULL;
     struct MainPoolBlock *block = (struct MainPoolBlock *) ((u8 *) addr - 16);
 
-    if (block->next == sPoolListHeadL) {
+    if (block->next == WORLD(sPoolListHeadL)) {
         main_pool_free(addr);
         newAddr = main_pool_alloc(size, MEMORY_POOL_LEFT);
     }
@@ -211,7 +221,7 @@ void *main_pool_realloc(void *addr, u32 size) {
  * pool.
  */
 u32 main_pool_available(void) {
-    return sPoolFreeSpace - 16;
+    return WORLD(sPoolFreeSpace) - 16;
 }
 
 /**
@@ -219,17 +229,17 @@ u32 main_pool_available(void) {
  * in the pool.
  */
 u32 main_pool_push_state(void) {
-    struct MainPoolState *prevState = gMainPoolState;
-    u32 freeSpace = sPoolFreeSpace;
-    struct MainPoolBlock *lhead = sPoolListHeadL;
-    struct MainPoolBlock *rhead = sPoolListHeadR;
+    struct MainPoolState *prevState = WORLD(gMainPoolState);
+    u32 freeSpace = WORLD(sPoolFreeSpace);
+    struct MainPoolBlock *lhead = WORLD(sPoolListHeadL);
+    struct MainPoolBlock *rhead = WORLD(sPoolListHeadR);
 
-    gMainPoolState = main_pool_alloc(sizeof(*gMainPoolState), MEMORY_POOL_LEFT);
-    gMainPoolState->freeSpace = freeSpace;
-    gMainPoolState->listHeadL = lhead;
-    gMainPoolState->listHeadR = rhead;
-    gMainPoolState->prev = prevState;
-    return sPoolFreeSpace;
+    WORLD(gMainPoolState) = main_pool_alloc(sizeof(*WORLD(gMainPoolState)), MEMORY_POOL_LEFT);
+    WORLD(gMainPoolState)->freeSpace = freeSpace;
+    WORLD(gMainPoolState)->listHeadL = lhead;
+    WORLD(gMainPoolState)->listHeadR = rhead;
+    WORLD(gMainPoolState)->prev = prevState;
+    return WORLD(sPoolFreeSpace);
 }
 
 /**
@@ -237,11 +247,11 @@ u32 main_pool_push_state(void) {
  * amount of free space left in the pool.
  */
 u32 main_pool_pop_state(void) {
-    sPoolFreeSpace = gMainPoolState->freeSpace;
-    sPoolListHeadL = gMainPoolState->listHeadL;
-    sPoolListHeadR = gMainPoolState->listHeadR;
-    gMainPoolState = gMainPoolState->prev;
-    return sPoolFreeSpace;
+    WORLD(sPoolFreeSpace) = WORLD(gMainPoolState)->freeSpace;
+    WORLD(sPoolListHeadL) = WORLD(gMainPoolState)->listHeadL;
+    WORLD(sPoolListHeadR) = WORLD(gMainPoolState)->listHeadR;
+    WORLD(gMainPoolState) = WORLD(gMainPoolState)->prev;
+    return WORLD(sPoolFreeSpace);
 }
 
 /**
@@ -255,9 +265,9 @@ static void dma_read(u8 *dest, u8 *srcStart, u8 *srcEnd) {
     while (size != 0) {
         u32 copySize = (size >= 0x1000) ? 0x1000 : size;
 
-        osPiStartDma(&gDmaIoMesg, OS_MESG_PRI_NORMAL, OS_READ, (uintptr_t) srcStart, dest, copySize,
-                     &gDmaMesgQueue);
-        osRecvMesg(&gDmaMesgQueue, &gMainReceivedMesg, OS_MESG_BLOCK);
+        osPiStartDma(&WORLD(gDmaIoMesg), OS_MESG_PRI_NORMAL, OS_READ, (uintptr_t) srcStart, dest, copySize,
+                     &WORLD(gDmaMesgQueue));
+        osRecvMesg(&WORLD(gDmaMesgQueue), &WORLD(gMainReceivedMesg), OS_MESG_BLOCK);
 
         dest += copySize;
         srcStart += copySize;
@@ -536,9 +546,9 @@ void *alloc_display_list(u32 size) {
     void *ptr = NULL;
 
     size = ALIGN8(size);
-    if (gGfxPoolEnd - size >= (u8 *) gDisplayListHead) {
-        gGfxPoolEnd -= size;
-        ptr = gGfxPoolEnd;
+    if (WORLD(gGfxPoolEnd) - size >= (u8 *) WORLD(gDisplayListHead)) {
+        WORLD(gGfxPoolEnd) -= size;
+        ptr = WORLD(gGfxPoolEnd);
     } else {
     }
     return ptr;

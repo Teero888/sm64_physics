@@ -31,19 +31,19 @@ void compute_net_bounding_box(struct ObjNet *net) {
     if (net->unk1C8 != NULL) {
         apply_to_obj_types_in_group(OBJ_TYPE_ALL, (applyproc_t) add_obj_pos_to_bounding_box, net->unk1C8);
     }
-    gSomeBoundingBox.minX *= net->scale.x;
-    gSomeBoundingBox.maxX *= net->scale.x;
-    gSomeBoundingBox.minY *= net->scale.y;
-    gSomeBoundingBox.maxY *= net->scale.y;
-    gSomeBoundingBox.minZ *= net->scale.z;
-    gSomeBoundingBox.maxZ *= net->scale.z;
+    WORLD(gSomeBoundingBox).minX *= net->scale.x;
+    WORLD(gSomeBoundingBox).maxX *= net->scale.x;
+    WORLD(gSomeBoundingBox).minY *= net->scale.y;
+    WORLD(gSomeBoundingBox).maxY *= net->scale.y;
+    WORLD(gSomeBoundingBox).minZ *= net->scale.z;
+    WORLD(gSomeBoundingBox).maxZ *= net->scale.z;
 
-    net->boundingBox.minX = gSomeBoundingBox.minX;
-    net->boundingBox.minY = gSomeBoundingBox.minY;
-    net->boundingBox.minZ = gSomeBoundingBox.minZ;
-    net->boundingBox.maxX = gSomeBoundingBox.maxX;
-    net->boundingBox.maxY = gSomeBoundingBox.maxY;
-    net->boundingBox.maxZ = gSomeBoundingBox.maxZ;
+    net->boundingBox.minX = WORLD(gSomeBoundingBox).minX;
+    net->boundingBox.minY = WORLD(gSomeBoundingBox).minY;
+    net->boundingBox.minZ = WORLD(gSomeBoundingBox).minZ;
+    net->boundingBox.maxX = WORLD(gSomeBoundingBox).maxX;
+    net->boundingBox.maxY = WORLD(gSomeBoundingBox).maxY;
+    net->boundingBox.maxZ = WORLD(gSomeBoundingBox).maxZ;
 }
 
 /* 240894 -> 240A64; orig name: func_801920C4 */
@@ -62,8 +62,8 @@ void reset_net(struct ObjNet *net) {
     gd_print_vec("net scale: ", &net->scale);
     gd_print_bounding_box("net box: ", &net->boundingBox);
 
-    gGdSkinNet = net;
-    D_801BAAF4 = 0;
+    WORLD(gGdSkinNet) = net;
+    WORLD(D_801BAAF4) = 0;
     gd_set_identity_mat4(&net->mat168);
     gd_set_identity_mat4(&net->matE8);
     gd_rot_mat_about_vec(&net->matE8, &net->unk68); // set rot mtx to initial rotation?
@@ -94,11 +94,11 @@ void func_801922FC(struct ObjNet *net) {
     struct ObjGroup *group; // 24
     UNUSED u8 filler[8];
 
-    gGdSkinNet = net;
+    WORLD(gGdSkinNet) = net;
     // TODO: netype constants?
     if (net->netType == 4) {
         if (net->shapePtr != NULL) {
-            D_801B9E38 = &net->mat128;
+            WORLD(D_801B9E38) = &net->mat128;
             scale_verts(net->shapePtr->vtxGroup);
         }
         if ((group = net->unk1C8) != NULL) {
@@ -115,7 +115,7 @@ struct ObjNet *make_net(UNUSED s32 a0, struct ObjShape *shapedata, struct ObjGro
     net = (struct ObjNet *) make_object(OBJ_TYPE_NETS);
     gd_set_identity_mat4(&net->mat128);
     net->initPos.x = net->initPos.y = net->initPos.z = 0.0f;
-    net->id = ++sNetCount;
+    net->id = ++WORLD(sNetCount);
     net->scale.x = net->scale.y = net->scale.z = 1.0f;
     net->shapePtr = shapedata;
     net->unk1C8 = a2;
@@ -140,15 +140,15 @@ void func_80192528(struct ObjNet *net) {
     net->unusedCollDispOff.x = net->unusedCollDispOff.y = net->unusedCollDispOff.z = 0.0f;
     net->unusedCollMaxD = 0.0f;
 
-    gGdCounter.ctr0 = 0;
-    gGdCounter.ctr1 = 0;
-    D_801B9E18.x = 0.0f;
-    D_801B9E18.y = 0.0f;
-    D_801B9E18.z = 0.0f;
-    D_801B9E28.x = 0.0f;
-    D_801B9E28.y = 0.0f;
-    D_801B9E28.z = 0.0f;
-    D_801B9E34 = 0.0f;
+    WORLD(gGdCounter).ctr0 = 0;
+    WORLD(gGdCounter).ctr1 = 0;
+    WORLD(D_801B9E18).x = 0.0f;
+    WORLD(D_801B9E18).y = 0.0f;
+    WORLD(D_801B9E18).z = 0.0f;
+    WORLD(D_801B9E28).x = 0.0f;
+    WORLD(D_801B9E28).y = 0.0f;
+    WORLD(D_801B9E28).z = 0.0f;
+    WORLD(D_801B9E34) = 0.0f;
 
     if (net->flags & 0x1) {
         net->velocity.y += -4.0; //? 4.0f
@@ -161,22 +161,22 @@ void func_80192528(struct ObjNet *net) {
 
 /* 240E74 -> 2412A0 */
 void collision_something_801926A4(struct ObjNet *net) {
-    if (gGdCounter.ctr1 != 0) {
-        if (D_801B9E34 != 0.0f) {
-            D_801B9E28.x /= D_801B9E34;
-            D_801B9E28.y /= D_801B9E34;
-            D_801B9E28.z /= D_801B9E34;
+    if (WORLD(gGdCounter).ctr1 != 0) {
+        if (WORLD(D_801B9E34) != 0.0f) {
+            WORLD(D_801B9E28).x /= WORLD(D_801B9E34);
+            WORLD(D_801B9E28).y /= WORLD(D_801B9E34);
+            WORLD(D_801B9E28).z /= WORLD(D_801B9E34);
         }
 
-        D_801B9E28.x *= 1.0 / gGdCounter.ctr1; // !1.0f
-        D_801B9E28.y *= 1.0 / gGdCounter.ctr1; // !1.0f
-        D_801B9E28.z *= 1.0 / gGdCounter.ctr1; // !1.0f
-        D_801B9E18.x *= 1.0 / gGdCounter.ctr1; // !1.0f
-        D_801B9E18.y *= 1.0 / gGdCounter.ctr1; // !1.0f
-        D_801B9E18.z *= 1.0 / gGdCounter.ctr1; // !1.0f
+        WORLD(D_801B9E28).x *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
+        WORLD(D_801B9E28).y *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
+        WORLD(D_801B9E28).z *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
+        WORLD(D_801B9E18).x *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
+        WORLD(D_801B9E18).y *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
+        WORLD(D_801B9E18).z *= 1.0 / WORLD(gGdCounter).ctr1; // !1.0f
 
-        func_8017E584(gGdSkinNet, &D_801B9E28, &D_801B9E18);
-        func_8017E838(gGdSkinNet, &D_801B9E28, &D_801B9E18);
+        func_8017E584(WORLD(gGdSkinNet), &WORLD(D_801B9E28), &WORLD(D_801B9E18));
+        func_8017E838(WORLD(gGdSkinNet), &WORLD(D_801B9E28), &WORLD(D_801B9E18));
     }
 
     net->torque.x += net->collTorque.x;
@@ -234,7 +234,7 @@ void move_bonesnet(struct ObjNet *net) {
     UNUSED u8 filler[12];
 
     imin("move_bonesnet");
-    gd_set_identity_mat4(&D_801B9DC8);
+    gd_set_identity_mat4(&WORLD(D_801B9DC8));
     if ((sp24 = net->unk1C8) != NULL) {
         apply_to_obj_types_in_group(OBJ_TYPE_JOINTS, (applyproc_t) func_801913C0, sp24);
     }
@@ -248,31 +248,31 @@ void func_80192CCC(struct ObjNet *net) {
     struct ObjGroup *group;        // 30
     struct GdVec3f sp24;
 
-    ctrl = &gGdCtrl;
-    if (gGdCtrl.unk2C != NULL) {
+    ctrl = &WORLD(gGdCtrl);
+    if (WORLD(gGdCtrl).unk2C != NULL) {
         menu_cb_reset_positions();
     }
-    gd_set_identity_mat4(&D_801B9DC8);
+    gd_set_identity_mat4(&WORLD(D_801B9DC8));
 
-    if (gGdCtrl.unk30 != NULL) {
+    if (WORLD(gGdCtrl).unk30 != NULL) {
         sp24.x = net->mat128[0][0];
         sp24.y = net->mat128[0][1];
         sp24.z = net->mat128[0][2];
         gd_create_rot_mat_angular(&sp38, &sp24, 4.0f);
-        gd_mult_mat4f(&sp38, &D_801B9DC8, &D_801B9DC8);
+        gd_mult_mat4f(&sp38, &WORLD(D_801B9DC8), &WORLD(D_801B9DC8));
         net->torque.x = net->torque.y = net->torque.z = 0.0f;
     }
 
-    if (gGdCtrl.unk28 != NULL) {
+    if (WORLD(gGdCtrl).unk28 != NULL) {
         sp24.x = net->mat128[0][0];
         sp24.y = net->mat128[0][1];
         sp24.z = net->mat128[0][2];
         gd_create_rot_mat_angular(&sp38, &sp24, -4.0f);
-        gd_mult_mat4f(&sp38, &D_801B9DC8, &D_801B9DC8);
+        gd_mult_mat4f(&sp38, &WORLD(D_801B9DC8), &WORLD(D_801B9DC8));
         net->torque.x = net->torque.y = net->torque.z = 0.0f;
     }
 
-    if (gGdCtrl.newStartPress) {
+    if (WORLD(gGdCtrl).newStartPress) {
         return;
     } // start was pressed
 
@@ -290,7 +290,7 @@ void func_80192CCC(struct ObjNet *net) {
     }
 
     collision_something_801926A4(net);
-    gd_mult_mat4f(&net->mat128, &D_801B9DC8, &net->mat128);
+    gd_mult_mat4f(&net->mat128, &WORLD(D_801B9DC8), &net->mat128);
     if (group != NULL) {
         apply_to_obj_types_in_group(OBJ_TYPE_JOINTS, (applyproc_t) func_801913C0, group);
         apply_to_obj_types_in_group(OBJ_TYPE_BONES, (applyproc_t) func_8018FA68, group);
@@ -421,7 +421,7 @@ static void move_joints_in_net(struct ObjNet *net) {
 
 /* 241D6C -> 241E94; orig name: func_8019359C */
 void move_net(struct ObjNet *net) {
-    gGdSkinNet = net;
+    WORLD(gGdSkinNet) = net;
 
     switch (net->netType) {
         case 1:
@@ -523,5 +523,5 @@ void gd_print_net(struct ObjNet *net) {
 
 /* 2422E0 -> 2422F8; orig name: func_80193B10 */
 void reset_net_count(void) {
-    sNetCount = 0;
+    WORLD(sNetCount) = 0;
 }

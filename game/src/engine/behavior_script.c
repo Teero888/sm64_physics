@@ -16,53 +16,53 @@
 
 // Macros for retrieving arguments from behavior scripts.
 #define BHV_CMD_GET_1ST_U8(index)  (u8)((gCurBhvCommand[index] >> 24) & 0xFF) // unused
-#define BHV_CMD_GET_2ND_U8(index)  (u8)((gCurBhvCommand[index] >> 16) & 0xFF)
-#define BHV_CMD_GET_3RD_U8(index)  (u8)((gCurBhvCommand[index] >> 8) & 0xFF)
-#define BHV_CMD_GET_4TH_U8(index)  (u8)((gCurBhvCommand[index]) & 0xFF)
+#define BHV_CMD_GET_2ND_U8(index)  (u8)((WORLD(gCurBhvCommand)[index] >> 16) & 0xFF)
+#define BHV_CMD_GET_3RD_U8(index)  (u8)((WORLD(gCurBhvCommand)[index] >> 8) & 0xFF)
+#define BHV_CMD_GET_4TH_U8(index)  (u8)((WORLD(gCurBhvCommand)[index]) & 0xFF)
 
-#define BHV_CMD_GET_1ST_S16(index) (s16)(gCurBhvCommand[index] >> 16)
-#define BHV_CMD_GET_2ND_S16(index) (s16)(gCurBhvCommand[index] & 0xFFFF)
+#define BHV_CMD_GET_1ST_S16(index) (s16)(WORLD(gCurBhvCommand)[index] >> 16)
+#define BHV_CMD_GET_2ND_S16(index) (s16)(WORLD(gCurBhvCommand)[index] & 0xFFFF)
 
-#define BHV_CMD_GET_U32(index)     (u32)(gCurBhvCommand[index])
-#define BHV_CMD_GET_VPTR(index)    (void *)(gCurBhvCommand[index])
+#define BHV_CMD_GET_U32(index)     (u32)(WORLD(gCurBhvCommand)[index])
+#define BHV_CMD_GET_VPTR(index)    (void *)(WORLD(gCurBhvCommand)[index])
 
-#define BHV_CMD_GET_ADDR_OF_CMD(index) (uintptr_t)(&gCurBhvCommand[index])
+#define BHV_CMD_GET_ADDR_OF_CMD(index) (uintptr_t)(&WORLD(gCurBhvCommand)[index])
 
 static u16 gRandomSeed16;
 
 // Unused function that directly jumps to a behavior command and resets the object's stack index.
 UNUSED static void goto_behavior_unused(const BehaviorScript *bhvAddr) {
-    gCurBhvCommand = segmented_to_virtual(bhvAddr);
-    gCurrentObject->bhvStackIndex = 0;
+    WORLD(gCurBhvCommand) = segmented_to_virtual(bhvAddr);
+    WORLD(gCurrentObject)->bhvStackIndex = 0;
 }
 
 // Generate a pseudorandom integer from 0 to 65535 from the random seed, and update the seed.
 u16 random_u16(void) {
     u16 temp1, temp2;
 
-    if (gRandomSeed16 == 22026) {
-        gRandomSeed16 = 0;
+    if (WORLD(gRandomSeed16) == 22026) {
+        WORLD(gRandomSeed16) = 0;
     }
 
-    temp1 = (gRandomSeed16 & 0x00FF) << 8;
-    temp1 = temp1 ^ gRandomSeed16;
+    temp1 = (WORLD(gRandomSeed16) & 0x00FF) << 8;
+    temp1 = temp1 ^ WORLD(gRandomSeed16);
 
-    gRandomSeed16 = ((temp1 & 0x00FF) << 8) + ((temp1 & 0xFF00) >> 8);
+    WORLD(gRandomSeed16) = ((temp1 & 0x00FF) << 8) + ((temp1 & 0xFF00) >> 8);
 
-    temp1 = ((temp1 & 0x00FF) << 1) ^ gRandomSeed16;
+    temp1 = ((temp1 & 0x00FF) << 1) ^ WORLD(gRandomSeed16);
     temp2 = (temp1 >> 1) ^ 0xFF80;
 
     if ((temp1 & 1) == 0) {
         if (temp2 == 43605) {
-            gRandomSeed16 = 0;
+            WORLD(gRandomSeed16) = 0;
         } else {
-            gRandomSeed16 = temp2 ^ 0x1FF4;
+            WORLD(gRandomSeed16) = temp2 ^ 0x1FF4;
         }
     } else {
-        gRandomSeed16 = temp2 ^ 0x8180;
+        WORLD(gRandomSeed16) = temp2 ^ 0x8180;
     }
 
-    return gRandomSeed16;
+    return WORLD(gRandomSeed16);
 }
 
 // Generate a pseudorandom float in the range [0, 1).
@@ -93,16 +93,16 @@ void obj_update_gfx_pos_and_angle(struct Object *obj) {
 
 // Push the address of a behavior command to the object's behavior stack.
 static void cur_obj_bhv_stack_push(uintptr_t bhvAddr) {
-    gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex] = bhvAddr;
-    gCurrentObject->bhvStackIndex++;
+    WORLD(gCurrentObject)->bhvStack[WORLD(gCurrentObject)->bhvStackIndex] = bhvAddr;
+    WORLD(gCurrentObject)->bhvStackIndex++;
 }
 
 // Retrieve the last behavior command address from the object's behavior stack.
 static uintptr_t cur_obj_bhv_stack_pop(void) {
     uintptr_t bhvAddr;
 
-    gCurrentObject->bhvStackIndex--;
-    bhvAddr = gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex];
+    WORLD(gCurrentObject)->bhvStackIndex--;
+    bhvAddr = WORLD(gCurrentObject)->bhvStack[WORLD(gCurrentObject)->bhvStackIndex];
 
     return bhvAddr;
 }
@@ -118,25 +118,25 @@ UNUSED static void stub_behavior_script_1(void) {
 static s32 bhv_cmd_hide(void) {
     cur_obj_hide();
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x35: Disables rendering for the object.
 // Usage: DISABLE_RENDERING()
 static s32 bhv_cmd_disable_rendering(void) {
-    gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
+    WORLD(gCurrentObject)->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x21: Billboards the current object, making it always face the camera.
 // Usage: BILLBOARD()
 static s32 bhv_cmd_billboard(void) {
-    gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_BILLBOARD;
+    WORLD(gCurrentObject)->header.gfx.node.flags |= GRAPH_RENDER_BILLBOARD;
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -145,9 +145,9 @@ static s32 bhv_cmd_billboard(void) {
 static s32 bhv_cmd_set_model(void) {
     s32 modelID = BHV_CMD_GET_2ND_S16(0);
 
-    gCurrentObject->header.gfx.sharedChild = gLoadedGraphNodes[modelID];
+    WORLD(gCurrentObject)->header.gfx.sharedChild = WORLD(gLoadedGraphNodes)[modelID];
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -157,10 +157,10 @@ static s32 bhv_cmd_spawn_child(void) {
     u32 model = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
 
-    struct Object *child = spawn_object_at_origin(gCurrentObject, 0, model, behavior);
-    obj_copy_pos_and_angle(child, gCurrentObject);
+    struct Object *child = spawn_object_at_origin(WORLD(gCurrentObject), 0, model, behavior);
+    obj_copy_pos_and_angle(child, WORLD(gCurrentObject));
 
-    gCurBhvCommand += 3;
+    WORLD(gCurBhvCommand) += 3;
     return BHV_PROC_CONTINUE;
 }
 
@@ -170,12 +170,12 @@ static s32 bhv_cmd_spawn_obj(void) {
     u32 model = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
 
-    struct Object *object = spawn_object_at_origin(gCurrentObject, 0, model, behavior);
-    obj_copy_pos_and_angle(object, gCurrentObject);
+    struct Object *object = spawn_object_at_origin(WORLD(gCurrentObject), 0, model, behavior);
+    obj_copy_pos_and_angle(object, WORLD(gCurrentObject));
     // TODO: Does this cmd need renaming? This line is the only difference between this and the above func.
-    gCurrentObject->prevObj = object;
+    WORLD(gCurrentObject)->prevObj = object;
 
-    gCurBhvCommand += 3;
+    WORLD(gCurBhvCommand) += 3;
     return BHV_PROC_CONTINUE;
 }
 
@@ -186,18 +186,18 @@ static s32 bhv_cmd_spawn_child_with_param(void) {
     u32 modelID = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
 
-    struct Object *child = spawn_object_at_origin(gCurrentObject, 0, modelID, behavior);
-    obj_copy_pos_and_angle(child, gCurrentObject);
+    struct Object *child = spawn_object_at_origin(WORLD(gCurrentObject), 0, modelID, behavior);
+    obj_copy_pos_and_angle(child, WORLD(gCurrentObject));
     child->oBhvParams2ndByte = bhvParam;
 
-    gCurBhvCommand += 3;
+    WORLD(gCurBhvCommand) += 3;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x1D: Exits the behavior script and despawns the object.
 // Usage: DEACTIVATE()
 static s32 bhv_cmd_deactivate(void) {
-    gCurrentObject->activeFlags = ACTIVE_FLAG_DEACTIVATED;
+    WORLD(gCurrentObject)->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     return BHV_PROC_BREAK;
 }
 
@@ -217,11 +217,11 @@ static s32 bhv_cmd_break_unused(void) {
 // Usage: CALL(addr)
 static s32 bhv_cmd_call(void) {
     const BehaviorScript *jumpAddress;
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
 
     cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(1)); // Store address of the next bhv command in the stack.
     jumpAddress = segmented_to_virtual(BHV_CMD_GET_VPTR(0));
-    gCurBhvCommand = jumpAddress; // Jump to the new address.
+    WORLD(gCurBhvCommand) = jumpAddress; // Jump to the new address.
 
     return BHV_PROC_CONTINUE;
 }
@@ -229,7 +229,7 @@ static s32 bhv_cmd_call(void) {
 // Command 0x03: Jumps back to the behavior command stored in the object's behavior stack. Used after CALL.
 // Usage: RETURN()
 static s32 bhv_cmd_return(void) {
-    gCurBhvCommand = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Retrieve command address and jump to it.
+    WORLD(gCurBhvCommand) = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Retrieve command address and jump to it.
     return BHV_PROC_CONTINUE;
 }
 
@@ -238,11 +238,11 @@ static s32 bhv_cmd_return(void) {
 static s32 bhv_cmd_delay(void) {
     s16 num = BHV_CMD_GET_2ND_S16(0);
 
-    if (gCurrentObject->bhvDelayTimer < num - 1) {
-        gCurrentObject->bhvDelayTimer++; // Increment timer
+    if (WORLD(gCurrentObject)->bhvDelayTimer < num - 1) {
+        WORLD(gCurrentObject)->bhvDelayTimer++; // Increment timer
     } else {
-        gCurrentObject->bhvDelayTimer = 0;
-        gCurBhvCommand++; // Delay ended, move to next bhv command (note: following commands will not execute until next frame)
+        WORLD(gCurrentObject)->bhvDelayTimer = 0;
+        WORLD(gCurBhvCommand)++; // Delay ended, move to next bhv command (note: following commands will not execute until next frame)
     }
 
     return BHV_PROC_BREAK;
@@ -254,11 +254,11 @@ static s32 bhv_cmd_delay_var(void) {
     u8 field = BHV_CMD_GET_2ND_U8(0);
     s32 num = cur_obj_get_int(field);
 
-    if (gCurrentObject->bhvDelayTimer < num - 1) {
-        gCurrentObject->bhvDelayTimer++; // Increment timer
+    if (WORLD(gCurrentObject)->bhvDelayTimer < num - 1) {
+        WORLD(gCurrentObject)->bhvDelayTimer++; // Increment timer
     } else {
-        gCurrentObject->bhvDelayTimer = 0;
-        gCurBhvCommand++; // Delay ended, move to next bhv command
+        WORLD(gCurrentObject)->bhvDelayTimer = 0;
+        WORLD(gCurBhvCommand)++; // Delay ended, move to next bhv command
     }
 
     return BHV_PROC_BREAK;
@@ -267,8 +267,8 @@ static s32 bhv_cmd_delay_var(void) {
 // Command 0x04: Jumps to a new behavior script without saving anything.
 // Usage: GOTO(addr)
 static s32 bhv_cmd_goto(void) {
-    gCurBhvCommand++; // Useless
-    gCurBhvCommand = segmented_to_virtual(BHV_CMD_GET_VPTR(0)); // Jump directly to address
+    WORLD(gCurBhvCommand)++; // Useless
+    WORLD(gCurBhvCommand) = segmented_to_virtual(BHV_CMD_GET_VPTR(0)); // Jump directly to address
     return BHV_PROC_CONTINUE;
 }
 
@@ -281,7 +281,7 @@ static s32 bhv_cmd_begin_repeat_unused(void) {
     cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(1)); // Store address of the first command of the loop in the stack
     cur_obj_bhv_stack_push(count); // Store repeat count in the stack too
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -293,7 +293,7 @@ static s32 bhv_cmd_begin_repeat(void) {
     cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(1)); // Store address of the first command of the loop in the stack
     cur_obj_bhv_stack_push(count); // Store repeat count in the stack too
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -304,13 +304,13 @@ static s32 bhv_cmd_end_repeat(void) {
     count--;
 
     if (count != 0) {
-        gCurBhvCommand = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
+        WORLD(gCurBhvCommand) = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
         // Save address and count to the stack again
         cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(0));
         cur_obj_bhv_stack_push(count);
     } else { // Finished iterating over the loop
         cur_obj_bhv_stack_pop(); // Necessary to remove address from the stack
-        gCurBhvCommand++;
+        WORLD(gCurBhvCommand)++;
     }
 
     // Don't execute following commands until next frame
@@ -324,13 +324,13 @@ static s32 bhv_cmd_end_repeat_continue(void) {
     count--;
 
     if (count != 0) {
-        gCurBhvCommand = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
+        WORLD(gCurBhvCommand) = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
         // Save address and count to the stack again
         cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(0));
         cur_obj_bhv_stack_push(count);
     } else { // Finished iterating over the loop
         cur_obj_bhv_stack_pop(); // Necessary to remove address from the stack
-        gCurBhvCommand++;
+        WORLD(gCurBhvCommand)++;
     }
 
     // Start executing following commands immediately
@@ -342,14 +342,14 @@ static s32 bhv_cmd_end_repeat_continue(void) {
 static s32 bhv_cmd_begin_loop(void) {
     cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(1)); // Store address of the first command of the loop in the stack
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x09: Marks the end of an infinite loop.
 // Usage: END_LOOP()
 static s32 bhv_cmd_end_loop(void) {
-    gCurBhvCommand = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
+    WORLD(gCurBhvCommand) = (const BehaviorScript *) cur_obj_bhv_stack_pop(); // Jump back to the first command in the loop
     cur_obj_bhv_stack_push(BHV_CMD_GET_ADDR_OF_CMD(0)); // Save address to the stack again
 
     return BHV_PROC_BREAK;
@@ -363,7 +363,7 @@ static s32 bhv_cmd_call_native(void) {
 
     behaviorFunc();
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -375,7 +375,7 @@ static s32 bhv_cmd_set_float(void) {
 
     cur_obj_set_float(field, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -387,7 +387,7 @@ static s32 bhv_cmd_set_int(void) {
 
     cur_obj_set_int(field, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -398,7 +398,7 @@ static s32 bhv_cmd_set_int_unused(void) {
 
     cur_obj_set_int(field, value);
 
-    gCurBhvCommand += 2; // Twice as long
+    WORLD(gCurBhvCommand) += 2; // Twice as long
     return BHV_PROC_CONTINUE;
 }
 
@@ -411,7 +411,7 @@ static s32 bhv_cmd_set_random_float(void) {
 
     cur_obj_set_float(field, (range * random_float()) + min);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -424,7 +424,7 @@ static s32 bhv_cmd_set_random_int(void) {
 
     cur_obj_set_int(field, (s32)(range * random_float()) + min);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -437,7 +437,7 @@ static s32 bhv_cmd_set_int_rand_rshift(void) {
 
     cur_obj_set_int(field, (random_u16() >> rshift) + min);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -450,7 +450,7 @@ static s32 bhv_cmd_add_random_float(void) {
 
     cur_obj_set_float(field, cur_obj_get_float(field) + min + (range * random_float()));
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -464,7 +464,7 @@ static s32 bhv_cmd_add_int_rand_rshift(void) {
 
     cur_obj_set_int(field, (cur_obj_get_int(field) + min) + (rnd >> rshift));
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -476,7 +476,7 @@ static s32 bhv_cmd_add_float(void) {
 
     cur_obj_add_float(field, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -488,7 +488,7 @@ static s32 bhv_cmd_add_int(void) {
 
     cur_obj_add_int(field, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -502,7 +502,7 @@ static s32 bhv_cmd_or_int(void) {
     value &= 0xFFFF;
     cur_obj_or_int(objectOffset, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -515,7 +515,7 @@ static s32 bhv_cmd_bit_clear(void) {
     value = (value & 0xFFFF) ^ 0xFFFF;
     cur_obj_and_int(field, value);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -526,7 +526,7 @@ static s32 bhv_cmd_load_animations(void) {
 
     cur_obj_set_vptr(field, BHV_CMD_GET_VPTR(1));
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -534,26 +534,26 @@ static s32 bhv_cmd_load_animations(void) {
 // Usage: ANIMATE(animIndex)
 static s32 bhv_cmd_animate(void) {
     s32 animIndex = BHV_CMD_GET_2ND_U8(0);
-    struct Animation **animations = gCurrentObject->oAnimations;
+    struct Animation **animations = WORLD(gCurrentObject)->oAnimations;
 
-    geo_obj_init_animation(&gCurrentObject->header.gfx, &animations[animIndex]);
+    geo_obj_init_animation(&WORLD(gCurrentObject)->header.gfx, &animations[animIndex]);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x1E: Finds the floor triangle directly under the object and moves the object down to it.
 // Usage: DROP_TO_FLOOR()
 static s32 bhv_cmd_drop_to_floor(void) {
-    f32 x = gCurrentObject->oPosX;
-    f32 y = gCurrentObject->oPosY;
-    f32 z = gCurrentObject->oPosZ;
+    f32 x = WORLD(gCurrentObject)->oPosX;
+    f32 y = WORLD(gCurrentObject)->oPosY;
+    f32 z = WORLD(gCurrentObject)->oPosZ;
 
     f32 floor = find_floor_height(x, y + 200.0f, z);
-    gCurrentObject->oPosY = floor;
-    gCurrentObject->oMoveFlags |= OBJ_MOVE_ON_GROUND;
+    WORLD(gCurrentObject)->oPosY = floor;
+    WORLD(gCurrentObject)->oMoveFlags |= OBJ_MOVE_ON_GROUND;
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -562,7 +562,7 @@ static s32 bhv_cmd_drop_to_floor(void) {
 static s32 bhv_cmd_nop_1(void) {
     UNUSED u8 field = BHV_CMD_GET_2ND_U8(0);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -571,7 +571,7 @@ static s32 bhv_cmd_nop_1(void) {
 static s32 bhv_cmd_nop_3(void) {
     UNUSED u8 field = BHV_CMD_GET_2ND_U8(0);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -580,7 +580,7 @@ static s32 bhv_cmd_nop_3(void) {
 static s32 bhv_cmd_nop_2(void) {
     UNUSED u8 field = BHV_CMD_GET_2ND_U8(0);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -593,7 +593,7 @@ static s32 bhv_cmd_sum_float(void) {
 
     cur_obj_set_float(fieldDst, cur_obj_get_float(fieldSrc1) + cur_obj_get_float(fieldSrc2));
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -606,7 +606,7 @@ static s32 bhv_cmd_sum_int(void) {
 
     cur_obj_set_int(fieldDst, cur_obj_get_int(fieldSrc1) + cur_obj_get_int(fieldSrc2));
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -616,10 +616,10 @@ static s32 bhv_cmd_set_hitbox(void) {
     s16 radius = BHV_CMD_GET_1ST_S16(1);
     s16 height = BHV_CMD_GET_2ND_S16(1);
 
-    gCurrentObject->hitboxRadius = radius;
-    gCurrentObject->hitboxHeight = height;
+    WORLD(gCurrentObject)->hitboxRadius = radius;
+    WORLD(gCurrentObject)->hitboxHeight = height;
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -629,10 +629,10 @@ static s32 bhv_cmd_set_hurtbox(void) {
     s16 radius = BHV_CMD_GET_1ST_S16(1);
     s16 height = BHV_CMD_GET_2ND_S16(1);
 
-    gCurrentObject->hurtboxRadius = radius;
-    gCurrentObject->hurtboxHeight = height;
+    WORLD(gCurrentObject)->hurtboxRadius = radius;
+    WORLD(gCurrentObject)->hurtboxHeight = height;
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -643,11 +643,11 @@ static s32 bhv_cmd_set_hitbox_with_offset(void) {
     s16 height = BHV_CMD_GET_2ND_S16(1);
     s16 downOffset = BHV_CMD_GET_1ST_S16(2);
 
-    gCurrentObject->hitboxRadius = radius;
-    gCurrentObject->hitboxHeight = height;
-    gCurrentObject->hitboxDownOffset = downOffset;
+    WORLD(gCurrentObject)->hitboxRadius = radius;
+    WORLD(gCurrentObject)->hitboxHeight = height;
+    WORLD(gCurrentObject)->hitboxDownOffset = downOffset;
 
-    gCurBhvCommand += 3;
+    WORLD(gCurBhvCommand) += 3;
     return BHV_PROC_CONTINUE;
 }
 
@@ -657,7 +657,7 @@ static s32 bhv_cmd_nop_4(void) {
     UNUSED s16 field = BHV_CMD_GET_2ND_U8(0);
     UNUSED s16 value = BHV_CMD_GET_2ND_S16(0);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -677,9 +677,9 @@ static s32 bhv_cmd_begin(void) {
     }
     // Set collision distance if the object is a message panel.
     if (cur_obj_has_behavior(bhvMessagePanel)) {
-        gCurrentObject->oCollisionDistance = 150.0f;
+        WORLD(gCurrentObject)->oCollisionDistance = 150.0f;
     }
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -732,38 +732,38 @@ static s32 bhv_cmd_set_int_random_from_table(void) {
 static s32 bhv_cmd_load_collision_data(void) {
     u32 *collisionData = segmented_to_virtual(BHV_CMD_GET_VPTR(1));
 
-    gCurrentObject->collisionData = collisionData;
+    WORLD(gCurrentObject)->collisionData = collisionData;
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x2D: Sets the home position of the object to its current position.
 // Usage: SET_HOME()
 static s32 bhv_cmd_set_home(void) {
-    gCurrentObject->oHomeX = gCurrentObject->oPosX;
-    gCurrentObject->oHomeY = gCurrentObject->oPosY;
-    gCurrentObject->oHomeZ = gCurrentObject->oPosZ;
+    WORLD(gCurrentObject)->oHomeX = WORLD(gCurrentObject)->oPosX;
+    WORLD(gCurrentObject)->oHomeY = WORLD(gCurrentObject)->oPosY;
+    WORLD(gCurrentObject)->oHomeZ = WORLD(gCurrentObject)->oPosZ;
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x2F: Sets the object's interaction type.
 // Usage: SET_INTERACT_TYPE(type)
 static s32 bhv_cmd_set_interact_type(void) {
-    gCurrentObject->oInteractType = BHV_CMD_GET_U32(1);
+    WORLD(gCurrentObject)->oInteractType = BHV_CMD_GET_U32(1);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
 // Command 0x31: Sets the object's interaction subtype. Unused.
 // Usage: SET_INTERACT_SUBTYPE(subtype)
 static s32 bhv_cmd_set_interact_subtype(void) {
-    gCurrentObject->oInteractionSubtype = BHV_CMD_GET_U32(1);
+    WORLD(gCurrentObject)->oInteractionSubtype = BHV_CMD_GET_U32(1);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -775,7 +775,7 @@ static s32 bhv_cmd_scale(void) {
 
     cur_obj_scale(percent / 100.0f);
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -785,17 +785,17 @@ static s32 bhv_cmd_scale(void) {
 static s32 bhv_cmd_set_obj_physics(void) {
     UNUSED f32 unused1, unused2;
 
-    gCurrentObject->oWallHitboxRadius = BHV_CMD_GET_1ST_S16(1);
-    gCurrentObject->oGravity = BHV_CMD_GET_2ND_S16(1) / 100.0f;
-    gCurrentObject->oBounciness = BHV_CMD_GET_1ST_S16(2) / 100.0f;
-    gCurrentObject->oDragStrength = BHV_CMD_GET_2ND_S16(2) / 100.0f;
-    gCurrentObject->oFriction = BHV_CMD_GET_1ST_S16(3) / 100.0f;
-    gCurrentObject->oBuoyancy = BHV_CMD_GET_2ND_S16(3) / 100.0f;
+    WORLD(gCurrentObject)->oWallHitboxRadius = BHV_CMD_GET_1ST_S16(1);
+    WORLD(gCurrentObject)->oGravity = BHV_CMD_GET_2ND_S16(1) / 100.0f;
+    WORLD(gCurrentObject)->oBounciness = BHV_CMD_GET_1ST_S16(2) / 100.0f;
+    WORLD(gCurrentObject)->oDragStrength = BHV_CMD_GET_2ND_S16(2) / 100.0f;
+    WORLD(gCurrentObject)->oFriction = BHV_CMD_GET_1ST_S16(3) / 100.0f;
+    WORLD(gCurrentObject)->oBuoyancy = BHV_CMD_GET_2ND_S16(3) / 100.0f;
 
     unused1 = BHV_CMD_GET_1ST_S16(4) / 100.0f;
     unused2 = BHV_CMD_GET_2ND_S16(4) / 100.0f;
 
-    gCurBhvCommand += 5;
+    WORLD(gCurBhvCommand) += 5;
     return BHV_PROC_CONTINUE;
 }
 
@@ -807,9 +807,9 @@ static s32 bhv_cmd_parent_bit_clear(void) {
     s32 value = BHV_CMD_GET_U32(1);
 
     value = value ^ 0xFFFFFFFF;
-    obj_and_int(gCurrentObject->parentObj, field, value);
+    obj_and_int(WORLD(gCurrentObject)->parentObj, field, value);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -818,9 +818,9 @@ static s32 bhv_cmd_parent_bit_clear(void) {
 static s32 bhv_cmd_spawn_water_droplet(void) {
     struct WaterDropletParams *dropletParams = BHV_CMD_GET_VPTR(1);
 
-    spawn_water_droplet(gCurrentObject, dropletParams);
+    spawn_water_droplet(WORLD(gCurrentObject), dropletParams);
 
-    gCurBhvCommand += 2;
+    WORLD(gCurBhvCommand) += 2;
     return BHV_PROC_CONTINUE;
 }
 
@@ -831,11 +831,11 @@ static s32 bhv_cmd_animate_texture(void) {
     s16 rate = BHV_CMD_GET_2ND_S16(0);
 
     // Increase the field (oAnimState) by 1 every <rate> frames.
-    if ((gGlobalTimer % rate) == 0) {
+    if ((WORLD(gGlobalTimer) % rate) == 0) {
         cur_obj_add_int(field, 1);
     }
 
-    gCurBhvCommand++;
+    WORLD(gCurBhvCommand)++;
     return BHV_PROC_CONTINUE;
 }
 
@@ -906,60 +906,60 @@ static BhvCommandProc BehaviorCmdTable[] = {
 void cur_obj_update(void) {
     UNUSED u8 filler[4];
 
-    s16 objFlags = gCurrentObject->oFlags;
+    s16 objFlags = WORLD(gCurrentObject)->oFlags;
     f32 distanceFromMario;
     BhvCommandProc bhvCmdProc;
     s32 bhvProcResult;
 
     // Calculate the distance from the object to Mario.
     if (objFlags & OBJ_FLAG_COMPUTE_DIST_TO_MARIO) {
-        gCurrentObject->oDistanceToMario = dist_between_objects(gCurrentObject, gMarioObject);
-        distanceFromMario = gCurrentObject->oDistanceToMario;
+        WORLD(gCurrentObject)->oDistanceToMario = dist_between_objects(WORLD(gCurrentObject), WORLD(gMarioObject));
+        distanceFromMario = WORLD(gCurrentObject)->oDistanceToMario;
     } else {
         distanceFromMario = 0.0f;
     }
 
     // Calculate the angle from the object to Mario.
     if (objFlags & OBJ_FLAG_COMPUTE_ANGLE_TO_MARIO) {
-        gCurrentObject->oAngleToMario = obj_angle_to_object(gCurrentObject, gMarioObject);
+        WORLD(gCurrentObject)->oAngleToMario = obj_angle_to_object(WORLD(gCurrentObject), WORLD(gMarioObject));
     }
 
     // If the object's action has changed, reset the action timer.
-    if (gCurrentObject->oAction != gCurrentObject->oPrevAction) {
-        (void) (gCurrentObject->oTimer = 0, gCurrentObject->oSubAction = 0,
-                gCurrentObject->oPrevAction = gCurrentObject->oAction);
+    if (WORLD(gCurrentObject)->oAction != WORLD(gCurrentObject)->oPrevAction) {
+        (void) (WORLD(gCurrentObject)->oTimer = 0, WORLD(gCurrentObject)->oSubAction = 0,
+                WORLD(gCurrentObject)->oPrevAction = WORLD(gCurrentObject)->oAction);
     }
 
     // Execute the behavior script.
-    gCurBhvCommand = gCurrentObject->curBhvCommand;
+    WORLD(gCurBhvCommand) = WORLD(gCurrentObject)->curBhvCommand;
 
     do {
-        bhvCmdProc = BehaviorCmdTable[*gCurBhvCommand >> 24];
+        bhvCmdProc = WORLD(BehaviorCmdTable)[*WORLD(gCurBhvCommand) >> 24];
         bhvProcResult = bhvCmdProc();
     } while (bhvProcResult == BHV_PROC_CONTINUE);
 
-    gCurrentObject->curBhvCommand = gCurBhvCommand;
+    WORLD(gCurrentObject)->curBhvCommand = WORLD(gCurBhvCommand);
 
     // Increment the object's timer.
-    if (gCurrentObject->oTimer < 0x3FFFFFFF) {
-        gCurrentObject->oTimer++;
+    if (WORLD(gCurrentObject)->oTimer < 0x3FFFFFFF) {
+        WORLD(gCurrentObject)->oTimer++;
     }
 
     // If the object's action has changed, reset the action timer.
-    if (gCurrentObject->oAction != gCurrentObject->oPrevAction) {
-        (void) (gCurrentObject->oTimer = 0, gCurrentObject->oSubAction = 0,
-                gCurrentObject->oPrevAction = gCurrentObject->oAction);
+    if (WORLD(gCurrentObject)->oAction != WORLD(gCurrentObject)->oPrevAction) {
+        (void) (WORLD(gCurrentObject)->oTimer = 0, WORLD(gCurrentObject)->oSubAction = 0,
+                WORLD(gCurrentObject)->oPrevAction = WORLD(gCurrentObject)->oAction);
     }
 
     // Execute various code based on object flags.
-    objFlags = (s16) gCurrentObject->oFlags;
+    objFlags = (s16) WORLD(gCurrentObject)->oFlags;
 
     if (objFlags & OBJ_FLAG_SET_FACE_ANGLE_TO_MOVE_ANGLE) {
-        obj_set_face_angle_to_move_angle(gCurrentObject);
+        obj_set_face_angle_to_move_angle(WORLD(gCurrentObject));
     }
 
     if (objFlags & OBJ_FLAG_SET_FACE_YAW_TO_MOVE_YAW) {
-        gCurrentObject->oFaceAngleYaw = gCurrentObject->oMoveAngleYaw;
+        WORLD(gCurrentObject)->oFaceAngleYaw = WORLD(gCurrentObject)->oMoveAngleYaw;
     }
 
     if (objFlags & OBJ_FLAG_MOVE_XZ_USING_FVEL) {
@@ -971,32 +971,32 @@ void cur_obj_update(void) {
     }
 
     if (objFlags & OBJ_FLAG_TRANSFORM_RELATIVE_TO_PARENT) {
-        obj_build_transform_relative_to_parent(gCurrentObject);
+        obj_build_transform_relative_to_parent(WORLD(gCurrentObject));
     }
 
     if (objFlags & OBJ_FLAG_SET_THROW_MATRIX_FROM_TRANSFORM) {
-        obj_set_throw_matrix_from_transform(gCurrentObject);
+        obj_set_throw_matrix_from_transform(WORLD(gCurrentObject));
     }
 
     if (objFlags & OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE) {
-        obj_update_gfx_pos_and_angle(gCurrentObject);
+        obj_update_gfx_pos_and_angle(WORLD(gCurrentObject));
     }
 
     // Handle visibility of object
-    if (gCurrentObject->oRoom != -1) {
+    if (WORLD(gCurrentObject)->oRoom != -1) {
         // If the object is in a room, only show it when Mario is in the room.
         cur_obj_enable_rendering_if_mario_in_room();
-    } else if ((objFlags & OBJ_FLAG_COMPUTE_DIST_TO_MARIO) && gCurrentObject->collisionData == NULL) {
+    } else if ((objFlags & OBJ_FLAG_COMPUTE_DIST_TO_MARIO) && WORLD(gCurrentObject)->collisionData == NULL) {
         if (!(objFlags & OBJ_FLAG_ACTIVE_FROM_AFAR)) {
             // If the object has a render distance, check if it should be shown.
-            if (distanceFromMario > gCurrentObject->oDrawingDistance) {
+            if (distanceFromMario > WORLD(gCurrentObject)->oDrawingDistance) {
                 // Out of render distance, hide the object.
-                gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
-                gCurrentObject->activeFlags |= ACTIVE_FLAG_FAR_AWAY;
-            } else if (gCurrentObject->oHeldState == HELD_FREE) {
+                WORLD(gCurrentObject)->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
+                WORLD(gCurrentObject)->activeFlags |= ACTIVE_FLAG_FAR_AWAY;
+            } else if (WORLD(gCurrentObject)->oHeldState == HELD_FREE) {
                 // In render distance (and not being held), show the object.
-                gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
-                gCurrentObject->activeFlags &= ~ACTIVE_FLAG_FAR_AWAY;
+                WORLD(gCurrentObject)->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
+                WORLD(gCurrentObject)->activeFlags &= ~ACTIVE_FLAG_FAR_AWAY;
             }
         }
     }

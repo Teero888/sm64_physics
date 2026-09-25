@@ -18,8 +18,8 @@ void bhv_purple_switch_loop(void) {
         case PURPLE_SWITCH_ACT_IDLE:
             cur_obj_set_model(MODEL_PURPLE_SWITCH);
             cur_obj_scale(1.5f);
-            if (gMarioObject->platform == o && !(gMarioStates[0].action & MARIO_UNKNOWN_13)) {
-                if (lateral_dist_between_objects(o, gMarioObject) < 127.5) {
+            if (WORLD(gMarioObject)->platform == o && !(WORLD(gMarioStates)[0].action & MARIO_UNKNOWN_13)) {
+                if (lateral_dist_between_objects(o, WORLD(gMarioObject)) < 127.5) {
                     o->oAction = PURPLE_SWITCH_ACT_PRESSED;
                 }
             }
@@ -47,13 +47,13 @@ void bhv_purple_switch_loop(void) {
          */
         case PURPLE_SWITCH_ACT_TICKING:
             if (o->oBhvParams2ndByte != 0) {
-                if (o->oBhvParams2ndByte == 1 && gMarioObject->platform != o) {
+                if (o->oBhvParams2ndByte == 1 && WORLD(gMarioObject)->platform != o) {
                     o->oAction++;
                 } else {
                     if (o->oTimer < 360) {
-                        play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, gGlobalSoundSource);
+                        play_sound(SOUND_GENERAL2_SWITCH_TICK_FAST, WORLD(gGlobalSoundSource));
                     } else {
-                        play_sound(SOUND_GENERAL2_SWITCH_TICK_SLOW, gGlobalSoundSource);
+                        play_sound(SOUND_GENERAL2_SWITCH_TICK_SLOW, WORLD(gGlobalSoundSource));
                     }
                     if (o->oTimer > 400) {
                         o->oAction = PURPLE_SWITCH_ACT_WAIT_FOR_MARIO_TO_GET_OFF;

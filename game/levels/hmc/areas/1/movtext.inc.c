@@ -13,7 +13,7 @@ static Movtex hmc_movtex_dorrie_pool_water_data[] = {
     MOV_TEX_END(),
 };
 
-const struct MovtexQuadCollection hmc_movtex_dorrie_pool_water[] = {
+struct MovtexQuadCollection hmc_movtex_dorrie_pool_water[] = {
     {0, hmc_movtex_dorrie_pool_water_data},
     {-1, NULL},
 };
@@ -48,7 +48,7 @@ static Movtex hmc_movtex_toxic_maze_rot_clock_mist_data[] = {
     MOV_TEX_END(),
 };
 
-const struct MovtexQuadCollection hmc_movtex_toxic_maze_mist[] = {
+struct MovtexQuadCollection hmc_movtex_toxic_maze_mist[] = {
     {50, hmc_movtex_toxic_maze_rot_count_clock_mist_data},
     {51, hmc_movtex_toxic_maze_rot_clock_mist_data},
     {-1, NULL},

@@ -14,7 +14,7 @@ static Movtex jrb_movtex_sunken_ship_water_data[] = {
 };
 
 // 0x0701139C
-const struct MovtexQuadCollection jrb_movtex_sunken_ship_water[] = {
+struct MovtexQuadCollection jrb_movtex_sunken_ship_water[] = {
     {0, jrb_movtex_sunken_ship_water_data},
     {-1, NULL},
 };

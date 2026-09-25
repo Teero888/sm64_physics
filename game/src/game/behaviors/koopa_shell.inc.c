@@ -17,7 +17,7 @@ void koopa_shell_spawn_water_drop(void) {
 
     spawn_object(o, MODEL_WAVE_TRAIL, bhvObjectWaveTrail);
 
-    if (gMarioStates[0].forwardVel > 10.0f) {
+    if (WORLD(gMarioStates)[0].forwardVel > 10.0f) {
         struct Object *drop = spawn_object_with_scale(o, MODEL_WHITE_PARTICLE_SMALL,
                                                       bhvWaterDroplet, 1.5f);
         drop->oVelY = random_float() * 30.0f;
@@ -61,7 +61,7 @@ void koopa_shell_spawn_sparkles(f32 a) {
 void bhv_koopa_shell_loop(void) {
     struct Surface *sp34;
 
-    obj_set_hitbox(o, &sKoopaShellHitbox);
+    obj_set_hitbox(o, &WORLD(sKoopaShellHitbox));
     cur_obj_scale(1.0f);
 
     switch (o->oAction) {
@@ -79,7 +79,7 @@ void bhv_koopa_shell_loop(void) {
             break;
 
         case 1:
-            obj_copy_pos(o, gMarioObject);
+            obj_copy_pos(o, WORLD(gMarioObject));
             sp34 = cur_obj_update_floor_height_and_get_floor();
 
             if (absf(find_water_level(o->oPosX, o->oPosZ) - o->oPosY) < 10.0f) {
@@ -94,7 +94,7 @@ void bhv_koopa_shell_loop(void) {
                 koopa_shell_spawn_sparkles(10.0f);
             }
 
-            o->oFaceAngleYaw = gMarioObject->oMoveAngleYaw;
+            o->oFaceAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw;
 
             if (o->oInteractStatus & INT_STATUS_STOP_RIDING) {
                 obj_mark_for_deletion(o);

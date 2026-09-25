@@ -27,18 +27,18 @@ static s16 sTTCCogNormalSpeeds[] = { 200, 400 };
  */
 void bhv_ttc_cog_init(void) {
     o->collisionData = segmented_to_virtual(
-        sTTCCogCollisionModels[(o->oBhvParams2ndByte & TTC_COG_BP_SHAPE_MASK) >> 1]);
-    o->oTTCCogDir = sTTCCogDirections[o->oBhvParams2ndByte & TTC_COG_BP_DIR_MASK];
+        WORLD(sTTCCogCollisionModels)[(o->oBhvParams2ndByte & TTC_COG_BP_SHAPE_MASK) >> 1]);
+    o->oTTCCogDir = WORLD(sTTCCogDirections)[o->oBhvParams2ndByte & TTC_COG_BP_DIR_MASK];
 }
 
 /**
  * Update function for bhvTTCCog.
  */
 void bhv_ttc_cog_update(void) {
-    switch (gTTCSpeedSetting) {
+    switch (WORLD(gTTCSpeedSetting)) {
         case TTC_SPEED_SLOW:
         case TTC_SPEED_FAST:
-            o->oTTCCogSpeed = sTTCCogNormalSpeeds[gTTCSpeedSetting];
+            o->oTTCCogSpeed = WORLD(sTTCCogNormalSpeeds)[WORLD(gTTCSpeedSetting)];
             break;
 
         case TTC_SPEED_RANDOM:

@@ -13,7 +13,7 @@
 void bhv_camera_lakitu_init(void) {
     if (o->oBhvParams2ndByte != CAMERA_LAKITU_BP_FOLLOW_CAMERA) {
         // Despawn unless this is the very beginning of the game
-        if (gNeverEnteredCastle != TRUE) {
+        if (WORLD(gNeverEnteredCastle) != TRUE) {
             obj_mark_for_deletion(o);
         }
     } else {
@@ -28,9 +28,9 @@ void bhv_camera_lakitu_init(void) {
 static void camera_lakitu_intro_act_trigger_cutscene(void) {
     //! These bounds are slightly smaller than the actual bridge bounds, allowing
     //  the RTA speedrunning method of lakitu skip
-    if (gMarioObject->oPosX > -544.0f && gMarioObject->oPosX < 545.0f
-        && gMarioObject->oPosY > 800.0f && gMarioObject->oPosZ > -2000.0f
-        && gMarioObject->oPosZ < -177.0f && gMarioObject->oPosZ < -177.0f // always double check your conditions
+    if (WORLD(gMarioObject)->oPosX > -544.0f && WORLD(gMarioObject)->oPosX < 545.0f
+        && WORLD(gMarioObject)->oPosY > 800.0f && WORLD(gMarioObject)->oPosZ > -2000.0f
+        && WORLD(gMarioObject)->oPosZ < -177.0f && WORLD(gMarioObject)->oPosZ < -177.0f // always double check your conditions
         && set_mario_npc_dialog(MARIO_DIALOG_LOOK_UP) == MARIO_DIALOG_STATUS_START) {
         o->oAction = CAMERA_LAKITU_INTRO_ACT_SPAWN_CLOUD;
     }
@@ -109,7 +109,7 @@ static void camera_lakitu_intro_act_show_dialog(void) {
                     // Once within 1000 units, slow down
                     approach_f32_ptr(&o->oCameraLakituSpeed, 20.0f, 1.0f);
                     if (o->oDistanceToMario < 500.0f
-                        && abs_angle_diff(gMarioObject->oFaceAngleYaw, o->oFaceAngleYaw) > 0x7000) {
+                        && abs_angle_diff(WORLD(gMarioObject)->oFaceAngleYaw, o->oFaceAngleYaw) > 0x7000) {
                         // Once within 500 units and facing toward mario, come
                         // to a stop
                         approach_f32_ptr(&o->oCameraLakituSpeed, 0.0f, 5.0f);
@@ -153,23 +153,23 @@ void bhv_camera_lakitu_update(void) {
                     break;
             }
         } else {
-            f32 val0C = 4331.53f - gLakituState.curPos[0];
+            f32 val0C = 4331.53f - WORLD(gLakituState).curPos[0];
 
-            if (gLakituState.curPos[0] < 1700.0f || val0C < 0.0f) {
+            if (WORLD(gLakituState).curPos[0] < 1700.0f || val0C < 0.0f) {
                 cur_obj_hide();
             } else {
                 cur_obj_unhide();
 
-                o->oPosX = gLakituState.curPos[0];
-                o->oPosY = gLakituState.curPos[1];
-                o->oPosZ = gLakituState.curPos[2];
+                o->oPosX = WORLD(gLakituState).curPos[0];
+                o->oPosY = WORLD(gLakituState).curPos[1];
+                o->oPosZ = WORLD(gLakituState).curPos[2];
 
-                o->oHomeX = gLakituState.curFocus[0];
-                o->oHomeZ = gLakituState.curFocus[2];
+                o->oHomeX = WORLD(gLakituState).curFocus[0];
+                o->oHomeZ = WORLD(gLakituState).curFocus[2];
 
                 o->oFaceAngleYaw = -cur_obj_angle_to_home();
                 o->oFaceAnglePitch = atan2s(cur_obj_lateral_dist_to_home(),
-                                            o->oPosY - gLakituState.curFocus[1]);
+                                            o->oPosY - WORLD(gLakituState).curFocus[1]);
 
                 o->oPosX = 4331.53f + val0C;
             }

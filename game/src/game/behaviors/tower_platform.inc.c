@@ -9,7 +9,7 @@ void bhv_wf_solid_tower_platform_loop(void) {
 void bhv_wf_elevator_tower_platform_loop(void) {
     switch (o->oAction) {
         case 0:
-            if (gMarioObject->platform == o) {
+            if (WORLD(gMarioObject)->platform == o) {
                 o->oAction++;
             }
             break;
@@ -110,9 +110,9 @@ void spawn_wf_platform_group(void) {
 }
 
 void bhv_tower_platform_group_loop(void) {
-    f32 marioY = gMarioObject->oPosY;
+    f32 marioY = WORLD(gMarioObject)->oPosY;
 
-    o->oDistanceToMario = dist_between_objects(o, gMarioObject);
+    o->oDistanceToMario = dist_between_objects(o, WORLD(gMarioObject));
 
     switch (o->oAction) {
         case 0:

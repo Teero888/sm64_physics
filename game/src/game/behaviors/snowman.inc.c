@@ -35,7 +35,7 @@ void bhv_snowmans_bottom_init(void) {
 }
 
 void set_rolling_sphere_hitbox(void) {
-    obj_set_hitbox(o, &sRollingSphereHitbox);
+    obj_set_hitbox(o, &WORLD(sRollingSphereHitbox));
 
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         o->oInteractStatus = 0;
@@ -165,7 +165,7 @@ void bhv_snowmans_bottom_loop(void) {
 }
 
 void bhv_snowmans_head_init(void) {
-    u8 starFlags = save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(gCurrCourseNum));
+    u8 starFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)));
     s8 sp36 = (o->oBhvParams >> 24) & 0xFF;
 
     cur_obj_scale(0.7f);
@@ -174,7 +174,7 @@ void bhv_snowmans_head_init(void) {
     o->oFriction = 0.999f;
     o->oBuoyancy = 2.0f;
 
-    if ((starFlags & (1 << sp36)) && gCurrActNum != sp36 + 1) {
+    if ((starFlags & (1 << sp36)) && WORLD(gCurrActNum) != sp36 + 1) {
         spawn_object_abs_with_rot(o, 0, MODEL_CCM_SNOWMAN_BASE, bhvBigSnowmanWhole, -4230, -1344, 1813,
                                   0, 0, 0);
         o->oPosX = -4230.0f;

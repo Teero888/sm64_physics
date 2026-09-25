@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <threads.h>
 
 #include <ultra64.h>
 #include "types.h"
@@ -13,6 +14,12 @@
 
 #include "elf_symbols.h"
 #include "sm64_physics.h"
+#include "world.h"
+
+// The one world this runs.
+static sm64_world *sWorld;
+
+extern char sm64_state_start[]; // platform/state.ld
 
 // --- N64 layout ------------------------------------------------------------------
 
@@ -141,18 +148,20 @@ static void write_record(FILE *out, uint32_t frame, uint32_t input) {
     for (unsigned f = 0; f < FIELD_COUNT; ++f) {
         unsigned char bytes[0x100];
         const field *fd = &fields[f];
+        // The symbol's address in the section, moved to the world.
+        const void *address = (const char *) fd->address + gHostWorldOffset;
         switch (fd->kind) {
-            case RAW16: be16(bytes, *(const uint16_t *) fd->address); break;
-            case RAW32: be32(bytes, *(const uint32_t *) fd->address); break;
-            case MARIO: mario_state_n64(bytes, fd->address); break;
-            case HUD: hud_display_n64(bytes, fd->address); break;
+            case RAW16: be16(bytes, *(const uint16_t *) address); break;
+            case RAW32: be32(bytes, *(const uint32_t *) address); break;
+            case MARIO: mario_state_n64(bytes, address); break;
+            case HUD: hud_display_n64(bytes, address); break;
         }
         fwrite(bytes, 1, fd->size, out);
     }
 }
 
 static uint64_t hash_state(void *buffer) {
-    sm64_save_state(buffer);
+    sm64_save_state(sWorld, buffer);
     const unsigned char *bytes = buffer;
     uint64_t hash = 0xcbf29ce484222325u;
     for (size_t i = 0; i < sm64_state_size(); ++i) {
@@ -169,17 +178,17 @@ static int check_state(const uint32_t *inputs, uint32_t count, uint32_t at) {
     uint64_t hashes[1024];
     unsigned checks = 0;
     for (uint32_t frame = 0; frame < count; ++frame) {
-        sm64_step(inputs[frame]);
+        sm64_step(sWorld, inputs[frame]);
         if (frame + 1 == at) {
-            sm64_save_state(saved);
+            sm64_save_state(sWorld, saved);
         } else if (frame + 1 > at && (frame + 1 - at) % EVERY == 0 && checks < 1024) {
             hashes[checks++] = hash_state(scratch);
         }
     }
-    sm64_load_state(saved);
+    sm64_load_state(sWorld, saved);
     unsigned check = 0;
     for (uint32_t frame = at; frame < count; ++frame) {
-        sm64_step(inputs[frame]);
+        sm64_step(sWorld, inputs[frame]);
         if ((frame + 1 - at) % EVERY == 0 && check < checks) {
             if (hash_state(scratch) != hashes[check++]) {
                 printf("state differs after frame %u\n", frame + 1);
@@ -191,11 +200,95 @@ static int check_state(const uint32_t *inputs, uint32_t count, uint32_t at) {
     return 0;
 }
 
+// --threads N: N threads each run their own world through all the inputs at
+// the same time. Each frame's trace record (the oracle's fields) and, at the
+// end, every variable but the memory pool (whose freed memory keeps parts of
+// each world's own addresses) have to be the same in all of them.
+typedef struct {
+    const uint32_t *inputs;
+    uint32_t count;
+    uint64_t trace_hash;
+    unsigned char *final; // the last state, addresses in the world relative to it
+} thread_run;
+
+extern char sm64_state_start[]; // platform/state.ld
+
+static int run_world(void *arg) {
+    thread_run *run = arg;
+    sm64_world *world = sm64_world_create();
+    sm64_world_enter(world);
+    char *record = NULL;
+    size_t record_size = 0;
+    uint64_t hash = 0xcbf29ce484222325u;
+    for (uint32_t frame = 0; frame < run->count; ++frame) {
+        FILE *out = open_memstream(&record, &record_size);
+        write_record(out, frame + 1, run->inputs[frame]);
+        fclose(out);
+        for (size_t i = 0; i < record_size; ++i) {
+            hash = (hash ^ (unsigned char) record[i]) * 0x100000001b3u;
+        }
+        free(record);
+        sm64_step(world, run->inputs[frame]);
+    }
+    run->trace_hash = hash;
+    run->final = malloc(sm64_state_size());
+    sm64_save_state(world, run->final);
+    const uintptr_t base = (uintptr_t) sm64_state_start + gHostWorldOffset;
+    for (size_t i = 0; i + 8 <= sm64_state_size(); i += 4) {
+        uint64_t w;
+        memcpy(&w, run->final + i, 8);
+        if (w >= base && w < base + sm64_state_size()) {
+            w -= base;
+            memcpy(run->final + i, &w, 8);
+            i += 4;
+        }
+    }
+    sm64_world_destroy(world);
+    return 0;
+}
+
+static int check_threads(const uint32_t *inputs, uint32_t count, int threads) {
+    thrd_t ids[64];
+    thread_run runs[64];
+    for (int t = 0; t < threads; ++t) {
+        runs[t] = (thread_run) { inputs, count, 0, NULL };
+        thrd_create(&ids[t], run_world, &runs[t]);
+    }
+    for (int t = 0; t < threads; ++t) {
+        thrd_join(ids[t], NULL);
+    }
+    size_t pool_offset = 0, pool_size = 0;
+    const char *pool = elf_symbol("sPoolMemory", &pool_size);
+    pool_offset = pool - sm64_state_start;
+    int differ = 0;
+    for (int t = 1; t < threads; ++t) {
+        if (runs[t].trace_hash != runs[0].trace_hash) {
+            printf("thread %d: the trace differs\n", t);
+            differ = 1;
+        }
+        for (size_t i = 0; i < sm64_state_size(); ++i) {
+            if (i == pool_offset) {
+                i += pool_size - 1;
+                continue;
+            }
+            if (runs[t].final[i] != runs[0].final[i]) {
+                size_t offset = 0, size = 0;
+                const char *name = elf_symbol_containing(sm64_state_start + i, &offset, &size);
+                printf("thread %d: %s+0x%zx differs\n", t, name ? name : "?", offset);
+                differ = 1;
+                break;
+            }
+        }
+    }
+    printf("%d threads, %u frames each: %s\n", threads, count, differ ? "different" : "identical");
+    return differ;
+}
+
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
     bool audio = false, draw = false;
     const char *rom_path = NULL;
-    long limit = -1, check_at = -1;
+    long limit = -1, check_at = -1, threads = 0;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
             trace_path = argv[++i];
@@ -205,6 +298,8 @@ int main(int argc, char **argv) {
             audio = true;
         } else if (strcmp(argv[i], "--draw") == 0) {
             draw = true;
+        } else if (strcmp(argv[i], "--threads") == 0 && i + 1 < argc) {
+            threads = atol(argv[++i]);
         } else if (strcmp(argv[i], "--check-state") == 0 && i + 1 < argc) {
             check_at = atol(argv[++i]);
         } else if (strcmp(argv[i], "--frames") == 0 && i + 1 < argc) {
@@ -214,7 +309,7 @@ int main(int argc, char **argv) {
         }
     }
     if (!polls_path) {
-        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--rom ROM] [--audio] [--draw] [--check-state FRAME]\n");
+        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--rom ROM] [--audio] [--draw] [--check-state FRAME] [--threads N]\n");
         return 1;
     }
     FILE *polls = fopen(polls_path, "rb");
@@ -223,13 +318,15 @@ int main(int argc, char **argv) {
         return 1;
     }
     FILE *trace = NULL;
-    if (trace_path) {
+    if (trace_path || threads > 0) {
         for (unsigned f = 0; f < FIELD_COUNT; ++f) {
             if (!(fields[f].address = elf_symbol(fields[f].name, NULL))) {
                 fprintf(stderr, "sm64_run: no symbol %s\n", fields[f].name);
                 return 1;
             }
         }
+    }
+    if (trace_path) {
         if (!(trace = fopen(trace_path, "wb"))) {
             perror(trace_path);
             return 1;
@@ -259,26 +356,28 @@ int main(int argc, char **argv) {
     }
     sm64_set_audio(audio);
     sm64_set_draw(draw);
-    sm64_boot();
+    sWorld = sm64_world_create();
+    sm64_world_enter(sWorld);
     uint32_t input;
     if (fread(&input, 4, 1, polls) != 1) {
         fprintf(stderr, "sm64_run: %s is empty\n", polls_path);
         return 1;
     }
-    if (check_at >= 0) {
+    if (check_at >= 0 || threads > 0) {
         static uint32_t inputs[1 << 20];
         uint32_t count = 0;
         while (count < (1 << 20) && fread(&inputs[count], 4, 1, polls) == 1) {
             ++count;
         }
-        return check_state(inputs, count, (uint32_t) check_at);
+        return threads > 0 ? check_threads(inputs, count, threads > 64 ? 64 : threads)
+                           : check_state(inputs, count, (uint32_t) check_at);
     }
     uint32_t frame = 0;
     while ((limit < 0 || frame < limit) && fread(&input, 4, 1, polls) == 1) {
         if (trace) {
             write_record(trace, frame + 1, input);
         }
-        sm64_step(input);
+        sm64_step(sWorld, input);
         ++frame;
     }
     fclose(polls);

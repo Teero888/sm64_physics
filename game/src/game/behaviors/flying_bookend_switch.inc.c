@@ -121,7 +121,7 @@ void bhv_flying_bookend_loop(void) {
                 break;
         }
 
-        obj_check_attacks(&sFlyingBookendHitbox, -1);
+        obj_check_attacks(&WORLD(sFlyingBookendHitbox), -1);
 
         if (o->oAction == -1 || (o->oMoveFlags & (OBJ_MOVE_MASK_ON_GROUND | OBJ_MOVE_HIT_WALL))) {
             o->oNumLootCoins = 0;
@@ -152,7 +152,7 @@ void bookshelf_manager_act_0(void) {
 
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         for (i = 0; i < 3; i++) {
-            spawn_object_relative(i, D_80331B30[i].unk00, D_80331B30[i].unk02, 0, o,
+            spawn_object_relative(i, WORLD(D_80331B30)[i].unk00, WORLD(D_80331B30)[i].unk02, 0, o,
                                   MODEL_BOOKEND, bhvBookSwitch);
         }
 
@@ -242,7 +242,7 @@ void bhv_book_switch_loop(void) {
     if (o->parentObj->oAction == 4) {
         obj_mark_for_deletion(o);
     } else {
-        s32 attackType = obj_check_attacks(&sBookSwitchHitbox, o->oAction);
+        s32 attackType = obj_check_attacks(&WORLD(sBookSwitchHitbox), o->oAction);
 
         if (o->parentObj->oBookSwitchManagerUnkF8 != 0 || o->oAction == 1) {
             if (o->oDistanceToMario < 100.0f) {
@@ -271,14 +271,14 @@ void bhv_book_switch_loop(void) {
 
             if (approach_f32_ptr(&o->oBookSwitchUnkF4, 0.0f, 20.0f) && o->oAction != 0) {
                 if (o->parentObj->oBookSwitchManagerUnkF4 == o->oBhvParams2ndByte) {
-                    play_sound(SOUND_GENERAL2_RIGHT_ANSWER, gGlobalSoundSource);
+                    play_sound(SOUND_GENERAL2_RIGHT_ANSWER, WORLD(gGlobalSoundSource));
                     o->parentObj->oBookSwitchManagerUnkF4++;
                 } else {
                     struct Object *sp38;
                     s16 sp36 = random_u16() & 0x1;
-                    s16 sp34 = gMarioObject->oPosZ + 1.5f * gMarioStates[0].vel[2];
+                    s16 sp34 = WORLD(gMarioObject)->oPosZ + 1.5f * WORLD(gMarioStates)[0].vel[2];
 
-                    play_sound(SOUND_MENU_CAMERA_BUZZ, gGlobalSoundSource);
+                    play_sound(SOUND_MENU_CAMERA_BUZZ, WORLD(gGlobalSoundSource));
 
                     if (sp34 > 0) {
                         sp34 = 0;

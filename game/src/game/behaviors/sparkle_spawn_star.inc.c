@@ -22,7 +22,7 @@ void bhv_spawned_star_init(void) {
     starIndex = (o->oBhvParams >> 24) & 0xFF;
 
     if (bit_shift_left(starIndex)
-        & save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(gCurrCourseNum))) {
+        & save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)))) {
         cur_obj_set_model(MODEL_TRANSPARENT_STAR);
     }
 
@@ -30,7 +30,7 @@ void bhv_spawned_star_init(void) {
 }
 
 void set_sparkle_spawn_star_hitbox(void) {
-    obj_set_hitbox(o, &sSparkleSpawnStarHitbox);
+    obj_set_hitbox(o, &WORLD(sSparkleSpawnStarHitbox));
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         mark_obj_for_deletion(o);
         o->oInteractStatus = 0;
@@ -41,9 +41,9 @@ void set_home_to_mario(void) {
     f32 sp1C;
     f32 sp18;
 
-    o->oHomeX = gMarioObject->oPosX;
-    o->oHomeZ = gMarioObject->oPosZ;
-    o->oHomeY = gMarioObject->oPosY;
+    o->oHomeX = WORLD(gMarioObject)->oPosX;
+    o->oHomeZ = WORLD(gMarioObject)->oPosZ;
+    o->oHomeY = WORLD(gMarioObject)->oPosY;
     o->oHomeY += 250.0f;
     o->oPosY = o->oHomeY;
 
@@ -103,14 +103,14 @@ void bhv_spawned_star_loop(void) {
             o->oVelY = -4.0f;
         }
         if (o->oVelY < 0 && o->oPosY < o->oHomeY) {
-            gObjCutsceneDone = TRUE;
+            WORLD(gObjCutsceneDone) = TRUE;
             o->oVelY = 0;
             o->oGravity = 0;
             o->oAction++;
         }
         spawn_object(o, MODEL_NONE, bhvSparkleSpawn);
     } else if (o->oAction == 2) {
-        if (gCamera->cutscene == 0 && gRecentCutscene == 0) {
+        if (WORLD(gCamera)->cutscene == 0 && WORLD(gRecentCutscene) == 0) {
             clear_time_stop_flags(TIME_STOP_ENABLED | TIME_STOP_MARIO_AND_DOORS);
             o->activeFlags &= ~ACTIVE_FLAG_INITIATED_TIME_STOP;
             o->oAction++;

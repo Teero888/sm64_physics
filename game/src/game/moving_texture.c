@@ -308,20 +308,20 @@ Gfx *geo_wdw_set_initial_water_level(s32 callContext, UNUSED struct GraphNode *n
 
     // Why was this global variable needed when they could just check for GEO_CONTEXT_AREA_LOAD?
     if (callContext != GEO_CONTEXT_RENDER) {
-        gWDWWaterLevelSet = FALSE;
-    } else if (callContext == GEO_CONTEXT_RENDER && gEnvironmentRegions != NULL
-               && !gWDWWaterLevelSet) {
-        if (gPaintingMarioYEntry <= 1382.4) {
+        WORLD(gWDWWaterLevelSet) = FALSE;
+    } else if (callContext == GEO_CONTEXT_RENDER && WORLD(gEnvironmentRegions) != NULL
+               && !WORLD(gWDWWaterLevelSet)) {
+        if (WORLD(gPaintingMarioYEntry) <= 1382.4) {
             wdwWaterHeight = 31;
-        } else if (gPaintingMarioYEntry >= 1600.0) {
+        } else if (WORLD(gPaintingMarioYEntry) >= 1600.0) {
             wdwWaterHeight = 2816;
         } else {
             wdwWaterHeight = 1024;
         }
-        for (i = 0; i < *gEnvironmentRegions; i++) {
-            gEnvironmentRegions[i * 6 + 6] = wdwWaterHeight;
+        for (i = 0; i < *WORLD(gEnvironmentRegions); i++) {
+            WORLD(gEnvironmentRegions)[i * 6 + 6] = wdwWaterHeight;
         }
-        gWDWWaterLevelSet = TRUE;
+        WORLD(gWDWWaterLevelSet) = TRUE;
     }
     return NULL;
 }
@@ -333,11 +333,11 @@ Gfx *geo_wdw_set_initial_water_level(s32 callContext, UNUSED struct GraphNode *n
  */
 Gfx *geo_movtex_pause_control(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 mtx) {
     if (callContext != GEO_CONTEXT_RENDER) {
-        gMovtexCounterPrev = gAreaUpdateCounter - 1;
-        gMovtexCounter = gAreaUpdateCounter;
+        WORLD(gMovtexCounterPrev) = WORLD(gAreaUpdateCounter) - 1;
+        WORLD(gMovtexCounter) = WORLD(gAreaUpdateCounter);
     } else {
-        gMovtexCounterPrev = gMovtexCounter;
-        gMovtexCounter = gAreaUpdateCounter;
+        WORLD(gMovtexCounterPrev) = WORLD(gMovtexCounter);
+        WORLD(gMovtexCounter) = WORLD(gAreaUpdateCounter);
     }
     return NULL;
 }
@@ -356,9 +356,9 @@ void movtex_make_quad_vertex(Vtx *verts, s32 index, s16 x, s16 y, s16 z, s16 rot
     s16 s = 32.0 * (32.0 * scale - 1.0) * sins(rot + rotOffset);
     s16 t = 32.0 * (32.0 * scale - 1.0) * coss(rot + rotOffset);
 
-    if (gMovtexVtxColor == MOVTEX_VTX_COLOR_YELLOW) {
+    if (WORLD(gMovtexVtxColor) == MOVTEX_VTX_COLOR_YELLOW) {
         make_vertex(verts, index, x, y, z, s, t, 255, 255, 0, alpha);
-    } else if (gMovtexVtxColor == MOVTEX_VTX_COLOR_RED) {
+    } else if (WORLD(gMovtexVtxColor) == MOVTEX_VTX_COLOR_RED) {
         make_vertex(verts, index, x, y, z, s, t, 255, 0, 0, alpha);
     } else {
         make_vertex(verts, index, x, y, z, s, t, 255, 255, 255, alpha);
@@ -417,13 +417,13 @@ Gfx *movtex_gen_from_quad(s16 y, struct MovtexQuad *quad) {
     Gfx *gfx;
 
     if (!SM64_DRAW) {
-        if (gMovtexCounter != gMovtexCounterPrev) {
+        if (WORLD(gMovtexCounter) != WORLD(gMovtexCounterPrev)) {
             quad->rot += rotspeed;
         }
         return NULL;
     }
     verts = alloc_display_list(4 * sizeof(*verts));
-    if (textureId == gMovetexLastTextureId) {
+    if (textureId == WORLD(gMovetexLastTextureId)) {
         gfxHead = alloc_display_list(3 * sizeof(*gfxHead));
     } else {
         gfxHead = alloc_display_list(8 * sizeof(*gfxHead));
@@ -433,7 +433,7 @@ Gfx *movtex_gen_from_quad(s16 y, struct MovtexQuad *quad) {
         return NULL;
     }
     gfx = gfxHead;
-    if (gMovtexCounter != gMovtexCounterPrev) {
+    if (WORLD(gMovtexCounter) != WORLD(gMovtexCounterPrev)) {
         quad->rot += rotspeed;
     }
     rot = quad->rot;
@@ -450,16 +450,16 @@ Gfx *movtex_gen_from_quad(s16 y, struct MovtexQuad *quad) {
     }
 
     // Only add commands to change the texture when necessary
-    if (textureId != gMovetexLastTextureId) {
+    if (textureId != WORLD(gMovetexLastTextureId)) {
         switch (textureId) {
             case TEXTURE_MIST: // an ia16 texture
-                gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_IA, gMovtexIdToTexture[textureId]);
+                gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_IA, WORLD(gMovtexIdToTexture)[textureId]);
                 break;
             default: // any rgba16 texture
-                gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_RGBA, gMovtexIdToTexture[textureId]);
+                gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_RGBA, WORLD(gMovtexIdToTexture)[textureId]);
                 break;
         }
-        gMovetexLastTextureId = textureId;
+        WORLD(gMovetexLastTextureId) = textureId;
     }
     gSPVertex(gfx++, VIRTUAL_TO_PHYSICAL2(verts), 4, 0);
     gSPDisplayList(gfx++, dl_draw_quad_verts_0123);
@@ -554,53 +554,53 @@ extern u8 ttm_movtex_puddle[];
 void *get_quad_collection_from_id(u32 id) {
     switch (id) {
         case BBH_MOVTEX_MERRY_GO_ROUND_WATER_ENTRANCE:
-            return bbh_movtex_merry_go_round_water_entrance;
+            return WORLD(bbh_movtex_merry_go_round_water_entrance);
         case BBH_MOVTEX_MERRY_GO_ROUND_WATER_SIDE:
-            return bbh_movtex_merry_go_round_water_side;
+            return WORLD(bbh_movtex_merry_go_round_water_side);
         case CCM_MOVTEX_PENGUIN_PUDDLE_WATER:
-            return ccm_movtex_penguin_puddle_water;
+            return WORLD(ccm_movtex_penguin_puddle_water);
         case INSIDE_CASTLE_MOVTEX_GREEN_ROOM_WATER:
-            return inside_castle_movtex_green_room_water;
+            return WORLD(inside_castle_movtex_green_room_water);
         case INSIDE_CASTLE_MOVTEX_MOAT_WATER:
-            return inside_castle_movtex_moat_water;
+            return WORLD(inside_castle_movtex_moat_water);
         case HMC_MOVTEX_DORRIE_POOL_WATER:
-            return hmc_movtex_dorrie_pool_water;
+            return WORLD(hmc_movtex_dorrie_pool_water);
         case HMC_MOVTEX_TOXIC_MAZE_MIST:
-            return hmc_movtex_toxic_maze_mist;
+            return WORLD(hmc_movtex_toxic_maze_mist);
         case SSL_MOVTEX_PUDDLE_WATER:
-            return ssl_movtex_puddle_water;
+            return WORLD(ssl_movtex_puddle_water);
         case SSL_MOVTEX_TOXBOX_QUICKSAND_MIST:
-            return ssl_movtex_toxbox_quicksand_mist;
+            return WORLD(ssl_movtex_toxbox_quicksand_mist);
         case SL_MOVTEX_WATER:
-            return sl_movtex_water;
+            return WORLD(sl_movtex_water);
         case WDW_MOVTEX_AREA1_WATER:
-            return wdw_movtex_area1_water;
+            return WORLD(wdw_movtex_area1_water);
         case WDW_MOVTEX_AREA2_WATER:
-            return wdw_movtex_area2_water;
+            return WORLD(wdw_movtex_area2_water);
         case JRB_MOVTEX_WATER:
-            return jrb_movtex_water;
+            return WORLD(jrb_movtex_water);
         case JRB_MOVTEX_INITIAL_MIST:
-            return jrb_movtex_initial_mist;
+            return WORLD(jrb_movtex_initial_mist);
         case JRB_MOVTEX_SUNKEN_SHIP_WATER:
-            return jrb_movtex_sunken_ship_water;
+            return WORLD(jrb_movtex_sunken_ship_water);
         case THI_MOVTEX_AREA1_WATER:
-            return thi_movtex_area1_water;
+            return WORLD(thi_movtex_area1_water);
         case THI_MOVTEX_AREA2_WATER:
-            return thi_movtex_area2_water;
+            return WORLD(thi_movtex_area2_water);
         case CASTLE_GROUNDS_MOVTEX_WATER:
-            return castle_grounds_movtex_water;
+            return WORLD(castle_grounds_movtex_water);
         case LLL_MOVTEX_VOLCANO_FLOOR_LAVA:
-            return lll_movtex_volcano_floor_lava;
+            return WORLD(lll_movtex_volcano_floor_lava);
         case DDD_MOVTEX_AREA1_WATER:
-            return ddd_movtex_area1_water;
+            return WORLD(ddd_movtex_area1_water);
         case DDD_MOVTEX_AREA2_WATER:
-            return ddd_movtex_area2_water;
+            return WORLD(ddd_movtex_area2_water);
         case WF_MOVTEX_WATER:
-            return wf_movtex_water;
+            return WORLD(wf_movtex_water);
         case CASTLE_COURTYARD_MOVTEX_STAR_STATUE_WATER:
-            return castle_courtyard_movtex_star_statue_water;
+            return WORLD(castle_courtyard_movtex_star_statue_water);
         case TTM_MOVTEX_PUDDLE:
-            return ttm_movtex_puddle;
+            return WORLD(ttm_movtex_puddle);
         default:
             return NULL;
     }
@@ -644,11 +644,11 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
     s32 i;
 
     if (callContext == GEO_CONTEXT_RENDER) {
-        gMovtexVtxColor = MOVTEX_VTX_COLOR_DEFAULT;
-        if (gEnvironmentRegions == NULL) {
+        WORLD(gMovtexVtxColor) = MOVTEX_VTX_COLOR_DEFAULT;
+        if (WORLD(gEnvironmentRegions) == NULL) {
             return NULL;
         }
-        numWaterBoxes = gEnvironmentRegions[0];
+        numWaterBoxes = WORLD(gEnvironmentRegions)[0];
         if (SM64_DRAW) {
             gfxHead = alloc_display_list((numWaterBoxes + 3) * sizeof(*gfxHead));
             if (gfxHead == NULL) {
@@ -659,17 +659,17 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
         }
         asGenerated = (struct GraphNodeGenerated *) node;
         if (asGenerated->parameter == JRB_MOVTEX_INITIAL_MIST) {
-            if (gLakituState.goalPos[1] < 1024.0) { // if camera under water
+            if (WORLD(gLakituState).goalPos[1] < 1024.0) { // if camera under water
                 return NULL;
             }
-            if (save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(COURSE_JRB))
+            if (save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(COURSE_JRB))
                 & (1 << 0)) { // the "Plunder in the Sunken Ship" star in JRB is collected
                 return NULL;
             }
         } else if (asGenerated->parameter == HMC_MOVTEX_TOXIC_MAZE_MIST) {
-            gMovtexVtxColor = MOVTEX_VTX_COLOR_YELLOW;
+            WORLD(gMovtexVtxColor) = MOVTEX_VTX_COLOR_YELLOW;
         } else if (asGenerated->parameter == SSL_MOVTEX_TOXBOX_QUICKSAND_MIST) {
-            gMovtexVtxColor = MOVTEX_VTX_COLOR_RED;
+            WORLD(gMovtexVtxColor) = MOVTEX_VTX_COLOR_RED;
         }
         quadCollection = get_quad_collection_from_id(asGenerated->parameter);
         if (quadCollection == NULL) {
@@ -682,10 +682,10 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
         if (SM64_DRAW) {
             movtex_change_texture_format(asGenerated->parameter, &gfx);
         }
-        gMovetexLastTextureId = -1;
+        WORLD(gMovetexLastTextureId) = -1;
         for (i = 0; i < numWaterBoxes; i++) {
-            waterId = gEnvironmentRegions[i * 6 + 1];
-            waterY = gEnvironmentRegions[i * 6 + 6];
+            waterId = WORLD(gEnvironmentRegions)[i * 6 + 1];
+            waterY = WORLD(gEnvironmentRegions)[i * 6 + 6];
             subList = movtex_gen_quads_id(waterId, waterY, quadCollection);
             if (subList != NULL) {
                 gSPDisplayList(gfx++, VIRTUAL_TO_PHYSICAL(subList));
@@ -709,7 +709,7 @@ void update_moving_texture_offset(s16 *movtexVerts, s32 attr) {
     s16 movSpeed = movtexVerts[MOVTEX_ATTR_SPEED];
     s16 *curOffset = movtexVerts + attr;
 
-    if (gMovtexCounter != gMovtexCounterPrev) {
+    if (WORLD(gMovtexCounter) != WORLD(gMovtexCounterPrev)) {
         *curOffset += movSpeed;
         // note that texture coordinates are 6.10 fixed point, so this does modulo 1
         if (*curOffset >= 1024) {
@@ -845,7 +845,7 @@ Gfx *movtex_gen_list(s16 *movtexVerts, struct MovtexObject *movtexList, s8 attrL
     }
 
     gSPDisplayList(gfx++, movtexList->beginDl);
-    gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_RGBA, gMovtexIdToTexture[movtexList->textureId]);
+    gLoadBlockTexture(gfx++, 32, 32, G_IM_FMT_RGBA, WORLD(gMovtexIdToTexture)[movtexList->textureId]);
     gSPVertex(gfx++, VIRTUAL_TO_PHYSICAL2(verts), movtexList->vtx_count, 0);
     gSPDisplayList(gfx++, movtexList->triDl);
     gSPDisplayList(gfx++, movtexList->endDl);
@@ -865,13 +865,13 @@ Gfx *geo_movtex_draw_nocolor(s32 callContext, struct GraphNode *node, UNUSED Mat
     if (callContext == GEO_CONTEXT_RENDER) {
         i = 0;
         asGenerated = (struct GraphNodeGenerated *) node;
-        while (gMovtexNonColored[i].movtexVerts != 0) {
-            if (gMovtexNonColored[i].geoId == asGenerated->parameter) {
+        while (WORLD(gMovtexNonColored)[i].movtexVerts != 0) {
+            if (WORLD(gMovtexNonColored)[i].geoId == asGenerated->parameter) {
                 asGenerated->fnNode.node.flags =
-                    (asGenerated->fnNode.node.flags & 0xFF) | (gMovtexNonColored[i].layer << 8);
-                movtexVerts = segmented_to_virtual(gMovtexNonColored[i].movtexVerts);
+                    (asGenerated->fnNode.node.flags & 0xFF) | (WORLD(gMovtexNonColored)[i].layer << 8);
+                movtexVerts = segmented_to_virtual(WORLD(gMovtexNonColored)[i].movtexVerts);
                 update_moving_texture_offset(movtexVerts, MOVTEX_ATTR_NOCOLOR_S);
-                gfx = movtex_gen_list(movtexVerts, &gMovtexNonColored[i],
+                gfx = movtex_gen_list(movtexVerts, &WORLD(gMovtexNonColored)[i],
                                       MOVTEX_LAYOUT_NOCOLOR); // no perVertex colors
                 break;
             }
@@ -893,13 +893,13 @@ Gfx *geo_movtex_draw_colored(s32 callContext, struct GraphNode *node, UNUSED Mat
     if (callContext == GEO_CONTEXT_RENDER) {
         i = 0;
         asGenerated = (struct GraphNodeGenerated *) node;
-        while (gMovtexColored[i].movtexVerts != 0) {
-            if (gMovtexColored[i].geoId == asGenerated->parameter) {
+        while (WORLD(gMovtexColored)[i].movtexVerts != 0) {
+            if (WORLD(gMovtexColored)[i].geoId == asGenerated->parameter) {
                 asGenerated->fnNode.node.flags =
-                    (asGenerated->fnNode.node.flags & 0xFF) | (gMovtexColored[i].layer << 8);
-                movtexVerts = segmented_to_virtual(gMovtexColored[i].movtexVerts);
+                    (asGenerated->fnNode.node.flags & 0xFF) | (WORLD(gMovtexColored)[i].layer << 8);
+                movtexVerts = segmented_to_virtual(WORLD(gMovtexColored)[i].movtexVerts);
                 update_moving_texture_offset(movtexVerts, MOVTEX_ATTR_COLORED_S);
-                gfx = movtex_gen_list(movtexVerts, &gMovtexColored[i], MOVTEX_LAYOUT_COLORED);
+                gfx = movtex_gen_list(movtexVerts, &WORLD(gMovtexColored)[i], MOVTEX_LAYOUT_COLORED);
                 break;
             }
             i++;
@@ -924,12 +924,12 @@ Gfx *geo_movtex_draw_colored_no_update(s32 callContext, struct GraphNode *node, 
     if (callContext == GEO_CONTEXT_RENDER) {
         i = 0;
         asGenerated = (struct GraphNodeGenerated *) node;
-        while (gMovtexColored[i].movtexVerts != 0) {
-            if (gMovtexColored[i].geoId == asGenerated->parameter) {
+        while (WORLD(gMovtexColored)[i].movtexVerts != 0) {
+            if (WORLD(gMovtexColored)[i].geoId == asGenerated->parameter) {
                 asGenerated->fnNode.node.flags =
-                    (asGenerated->fnNode.node.flags & 0xFF) | (gMovtexColored[i].layer << 8);
-                movtexVerts = segmented_to_virtual(gMovtexColored[i].movtexVerts);
-                gfx = movtex_gen_list(movtexVerts, &gMovtexColored[i], MOVTEX_LAYOUT_COLORED);
+                    (asGenerated->fnNode.node.flags & 0xFF) | (WORLD(gMovtexColored)[i].layer << 8);
+                movtexVerts = segmented_to_virtual(WORLD(gMovtexColored)[i].movtexVerts);
+                gfx = movtex_gen_list(movtexVerts, &WORLD(gMovtexColored)[i], MOVTEX_LAYOUT_COLORED);
                 break;
             }
             i++;
@@ -951,12 +951,12 @@ Gfx *geo_movtex_draw_colored_2_no_update(s32 callContext, struct GraphNode *node
     if (callContext == GEO_CONTEXT_RENDER) {
         i = 0;
         asGenerated = (struct GraphNodeGenerated *) node;
-        while (gMovtexColored2[i].movtexVerts != 0) {
-            if (gMovtexColored2[i].geoId == asGenerated->parameter) {
+        while (WORLD(gMovtexColored2)[i].movtexVerts != 0) {
+            if (WORLD(gMovtexColored2)[i].geoId == asGenerated->parameter) {
                 asGenerated->fnNode.node.flags =
-                    (asGenerated->fnNode.node.flags & 0xFF) | (gMovtexColored2[i].layer << 8);
-                movtexVerts = segmented_to_virtual(gMovtexColored2[i].movtexVerts);
-                gfx = movtex_gen_list(movtexVerts, &gMovtexColored2[i], MOVTEX_LAYOUT_COLORED);
+                    (asGenerated->fnNode.node.flags & 0xFF) | (WORLD(gMovtexColored2)[i].layer << 8);
+                movtexVerts = segmented_to_virtual(WORLD(gMovtexColored2)[i].movtexVerts);
+                gfx = movtex_gen_list(movtexVerts, &WORLD(gMovtexColored2)[i], MOVTEX_LAYOUT_COLORED);
                 break;
             }
             i++;
@@ -985,16 +985,16 @@ Gfx *geo_movtex_update_horizontal(s32 callContext, struct GraphNode *node, UNUSE
 
         switch (asGenerated->parameter) {
             case MOVTEX_SSL_SAND_PIT_OUTSIDE:
-                movtexVerts = segmented_to_virtual(ssl_movtex_tris_quicksand_pit);
+                movtexVerts = segmented_to_virtual(WORLD(ssl_movtex_tris_quicksand_pit));
                 break;
             case MOVTEX_SSL_SAND_PIT_PYRAMID:
-                movtexVerts = segmented_to_virtual(ssl_movtex_tris_pyramid_quicksand_pit);
+                movtexVerts = segmented_to_virtual(WORLD(ssl_movtex_tris_pyramid_quicksand_pit));
                 break;
             case MOVTEX_TREADMILL_BIG:
-                movtexVerts = segmented_to_virtual(ttc_movtex_tris_big_surface_treadmill);
+                movtexVerts = segmented_to_virtual(WORLD(ttc_movtex_tris_big_surface_treadmill));
                 break;
             case MOVTEX_TREADMILL_SMALL:
-                movtexVerts = segmented_to_virtual(ttc_movtex_tris_small_surface_treadmill);
+                movtexVerts = segmented_to_virtual(WORLD(ttc_movtex_tris_small_surface_treadmill));
                 break;
         }
         update_moving_texture_offset(movtexVerts, MOVTEX_ATTR_COLORED_S);

@@ -115,18 +115,18 @@ void reset_weight_vtx(struct ObjVertex *vtx) {
     struct GdVec3f localVec;
     UNUSED u8 filler[16];
 
-    if (sResetWeightVtxNum++ == sResetCurWeight->vtxId) {  // found matching vertex
-        sResetCurWeight->vtx = vtx;
+    if (WORLD(sResetWeightVtxNum)++ == WORLD(sResetCurWeight)->vtxId) {  // found matching vertex
+        WORLD(sResetCurWeight)->vtx = vtx;
         localVec.x = vtx->pos.x;
         localVec.y = vtx->pos.y;
         localVec.z = vtx->pos.z;
 
-        gd_rotate_and_translate_vec3f(&localVec, &D_801B9EA8);
-        sResetCurWeight->vec20.x = localVec.x;
-        sResetCurWeight->vec20.y = localVec.y;
-        sResetCurWeight->vec20.z = localVec.z;
+        gd_rotate_and_translate_vec3f(&localVec, &WORLD(D_801B9EA8));
+        WORLD(sResetCurWeight)->vec20.x = localVec.x;
+        WORLD(sResetCurWeight)->vec20.y = localVec.y;
+        WORLD(sResetCurWeight)->vec20.z = localVec.z;
 
-        vtx->scaleFactor -= sResetCurWeight->weightVal;
+        vtx->scaleFactor -= WORLD(sResetCurWeight)->weightVal;
     }
 }
 
@@ -135,9 +135,9 @@ void reset_weight(struct ObjWeight *weight) {
     UNUSED u8 filler[4];
     struct ObjGroup *skinGroup;
 
-    sResetCurWeight = weight;
-    sResetWeightVtxNum = 0;
-    if ((skinGroup = gGdSkinNet->skinGrp) != NULL) {
+    WORLD(sResetCurWeight) = weight;
+    WORLD(sResetWeightVtxNum) = 0;
+    if ((skinGroup = WORLD(gGdSkinNet)->skinGrp) != NULL) {
         // Go through every vertex in the skin group, and reset the weight if the vertex is managed by the weight
         vtxCount =
             apply_to_obj_types_in_group(OBJ_TYPE_VERTICES, (applyproc_t) reset_weight_vtx, skinGroup);
@@ -153,8 +153,8 @@ void reset_weight(struct ObjWeight *weight) {
 void reset_joint_weights(struct ObjJoint *joint) {
     struct ObjGroup *group;
 
-    gd_inverse_mat4f(&joint->matE8, &D_801B9EA8);
-    D_801B9EE8 = joint;
+    gd_inverse_mat4f(&joint->matE8, &WORLD(D_801B9EA8));
+    WORLD(D_801B9EE8) = joint;
     if ((group = joint->weightGrp) != NULL) {
         apply_to_obj_types_in_group(OBJ_TYPE_WEIGHTS, (applyproc_t) reset_weight, group);
     }

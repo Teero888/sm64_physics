@@ -21,7 +21,7 @@ static struct SpawnParticlesInfo sGlobalMistParticles = {
 };
 
 void spawn_mist_from_global(void) {
-    cur_obj_spawn_particles(&sGlobalMistParticles);
+    cur_obj_spawn_particles(&WORLD(sGlobalMistParticles));
 }
 
 static struct SpawnParticlesInfo sSandParticles = {
@@ -41,7 +41,7 @@ static struct SpawnParticlesInfo sSandParticles = {
 
 void bhv_ground_sand_init(void) {
     clear_particle_flags(ACTIVE_PARTICLE_DIRT);
-    cur_obj_spawn_particles(&sSandParticles);
+    cur_obj_spawn_particles(&WORLD(sSandParticles));
 }
 
 static s16 sSmokeMovementParams[] = { 2, -8, 1, 4 };
@@ -49,11 +49,11 @@ static s16 sSmokeMovementParams[] = { 2, -8, 1, 4 };
 void spawn_smoke_with_velocity(void) {
     struct Object *smoke = spawn_object_with_scale(o, MODEL_SMOKE, bhvWhitePuffSmoke2, 1.0f);
 
-    smoke->oForwardVel = sSmokeMovementParams[0];
-    smoke->oVelY = sSmokeMovementParams[1];
-    smoke->oGravity = sSmokeMovementParams[2];
+    smoke->oForwardVel = WORLD(sSmokeMovementParams)[0];
+    smoke->oVelY = WORLD(sSmokeMovementParams)[1];
+    smoke->oGravity = WORLD(sSmokeMovementParams)[2];
 
-    obj_translate_xyz_random(smoke, sSmokeMovementParams[3]);
+    obj_translate_xyz_random(smoke, WORLD(sSmokeMovementParams)[3]);
 }
 
 // TODO Fix name
@@ -78,5 +78,5 @@ static struct SpawnParticlesInfo sSnowParticles = {
 
 void bhv_ground_snow_init(void) {
     clear_particle_flags(ACTIVE_PARTICLE_SNOW);
-    cur_obj_spawn_particles(&sSnowParticles);
+    cur_obj_spawn_particles(&WORLD(sSnowParticles));
 }

@@ -20,9 +20,9 @@ void bhv_ttm_rolling_log_init(void) {
 }
 
 void rolling_log_roll_log(void) {
-    if (gMarioObject->platform == o) {
-        f32 sp24 = (gMarioObject->header.gfx.pos[2] - o->oPosZ) * coss(-1*o->oMoveAngleYaw)
-                   - (gMarioObject->header.gfx.pos[0] - o->oPosX) * sins(-1*o->oMoveAngleYaw);
+    if (WORLD(gMarioObject)->platform == o) {
+        f32 sp24 = (WORLD(gMarioObject)->header.gfx.pos[2] - o->oPosZ) * coss(-1*o->oMoveAngleYaw)
+                   - (WORLD(gMarioObject)->header.gfx.pos[0] - o->oPosX) * sins(-1*o->oMoveAngleYaw);
         if (sp24 > 0) {
             o->oAngleVelPitch += 0x10;
         } else {

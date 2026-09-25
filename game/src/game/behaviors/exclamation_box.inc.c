@@ -48,7 +48,7 @@ void bhv_rotating_exclamation_box_loop(void) {
 void exclamation_box_act_0(void) {
     if (o->oBhvParams2ndByte <= EXCLAMATION_BOX_BP_SPECIAL_CAP_END) {
         o->oAnimState = o->oBhvParams2ndByte;
-        if ((save_file_get_flags() & sCapSaveFlags[o->oBhvParams2ndByte])
+        if ((save_file_get_flags() & WORLD(sCapSaveFlags)[o->oBhvParams2ndByte])
             || ((o->oBhvParams >> 24) & 0xFF)) {
             o->oAction = 2;
         } else {
@@ -68,7 +68,7 @@ void exclamation_box_act_1(void) {
         cur_obj_set_model(MODEL_EXCLAMATION_BOX_OUTLINE);
     }
 
-    if ((save_file_get_flags() & sCapSaveFlags[o->oBhvParams2ndByte])
+    if ((save_file_get_flags() & WORLD(sCapSaveFlags)[o->oBhvParams2ndByte])
         || ((o->oBhvParams >> 24) & 0xFF)) {
         o->oAction = 2;
         cur_obj_set_model(MODEL_EXCLAMATION_BOX);
@@ -76,7 +76,7 @@ void exclamation_box_act_1(void) {
 }
 
 void exclamation_box_act_2(void) {
-    obj_set_hitbox(o, &sExclamationBoxHitbox);
+    obj_set_hitbox(o, &WORLD(sExclamationBoxHitbox));
 
     if (o->oTimer == 0) {
         cur_obj_unhide();
@@ -132,7 +132,7 @@ void exclamation_box_spawn_contents(struct ExclamationBoxContents *contents, u8 
             contentsObj = spawn_object(o, contents->model, contents->behavior);
             contentsObj->oVelY = 20.0f;
             contentsObj->oForwardVel = 3.0f;
-            contentsObj->oMoveAngleYaw = gMarioObject->oMoveAngleYaw;
+            contentsObj->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw;
             o->oBhvParams |= contents->bhvParams1stByte << 24;
             if (contents->model == MODEL_STAR) {
                 o->oFlags |= OBJ_FLAG_PERSISTENT_RESPAWN;
@@ -144,7 +144,7 @@ void exclamation_box_spawn_contents(struct ExclamationBoxContents *contents, u8 
 }
 
 void exclamation_box_act_4(void) {
-    exclamation_box_spawn_contents(sExclamationBoxContents, o->oBhvParams2ndByte);
+    exclamation_box_spawn_contents(WORLD(sExclamationBoxContents), o->oBhvParams2ndByte);
     spawn_mist_particles_variable(0, 0, 46.0f);
     spawn_triangle_break_particles(20, MODEL_CARTOON_STAR, 0.3f, o->oAnimState);
     create_sound_spawner(SOUND_GENERAL_BREAK_BOX);
@@ -174,5 +174,5 @@ void (*sExclamationBoxActions[])(void) = {
 
 void bhv_exclamation_box_loop(void) {
     cur_obj_scale(2.0f);
-    cur_obj_call_action_function(sExclamationBoxActions);
+    cur_obj_call_action_function(WORLD(sExclamationBoxActions));
 }

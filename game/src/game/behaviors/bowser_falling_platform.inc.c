@@ -23,7 +23,7 @@ struct BowserFallingPlatformData sBowserFallingPlatform[] = {
 
 void falling_bowser_plat_act_start(void) {
     o->oBitSPlatformBowser = cur_obj_nearest_object_with_behavior(bhvBowser);
-    obj_set_collision_data(o, sBowserFallingPlatform[o->oBhvParams2ndByte].collision);
+    obj_set_collision_data(o, WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].collision);
     if (o->oBitSPlatformBowser != NULL) {
         o->oAction = BOWSER_BITS_PLAT_ACT_CHECK;
     }
@@ -48,7 +48,7 @@ void falling_bowser_plat_act_check(void) {
     if (o->oSubAction == 0) {
         o->oBitSPlatformTimer = 0;
     } else {
-        if ((gDebugInfo[DEBUG_PAGE_EFFECTINFO][6] + 20)
+        if ((WORLD(gDebugInfo)[DEBUG_PAGE_EFFECTINFO][6] + 20)
             * (o->oBhvParams2ndByte - 1) < o->oBitSPlatformTimer) {
             o->oAction = BOWSER_BITS_PLAT_ACT_FALL;
         }
@@ -75,16 +75,16 @@ void falling_bowser_plat_act_fall(void) {
     }
 
     if (!(o->oTimer & 1) && o->oTimer < 14) {
-        angle = sBowserFallingPlatform[o->oBhvParams2ndByte].angle
-                    + (gDebugInfo[DEBUG_PAGE_EFFECTINFO][1] << 8);
+        angle = WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].angle
+                    + (WORLD(gDebugInfo)[DEBUG_PAGE_EFFECTINFO][1] << 8);
         val = -(o->oTimer / 2) * 290 + 1740;
         vec3f_copy_2(pos, &o->oPosX);
-        o->oPosX = sBowserFallingPlatform[o->oBhvParams2ndByte].posX + sins(angle + 0x14B0) * val;
-        o->oPosZ = sBowserFallingPlatform[o->oBhvParams2ndByte].posZ + coss(angle + 0x14B0) * val;
+        o->oPosX = WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].posX + sins(angle + 0x14B0) * val;
+        o->oPosZ = WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].posZ + coss(angle + 0x14B0) * val;
         o->oPosY = 307.0f;
         spawn_mist_particles_variable(4, 0, 100.0f);
-        o->oPosX = sBowserFallingPlatform[o->oBhvParams2ndByte].posX + sins(angle - 0x14B0) * val;
-        o->oPosZ = sBowserFallingPlatform[o->oBhvParams2ndByte].posZ + coss(angle - 0x14B0) * val;
+        o->oPosX = WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].posX + sins(angle - 0x14B0) * val;
+        o->oPosZ = WORLD(sBowserFallingPlatform)[o->oBhvParams2ndByte].posZ + coss(angle - 0x14B0) * val;
         spawn_mist_particles_variable(4, 0, 100.0f);
         vec3f_copy_2(&o->oPosX, pos);
     }
@@ -103,5 +103,5 @@ void (*sFallingBowserPlatformActions[])(void) = {
 };
 
 void bhv_falling_bowser_platform_loop(void) {
-    cur_obj_call_action_function(sFallingBowserPlatformActions);
+    cur_obj_call_action_function(WORLD(sFallingBowserPlatformActions));
 }

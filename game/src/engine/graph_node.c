@@ -637,16 +637,16 @@ void geo_call_global_function_nodes_helper(struct GraphNode *graphNode, s32 call
         if (curNode->children != NULL) {
             switch (curNode->type) {
                 case GRAPH_NODE_TYPE_MASTER_LIST:
-                    globalPtr = (struct GraphNode **) &gCurGraphNodeMasterList;
+                    globalPtr = (struct GraphNode **) &WORLD(gCurGraphNodeMasterList);
                     break;
                 case GRAPH_NODE_TYPE_PERSPECTIVE:
-                    globalPtr = (struct GraphNode **) &gCurGraphNodeCamFrustum;
+                    globalPtr = (struct GraphNode **) &WORLD(gCurGraphNodeCamFrustum);
                     break;
                 case GRAPH_NODE_TYPE_CAMERA:
-                    globalPtr = (struct GraphNode **) &gCurGraphNodeCamera;
+                    globalPtr = (struct GraphNode **) &WORLD(gCurGraphNodeCamera);
                     break;
                 case GRAPH_NODE_TYPE_OBJECT:
-                    globalPtr = (struct GraphNode **) &gCurGraphNodeObject;
+                    globalPtr = (struct GraphNode **) &WORLD(gCurGraphNodeObject);
                     break;
                 default:
                     globalPtr = NULL;
@@ -675,13 +675,13 @@ void geo_call_global_function_nodes_helper(struct GraphNode *graphNode, s32 call
  */
 void geo_call_global_function_nodes(struct GraphNode *graphNode, s32 callContext) {
     if (graphNode->flags & GRAPH_RENDER_ACTIVE) {
-        gCurGraphNodeRoot = (struct GraphNodeRoot *) graphNode;
+        WORLD(gCurGraphNodeRoot) = (struct GraphNodeRoot *) graphNode;
 
         if (graphNode->children != NULL) {
             geo_call_global_function_nodes_helper(graphNode->children, callContext);
         }
 
-        gCurGraphNodeRoot = 0;
+        WORLD(gCurGraphNodeRoot) = 0;
     }
 }
 
@@ -689,9 +689,9 @@ void geo_call_global_function_nodes(struct GraphNode *graphNode, s32 callContext
  * When objects are cleared, this is called on all object nodes (loaded or unloaded).
  */
 void geo_reset_object_node(struct GraphNodeObject *graphNode) {
-    init_graph_node_object(NULL, graphNode, 0, gVec3fZero, gVec3sZero, gVec3fOne);
+    init_graph_node_object(NULL, graphNode, 0, WORLD(gVec3fZero), WORLD(gVec3sZero), WORLD(gVec3fOne));
 
-    geo_add_child(&gObjParentGraphNode, &graphNode->node);
+    geo_add_child(&WORLD(gObjParentGraphNode), &graphNode->node);
     graphNode->node.flags &= ~GRAPH_RENDER_ACTIVE;
 }
 
@@ -801,7 +801,7 @@ s16 geo_update_animation_frame(struct AnimInfo *obj, s32 *accelAssist) {
     s32 result;
     struct Animation *anim = obj->curAnim;
 
-    if (obj->animTimer == gAreaUpdateCounter || anim->flags & ANIM_FLAG_2) {
+    if (obj->animTimer == WORLD(gAreaUpdateCounter) || anim->flags & ANIM_FLAG_2) {
         if (accelAssist != NULL) {
             accelAssist[0] = obj->animFrameAccelAssist;
         }

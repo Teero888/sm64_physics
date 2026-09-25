@@ -14,7 +14,7 @@ static Movtex ttm_movtex_puddle_data[] = {
 };
 
 // 0x07017124 - 0x07017134
-const struct MovtexQuadCollection ttm_movtex_puddle[] = {
+struct MovtexQuadCollection ttm_movtex_puddle[] = {
     { 0, ttm_movtex_puddle_data},
     {-1, NULL},
 };

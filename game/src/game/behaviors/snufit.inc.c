@@ -36,7 +36,7 @@ struct ObjectHitbox sSnufitBulletHitbox = {
  */
 Gfx *geo_snufit_move_mask(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
     if (callContext == GEO_CONTEXT_RENDER) {
-        struct Object *obj = (struct Object *) gCurGraphNodeObject;
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
         struct GraphNodeTranslationRotation *transNode
             = (struct GraphNodeTranslationRotation *) node->next;
 
@@ -53,7 +53,7 @@ Gfx *geo_snufit_move_mask(s32 callContext, struct GraphNode *node, UNUSED Mat4 *
  */
 Gfx *geo_snufit_scale_body(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
     if (callContext == GEO_CONTEXT_RENDER) {
-        struct Object *obj = (struct Object *) gCurGraphNodeObject;
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
         struct GraphNodeScale *scaleNode = (struct GraphNodeScale *) node->next;
 
         scaleNode->scale = obj->oSnufitBodyScale / 1000.0f;
@@ -148,7 +148,7 @@ void bhv_snufit_loop(void) {
         // and vertically off the global timer. The vertical position can be
         // manipulated using pauses since it uses the global timer.
         o->oPosX = o->oHomeX + 100.0f * coss(o->oSnufitCircularPeriod);
-        o->oPosY = o->oHomeY + 8.0f * coss(4000 * gGlobalTimer);
+        o->oPosY = o->oHomeY + 8.0f * coss(4000 * WORLD(gGlobalTimer));
         o->oPosZ = o->oHomeZ + 100.0f * sins(o->oSnufitCircularPeriod);
 
         o->oSnufitYOffset = -0x20;
@@ -165,7 +165,7 @@ void bhv_snufit_loop(void) {
         }
 
         cur_obj_scale(o->oSnufitScale);
-        obj_check_attacks(&sSnufitHitbox, o->oAction);
+        obj_check_attacks(&WORLD(sSnufitHitbox), o->oAction);
     }
 }
 
@@ -184,7 +184,7 @@ void bhv_snufit_balls_loop(void) {
         cur_obj_update_floor_and_walls();
 
         obj_compute_vel_from_move_pitch(40.0f);
-        if (obj_check_attacks(&sSnufitBulletHitbox, 1) != 0) {
+        if (obj_check_attacks(&WORLD(sSnufitBulletHitbox), 1) != 0) {
             // We hit Mario while he is metal!
             // Bounce off, and fall until the first check is true.
             o->oMoveAngleYaw += 0x8000;

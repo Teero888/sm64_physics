@@ -33,7 +33,7 @@ static struct Object *link_objects_with_behavior(const BehaviorScript *behavior)
     const BehaviorScript *behaviorAddr = segmented_to_virtual(behavior);
     struct Object *obj;
     struct Object *lastObject = NULL;
-    struct ObjectNode *listHead = &gObjectLists[get_object_list_from_behavior(behaviorAddr)];
+    struct ObjectNode *listHead = &WORLD(gObjectLists)[get_object_list_from_behavior(behaviorAddr)];
 
     obj = (struct Object *) listHead->next;
     while (obj != (struct Object *) listHead) {
@@ -53,7 +53,7 @@ static struct Object *link_objects_with_behavior(const BehaviorScript *behavior)
  * whose cooldown is zero. Return NULL if no hole is available.
  */
 static struct Object *monty_mole_select_available_hole(f32 minDistToMario) {
-    struct Object *hole = sMontyMoleHoleList;
+    struct Object *hole = WORLD(sMontyMoleHoleList);
     s32 numAvailableHoles = 0;
 
     while (hole != NULL) {
@@ -69,7 +69,7 @@ static struct Object *monty_mole_select_available_hole(f32 minDistToMario) {
     if (numAvailableHoles != 0) {
         s32 selectedHole = (s32)(random_float() * numAvailableHoles);
 
-        hole = sMontyMoleHoleList;
+        hole = WORLD(sMontyMoleHoleList);
         numAvailableHoles = 0;
 
         while (hole != NULL) {
@@ -96,8 +96,8 @@ static struct Object *monty_mole_select_available_hole(f32 minDistToMario) {
 void bhv_monty_mole_hole_update(void) {
     // If hole list hasn't been constructed yet, construct it
     if (o->parentObj == o) {
-        sMontyMoleHoleList = link_objects_with_behavior(bhvMontyMoleHole);
-        sMontyMoleKillStreak = 0;
+        WORLD(sMontyMoleHoleList) = link_objects_with_behavior(bhvMontyMoleHole);
+        WORLD(sMontyMoleKillStreak) = 0;
     } else if (o->oMontyMoleHoleCooldown > 0) {
         o->oMontyMoleHoleCooldown--;
     }
@@ -122,10 +122,10 @@ void monty_mole_spawn_dirt_particles(s8 offsetY, s8 velYBase) {
         /* sizeRange:       */ 7.0f,
     };
 
-    montyMoleRiseFromGroundParticles.offsetY = offsetY;
-    montyMoleRiseFromGroundParticles.velYBase = velYBase;
+    WORLD(montyMoleRiseFromGroundParticles).offsetY = offsetY;
+    WORLD(montyMoleRiseFromGroundParticles).velYBase = velYBase;
 
-    cur_obj_spawn_particles(&montyMoleRiseFromGroundParticles);
+    cur_obj_spawn_particles(&WORLD(montyMoleRiseFromGroundParticles));
 }
 
 /**
@@ -144,7 +144,7 @@ static void monty_mole_act_select_hole(void) {
 
     if (o->oBhvParams2ndByte != MONTY_MOLE_BP_NO_ROCK) {
         minDistToMario = 200.0f;
-    } else if (gMarioStates[0].forwardVel < 8.0f) {
+    } else if (WORLD(gMarioStates)[0].forwardVel < 8.0f) {
         minDistToMario = 100.0f;
     } else {
         minDistToMario = 500.0f;
@@ -362,11 +362,11 @@ void bhv_monty_mole_update(void) {
     }
 
     // Spawn a 1-up if you kill 8 monty moles
-    if (obj_check_attacks(&sMontyMoleHitbox, o->oAction) != 0) {
-        if (sMontyMoleKillStreak != 0) {
-            f32 dx = o->oPosX - sMontyMoleLastKilledPosX;
-            f32 dy = o->oPosY - sMontyMoleLastKilledPosY;
-            f32 dz = o->oPosZ - sMontyMoleLastKilledPosZ;
+    if (obj_check_attacks(&WORLD(sMontyMoleHitbox), o->oAction) != 0) {
+        if (WORLD(sMontyMoleKillStreak) != 0) {
+            f32 dx = o->oPosX - WORLD(sMontyMoleLastKilledPosX);
+            f32 dy = o->oPosY - WORLD(sMontyMoleLastKilledPosY);
+            f32 dz = o->oPosZ - WORLD(sMontyMoleLastKilledPosZ);
 
             f32 distToLastKill = sqrtf(dx * dx + dy * dy + dz * dz);
 
@@ -374,21 +374,21 @@ void bhv_monty_mole_update(void) {
             //  1500 units away from each other, so the counter resets if you
             //  attack moles in these holes consecutively.
             if (distToLastKill < 1500.0f) {
-                if (sMontyMoleKillStreak == 7) {
+                if (WORLD(sMontyMoleKillStreak) == 7) {
                     play_puzzle_jingle();
                     spawn_object(o, MODEL_1UP, bhv1UpWalking);
                 }
             } else {
-                sMontyMoleKillStreak = 0;
+                WORLD(sMontyMoleKillStreak) = 0;
             }
         }
 
         //! No overflow check
-        sMontyMoleKillStreak++;
+        WORLD(sMontyMoleKillStreak)++;
 
-        sMontyMoleLastKilledPosX = o->oPosX;
-        sMontyMoleLastKilledPosY = o->oPosY;
-        sMontyMoleLastKilledPosZ = o->oPosZ;
+        WORLD(sMontyMoleLastKilledPosX) = o->oPosX;
+        WORLD(sMontyMoleLastKilledPosY) = o->oPosY;
+        WORLD(sMontyMoleLastKilledPosZ) = o->oPosZ;
 
         monty_mole_hide_in_hole();
 
@@ -466,7 +466,7 @@ static void monty_mole_rock_act_move(void) {
     cur_obj_update_floor_and_walls();
 
     if (o->oMoveFlags & (OBJ_MOVE_MASK_ON_GROUND | OBJ_MOVE_ENTERED_WATER)) {
-        cur_obj_spawn_particles(&sMontyMoleRockBreakParticles);
+        cur_obj_spawn_particles(&WORLD(sMontyMoleRockBreakParticles));
         obj_mark_for_deletion(o);
     }
 
@@ -481,7 +481,7 @@ void bhv_monty_mole_rock_update(void) {
     //! Since we can prevent them from despawning using partial updates, we
     //  can fill up object slots to crash the game.
 
-    obj_check_attacks(&sMontyMoleRockHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sMontyMoleRockHitbox), o->oAction);
 
     switch (o->oAction) {
         case MONTY_MOLE_ROCK_ACT_HELD:

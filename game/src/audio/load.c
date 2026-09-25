@@ -111,9 +111,9 @@ ALSeqFile *get_audio_file_header(s32 arg0);
 void audio_dma_copy_immediate(uintptr_t devAddr, void *vAddr, size_t nbytes) {
     eu_stubbed_printf_3("Romcopy %x -> %x ,size %x\n", devAddr, vAddr, nbytes);
     osInvalDCache(vAddr, nbytes);
-    osPiStartDma(&gAudioDmaIoMesg, OS_MESG_PRI_HIGH, OS_READ, devAddr, vAddr, nbytes,
-                 &gAudioDmaMesgQueue);
-    osRecvMesg(&gAudioDmaMesgQueue, NULL, OS_MESG_BLOCK);
+    osPiStartDma(&WORLD(gAudioDmaIoMesg), OS_MESG_PRI_HIGH, OS_READ, devAddr, vAddr, nbytes,
+                 &WORLD(gAudioDmaMesgQueue));
+    osRecvMesg(&WORLD(gAudioDmaMesgQueue), NULL, OS_MESG_BLOCK);
     eu_stubbed_printf_0("Romcopyend\n");
 }
 
@@ -164,37 +164,37 @@ void audio_dma_partial_copy_async(uintptr_t *devAddr, u8 **vAddr, ssize_t *remai
 void decrease_sample_dma_ttls() {
     u32 i;
 
-    for (i = 0; i < sSampleDmaListSize1; i++) {
+    for (i = 0; i < WORLD(sSampleDmaListSize1); i++) {
 #if defined(VERSION_EU)
         struct SharedDma *temp = &sSampleDmas[i];
 #else
-        struct SharedDma *temp = sSampleDmas + i;
+        struct SharedDma *temp = WORLD(sSampleDmas) + i;
 #endif
         if (temp->ttl != 0) {
             temp->ttl--;
             if (temp->ttl == 0) {
-                temp->reuseIndex = sSampleDmaReuseQueueHead1;
-                sSampleDmaReuseQueue1[sSampleDmaReuseQueueHead1++] = (u8) i;
+                temp->reuseIndex = WORLD(sSampleDmaReuseQueueHead1);
+                WORLD(sSampleDmaReuseQueue1)[WORLD(sSampleDmaReuseQueueHead1)++] = (u8) i;
             }
         }
     }
 
-    for (i = sSampleDmaListSize1; i < gSampleDmaNumListItems; i++) {
+    for (i = WORLD(sSampleDmaListSize1); i < WORLD(gSampleDmaNumListItems); i++) {
 #if defined(VERSION_EU)
         struct SharedDma *temp = &sSampleDmas[i];
 #else
-        struct SharedDma *temp = sSampleDmas + i;
+        struct SharedDma *temp = WORLD(sSampleDmas) + i;
 #endif
         if (temp->ttl != 0) {
             temp->ttl--;
             if (temp->ttl == 0) {
-                temp->reuseIndex = sSampleDmaReuseQueueHead2;
-                sSampleDmaReuseQueue2[sSampleDmaReuseQueueHead2++] = (u8) i;
+                temp->reuseIndex = WORLD(sSampleDmaReuseQueueHead2);
+                WORLD(sSampleDmaReuseQueue2)[WORLD(sSampleDmaReuseQueueHead2)++] = (u8) i;
             }
         }
     }
 
-    sUnused80226B40 = 0;
+    WORLD(sUnused80226B40) = 0;
 }
 
 void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
@@ -207,26 +207,26 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
     ssize_t bufferPos;
     UNUSED u32 pad;
 
-    if (arg2 != 0 || *dmaIndexRef >= sSampleDmaListSize1) {
-        for (i = sSampleDmaListSize1; i < gSampleDmaNumListItems; i++) {
+    if (arg2 != 0 || *dmaIndexRef >= WORLD(sSampleDmaListSize1)) {
+        for (i = WORLD(sSampleDmaListSize1); i < WORLD(gSampleDmaNumListItems); i++) {
 #if defined(VERSION_EU)
             dma = &sSampleDmas[i];
 #else
-            dma = sSampleDmas + i;
+            dma = WORLD(sSampleDmas) + i;
 #endif
             bufferPos = devAddr - dma->source;
             if (0 <= bufferPos && (size_t) bufferPos <= dma->bufSize - size) {
                 // We already have a DMA request for this memory range.
-                if (dma->ttl == 0 && sSampleDmaReuseQueueTail2 != sSampleDmaReuseQueueHead2) {
+                if (dma->ttl == 0 && WORLD(sSampleDmaReuseQueueTail2) != WORLD(sSampleDmaReuseQueueHead2)) {
                     // Move the DMA out of the reuse queue, by swapping it with the
                     // tail, and then incrementing the tail.
-                    if (dma->reuseIndex != sSampleDmaReuseQueueTail2) {
-                        sSampleDmaReuseQueue2[dma->reuseIndex] =
-                            sSampleDmaReuseQueue2[sSampleDmaReuseQueueTail2];
-                        sSampleDmas[sSampleDmaReuseQueue2[sSampleDmaReuseQueueTail2]].reuseIndex =
+                    if (dma->reuseIndex != WORLD(sSampleDmaReuseQueueTail2)) {
+                        WORLD(sSampleDmaReuseQueue2)[dma->reuseIndex] =
+                            WORLD(sSampleDmaReuseQueue2)[WORLD(sSampleDmaReuseQueueTail2)];
+                        WORLD(sSampleDmas)[WORLD(sSampleDmaReuseQueue2)[WORLD(sSampleDmaReuseQueueTail2)]].reuseIndex =
                             dma->reuseIndex;
                     }
-                    sSampleDmaReuseQueueTail2++;
+                    WORLD(sSampleDmaReuseQueueTail2)++;
                 }
                 dma->ttl = 60;
                 *dmaIndexRef = (u8) i;
@@ -238,12 +238,12 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
             }
         }
 
-        if (sSampleDmaReuseQueueTail2 != sSampleDmaReuseQueueHead2 && arg2 != 0) {
+        if (WORLD(sSampleDmaReuseQueueTail2) != WORLD(sSampleDmaReuseQueueHead2) && arg2 != 0) {
             // Allocate a DMA from reuse queue 2. This queue can be empty, since
             // TTL 60 is pretty large.
-            dmaIndex = sSampleDmaReuseQueue2[sSampleDmaReuseQueueTail2];
-            sSampleDmaReuseQueueTail2++;
-            dma = sSampleDmas + dmaIndex;
+            dmaIndex = WORLD(sSampleDmaReuseQueue2)[WORLD(sSampleDmaReuseQueueTail2)];
+            WORLD(sSampleDmaReuseQueueTail2)++;
+            dma = WORLD(sSampleDmas) + dmaIndex;
             hasDma = TRUE;
         }
     } else {
@@ -251,7 +251,7 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
         dma = sSampleDmas;
         dma += *dmaIndexRef;
 #else
-        dma = sSampleDmas + *dmaIndexRef;
+        dma = WORLD(sSampleDmas) + *dmaIndexRef;
 #endif
         bufferPos = devAddr - dma->source;
         if (0 <= bufferPos && (size_t) bufferPos <= dma->bufSize - size) {
@@ -259,17 +259,17 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
             if (dma->ttl == 0) {
                 // Move the DMA out of the reuse queue, by swapping it with the
                 // tail, and then incrementing the tail.
-                if (dma->reuseIndex != sSampleDmaReuseQueueTail1) {
+                if (dma->reuseIndex != WORLD(sSampleDmaReuseQueueTail1)) {
 #if defined(VERSION_EU)
                     if (1) {
                     }
 #endif
-                    sSampleDmaReuseQueue1[dma->reuseIndex] =
-                        sSampleDmaReuseQueue1[sSampleDmaReuseQueueTail1];
-                    sSampleDmas[sSampleDmaReuseQueue1[sSampleDmaReuseQueueTail1]].reuseIndex =
+                    WORLD(sSampleDmaReuseQueue1)[dma->reuseIndex] =
+                        WORLD(sSampleDmaReuseQueue1)[WORLD(sSampleDmaReuseQueueTail1)];
+                    WORLD(sSampleDmas)[WORLD(sSampleDmaReuseQueue1)[WORLD(sSampleDmaReuseQueueTail1)]].reuseIndex =
                         dma->reuseIndex;
                 }
-                sSampleDmaReuseQueueTail1++;
+                WORLD(sSampleDmaReuseQueueTail1)++;
             }
             dma->ttl = 2;
 #if defined(VERSION_EU)
@@ -283,8 +283,8 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
     if (!hasDma) {
         // Allocate a DMA from reuse queue 1. This queue will hopefully never
         // be empty, since TTL 2 is so small.
-        dmaIndex = sSampleDmaReuseQueue1[sSampleDmaReuseQueueTail1++];
-        dma = sSampleDmas + dmaIndex;
+        dmaIndex = WORLD(sSampleDmaReuseQueue1)[WORLD(sSampleDmaReuseQueueTail1)++];
+        dma = WORLD(sSampleDmas) + dmaIndex;
         hasDma = TRUE;
     }
 
@@ -302,9 +302,9 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
     *dmaIndexRef = dmaIndex;
     return (devAddr - dmaDevAddr) + dma->buffer;
 #else
-    gCurrAudioFrameDmaCount++;
-    osPiStartDma(&gCurrAudioFrameDmaIoMesgBufs[gCurrAudioFrameDmaCount - 1], OS_MESG_PRI_NORMAL,
-                 OS_READ, dmaDevAddr, dma->buffer, transfer, &gCurrAudioFrameDmaQueue);
+    WORLD(gCurrAudioFrameDmaCount)++;
+    osPiStartDma(&WORLD(gCurrAudioFrameDmaIoMesgBufs)[WORLD(gCurrAudioFrameDmaCount) - 1], OS_MESG_PRI_NORMAL,
+                 OS_READ, dmaDevAddr, dma->buffer, transfer, &WORLD(gCurrAudioFrameDmaQueue));
     *dmaIndexRef = dmaIndex;
     return dma->buffer + (devAddr - dmaDevAddr);
 #endif
@@ -322,85 +322,85 @@ void init_sample_dma_buffers(UNUSED s32 arg0) {
 #if defined(VERSION_EU)
     sDmaBufSize = 0x400;
 #else
-    sDmaBufSize = 144 * 9;
+    WORLD(sDmaBufSize) = 144 * 9;
 #endif
 
 #if defined(VERSION_EU)
     for (i = 0; i < gMaxSimultaneousNotes * 3 * gAudioBufferParameters.presetUnk4; i++)
 #else
-    for (i = 0; i < gMaxSimultaneousNotes * 3; i++)
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes) * 3; i++)
 #endif
     {
-        sSampleDmas[gSampleDmaNumListItems].buffer = soundAlloc(&gNotesAndBuffersPool, sDmaBufSize);
-        if (sSampleDmas[gSampleDmaNumListItems].buffer == NULL) {
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].buffer = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(sDmaBufSize));
+        if (WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].buffer == NULL) {
 #if defined(VERSION_EU)
             break;
 #else
             goto out1;
 #endif
         }
-        sSampleDmas[gSampleDmaNumListItems].bufSize = sDmaBufSize;
-        sSampleDmas[gSampleDmaNumListItems].source = 0;
-        sSampleDmas[gSampleDmaNumListItems].sizeUnused = 0;
-        sSampleDmas[gSampleDmaNumListItems].unused2 = 0;
-        sSampleDmas[gSampleDmaNumListItems].ttl = 0;
-        gSampleDmaNumListItems++;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].bufSize = WORLD(sDmaBufSize);
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].source = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].sizeUnused = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].unused2 = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].ttl = 0;
+        WORLD(gSampleDmaNumListItems)++;
     }
 #if defined(VERSION_JP) || defined(VERSION_US)
 out1:
 #endif
 
-    for (i = 0; (u32) i < gSampleDmaNumListItems; i++) {
-        sSampleDmaReuseQueue1[i] = (u8) i;
-        sSampleDmas[i].reuseIndex = (u8) i;
+    for (i = 0; (u32) i < WORLD(gSampleDmaNumListItems); i++) {
+        WORLD(sSampleDmaReuseQueue1)[i] = (u8) i;
+        WORLD(sSampleDmas)[i].reuseIndex = (u8) i;
     }
 
-    for (j = gSampleDmaNumListItems; j < 0x100; j++) {
-        sSampleDmaReuseQueue1[j] = 0;
+    for (j = WORLD(gSampleDmaNumListItems); j < 0x100; j++) {
+        WORLD(sSampleDmaReuseQueue1)[j] = 0;
     }
 
-    sSampleDmaReuseQueueTail1 = 0;
-    sSampleDmaReuseQueueHead1 = (u8) gSampleDmaNumListItems;
-    sSampleDmaListSize1 = gSampleDmaNumListItems;
+    WORLD(sSampleDmaReuseQueueTail1) = 0;
+    WORLD(sSampleDmaReuseQueueHead1) = (u8) WORLD(gSampleDmaNumListItems);
+    WORLD(sSampleDmaListSize1) = WORLD(gSampleDmaNumListItems);
 
 #if defined(VERSION_EU)
     sDmaBufSize = 0x200;
 #else
-    sDmaBufSize = 160 * 9;
+    WORLD(sDmaBufSize) = 160 * 9;
 #endif
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        sSampleDmas[gSampleDmaNumListItems].buffer = soundAlloc(&gNotesAndBuffersPool, sDmaBufSize);
-        if (sSampleDmas[gSampleDmaNumListItems].buffer == NULL) {
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].buffer = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(sDmaBufSize));
+        if (WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].buffer == NULL) {
 #if defined(VERSION_EU)
             break;
 #else
             goto out2;
 #endif
         }
-        sSampleDmas[gSampleDmaNumListItems].bufSize = sDmaBufSize;
-        sSampleDmas[gSampleDmaNumListItems].source = 0;
-        sSampleDmas[gSampleDmaNumListItems].sizeUnused = 0;
-        sSampleDmas[gSampleDmaNumListItems].unused2 = 0;
-        sSampleDmas[gSampleDmaNumListItems].ttl = 0;
-        gSampleDmaNumListItems++;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].bufSize = WORLD(sDmaBufSize);
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].source = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].sizeUnused = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].unused2 = 0;
+        WORLD(sSampleDmas)[WORLD(gSampleDmaNumListItems)].ttl = 0;
+        WORLD(gSampleDmaNumListItems)++;
     }
 #if defined(VERSION_JP) || defined(VERSION_US)
 out2:
 #endif
 
-    for (i = sSampleDmaListSize1; (u32) i < gSampleDmaNumListItems; i++) {
-        sSampleDmaReuseQueue2[i - sSampleDmaListSize1] = (u8) i;
-        sSampleDmas[i].reuseIndex = (u8)(i - sSampleDmaListSize1);
+    for (i = WORLD(sSampleDmaListSize1); (u32) i < WORLD(gSampleDmaNumListItems); i++) {
+        WORLD(sSampleDmaReuseQueue2)[i - WORLD(sSampleDmaListSize1)] = (u8) i;
+        WORLD(sSampleDmas)[i].reuseIndex = (u8)(i - WORLD(sSampleDmaListSize1));
     }
 
     // This probably meant to touch the range size1..size2 as well... but it
     // doesn't matter, since these values are never read anyway.
-    for (j = gSampleDmaNumListItems; j < 0x100; j++) {
-        sSampleDmaReuseQueue2[j] = sSampleDmaListSize1;
+    for (j = WORLD(gSampleDmaNumListItems); j < 0x100; j++) {
+        WORLD(sSampleDmaReuseQueue2)[j] = WORLD(sSampleDmaListSize1);
     }
 
-    sSampleDmaReuseQueueTail2 = 0;
-    sSampleDmaReuseQueueHead2 = gSampleDmaNumListItems - sSampleDmaListSize1;
+    WORLD(sSampleDmaReuseQueueTail2) = 0;
+    WORLD(sSampleDmaReuseQueueHead2) = WORLD(gSampleDmaNumListItems) - WORLD(sSampleDmaListSize1);
 #if defined(VERSION_EU)
 #undef j
 #endif
@@ -588,11 +588,11 @@ struct AudioBank *bank_load_immediate(s32 bankId, s32 arg1) {
 
     // (This is broken if the length is 1 (mod 16), but that never happens --
     // it's always divisible by 4.)
-    alloc = gAlCtlHeader->seqArray[bankId].len + 0xf;
+    alloc = WORLD(gAlCtlHeader)->seqArray[bankId].len + 0xf;
     alloc = ALIGN16(alloc);
     alloc -= 0x10;
-    ctlData = gAlCtlHeader->seqArray[bankId].offset;
-    ret = alloc_bank_or_seq(&gBankLoadedPool, 1, alloc, arg1, bankId);
+    ctlData = WORLD(gAlCtlHeader)->seqArray[bankId].offset;
+    ret = alloc_bank_or_seq(&WORLD(gBankLoadedPool), 1, alloc, arg1, bankId);
     if (ret == NULL) {
         return NULL;
     }
@@ -601,12 +601,12 @@ struct AudioBank *bank_load_immediate(s32 bankId, s32 arg1) {
     numInstruments = buf[0];
     numDrums = buf[1];
     audio_dma_copy_immediate((uintptr_t)(ctlData + 0x10), ret, alloc);
-    patch_audio_bank(ret, gAlTbl->seqArray[bankId].offset, numInstruments, numDrums);
-    gCtlEntries[bankId].numInstruments = (u8) numInstruments;
-    gCtlEntries[bankId].numDrums = (u8) numDrums;
-    gCtlEntries[bankId].instruments = ret->instruments;
-    gCtlEntries[bankId].drums = ret->drums;
-    gBankLoadStatus[bankId] = SOUND_LOAD_STATUS_COMPLETE;
+    patch_audio_bank(ret, WORLD(gAlTbl)->seqArray[bankId].offset, numInstruments, numDrums);
+    WORLD(gCtlEntries)[bankId].numInstruments = (u8) numInstruments;
+    WORLD(gCtlEntries)[bankId].numDrums = (u8) numDrums;
+    WORLD(gCtlEntries)[bankId].instruments = ret->instruments;
+    WORLD(gCtlEntries)[bankId].drums = ret->drums;
+    WORLD(gBankLoadStatus)[bankId] = SOUND_LOAD_STATUS_COMPLETE;
     return ret;
 }
 
@@ -623,11 +623,11 @@ struct AudioBank *bank_load_async(s32 bankId, s32 arg1, struct SequencePlayer *s
     UNUSED u32 pad3;
 #endif
 
-    alloc = gAlCtlHeader->seqArray[bankId].len + 0xf;
+    alloc = WORLD(gAlCtlHeader)->seqArray[bankId].len + 0xf;
     alloc = ALIGN16(alloc);
     alloc -= 0x10;
-    ctlData = gAlCtlHeader->seqArray[bankId].offset;
-    ret = alloc_bank_or_seq(&gBankLoadedPool, 1, alloc, arg1, bankId);
+    ctlData = WORLD(gAlCtlHeader)->seqArray[bankId].offset;
+    ret = alloc_bank_or_seq(&WORLD(gBankLoadedPool), 1, alloc, arg1, bankId);
     if (ret == NULL) {
         return NULL;
     }
@@ -662,7 +662,7 @@ struct AudioBank *bank_load_async(s32 bankId, s32 arg1, struct SequencePlayer *s
     seqPlayer->bankDmaInProgress = TRUE;
     audio_dma_partial_copy_async(&seqPlayer->bankDmaCurrDevAddr, &seqPlayer->bankDmaCurrMemAddr,
                                  &seqPlayer->bankDmaRemaining, mesgQueue, &seqPlayer->bankDmaIoMesg);
-    gBankLoadStatus[bankId] = SOUND_LOAD_STATUS_IN_PROGRESS;
+    WORLD(gBankLoadStatus)[bankId] = SOUND_LOAD_STATUS_IN_PROGRESS;
     return ret;
 }
 
@@ -671,16 +671,16 @@ void *sequence_dma_immediate(s32 seqId, s32 arg1) {
     void *ptr;
     u8 *seqData;
 
-    seqLength = gSeqFileHeader->seqArray[seqId].len + 0xf;
+    seqLength = WORLD(gSeqFileHeader)->seqArray[seqId].len + 0xf;
     seqLength = ALIGN16(seqLength);
-    seqData = gSeqFileHeader->seqArray[seqId].offset;
-    ptr = alloc_bank_or_seq(&gSeqLoadedPool, 1, seqLength, arg1, seqId);
+    seqData = WORLD(gSeqFileHeader)->seqArray[seqId].offset;
+    ptr = alloc_bank_or_seq(&WORLD(gSeqLoadedPool), 1, seqLength, arg1, seqId);
     if (ptr == NULL) {
         return NULL;
     }
 
     audio_dma_copy_immediate((uintptr_t) seqData, ptr, seqLength);
-    gSeqLoadStatus[seqId] = SOUND_LOAD_STATUS_COMPLETE;
+    WORLD(gSeqLoadStatus)[seqId] = SOUND_LOAD_STATUS_COMPLETE;
     return ptr;
 }
 
@@ -691,10 +691,10 @@ void *sequence_dma_async(s32 seqId, s32 arg1, struct SequencePlayer *seqPlayer) 
     OSMesgQueue *mesgQueue;
 
     eu_stubbed_printf_1("Seq %d Loading Start\n", seqId);
-    seqLength = gSeqFileHeader->seqArray[seqId].len + 0xf;
+    seqLength = WORLD(gSeqFileHeader)->seqArray[seqId].len + 0xf;
     seqLength = ALIGN16(seqLength);
-    seqData = gSeqFileHeader->seqArray[seqId].offset;
-    ptr = alloc_bank_or_seq(&gSeqLoadedPool, 1, seqLength, arg1, seqId);
+    seqData = WORLD(gSeqFileHeader)->seqArray[seqId].offset;
+    ptr = alloc_bank_or_seq(&WORLD(gSeqLoadedPool), 1, seqLength, arg1, seqId);
     if (ptr == NULL) {
         eu_stubbed_printf_0("Heap Overflow Error\n");
         return NULL;
@@ -705,7 +705,7 @@ void *sequence_dma_async(s32 seqId, s32 arg1, struct SequencePlayer *seqPlayer) 
         audio_dma_copy_immediate((uintptr_t) seqData, ptr, seqLength);
         if (1) {
         }
-        gSeqLoadStatus[seqId] = SOUND_LOAD_STATUS_COMPLETE;
+        WORLD(gSeqLoadStatus)[seqId] = SOUND_LOAD_STATUS_COMPLETE;
     } else {
         audio_dma_copy_immediate((uintptr_t) seqData, ptr, 0x40);
         mesgQueue = &seqPlayer->seqDmaMesgQueue;
@@ -716,7 +716,7 @@ void *sequence_dma_async(s32 seqId, s32 arg1, struct SequencePlayer *seqPlayer) 
         seqPlayer->seqDmaInProgress = TRUE;
         audio_dma_copy_async((uintptr_t)(seqData + 0x40), (u8 *) ptr + 0x40, seqLength - 0x40, mesgQueue,
                              &seqPlayer->seqDmaIoMesg);
-        gSeqLoadStatus[seqId] = SOUND_LOAD_STATUS_IN_PROGRESS;
+        WORLD(gSeqLoadStatus)[seqId] = SOUND_LOAD_STATUS_IN_PROGRESS;
     }
     return ptr;
 }
@@ -735,17 +735,17 @@ u8 get_missing_bank(u32 seqId, s32 *nonNullCount, s32 *nullCount) {
     for (i = gAlBankSets[offset++], ret = 0; i != 0; i--) {
         bankId = gAlBankSets[offset++];
 #else
-    offset = ((u16 *) gAlBankSets)[seqId] + 1;
-    for (i = gAlBankSets[offset - 1], ret = 0; i != 0; i--) {
+    offset = ((u16 *) WORLD(gAlBankSets))[seqId] + 1;
+    for (i = WORLD(gAlBankSets)[offset - 1], ret = 0; i != 0; i--) {
         offset++;
-        bankId = gAlBankSets[offset - 1];
+        bankId = WORLD(gAlBankSets)[offset - 1];
 #endif
 
         if (IS_BANK_LOAD_COMPLETE(bankId) == TRUE) {
 #if defined(VERSION_EU)
             temp = get_bank_or_seq(&gBankLoadedPool, 2, bankId);
 #else
-            temp = get_bank_or_seq(&gBankLoadedPool, 2, gAlBankSets[offset - 1]);
+            temp = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, WORLD(gAlBankSets)[offset - 1]);
 #endif
         } else {
             temp = NULL;
@@ -768,22 +768,22 @@ struct AudioBank *load_banks_immediate(s32 seqId, u8 *outDefaultBank) {
     u16 offset;
     u8 i;
 
-    offset = ((u16 *) gAlBankSets)[seqId];
+    offset = ((u16 *) WORLD(gAlBankSets))[seqId];
 #ifdef VERSION_EU
     for (i = gAlBankSets[offset++]; i != 0; i--) {
         bankId = gAlBankSets[offset++];
 #else
     offset++;
-    for (i = gAlBankSets[offset - 1]; i != 0; i--) {
+    for (i = WORLD(gAlBankSets)[offset - 1]; i != 0; i--) {
         offset++;
-        bankId = gAlBankSets[offset - 1];
+        bankId = WORLD(gAlBankSets)[offset - 1];
 #endif
 
         if (IS_BANK_LOAD_COMPLETE(bankId) == TRUE) {
 #ifdef VERSION_EU
             ret = get_bank_or_seq(&gBankLoadedPool, 2, bankId);
 #else
-            ret = get_bank_or_seq(&gBankLoadedPool, 2, gAlBankSets[offset - 1]);
+            ret = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, WORLD(gAlBankSets)[offset - 1]);
 #endif
         } else {
             ret = NULL;
@@ -801,11 +801,11 @@ void preload_sequence(u32 seqId, u8 preloadMask) {
     void *sequenceData;
     u8 temp;
 
-    if (seqId >= gSequenceCount) {
+    if (seqId >= WORLD(gSequenceCount)) {
         return;
     }
 
-    gAudioLoadLock = AUDIO_LOCK_LOADING;
+    WORLD(gAudioLoadLock) = AUDIO_LOCK_LOADING;
     if (preloadMask & PRELOAD_BANKS) {
         load_banks_immediate(seqId, &temp);
     }
@@ -814,37 +814,37 @@ void preload_sequence(u32 seqId, u8 preloadMask) {
         // @bug should be IS_SEQ_LOAD_COMPLETE
         if (IS_BANK_LOAD_COMPLETE(seqId) == TRUE) {
             eu_stubbed_printf_1("SEQ  %d ALREADY CACHED\n", seqId);
-            sequenceData = get_bank_or_seq(&gSeqLoadedPool, 2, seqId);
+            sequenceData = get_bank_or_seq(&WORLD(gSeqLoadedPool), 2, seqId);
         } else {
             sequenceData = NULL;
         }
         if (sequenceData == NULL && sequence_dma_immediate(seqId, 2) == NULL) {
-            gAudioLoadLock = AUDIO_LOCK_NOT_LOADING;
+            WORLD(gAudioLoadLock) = AUDIO_LOCK_NOT_LOADING;
             return;
         }
     }
 
-    gAudioLoadLock = AUDIO_LOCK_NOT_LOADING;
+    WORLD(gAudioLoadLock) = AUDIO_LOCK_NOT_LOADING;
 }
 
 void load_sequence_internal(u32 player, u32 seqId, s32 loadAsync);
 
 void load_sequence(u32 player, u32 seqId, s32 loadAsync) {
     if (!loadAsync) {
-        gAudioLoadLock = AUDIO_LOCK_LOADING;
+        WORLD(gAudioLoadLock) = AUDIO_LOCK_LOADING;
     }
     load_sequence_internal(player, seqId, loadAsync);
     if (!loadAsync) {
-        gAudioLoadLock = AUDIO_LOCK_NOT_LOADING;
+        WORLD(gAudioLoadLock) = AUDIO_LOCK_NOT_LOADING;
     }
 }
 
 void load_sequence_internal(u32 player, u32 seqId, s32 loadAsync) {
     void *sequenceData;
-    struct SequencePlayer *seqPlayer = &gSequencePlayers[player];
+    struct SequencePlayer *seqPlayer = &WORLD(gSequencePlayers)[player];
     UNUSED u32 padding[2];
 
-    if (seqId >= gSequenceCount) {
+    if (seqId >= WORLD(gSequenceCount)) {
         return;
     }
 
@@ -876,7 +876,7 @@ void load_sequence_internal(u32 player, u32 seqId, s32 loadAsync) {
     eu_stubbed_printf_0("Seq Loading Start\n");
 
     seqPlayer->seqId = seqId;
-    sequenceData = get_bank_or_seq(&gSeqLoadedPool, 2, seqId);
+    sequenceData = get_bank_or_seq(&WORLD(gSeqLoadedPool), 2, seqId);
     if (sequenceData == NULL) {
         if (seqPlayer->seqDmaInProgress) {
             eu_stubbed_printf_0("Error:Before Sequence-SlowDma remain.\n");
@@ -926,18 +926,18 @@ void audio_init() {
     void *data;
     UNUSED s32 pad2;
 
-    gAudioLoadLock = AUDIO_LOCK_UNINITIALIZED;
+    WORLD(gAudioLoadLock) = AUDIO_LOCK_UNINITIALIZED;
 
 #if defined(VERSION_JP) || defined(VERSION_US)
-    lim1 = gUnusedCount80333EE8;
+    lim1 = WORLD(gUnusedCount80333EE8);
     for (i = 0; i < lim1; i++) {
-        gUnused80226E58[i] = 0;
-        gUnused80226E98[i] = 0;
+        WORLD(gUnused80226E58)[i] = 0;
+        WORLD(gUnused80226E98)[i] = 0;
     }
 
-    lim2 = gAudioHeapSize;
+    lim2 = WORLD(gAudioHeapSize);
     for (i = 0; i <= lim2 / 8 - 1; i++) {
-        ((u64 *) gAudioHeap)[i] = 0;
+        ((u64 *) WORLD(gAudioHeap))[i] = 0;
     }
 
 #ifdef TARGET_N64
@@ -984,29 +984,29 @@ void audio_init() {
     eu_stubbed_printf_1("AudioHeap is %x\n", gAudioHeapSize);
 
     for (i = 0; i < NUMAIBUFFERS; i++) {
-        gAiBufferLengths[i] = 0xa0;
+        WORLD(gAiBufferLengths)[i] = 0xa0;
     }
 
-    gAudioFrameCount = 0;
-    gAudioTaskIndex = 0;
-    gCurrAiBufferIndex = 0;
-    gSoundMode = 0;
-    gAudioTask = NULL;
-    gAudioTasks[0].task.t.data_size = 0;
-    gAudioTasks[1].task.t.data_size = 0;
-    osCreateMesgQueue(&gAudioDmaMesgQueue, &gAudioDmaMesg, 1);
-    osCreateMesgQueue(&gCurrAudioFrameDmaQueue, gCurrAudioFrameDmaMesgBufs,
-                      ARRAY_COUNT(gCurrAudioFrameDmaMesgBufs));
-    gCurrAudioFrameDmaCount = 0;
-    gSampleDmaNumListItems = 0;
+    WORLD(gAudioFrameCount) = 0;
+    WORLD(gAudioTaskIndex) = 0;
+    WORLD(gCurrAiBufferIndex) = 0;
+    WORLD(gSoundMode) = 0;
+    WORLD(gAudioTask) = NULL;
+    WORLD(gAudioTasks)[0].task.t.data_size = 0;
+    WORLD(gAudioTasks)[1].task.t.data_size = 0;
+    osCreateMesgQueue(&WORLD(gAudioDmaMesgQueue), &WORLD(gAudioDmaMesg), 1);
+    osCreateMesgQueue(&WORLD(gCurrAudioFrameDmaQueue), WORLD(gCurrAudioFrameDmaMesgBufs),
+                      ARRAY_COUNT(WORLD(gCurrAudioFrameDmaMesgBufs)));
+    WORLD(gCurrAudioFrameDmaCount) = 0;
+    WORLD(gSampleDmaNumListItems) = 0;
 
-    sound_init_main_pools(gAudioInitPoolSize);
+    sound_init_main_pools(WORLD(gAudioInitPoolSize));
 
     for (i = 0; i < NUMAIBUFFERS; i++) {
-        gAiBuffers[i] = soundAlloc(&gAudioInitPool, AIBUFFER_LEN);
+        WORLD(gAiBuffers)[i] = soundAlloc(&WORLD(gAudioInitPool), AIBUFFER_LEN);
 
         for (j = 0; j < (s32) (AIBUFFER_LEN / sizeof(s16)); j++) {
-            gAiBuffers[i][j] = 0;
+            WORLD(gAiBuffers)[i][j] = 0;
         }
     }
 
@@ -1015,7 +1015,7 @@ void audio_init() {
     gAudioResetStatus = 1;
     audio_shut_down_and_reset_step();
 #else
-    audio_reset_session(&gAudioSessionPresets[0]);
+    audio_reset_session(&WORLD(gAudioSessionPresets)[0]);
 #endif
 
     // Not sure about these prints
@@ -1024,46 +1024,46 @@ void audio_init() {
     eu_stubbed_printf_0("Main Heap Initialize.\n");
 
     // Load headers for sounds and sequences
-    gSeqFileHeader = (ALSeqFile *) buf;
+    WORLD(gSeqFileHeader) = (ALSeqFile *) buf;
     data = gMusicData;
-    audio_dma_copy_immediate((uintptr_t) data, gSeqFileHeader, 0x10);
-    gSequenceCount = gSeqFileHeader->seqCount;
+    audio_dma_copy_immediate((uintptr_t) data, WORLD(gSeqFileHeader), 0x10);
+    WORLD(gSequenceCount) = WORLD(gSeqFileHeader)->seqCount;
 #if defined(VERSION_EU)
     size = gSequenceCount * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
 #else
-    size = ALIGN16(gSequenceCount * sizeof(ALSeqData) + 4);
+    size = ALIGN16(WORLD(gSequenceCount) * sizeof(ALSeqData) + 4);
 #endif
-    gSeqFileHeader = soundAlloc(&gAudioInitPool, size);
-    audio_dma_copy_immediate((uintptr_t) data, gSeqFileHeader, size);
-    alSeqFileNew(gSeqFileHeader, data);
+    WORLD(gSeqFileHeader) = soundAlloc(&WORLD(gAudioInitPool), size);
+    audio_dma_copy_immediate((uintptr_t) data, WORLD(gSeqFileHeader), size);
+    alSeqFileNew(WORLD(gSeqFileHeader), data);
 
     // Load header for CTL (instrument metadata)
-    gAlCtlHeader = (ALSeqFile *) buf;
+    WORLD(gAlCtlHeader) = (ALSeqFile *) buf;
     data = gSoundDataADSR;
-    audio_dma_copy_immediate((uintptr_t) data, gAlCtlHeader, 0x10);
-    size = gAlCtlHeader->seqCount * sizeof(ALSeqData) + 4;
+    audio_dma_copy_immediate((uintptr_t) data, WORLD(gAlCtlHeader), 0x10);
+    size = WORLD(gAlCtlHeader)->seqCount * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
-    gCtlEntries = soundAlloc(&gAudioInitPool, gAlCtlHeader->seqCount * sizeof(struct CtlEntry));
-    gAlCtlHeader = soundAlloc(&gAudioInitPool, size);
-    audio_dma_copy_immediate((uintptr_t) data, gAlCtlHeader, size);
-    alSeqFileNew(gAlCtlHeader, data);
+    WORLD(gCtlEntries) = soundAlloc(&WORLD(gAudioInitPool), WORLD(gAlCtlHeader)->seqCount * sizeof(struct CtlEntry));
+    WORLD(gAlCtlHeader) = soundAlloc(&WORLD(gAudioInitPool), size);
+    audio_dma_copy_immediate((uintptr_t) data, WORLD(gAlCtlHeader), size);
+    alSeqFileNew(WORLD(gAlCtlHeader), data);
 
     // Load header for TBL (raw sound data)
-    gAlTbl = (ALSeqFile *) buf;
-    audio_dma_copy_immediate((uintptr_t) data, gAlTbl, 0x10);
-    size = gAlTbl->seqCount * sizeof(ALSeqData) + 4;
+    WORLD(gAlTbl) = (ALSeqFile *) buf;
+    audio_dma_copy_immediate((uintptr_t) data, WORLD(gAlTbl), 0x10);
+    size = WORLD(gAlTbl)->seqCount * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
-    gAlTbl = soundAlloc(&gAudioInitPool, size);
-    audio_dma_copy_immediate((uintptr_t) gSoundDataRaw, gAlTbl, size);
-    alSeqFileNew(gAlTbl, gSoundDataRaw);
+    WORLD(gAlTbl) = soundAlloc(&WORLD(gAudioInitPool), size);
+    audio_dma_copy_immediate((uintptr_t) gSoundDataRaw, WORLD(gAlTbl), size);
+    alSeqFileNew(WORLD(gAlTbl), gSoundDataRaw);
 
     // Load bank sets for each sequence
-    gAlBankSets = soundAlloc(&gAudioInitPool, 0x100);
-    audio_dma_copy_immediate((uintptr_t) gBankSetsData, gAlBankSets, 0x100);
+    WORLD(gAlBankSets) = soundAlloc(&WORLD(gAudioInitPool), 0x100);
+    audio_dma_copy_immediate((uintptr_t) gBankSetsData, WORLD(gAlBankSets), 0x100);
 
     init_sequence_players();
-    gAudioLoadLock = AUDIO_LOCK_NOT_LOADING;
+    WORLD(gAudioLoadLock) = AUDIO_LOCK_NOT_LOADING;
     // Should probably contain the sizes of the data banks, but those aren't
     // easily accessible from here.
     eu_stubbed_printf_0("---------- Init Completed. ------------\n");

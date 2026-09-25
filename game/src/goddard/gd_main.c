@@ -30,16 +30,16 @@ struct GdControl gGdCtrlPrev; // @ 801B9A18; previous frame's controller info
 u32 __main__(void) {
     UNUSED u8 filler[4];
 
-    gd_printf("%x, %x\n", (u32) (uintptr_t) &D_801A8058, (u32) (uintptr_t) &gGdMoveScene);
+    gd_printf("%x, %x\n", (u32) (uintptr_t) &WORLD(D_801A8058), (u32) (uintptr_t) &WORLD(gGdMoveScene));
     imin("main");
     gd_init();
 
-    gGdCtrl.unk88 = 0.46799f;
-    gGdCtrl.unkA0 = -34.0f;
-    gGdCtrl.unkAC = 34.0f;
-    gGdCtrl.unk00 = 2;
-    gGdCtrl.newStartPress = FALSE;
-    gGdCtrl.prevFrame = &gGdCtrlPrev;
+    WORLD(gGdCtrl).unk88 = 0.46799f;
+    WORLD(gGdCtrl).unkA0 = -34.0f;
+    WORLD(gGdCtrl).unkAC = 34.0f;
+    WORLD(gGdCtrl).unk00 = 2;
+    WORLD(gGdCtrl).newStartPress = FALSE;
+    WORLD(gGdCtrl).prevFrame = &WORLD(gGdCtrlPrev);
 
     imin("main - make_scene");
     make_scene();  // make_scene does nothing, though

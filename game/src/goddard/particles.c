@@ -60,7 +60,7 @@ static void connect_vertices(struct ObjVertex *vtx1, struct ObjVertex *vtx2) {
     if (vtx1 == vtx2) {
         return;
     }
-    link = gGdSkinNet->unk1C0->firstMember;
+    link = WORLD(gGdSkinNet)->unk1C0->firstMember;
     while (link != NULL) {
         // FIXME: types
         struct Connection *conn = (struct Connection *) link->obj;
@@ -74,7 +74,7 @@ static void connect_vertices(struct ObjVertex *vtx1, struct ObjVertex *vtx2) {
     if (link == NULL) {
         newConn = make_connection(vtx1, vtx2);
         //! make_connection never sets the header, so not sure what happens here
-        addto_group(gGdSkinNet->unk1C0, &newConn->header);
+        addto_group(WORLD(gGdSkinNet)->unk1C0, &newConn->header);
     }
 }
 
@@ -90,16 +90,16 @@ void Unknown80181D14(struct ObjFace *face) {
         vtx2 = face->vertices[i + 1];
         connect_vertices(vtx1, vtx2);
     }
-    if (D_801B9EF0 != NULL) {
+    if (WORLD(D_801B9EF0) != NULL) {
         for (i = 0; i < face->vtxCount; i++) {
             vtx1 = face->vertices[i];
-            for (j = 0; j < D_801B9EF0->vtxCount; j++) {
-                vtx2 = D_801B9EF0->vertices[j];
+            for (j = 0; j < WORLD(D_801B9EF0)->vtxCount; j++) {
+                vtx2 = WORLD(D_801B9EF0)->vertices[j];
                 connect_vertices(vtx1, vtx2);
             }
         }
     }
-    D_801B9EF0 = face;
+    WORLD(D_801B9EF0) = face;
 }
 
 /* 230680 -> 230858 */
@@ -180,12 +180,12 @@ void func_801823A0(struct ObjNet *net) {
     register struct ListNode *link;
     struct Connection *cxn;
 
-    gGdSkinNet = net;
+    WORLD(gGdSkinNet) = net;
     switch (net->unk3C) {
         case 1: // Shape; Are these flags the same as net->netType (+0x1EC)?
             net->unk1C8 = net->shapePtr->vtxGroup;
             net->unk1C0 = make_group(0);
-            D_801B9EF0 = NULL;
+            WORLD(D_801B9EF0) = NULL;
 
             apply_to_obj_types_in_group(OBJ_TYPE_FACES, (applyproc_t) Unknown80181D14,
                                         net->shapePtr->faceGroup);
@@ -217,7 +217,7 @@ struct ObjParticle *make_particle(u32 flags, s32 colourNum, f32 x, f32 y, f32 z)
     particle->colourNum = colourNum;
     particle->flags = flags | 8;
     particle->timeout = -1;
-    particle->id = D_801B9E40; /* should this be D_801B9E40++? */
+    particle->id = WORLD(D_801B9E40); /* should this be D_801B9E40++? */
     particle->shapePtr = NULL;
     particle->unkB0 = 1;
     return particle;
@@ -259,22 +259,22 @@ int func_80182778(struct ObjParticle *ptc) {
     s32 sp4 = 0;
 
     if (ptc->unk7C->animSeqNum == 2 && ptc->unk74 == 1) {
-        while (D_801A81D4[sp4] != 0) {
-            if (D_801A81D4[sp4] == ptc->unk7C->frame) {
-                ptc->pos.x = D_801A81D4[sp4 + 1] * 10.0f;
-                ptc->pos.y = D_801A81D4[sp4 + 2] * 10.0f;
-                ptc->pos.z = D_801A81D4[sp4 + 3] * 10.0f;
+        while (WORLD(D_801A81D4)[sp4] != 0) {
+            if (WORLD(D_801A81D4)[sp4] == ptc->unk7C->frame) {
+                ptc->pos.x = WORLD(D_801A81D4)[sp4 + 1] * 10.0f;
+                ptc->pos.y = WORLD(D_801A81D4)[sp4 + 2] * 10.0f;
+                ptc->pos.z = WORLD(D_801A81D4)[sp4 + 3] * 10.0f;
                 return TRUE;
             }
             sp4 += 4;
         }
     }
     if (ptc->unk7C->animSeqNum == 1 && ptc->unk74 == 1) {
-        while (D_801A8238[sp4] != 0) {
-            if (D_801A8238[sp4] == ptc->unk7C->frame) {
-                ptc->pos.x = D_801A8238[sp4 + 1] * 10.0f;
-                ptc->pos.y = D_801A8238[sp4 + 2] * 10.0f;
-                ptc->pos.z = D_801A8238[sp4 + 3] * 10.0f;
+        while (WORLD(D_801A8238)[sp4] != 0) {
+            if (WORLD(D_801A8238)[sp4] == ptc->unk7C->frame) {
+                ptc->pos.x = WORLD(D_801A8238)[sp4 + 1] * 10.0f;
+                ptc->pos.y = WORLD(D_801A8238)[sp4 + 2] * 10.0f;
+                ptc->pos.z = WORLD(D_801A8238)[sp4 + 3] * 10.0f;
                 return TRUE;
             }
             sp4 += 4;
@@ -334,12 +334,12 @@ void move_particle(struct ObjParticle *ptc) {
         return;
     }
     if (ptc->unk60 == 3) {
-        sp40.x = -gViewUpdateCamera->unkE8[2][0] * 50.0f;
-        sp40.y = -gViewUpdateCamera->unkE8[2][1] * 50.0f;
-        sp40.z = gViewUpdateCamera->unkE8[2][2] * 50.0f;
-        sp34.x = gViewUpdateCamera->unkE8[2][0] * -20.0f;
-        sp34.y = gViewUpdateCamera->unkE8[2][1] * -20.0f;
-        sp34.z = gViewUpdateCamera->unkE8[2][2] * -20.0f;
+        sp40.x = -WORLD(gViewUpdateCamera)->unkE8[2][0] * 50.0f;
+        sp40.y = -WORLD(gViewUpdateCamera)->unkE8[2][1] * 50.0f;
+        sp40.z = WORLD(gViewUpdateCamera)->unkE8[2][2] * 50.0f;
+        sp34.x = WORLD(gViewUpdateCamera)->unkE8[2][0] * -20.0f;
+        sp34.y = WORLD(gViewUpdateCamera)->unkE8[2][1] * -20.0f;
+        sp34.z = WORLD(gViewUpdateCamera)->unkE8[2][2] * -20.0f;
     }
     if (ptc->attachedToObj != NULL) {
         set_cur_dynobj(ptc->attachedToObj);
@@ -458,7 +458,7 @@ void move_particle(struct ObjParticle *ptc) {
 /* 231D40 -> 231D98; orig name: func_80183570 */
 void move_particles_in_grp(struct ObjGroup *group) {
     start_timer("particles");
-    gGdSkinNet = NULL;
+    WORLD(gGdSkinNet) = NULL;
     apply_to_obj_types_in_group(OBJ_TYPE_PARTICLES, (applyproc_t) move_particle, group);
     stop_timer("particles");
 }
@@ -519,7 +519,7 @@ void stub_particles_4(UNUSED s32 a, UNUSED s32 b, UNUSED s32 c) {
 
 /* 2320A0 -> 2320D4; pad to 2320E0 */
 void func_801838D0(struct ObjParticle *ptc) {
-    D_801B9E3C = ptc;
+    WORLD(D_801B9E3C) = ptc;
     if (ptc->pos.y < -15.0f) {
     }
 }

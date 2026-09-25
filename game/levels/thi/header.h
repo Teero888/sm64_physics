@@ -33,8 +33,8 @@ extern const MacroObject thi_seg7_area_2_macro_objs[];
 extern const MacroObject thi_seg7_area_3_macro_objs[];
 extern const Collision thi_seg7_collision_top_trap[];
 extern const Trajectory thi_seg7_trajectory_koopa[];
-extern const struct MovtexQuadCollection thi_movtex_area1_water[];
-extern const struct MovtexQuadCollection thi_movtex_area2_water[];
+extern struct MovtexQuadCollection thi_movtex_area1_water[];
+extern struct MovtexQuadCollection thi_movtex_area2_water[];
 
 // script
 extern const LevelScript level_thi_entry[];

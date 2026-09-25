@@ -121,7 +121,7 @@ extern const Trajectory lll_seg7_trajectory_0702856C[];
 extern const Trajectory lll_seg7_trajectory_07028660[];
 extern Movtex lll_movtex_tris_lava_floor[];
 extern const Gfx lll_dl_lava_floor[];
-extern const struct MovtexQuadCollection lll_movtex_volcano_floor_lava[];
+extern struct MovtexQuadCollection lll_movtex_volcano_floor_lava[];
 extern Movtex lll_movtex_tris_lavafall_volcano[];
 extern const Gfx lll_dl_lavafall_volcano[];
 

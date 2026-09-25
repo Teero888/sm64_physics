@@ -33,7 +33,7 @@ void bhv_moneybag_init(void) {
 }
 
 void moneybag_check_mario_collision(void) {
-    obj_set_hitbox(o, &sMoneybagHitbox);
+    obj_set_hitbox(o, &WORLD(sMoneybagHitbox));
 
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         if (o->oInteractStatus & INT_STATUS_ATTACKED_MARIO) {
@@ -212,7 +212,7 @@ void bhv_moneybag_loop(void) {
 }
 
 void bhv_moneybag_hidden_loop(void) {
-    obj_set_hitbox(o, &sMoneybagHiddenHitbox);
+    obj_set_hitbox(o, &WORLD(sMoneybagHiddenHitbox));
 
     switch (o->oAction) {
         case FAKE_MONEYBAG_COIN_ACT_IDLE:

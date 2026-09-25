@@ -43,15 +43,15 @@ void butterfly_step(s32 speed) {
 }
 
 void butterfly_calculate_angle(void) {
-    gMarioObject->oPosX += 5 * o->oButterflyYPhase / 4;
-    gMarioObject->oPosZ += 5 * o->oButterflyYPhase / 4;
-    obj_turn_toward_object(o, gMarioObject, 16, 0x300);
-    gMarioObject->oPosX -= 5 * o->oButterflyYPhase / 4;
-    gMarioObject->oPosZ -= 5 * o->oButterflyYPhase / 4;
+    WORLD(gMarioObject)->oPosX += 5 * o->oButterflyYPhase / 4;
+    WORLD(gMarioObject)->oPosZ += 5 * o->oButterflyYPhase / 4;
+    obj_turn_toward_object(o, WORLD(gMarioObject), 16, 0x300);
+    WORLD(gMarioObject)->oPosX -= 5 * o->oButterflyYPhase / 4;
+    WORLD(gMarioObject)->oPosZ -= 5 * o->oButterflyYPhase / 4;
 
-    gMarioObject->oPosY += (5 * o->oButterflyYPhase + 0x100) / 4;
-    obj_turn_toward_object(o, gMarioObject, 15, 0x500);
-    gMarioObject->oPosY -= (5 * o->oButterflyYPhase + 0x100) / 4;
+    WORLD(gMarioObject)->oPosY += (5 * o->oButterflyYPhase + 0x100) / 4;
+    obj_turn_toward_object(o, WORLD(gMarioObject), 15, 0x500);
+    WORLD(gMarioObject)->oPosY -= (5 * o->oButterflyYPhase + 0x100) / 4;
 }
 
 void butterfly_act_rest(void) {
@@ -59,7 +59,7 @@ void butterfly_act_rest(void) {
         cur_obj_init_animation(0);
 
         o->oAction = BUTTERFLY_ACT_FOLLOW_MARIO;
-        o->oMoveAngleYaw = gMarioObject->header.gfx.angle[1];
+        o->oMoveAngleYaw = WORLD(gMarioObject)->header.gfx.angle[1];
     }
 }
 

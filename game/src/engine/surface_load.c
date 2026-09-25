@@ -39,12 +39,12 @@ u8 unused8038EEA8[0x30];
  * Allocate the part of the surface node pool to contain a surface node.
  */
 static struct SurfaceNode *alloc_surface_node(void) {
-    struct SurfaceNode *node = &sSurfaceNodePool[gSurfaceNodesAllocated];
-    gSurfaceNodesAllocated++;
+    struct SurfaceNode *node = &WORLD(sSurfaceNodePool)[WORLD(gSurfaceNodesAllocated)];
+    WORLD(gSurfaceNodesAllocated)++;
 
     node->next = NULL;
 
-    if (gSurfaceNodesAllocated >= 7000) {
+    if (WORLD(gSurfaceNodesAllocated) >= 7000) {
         CN_DEBUG_PRINTF((" mcMakeBGCheckList OVERFLOW\n"));
     }
 
@@ -57,10 +57,10 @@ static struct SurfaceNode *alloc_surface_node(void) {
  */
 static struct Surface *alloc_surface(void) {
 
-    struct Surface *surface = &sSurfacePool[gSurfacesAllocated];
-    gSurfacesAllocated++;
+    struct Surface *surface = &WORLD(sSurfacePool)[WORLD(gSurfacesAllocated)];
+    WORLD(gSurfacesAllocated)++;
 
-    if (gSurfacesAllocated >= sSurfacePoolSize) {
+    if (WORLD(gSurfacesAllocated) >= WORLD(sSurfacePoolSize)) {
         CN_DEBUG_PRINTF((" mcMakeBGCheckData OVERFLOW\n"));
     }
 
@@ -92,7 +92,7 @@ static void clear_spatial_partition(SpatialPartitionCell *cells) {
  * Clears the static (level) surface partitions for new use.
  */
 static void clear_static_surfaces(void) {
-    clear_spatial_partition(&gStaticSurfacePartition[0][0]);
+    clear_spatial_partition(&WORLD(gStaticSurfacePartition)[0][0]);
 }
 
 /**
@@ -136,9 +136,9 @@ static void add_surface_to_cell(s16 dynamic, s16 cellX, s16 cellZ, struct Surfac
     newNode->surface = surface;
 
     if (dynamic) {
-        list = &gDynamicSurfacePartition[cellZ][cellX][listIndex];
+        list = &WORLD(gDynamicSurfacePartition)[cellZ][cellX][listIndex];
     } else {
-        list = &gStaticSurfacePartition[cellZ][cellX][listIndex];
+        list = &WORLD(gStaticSurfacePartition)[cellZ][cellX][listIndex];
     }
 
     // Loop until we find the appropriate place for the surface in the list.
@@ -491,7 +491,7 @@ static void load_environmental_regions(TerrainData **data) {
     s32 numRegions;
     s32 i;
 
-    gEnvironmentRegions = *data;
+    WORLD(gEnvironmentRegions) = *data;
     numRegions = *(*data)++;
 
     if (numRegions > 20) {
@@ -511,7 +511,7 @@ static void load_environmental_regions(TerrainData **data) {
 
         height = *(*data)++;
 
-        gEnvironmentLevels[i] = height;
+        WORLD(gEnvironmentLevels)[i] = height;
     }
 }
 
@@ -519,11 +519,11 @@ static void load_environmental_regions(TerrainData **data) {
  * Allocate some of the main pool for surfaces (2300 surf) and for surface nodes (7000 nodes).
  */
 void alloc_surface_pools(void) {
-    sSurfacePoolSize = 2300;
-    sSurfaceNodePool = main_pool_alloc(7000 * sizeof(struct SurfaceNode), MEMORY_POOL_LEFT);
-    sSurfacePool = main_pool_alloc(sSurfacePoolSize * sizeof(struct Surface), MEMORY_POOL_LEFT);
+    WORLD(sSurfacePoolSize) = 2300;
+    WORLD(sSurfaceNodePool) = main_pool_alloc(7000 * sizeof(struct SurfaceNode), MEMORY_POOL_LEFT);
+    WORLD(sSurfacePool) = main_pool_alloc(WORLD(sSurfacePoolSize) * sizeof(struct Surface), MEMORY_POOL_LEFT);
 
-    gCCMEnteredSlide = 0;
+    WORLD(gCCMEnteredSlide) = 0;
     reset_red_coins_collected();
 }
 
@@ -588,10 +588,10 @@ void load_area_terrain(s16 index, TerrainData *data, RoomData *surfaceRooms, s16
     UNUSED u8 filler[4];
 
     // Initialize the data for this.
-    gEnvironmentRegions = NULL;
-    unused8038BE90 = 0;
-    gSurfaceNodesAllocated = 0;
-    gSurfacesAllocated = 0;
+    WORLD(gEnvironmentRegions) = NULL;
+    WORLD(unused8038BE90) = 0;
+    WORLD(gSurfaceNodesAllocated) = 0;
+    WORLD(gSurfacesAllocated) = 0;
 
     clear_static_surfaces();
 
@@ -633,19 +633,19 @@ void load_area_terrain(s16 index, TerrainData *data, RoomData *surfaceRooms, s16
         }
     }
 
-    gNumStaticSurfaceNodes = gSurfaceNodesAllocated;
-    gNumStaticSurfaces = gSurfacesAllocated;
+    WORLD(gNumStaticSurfaceNodes) = WORLD(gSurfaceNodesAllocated);
+    WORLD(gNumStaticSurfaces) = WORLD(gSurfacesAllocated);
 }
 
 /**
  * If not in time stop, clear the surface partitions.
  */
 void clear_dynamic_surfaces(void) {
-    if (!(gTimeStopState & TIME_STOP_ACTIVE)) {
-        gSurfacesAllocated = gNumStaticSurfaces;
-        gSurfaceNodesAllocated = gNumStaticSurfaceNodes;
+    if (!(WORLD(gTimeStopState) & TIME_STOP_ACTIVE)) {
+        WORLD(gSurfacesAllocated) = WORLD(gNumStaticSurfaces);
+        WORLD(gSurfaceNodesAllocated) = WORLD(gNumStaticSurfaceNodes);
 
-        clear_spatial_partition(&gDynamicSurfacePartition[0][0]);
+        clear_spatial_partition(&WORLD(gDynamicSurfacePartition)[0][0]);
     }
 }
 
@@ -663,19 +663,19 @@ void transform_object_vertices(TerrainData **data, TerrainData *vertexData) {
     Mat4 *objectTransform;
     Mat4 m;
 
-    objectTransform = &gCurrentObject->transform;
+    objectTransform = &WORLD(gCurrentObject)->transform;
 
     numVertices = *(*data);
     (*data)++;
 
     vertices = *data;
 
-    if (gCurrentObject->header.gfx.throwMatrix == NULL) {
-        gCurrentObject->header.gfx.throwMatrix = objectTransform;
-        obj_build_transform_from_pos_and_angle(gCurrentObject, O_POS_INDEX, O_FACE_ANGLE_INDEX);
+    if (WORLD(gCurrentObject)->header.gfx.throwMatrix == NULL) {
+        WORLD(gCurrentObject)->header.gfx.throwMatrix = objectTransform;
+        obj_build_transform_from_pos_and_angle(WORLD(gCurrentObject), O_POS_INDEX, O_FACE_ANGLE_INDEX);
     }
 
-    obj_apply_scale_to_matrix(gCurrentObject, m, *objectTransform);
+    obj_apply_scale_to_matrix(WORLD(gCurrentObject), m, *objectTransform);
 
     // Go through all vertices, rotating and translating them to transform the object.
     while (numVertices--) {
@@ -716,7 +716,7 @@ void load_object_surfaces(TerrainData **data, TerrainData *vertexData) {
 
     // The DDD warp is initially loaded at the origin and moved to the proper
     // position in paintings.c and doesn't update its room, so set it here.
-    if (gCurrentObject->behavior == segmented_to_virtual(bhvDDDWarp)) {
+    if (WORLD(gCurrentObject)->behavior == segmented_to_virtual(bhvDDDWarp)) {
         room = 5;
     } else {
         room = 0;
@@ -726,7 +726,7 @@ void load_object_surfaces(TerrainData **data, TerrainData *vertexData) {
         struct Surface *surface = read_surface_data(vertexData, data);
 
         if (surface != NULL) {
-            surface->object = gCurrentObject;
+            surface->object = WORLD(gCurrentObject);
             surface->type = surfaceType;
 
             if (hasForce) {
@@ -755,25 +755,25 @@ void load_object_collision_model(void) {
     UNUSED u8 filler[4];
     TerrainData vertexData[600];
 
-    TerrainData *collisionData = gCurrentObject->collisionData;
-    f32 marioDist = gCurrentObject->oDistanceToMario;
-    f32 tangibleDist = gCurrentObject->oCollisionDistance;
+    TerrainData *collisionData = WORLD(gCurrentObject)->collisionData;
+    f32 marioDist = WORLD(gCurrentObject)->oDistanceToMario;
+    f32 tangibleDist = WORLD(gCurrentObject)->oCollisionDistance;
 
     // On an object's first frame, the distance is set to 19000.0f.
     // If the distance hasn't been updated, update it now.
-    if (gCurrentObject->oDistanceToMario == 19000.0f) {
-        marioDist = dist_between_objects(gCurrentObject, gMarioObject);
+    if (WORLD(gCurrentObject)->oDistanceToMario == 19000.0f) {
+        marioDist = dist_between_objects(WORLD(gCurrentObject), WORLD(gMarioObject));
     }
 
     // If the object collision is supposed to be loaded more than the
     // drawing distance of 4000, extend the drawing range.
-    if (gCurrentObject->oCollisionDistance > 4000.0f) {
-        gCurrentObject->oDrawingDistance = gCurrentObject->oCollisionDistance;
+    if (WORLD(gCurrentObject)->oCollisionDistance > 4000.0f) {
+        WORLD(gCurrentObject)->oDrawingDistance = WORLD(gCurrentObject)->oCollisionDistance;
     }
 
     // Update if no Time Stop, in range, and in the current room.
-    if (!(gTimeStopState & TIME_STOP_ACTIVE) && marioDist < tangibleDist
-        && !(gCurrentObject->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
+    if (!(WORLD(gTimeStopState) & TIME_STOP_ACTIVE) && marioDist < tangibleDist
+        && !(WORLD(gCurrentObject)->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         collisionData++;
         transform_object_vertices(&collisionData, vertexData);
 
@@ -783,9 +783,9 @@ void load_object_collision_model(void) {
         }
     }
 
-    if (marioDist < gCurrentObject->oDrawingDistance) {
-        gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
+    if (marioDist < WORLD(gCurrentObject)->oDrawingDistance) {
+        WORLD(gCurrentObject)->header.gfx.node.flags |= GRAPH_RENDER_ACTIVE;
     } else {
-        gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
+        WORLD(gCurrentObject)->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
     }
 }

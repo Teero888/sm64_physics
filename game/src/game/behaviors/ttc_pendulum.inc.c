@@ -18,8 +18,8 @@ static f32 sTTCPendulumInitialAccels[] = {
  * Init function for bhvTTCPendulum.
  */
 void bhv_ttc_pendulum_init(void) {
-    if (gTTCSpeedSetting != TTC_SPEED_STOPPED) {
-        o->oTTCPendulumAngleAccel = sTTCPendulumInitialAccels[gTTCSpeedSetting];
+    if (WORLD(gTTCSpeedSetting) != TTC_SPEED_STOPPED) {
+        o->oTTCPendulumAngleAccel = WORLD(sTTCPendulumInitialAccels)[WORLD(gTTCSpeedSetting)];
         o->oTTCPendulumAngle = 6500.0f;
     } else {
         o->oTTCPendulumAngle = 6371.5557f;
@@ -30,7 +30,7 @@ void bhv_ttc_pendulum_init(void) {
  * Update function for bhvTTCPendulum.
  */
 void bhv_ttc_pendulum_update(void) {
-    if (gTTCSpeedSetting != TTC_SPEED_STOPPED) {
+    if (WORLD(gTTCSpeedSetting) != TTC_SPEED_STOPPED) {
         UNUSED f32 startVel = o->oTTCPendulumAngleVel;
 
         // Play sound
@@ -56,7 +56,7 @@ void bhv_ttc_pendulum_update(void) {
             //  be a multiple of angle accel, and so the pendulum would continue
             //  oscillating forever
             if (o->oTTCPendulumAngleVel == 0.0f) {
-                if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+                if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
                     // Select a new acceleration
                     //! By manipulating this, we can cause the pendulum to reach
                     //  extreme angles and speeds

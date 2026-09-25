@@ -17,7 +17,7 @@ void bhv_bobomb_explosion_bubble_init(void) {
 }
 
 void bhv_bobomb_explosion_bubble_loop(void) {
-    f32 waterY = gMarioStates[0].waterLevel;
+    f32 waterY = WORLD(gMarioStates)[0].waterLevel;
 
     o->header.gfx.scale[0] = sins(o->oBobombExpBubGfxScaleFacX) * 0.5 + 2.0;
     o->oBobombExpBubGfxScaleFacX += o->oBobombExpBubGfxExpRateX;

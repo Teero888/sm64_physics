@@ -32,16 +32,16 @@ void bhv_ferris_wheel_axle_init(void) {
     s32 i;
 
     o->collisionData =
-        segmented_to_virtual(sFerrisWheelProperties[o->oBhvParams2ndByte].axleCollision);
+        segmented_to_virtual(WORLD(sFerrisWheelProperties)[o->oBhvParams2ndByte].axleCollision);
 
     for (i = 0; i < 4; i++) {
         platform = spawn_object_relative(i, 0, 0, 0, o,
-                                         sFerrisWheelProperties[o->oBhvParams2ndByte].platformModel,
+                                         WORLD(sFerrisWheelProperties)[o->oBhvParams2ndByte].platformModel,
                                          bhvFerrisWheelPlatform);
 
         if (platform != NULL) {
             platform->collisionData =
-                segmented_to_virtual(sFerrisWheelProperties[o->oBhvParams2ndByte].platformCollision);
+                segmented_to_virtual(WORLD(sFerrisWheelProperties)[o->oBhvParams2ndByte].platformCollision);
         }
     }
 }

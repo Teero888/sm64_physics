@@ -45,7 +45,7 @@
 #include "spawn_sound.h"
 #include "rumble_init.h"
 
-#define o gCurrentObject
+#define o WORLD(gCurrentObject)
 
 static s32 sCapSaveFlags[] = {
     SAVE_FLAG_HAVE_WING_CAP,
@@ -96,19 +96,19 @@ static struct SpawnParticlesInfo sMistParticles = {
 
 // generate_wind_puffs/dust (something like that)
 void spawn_mist_particles_variable(s32 count, s32 offsetY, f32 size) {
-    sMistParticles.sizeBase = size;
-    sMistParticles.sizeRange = size / 20.0;
-    sMistParticles.offsetY = offsetY;
+    WORLD(sMistParticles).sizeBase = size;
+    WORLD(sMistParticles).sizeRange = size / 20.0;
+    WORLD(sMistParticles).offsetY = offsetY;
 
     if (count == 0) {
-        sMistParticles.count = 20;
+        WORLD(sMistParticles).count = 20;
     } else if (count > 20) {
-        sMistParticles.count = count;
+        WORLD(sMistParticles).count = count;
     } else {
-        sMistParticles.count = 4;
+        WORLD(sMistParticles).count = 4;
     }
 
-    cur_obj_spawn_particles(&sMistParticles);
+    cur_obj_spawn_particles(&WORLD(sMistParticles));
 }
 
 #include "behaviors/sparkle_spawn_star.inc.c"
@@ -146,9 +146,9 @@ void spawn_mist_particles_variable(s32 count, s32 offsetY, f32 size) {
 Gfx *geo_move_mario_part_from_parent(s32 run, UNUSED struct GraphNode *node, Mat4 mtx) {
     if (run == TRUE) {
         Mat4 sp20;
-        struct Object *obj = (struct Object *) gCurGraphNodeObject;
-        if (obj == gMarioObject && obj->prevObj != NULL) {
-            create_transformation_from_matrices(sp20, mtx, *gCurGraphNodeCamera->matrixPtr);
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
+        if (obj == WORLD(gMarioObject) && obj->prevObj != NULL) {
+            create_transformation_from_matrices(sp20, mtx, *WORLD(gCurGraphNodeCamera)->matrixPtr);
             obj_update_pos_from_parent_transformation(sp20, obj->prevObj);
             obj_set_gfx_pos_from_pos(obj->prevObj);
         }
@@ -172,11 +172,11 @@ void spawn_sparkle_particles(s32 n, s32 a1, s32 a2, s32 r) {
     s16 separation = 0x10000 / n; // Evenly spread around a circle
 
     for (i = 0; i < n; i++) {
-        spawn_object_relative(0, sins(D_8035FF10 + i * separation) * a1, (i + 1) * a2,
-                              coss(D_8035FF10 + i * separation) * a1, o, MODEL_NONE, bhvSparkleSpawn);
+        spawn_object_relative(0, sins(WORLD(D_8035FF10) + i * separation) * a1, (i + 1) * a2,
+                              coss(WORLD(D_8035FF10) + i * separation) * a1, o, MODEL_NONE, bhvSparkleSpawn);
     }
 
-    D_8035FF10 += r * 0x100;
+    WORLD(D_8035FF10) += r * 0x100;
 }
 
 #include "behaviors/beta_boo_key.inc.c"

@@ -17,7 +17,7 @@ void bhv_breakable_box_small_init(void) {
     o->oFriction = 0.99f;
     o->oBuoyancy = 1.4f;
     cur_obj_scale(0.4f);
-    obj_set_hitbox(o, &sBreakableBoxSmallHitbox);
+    obj_set_hitbox(o, &WORLD(sBreakableBoxSmallHitbox));
     o->oAnimState = 1;
     o->activeFlags |= ACTIVE_FLAG_UNK9;
 }
@@ -52,7 +52,7 @@ void small_breakable_box_act_move(void) {
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     }
 
-    obj_check_floor_death(collisionFlags, sObjFloor);
+    obj_check_floor_death(collisionFlags, WORLD(sObjFloor));
 }
 
 void breakable_box_small_released_loop(void) {

@@ -113,7 +113,7 @@ s16 sSurfaceTypeBelowShadow;
  * after a rotation equal to the yaw of the current graph node object.
  */
 void rotate_rectangle(f32 *newZ, f32 *newX, f32 oldZ, f32 oldX) {
-    struct Object *obj = (struct Object *) gCurGraphNodeObject;
+    struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
     *newZ = oldZ * coss(obj->oFaceAngleYaw) - oldX * sins(obj->oFaceAngleYaw);
     *newX = oldZ * sins(obj->oFaceAngleYaw) + oldX * coss(obj->oFaceAngleYaw);
 }
@@ -182,7 +182,7 @@ f32 get_water_level_below_shadow(struct Shadow *s) {
     if (waterLevel < FLOOR_LOWER_LIMIT_SHADOW) {
         return 0;
     } else if (s->parentY >= waterLevel && s->floorHeight <= waterLevel) {
-        gShadowAboveWaterOrLava = TRUE;
+        WORLD(gShadowAboveWaterOrLava) = TRUE;
         return waterLevel;
     }
     //! @bug Missing return statement. This compiles to return `waterLevel`
@@ -211,10 +211,10 @@ s8 init_shadow(struct Shadow *s, f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, 
 
     s->floorHeight = find_floor_height_and_data(s->parentX, s->parentY, s->parentZ, &floorGeometry);
 
-    if (gEnvironmentRegions != NULL) {
+    if (WORLD(gEnvironmentRegions) != NULL) {
         waterLevel = get_water_level_below_shadow(s);
     }
-    if (gShadowAboveWaterOrLava) {
+    if (WORLD(gShadowAboveWaterOrLava)) {
         //! @bug Use of potentially undefined variable `waterLevel`
         s->floorHeight = waterLevel;
 
@@ -304,7 +304,7 @@ void make_shadow_vertex_at_xyz(Vtx *vertices, s8 index, f32 relX, f32 relY, f32 
     }
 
     // Move the shadow up and over slightly while standing on a flying carpet.
-    if (sMarioOnFlyingCarpet) {
+    if (WORLD(sMarioOnFlyingCarpet)) {
         vtxX += 5;
         vtxY += 5;
         vtxZ += 5;
@@ -375,7 +375,7 @@ void calculate_vertex_xyz(s8 index, struct Shadow s, f32 *xPosVtx, f32 *yPosVtx,
     *xPosVtx = (halfTiltedScale * sinf(downwardAngle)) + (halfScale * cosf(downwardAngle)) + s.parentX;
     *zPosVtx = (halfTiltedScale * cosf(downwardAngle)) - (halfScale * sinf(downwardAngle)) + s.parentZ;
 
-    if (gShadowAboveWaterOrLava) {
+    if (WORLD(gShadowAboveWaterOrLava)) {
         *yPosVtx = s.floorHeight;
     } else {
         switch (shadowVertexType) {
@@ -427,7 +427,7 @@ void make_shadow_vertex(Vtx *vertices, s8 index, struct Shadow s, s8 shadowVerte
     f32 relX, relY, relZ;
 
     u8 solidity = s.solidity;
-    if (gShadowAboveWaterOrLava) {
+    if (WORLD(gShadowAboveWaterOrLava)) {
         solidity = 200;
     }
 
@@ -448,7 +448,7 @@ void make_shadow_vertex(Vtx *vertices, s8 index, struct Shadow s, s8 shadowVerte
      * The gShadowAboveWaterOrLava check is redundant, since `floor_local_tilt`
      * will always be 0 over water or lava (since they are always flat).
      */
-    if (shadowVertexType == SHADOW_WITH_9_VERTS && !gShadowAboveWaterOrLava
+    if (shadowVertexType == SHADOW_WITH_9_VERTS && !WORLD(gShadowAboveWaterOrLava)
         && floor_local_tilt(s, xPosVtx, yPosVtx, zPosVtx) != 0) {
         yPosVtx = extrapolate_vertex_y_position(s, xPosVtx, zPosVtx);
         solidity = 0;
@@ -528,7 +528,7 @@ s8 correct_shadow_solidity_for_animations(s32 isLuigi, u8 initialSolidity, struc
 
     switch (isLuigi) {
         case 0:
-            player = gMarioObject;
+            player = WORLD(gMarioObject);
             break;
         case 1:
             /**
@@ -539,7 +539,7 @@ s8 correct_shadow_solidity_for_animations(s32 isLuigi, u8 initialSolidity, struc
              * switch-case, not an if-statement, the programmers possibly
              * intended there to be even more than 2 characters.
              */
-            player = gLuigiObject;
+            player = WORLD(gLuigiObject);
             break;
     }
 
@@ -571,18 +571,18 @@ s8 correct_shadow_solidity_for_animations(s32 isLuigi, u8 initialSolidity, struc
  * Slightly change the height of a shadow in levels with lava.
  */
 void correct_lava_shadow_height(struct Shadow *s) {
-    if (gCurrLevelNum == LEVEL_BITFS && sSurfaceTypeBelowShadow == SURFACE_BURNING) {
+    if (WORLD(gCurrLevelNum) == LEVEL_BITFS && WORLD(sSurfaceTypeBelowShadow) == SURFACE_BURNING) {
         if (s->floorHeight < -3000.0) {
             s->floorHeight = -3062.0;
-            gShadowAboveWaterOrLava = TRUE;
+            WORLD(gShadowAboveWaterOrLava) = TRUE;
         } else if (s->floorHeight > 3400.0) {
             s->floorHeight = 3492.0;
-            gShadowAboveWaterOrLava = TRUE;
+            WORLD(gShadowAboveWaterOrLava) = TRUE;
         }
-    } else if (gCurrLevelNum == LEVEL_LLL && gCurrAreaIndex == 1
-               && sSurfaceTypeBelowShadow == SURFACE_BURNING) {
+    } else if (WORLD(gCurrLevelNum) == LEVEL_LLL && WORLD(gCurrAreaIndex) == 1
+               && WORLD(sSurfaceTypeBelowShadow) == SURFACE_BURNING) {
         s->floorHeight = 5.0;
-        gShadowAboveWaterOrLava = TRUE;
+        WORLD(gShadowAboveWaterOrLava) = TRUE;
     }
 }
 
@@ -598,14 +598,14 @@ Gfx *create_shadow_player(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 soli
     s32 i;
 
     // Update global variables about whether Mario is on a flying carpet.
-    if (gCurrLevelNum == LEVEL_RR && sSurfaceTypeBelowShadow != SURFACE_DEATH_PLANE) {
-        switch (gFlyingCarpetState) {
+    if (WORLD(gCurrLevelNum) == LEVEL_RR && WORLD(sSurfaceTypeBelowShadow) != SURFACE_DEATH_PLANE) {
+        switch (WORLD(gFlyingCarpetState)) {
             case FLYING_CARPET_MOVING_WITHOUT_MARIO:
-                gMarioOnIceOrCarpet = 1;
-                sMarioOnFlyingCarpet = 1;
+                WORLD(gMarioOnIceOrCarpet) = 1;
+                WORLD(sMarioOnFlyingCarpet) = 1;
                 break;
             case FLYING_CARPET_MOVING_WITH_MARIO:
-                gMarioOnIceOrCarpet = 1;
+                WORLD(gMarioOnIceOrCarpet) = 1;
                 break;
         }
     }
@@ -773,7 +773,7 @@ s32 get_shadow_height_solidity(f32 xPos, f32 yPos, f32 zPos, f32 *shadowHeight, 
         if (waterLevel < FLOOR_LOWER_LIMIT_SHADOW) {
             // Dead if-statement. There may have been an assert here.
         } else if (yPos >= waterLevel && waterLevel >= *shadowHeight) {
-            gShadowAboveWaterOrLava = TRUE;
+            WORLD(gShadowAboveWaterOrLava) = TRUE;
             *shadowHeight = waterLevel;
             *solidity = 200;
         }
@@ -833,14 +833,14 @@ Gfx *create_shadow_hardcoded_rectangle(f32 xPos, f32 yPos, f32 zPos, UNUSED s16 
      * the `rectangles` array. In practice, it never is, because this was
      * only used twice.
      */
-    if (rectangles[idx].scaleWithDistance == TRUE) {
-        halfWidth = scale_shadow_with_distance(rectangles[idx].halfWidth, distFromShadow);
-        halfLength = scale_shadow_with_distance(rectangles[idx].halfLength, distFromShadow);
+    if (WORLD(rectangles)[idx].scaleWithDistance == TRUE) {
+        halfWidth = scale_shadow_with_distance(WORLD(rectangles)[idx].halfWidth, distFromShadow);
+        halfLength = scale_shadow_with_distance(WORLD(rectangles)[idx].halfLength, distFromShadow);
     } else {
         // This code is never used because the third element of the rectangle
         // struct is always TRUE.
-        halfWidth = rectangles[idx].halfWidth;
-        halfLength = rectangles[idx].halfLength;
+        halfWidth = WORLD(rectangles)[idx].halfWidth;
+        halfLength = WORLD(rectangles)[idx].halfLength;
     }
     return create_shadow_rectangle(halfWidth, halfLength, -distFromShadow, solidity);
 }
@@ -855,14 +855,14 @@ Gfx *create_shadow_below_xyz(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 s
     struct Surface *pfloor;
     find_floor(xPos, yPos, zPos, &pfloor);
 
-    gShadowAboveWaterOrLava = FALSE;
-    gMarioOnIceOrCarpet = 0;
-    sMarioOnFlyingCarpet = 0;
+    WORLD(gShadowAboveWaterOrLava) = FALSE;
+    WORLD(gMarioOnIceOrCarpet) = 0;
+    WORLD(sMarioOnFlyingCarpet) = 0;
     if (pfloor != NULL) {
         if (pfloor->type == SURFACE_ICE) {
-            gMarioOnIceOrCarpet = 1;
+            WORLD(gMarioOnIceOrCarpet) = 1;
         }
-        sSurfaceTypeBelowShadow = pfloor->type;
+        WORLD(sSurfaceTypeBelowShadow) = pfloor->type;
     }
     switch (shadowType) {
         case SHADOW_CIRCLE_9_VERTS:

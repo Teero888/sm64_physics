@@ -51,7 +51,7 @@ static void chain_chomp_act_uninitialized(void) {
     s32 i;
 
     if (o->oDistanceToMario < 3000.0f) {
-        segments = mem_pool_alloc(gObjectMemoryPool, 5 * sizeof(struct ChainSegment));
+        segments = mem_pool_alloc(WORLD(gObjectMemoryPool), 5 * sizeof(struct ChainSegment));
         if (segments != NULL) {
             // Each segment represents the offset of a chain part to the pivot.
             // Segment 0 connects the pivot to the chain chomp itself. Segment
@@ -237,7 +237,7 @@ static void chain_chomp_sub_act_lunge(void) {
         }
 
         o->oChainChompMaxDistBetweenChainParts = o->oChainChompUnk104;
-        if (gGlobalTimer % 2 != 0) {
+        if (WORLD(gGlobalTimer) % 2 != 0) {
             o->oChainChompMaxDistBetweenChainParts = -o->oChainChompUnk104;
         }
     }
@@ -332,7 +332,7 @@ static void chain_chomp_released_break_gate(void) {
  */
 static void chain_chomp_released_jump_away(void) {
     if (o->oMoveFlags & OBJ_MOVE_MASK_ON_GROUND) {
-        gObjCutsceneDone = TRUE;
+        WORLD(gObjCutsceneDone) = TRUE;
         o->oChainChompReleaseStatus = CHAIN_CHOMP_RELEASED_END_CUTSCENE;
     }
 }
@@ -434,7 +434,7 @@ static void chain_chomp_act_move(void) {
         chain_chomp_update_chain_segments();
 
         // Begin a lunge if mario tries to attack
-        if (obj_check_attacks(&sChainChompHitbox, o->oAction) != 0) {
+        if (obj_check_attacks(&WORLD(sChainChompHitbox), o->oAction) != 0) {
             o->oSubAction = CHAIN_CHOMP_SUB_ACT_LUNGE;
             o->oChainChompMaxDistFromPivotPerChainPart = 900.0f / 5;
             o->oForwardVel = 0.0f;
@@ -451,7 +451,7 @@ static void chain_chomp_act_move(void) {
  */
 static void chain_chomp_act_unload_chain(void) {
     cur_obj_hide();
-    mem_pool_free(gObjectMemoryPool, o->oChainChompSegments);
+    mem_pool_free(WORLD(gObjectMemoryPool), o->oChainChompSegments);
 
     o->oAction = CHAIN_CHOMP_ACT_UNINITIALIZED;
 

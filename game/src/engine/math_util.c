@@ -792,7 +792,7 @@ void spline_get_weights(Vec4f result, f32 t, UNUSED s32 c) {
     f32 t2 = t * t;
     f32 t3 = t2 * t;
 
-    switch (gSplineState) {
+    switch (WORLD(gSplineState)) {
         case CURVE_BEGIN_1:
             result[0] = tinv3;
             result[1] = t3 * 1.75f - t2 * 4.5f + t * 3.0f;
@@ -835,9 +835,9 @@ void spline_get_weights(Vec4f result, f32 t, UNUSED s32 c) {
  * That's because the spline has a 3rd degree polynomial, so it looks 3 points ahead.
  */
 void anim_spline_init(Vec4s *keyFrames) {
-    gSplineKeyframe = keyFrames;
-    gSplineKeyframeFraction = 0;
-    gSplineState = 1;
+    WORLD(gSplineKeyframe) = keyFrames;
+    WORLD(gSplineKeyframeFraction) = 0;
+    WORLD(gSplineState) = 1;
 }
 
 /**
@@ -850,28 +850,28 @@ s32 anim_spline_poll(Vec3f result) {
     s32 i;
     s32 hasEnded = FALSE;
 
-    vec3f_copy(result, gVec3fZero);
-    spline_get_weights(weights, gSplineKeyframeFraction, gSplineState);
+    vec3f_copy(result, WORLD(gVec3fZero));
+    spline_get_weights(weights, WORLD(gSplineKeyframeFraction), WORLD(gSplineState));
     for (i = 0; i < 4; i++) {
-        result[0] += weights[i] * gSplineKeyframe[i][1];
-        result[1] += weights[i] * gSplineKeyframe[i][2];
-        result[2] += weights[i] * gSplineKeyframe[i][3];
+        result[0] += weights[i] * WORLD(gSplineKeyframe)[i][1];
+        result[1] += weights[i] * WORLD(gSplineKeyframe)[i][2];
+        result[2] += weights[i] * WORLD(gSplineKeyframe)[i][3];
     }
 
-    if ((gSplineKeyframeFraction += gSplineKeyframe[0][0] / 1000.0f) >= 1) {
-        gSplineKeyframe++;
-        gSplineKeyframeFraction--;
-        switch (gSplineState) {
+    if ((WORLD(gSplineKeyframeFraction) += WORLD(gSplineKeyframe)[0][0] / 1000.0f) >= 1) {
+        WORLD(gSplineKeyframe)++;
+        WORLD(gSplineKeyframeFraction)--;
+        switch (WORLD(gSplineState)) {
             case CURVE_END_2:
                 hasEnded = TRUE;
                 break;
             case CURVE_MIDDLE:
-                if (gSplineKeyframe[2][0] == 0) {
-                    gSplineState = CURVE_END_1;
+                if (WORLD(gSplineKeyframe)[2][0] == 0) {
+                    WORLD(gSplineState) = CURVE_END_1;
                 }
                 break;
             default:
-                gSplineState++;
+                WORLD(gSplineState)++;
                 break;
         }
     }

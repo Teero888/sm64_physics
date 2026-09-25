@@ -16,9 +16,9 @@ static struct SpawnParticlesInfo sTHITopPuffs = {
 };
 
 void bhv_thi_huge_island_top_loop(void) {
-    if (gTHIWaterDrained & 1) {
+    if (WORLD(gTHIWaterDrained) & 1) {
         if (o->oTimer == 0) {
-            gEnvironmentRegions[18] = 3000;
+            WORLD(gEnvironmentRegions)[18] = 3000;
         }
         cur_obj_hide();
     } else {
@@ -27,12 +27,12 @@ void bhv_thi_huge_island_top_loop(void) {
 }
 
 void bhv_thi_tiny_island_top_loop(void) {
-    if (!(gTHIWaterDrained & 1)) {
+    if (!(WORLD(gTHIWaterDrained) & 1)) {
         if (o->oAction == 0) {
             if (o->oDistanceToMario < 500.0f) {
-                if (gMarioStates[0].action == ACT_GROUND_POUND_LAND) {
+                if (WORLD(gMarioStates)[0].action == ACT_GROUND_POUND_LAND) {
                     o->oAction++;
-                    cur_obj_spawn_particles(&sTHITopPuffs);
+                    cur_obj_spawn_particles(&WORLD(sTHITopPuffs));
                     spawn_triangle_break_particles(20, MODEL_DIRT_ANIMATION, 0.3f, 3);
                     cur_obj_play_sound_2(SOUND_GENERAL_ACTIVATE_CAP_SWITCH);
                     cur_obj_hide();
@@ -40,17 +40,17 @@ void bhv_thi_tiny_island_top_loop(void) {
             }
         } else {
             if (o->oTimer < 50) {
-                gEnvironmentRegions[18]--;
+                WORLD(gEnvironmentRegions)[18]--;
                 cur_obj_play_sound_1(SOUND_ENV_WATER_DRAIN);
             } else {
-                gTHIWaterDrained |= 1;
+                WORLD(gTHIWaterDrained) |= 1;
                 play_puzzle_jingle();
                 o->oAction++;
             }
         }
     } else {
         if (o->oTimer == 0) {
-            gEnvironmentRegions[18] = 700;
+            WORLD(gEnvironmentRegions)[18] = 700;
         }
         cur_obj_hide();
     }

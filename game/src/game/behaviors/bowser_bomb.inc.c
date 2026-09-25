@@ -1,7 +1,7 @@
 // bowser_bomb.inc.c
 
 void bhv_bowser_bomb_loop(void) {
-    if (obj_check_if_collided_with_object(o, gMarioObject) == TRUE) {
+    if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         o->oInteractStatus &= ~INT_STATUS_INTERACTED;
         spawn_object(o, MODEL_EXPLOSION, bhvExplosion);
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;

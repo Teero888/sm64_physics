@@ -255,7 +255,7 @@ void piranha_plant_act_biting(void) {
     cur_obj_set_hurtbox_radius_and_height(150.0f, 100.0f);
 
     // Play a bite sound effect on certain frames.
-    if (is_item_in_array(animFrame, sPiranhaPlantBiteSoundFrames)) {
+    if (is_item_in_array(animFrame, WORLD(sPiranhaPlantBiteSoundFrames))) {
         cur_obj_play_sound_2(SOUND_OBJ2_PIRANHA_PLANT_BITE);
     }
 
@@ -268,7 +268,7 @@ void piranha_plant_act_biting(void) {
 
     // If the player is wearing the Metal Cap and interacts with the Piranha
     // Plant, the Piranha Plant will die.
-    if ((o->oInteractStatus & INT_STATUS_INTERACTED) && (gMarioState->flags & MARIO_METAL_CAP)) {
+    if ((o->oInteractStatus & INT_STATUS_INTERACTED) && (WORLD(gMarioState)->flags & MARIO_METAL_CAP)) {
         o->oAction = PIRANHA_PLANT_ACT_ATTACKED;
     }
 }
@@ -280,10 +280,10 @@ void piranha_plant_act_biting(void) {
  * This is called from both the "stopped biting" state and the "sleeping" state.
  */
 s32 mario_moving_fast_enough_to_make_piranha_plant_bite(void) {
-    if (gMarioStates[0].vel[1] > 10.0f) {
+    if (WORLD(gMarioStates)[0].vel[1] > 10.0f) {
         return TRUE;
     }
-    if (gMarioStates[0].forwardVel > 10.0f) {
+    if (WORLD(gMarioStates)[0].forwardVel > 10.0f) {
         return TRUE;
     }
     return FALSE;
@@ -333,11 +333,11 @@ void (*TablePiranhaPlantActions[])(void) = {
  * Main loop for bhvPiranhaPlant.
  */
 void bhv_piranha_plant_loop(void) {
-    cur_obj_call_action_function(TablePiranhaPlantActions);
+    cur_obj_call_action_function(WORLD(TablePiranhaPlantActions));
 
     // In WF, hide all Piranha Plants once high enough up.
-    if (gCurrLevelNum == LEVEL_WF) {
-        if (gMarioObject->oPosY > 3400.0f) {
+    if (WORLD(gCurrLevelNum) == LEVEL_WF) {
+        if (WORLD(gMarioObject)->oPosY > 3400.0f) {
             cur_obj_hide();
         } else {
             cur_obj_unhide();

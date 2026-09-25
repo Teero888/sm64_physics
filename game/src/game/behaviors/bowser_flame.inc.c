@@ -66,7 +66,7 @@ void bhv_flame_large_burning_out_init(void) {
 }
 
 void bowser_flame_move(void) {
-    s32 timer = ((o->oFlameSpeedTimerOffset + gGlobalTimer) & 0x3F) << 10;
+    s32 timer = ((o->oFlameSpeedTimerOffset + WORLD(gGlobalTimer)) & 0x3F) << 10;
     o->oPosX += sins(o->oMoveAngleYaw) * sins(timer) * 4.0f;
     o->oPosZ += coss(o->oMoveAngleYaw) * sins(timer) * 4.0f;
 }
@@ -107,7 +107,7 @@ void bhv_flame_bowser_loop(void) {
 
     cur_obj_scale(o->oFlameScale);
     o->oGraphYOffset = o->header.gfx.scale[1] * 14.0f;
-    obj_set_hitbox(o, &sBowserFlameHitbox);
+    obj_set_hitbox(o, &WORLD(sBowserFlameHitbox));
 }
 
 void bhv_flame_moving_forward_growing_init(void) {
@@ -121,7 +121,7 @@ void bhv_flame_moving_forward_growing_loop(void) {
     UNUSED u8 filler[4];
     UNUSED struct Object *flame;
 
-    obj_set_hitbox(o, &sGrowingBowserFlameHitbox);
+    obj_set_hitbox(o, &WORLD(sGrowingBowserFlameHitbox));
     o->oFlameScale = o->oFlameScale + 0.5;
     cur_obj_scale(o->oFlameScale);
 
@@ -169,8 +169,8 @@ void bhv_flame_floating_landing_loop(void) {
         obj_mark_for_deletion(o);
     }
 
-    if (o->oVelY < sFlameFloatingYLimit[o->oBhvParams2ndByte]) {
-        o->oVelY = sFlameFloatingYLimit[o->oBhvParams2ndByte];
+    if (o->oVelY < WORLD(sFlameFloatingYLimit)[o->oBhvParams2ndByte]) {
+        o->oVelY = WORLD(sFlameFloatingYLimit)[o->oBhvParams2ndByte];
     }
 
     if (o->oMoveFlags & OBJ_MOVE_LANDED) {
@@ -199,7 +199,7 @@ void bhv_blue_bowser_flame_init(void) {
 void bhv_blue_bowser_flame_loop(void) {
     s32 i;
 
-    obj_set_hitbox(o, &sGrowingBowserFlameHitbox);
+    obj_set_hitbox(o, &WORLD(sGrowingBowserFlameHitbox));
 
     if (o->oFlameScale < 16.0f) {
         o->oFlameScale = o->oFlameScale + 0.5;
@@ -244,7 +244,7 @@ void bhv_flame_bouncing_loop(void) {
     o->oForwardVel = 15.0f;
     o->oBounciness = -1.0f;
     cur_obj_scale(o->oFlameScale);
-    obj_set_hitbox(o, &sGrowingBowserFlameHitbox);
+    obj_set_hitbox(o, &WORLD(sGrowingBowserFlameHitbox));
     cur_obj_update_floor_and_walls();
     cur_obj_move_standard(78);
 
@@ -266,7 +266,7 @@ void bhv_blue_flames_group_loop(void) {
     s32 i;
 
     if (o->oTimer == 0) {
-        o->oMoveAngleYaw = obj_angle_to_object(o, gMarioObject);
+        o->oMoveAngleYaw = obj_angle_to_object(o, WORLD(gMarioObject));
         o->oBlueFlameNextScale = 5.0f;
     }
 

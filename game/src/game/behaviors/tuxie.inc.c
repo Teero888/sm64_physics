@@ -156,7 +156,7 @@ void (*sTuxiesMotherActions[])(void) = {
 void bhv_tuxies_mother_loop(void) {
     o->activeFlags |= ACTIVE_FLAG_UNK10;
     cur_obj_update_floor_and_walls();
-    cur_obj_call_action_function(sTuxiesMotherActions);
+    cur_obj_call_action_function(WORLD(sTuxiesMotherActions));
     cur_obj_move_standard(-78);
     play_penguin_walking_sound(PENGUIN_WALK_BIG);
     o->oInteractStatus = 0;
@@ -291,7 +291,7 @@ void small_penguin_free_actions(void) {
         o->oSmallPenguinUnk88 = FALSE;
     }
     cur_obj_update_floor_and_walls();
-    cur_obj_call_action_function(sSmallPenguinActions);
+    cur_obj_call_action_function(WORLD(sSmallPenguinActions));
     cur_obj_move_standard(-78);
     play_penguin_walking_sound(PENGUIN_WALK_BABY);
 }
@@ -306,10 +306,10 @@ void bhv_small_penguin_loop(void) {
             if (cur_obj_has_behavior(bhvPenguinBaby)) {
                 obj_set_behavior(o, bhvSmallPenguin);
             }
-            obj_copy_pos(o, gMarioObject);
-            if (gGlobalTimer % 30 == 0) {
+            obj_copy_pos(o, WORLD(gMarioObject));
+            if (WORLD(gGlobalTimer) % 30 == 0) {
 #ifndef VERSION_JP
-                play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, gMarioObject->header.gfx.cameraToObject);
+                play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, WORLD(gMarioObject)->header.gfx.cameraToObject);
 #else
                 play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, o->header.gfx.cameraToObject);
 #endif
@@ -329,14 +329,14 @@ void bhv_small_penguin_loop(void) {
  */
 Gfx *geo_switch_tuxie_mother_eyes(s32 run, struct GraphNode *node, UNUSED Mat4 *mtx) {
     if (run == TRUE) {
-        struct Object *obj = (struct Object *) gCurGraphNodeObject;
+        struct Object *obj = (struct Object *) WORLD(gCurGraphNodeObject);
         struct GraphNodeSwitchCase *switchCase = (struct GraphNodeSwitchCase *) node;
         s32 timer;
 
         switchCase->selectedCase = 0;
 
         // timer logic for blinking. uses cases 0-2.
-        timer = gGlobalTimer % 50;
+        timer = WORLD(gGlobalTimer) % 50;
         if (timer < 43) {
             switchCase->selectedCase = 0;
         } else if (timer < 45) {

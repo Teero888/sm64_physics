@@ -175,13 +175,13 @@ void print_text_fmt_int(s32 x, s32 y, const char *str, s32 n) {
     s32 srcIndex = 0;
 
     // Don't continue if there is no memory to do so.
-    if ((sTextLabels[sTextLabelsCount] = mem_pool_alloc(gEffectsMemoryPool,
+    if ((WORLD(sTextLabels)[WORLD(sTextLabelsCount)] = mem_pool_alloc(WORLD(gEffectsMemoryPool),
                                                         sizeof(struct TextLabel))) == NULL) {
         return;
     }
 
-    sTextLabels[sTextLabelsCount]->x = x;
-    sTextLabels[sTextLabelsCount]->y = y;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->x = x;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->y = y;
 
     c = str[srcIndex];
 
@@ -203,17 +203,17 @@ void print_text_fmt_int(s32 x, s32 y, const char *str, s32 n) {
 
             srcIndex++;
 
-            format_integer(n, base, sTextLabels[sTextLabelsCount]->buffer + len, &len, width, zeroPad);
+            format_integer(n, base, WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->buffer + len, &len, width, zeroPad);
         } else { // straight copy
-            sTextLabels[sTextLabelsCount]->buffer[len] = c;
+            WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->buffer[len] = c;
             len++;
             srcIndex++;
         }
         c = str[srcIndex];
     }
 
-    sTextLabels[sTextLabelsCount]->length = len;
-    sTextLabelsCount++;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->length = len;
+    WORLD(sTextLabelsCount)++;
 }
 
 /**
@@ -225,26 +225,26 @@ void print_text(s32 x, s32 y, const char *str) {
     s32 srcIndex = 0;
 
     // Don't continue if there is no memory to do so.
-    if ((sTextLabels[sTextLabelsCount] = mem_pool_alloc(gEffectsMemoryPool,
+    if ((WORLD(sTextLabels)[WORLD(sTextLabelsCount)] = mem_pool_alloc(WORLD(gEffectsMemoryPool),
                                                         sizeof(struct TextLabel))) == NULL) {
         return;
     }
 
-    sTextLabels[sTextLabelsCount]->x = x;
-    sTextLabels[sTextLabelsCount]->y = y;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->x = x;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->y = y;
 
     c = str[srcIndex];
 
     // Set the array with the text to print while finding length.
     while (c != '\0') {
-        sTextLabels[sTextLabelsCount]->buffer[length] = c;
+        WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->buffer[length] = c;
         length++;
         srcIndex++;
         c = str[srcIndex];
     }
 
-    sTextLabels[sTextLabelsCount]->length = length;
-    sTextLabelsCount++;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->length = length;
+    WORLD(sTextLabelsCount)++;
 }
 
 /**
@@ -261,7 +261,7 @@ void print_text_centered(s32 x, s32 y, const char *str) {
 #endif
 
     // Don't continue if there is no memory to do so.
-    if ((sTextLabels[sTextLabelsCount] = mem_pool_alloc(gEffectsMemoryPool,
+    if ((WORLD(sTextLabels)[WORLD(sTextLabelsCount)] = mem_pool_alloc(WORLD(gEffectsMemoryPool),
                                                         sizeof(struct TextLabel))) == NULL) {
         return;
     }
@@ -277,20 +277,20 @@ void print_text_centered(s32 x, s32 y, const char *str) {
             width = 12;
         }
 #endif
-        sTextLabels[sTextLabelsCount]->buffer[length] = c;
+        WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->buffer[length] = c;
         length++;
         srcIndex++;
         c = str[srcIndex];
     }
 
-    sTextLabels[sTextLabelsCount]->length = length;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->length = length;
 #ifdef VERSION_CN
     sTextLabels[sTextLabelsCount]->x = x - width * length / 2;
 #else
-    sTextLabels[sTextLabelsCount]->x = x - 12 * length / 2;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->x = x - 12 * length / 2;
 #endif
-    sTextLabels[sTextLabelsCount]->y = y;
-    sTextLabelsCount++;
+    WORLD(sTextLabels)[WORLD(sTextLabelsCount)]->y = y;
+    WORLD(sTextLabelsCount)++;
 }
 
 /**
@@ -366,13 +366,13 @@ s8 char_to_glyph_index(char c) {
 void add_glyph_texture(s8 glyphIndex) {
     const u8 *const *glyphs = segmented_to_virtual(main_hud_lut);
 
-    gDPPipeSync(gDisplayListHead++);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
 #ifdef VERSION_CN
     gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, glyphs[(u8) glyphIndex]);
 #else
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, glyphs[glyphIndex]);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, glyphs[glyphIndex]);
 #endif
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_hud_img_load_tex_block);
 }
 
 #ifndef WIDESCREEN
@@ -418,7 +418,7 @@ void render_textrect(s32 x, s32 y, s32 pos) {
 #endif
     rectX = rectBaseX;
     rectY = rectBaseY;
-    gSPTextureRectangle(gDisplayListHead++, rectX << 2, rectY << 2, (rectX + 15) << 2,
+    gSPTextureRectangle(WORLD(gDisplayListHead)++, rectX << 2, rectY << 2, (rectX + 15) << 2,
                         (rectY + 15) << 2, G_TX_RENDERTILE, 0, 0, 4 << 10, 1 << 10);
 }
 
@@ -432,24 +432,24 @@ void render_text_labels(void) {
     s8 glyphIndex;
     Mtx *mtx;
 
-    if (sTextLabelsCount == 0) {
+    if (WORLD(sTextLabelsCount) == 0) {
         return;
     }
 
     mtx = alloc_display_list(sizeof(*mtx));
 
     if (mtx == NULL) {
-        sTextLabelsCount = 0;
+        WORLD(sTextLabelsCount) = 0;
         return;
     }
 
     guOrtho(mtx, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
-    gSPPerspNormalize((Gfx *) (gDisplayListHead++), 0xFFFF);
-    gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_begin);
+    gSPPerspNormalize((Gfx *) (WORLD(gDisplayListHead)++), 0xFFFF);
+    gSPMatrix(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(mtx), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_hud_img_begin);
 
-    for (i = 0; i < sTextLabelsCount; i++) {
-        for (j = 0; j < sTextLabels[i]->length; j++) {
+    for (i = 0; i < WORLD(sTextLabelsCount); i++) {
+        for (j = 0; j < WORLD(sTextLabels)[i]->length; j++) {
 #ifdef VERSION_CN
             if ((u8) sTextLabels[i]->buffer[j] < 0xA0) {
                 glyphIndex = char_to_glyph_index(sTextLabels[i]->buffer[j]);
@@ -461,7 +461,7 @@ void render_text_labels(void) {
                 glyphIndex = GLYPH_SPACE;
             }
 #else
-            glyphIndex = char_to_glyph_index(sTextLabels[i]->buffer[j]);
+            glyphIndex = char_to_glyph_index(WORLD(sTextLabels)[i]->buffer[j]);
 #endif
 
             if (glyphIndex != GLYPH_SPACE) {
@@ -511,15 +511,15 @@ void render_text_labels(void) {
                 }
 #else
                 add_glyph_texture(glyphIndex);
-                render_textrect(sTextLabels[i]->x, sTextLabels[i]->y, j);
+                render_textrect(WORLD(sTextLabels)[i]->x, WORLD(sTextLabels)[i]->y, j);
 #endif
             }
         }
 
-        mem_pool_free(gEffectsMemoryPool, sTextLabels[i]);
+        mem_pool_free(WORLD(gEffectsMemoryPool), WORLD(sTextLabels)[i]);
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_hud_img_end);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_hud_img_end);
 
-    sTextLabelsCount = 0;
+    WORLD(sTextLabelsCount) = 0;
 }

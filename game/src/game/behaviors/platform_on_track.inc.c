@@ -64,9 +64,9 @@ void bhv_platform_on_track_init(void) {
         o->oPlatformOnTrackIsNotSkiLift = o->oPlatformOnTrackType - PLATFORM_ON_TRACK_TYPE_SKI_LIFT;
 
         o->collisionData =
-            segmented_to_virtual(sPlatformOnTrackCollisionModels[o->oPlatformOnTrackType]);
+            segmented_to_virtual(WORLD(sPlatformOnTrackCollisionModels)[o->oPlatformOnTrackType]);
 
-        o->oPlatformOnTrackStartWaypoint = segmented_to_virtual(sPlatformOnTrackPaths[pathIndex]);
+        o->oPlatformOnTrackStartWaypoint = segmented_to_virtual(WORLD(sPlatformOnTrackPaths)[pathIndex]);
 
         o->oPlatformOnTrackIsNotHMC = pathIndex - 4;
 
@@ -114,7 +114,7 @@ static void platform_on_track_act_init(void) {
  * Wait for mario to stand on the platform for 20 frames, then begin moving.
  */
 static void platform_on_track_act_wait_for_mario(void) {
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         if (o->oTimer > 20) {
             o->oAction = PLATFORM_ON_TRACK_ACT_MOVE_ALONG_TRACK;
         }
@@ -212,7 +212,7 @@ static void platform_on_track_act_move_along_track(void) {
         }
     }
 
-    if (gMarioObject->platform != o) {
+    if (WORLD(gMarioObject)->platform != o) {
         platform_on_track_mario_not_on_platform();
     } else {
         o->oTimer = 0;
@@ -236,7 +236,7 @@ static void platform_on_track_act_pause_briefly(void) {
 static void platform_on_track_act_fall(void) {
     cur_obj_move_using_vel_and_gravity();
 
-    if (gMarioObject->platform != o) {
+    if (WORLD(gMarioObject)->platform != o) {
         platform_on_track_mario_not_on_platform();
     } else {
         o->oTimer = 0;
@@ -254,7 +254,7 @@ static void platform_on_track_rock_ski_lift(void) {
     o->oFaceAngleRoll += (s32) o->oPlatformOnTrackSkiLiftRollVel;
 
     // Tilt away from the moving direction and toward mario
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         targetRoll = o->oForwardVel * sins(o->oMoveAngleYaw) * -50.0f
                      + (s32)(o->oDistanceToMario * sins(o->oAngleToMario - o->oFaceAngleYaw) * -4.0f);
     }
@@ -294,7 +294,7 @@ void bhv_platform_on_track_update(void) {
     if (!o->oPlatformOnTrackIsNotSkiLift) {
         platform_on_track_rock_ski_lift();
     } else if (o->oPlatformOnTrackType == PLATFORM_ON_TRACK_TYPE_CARPET) {
-        if (!o->oPlatformOnTrackWasStoodOn && gMarioObject->platform == o) {
+        if (!o->oPlatformOnTrackWasStoodOn && WORLD(gMarioObject)->platform == o) {
             o->oPlatformOnTrackOffsetY = -8.0f;
             o->oPlatformOnTrackWasStoodOn = TRUE;
         }

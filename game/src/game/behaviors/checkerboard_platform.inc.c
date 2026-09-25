@@ -27,15 +27,15 @@ void bhv_checkerboard_elevator_group_init(void) {
 
     for (i = 0; i <= 1; i++) {
         if (i == 0) {
-            sp38 = -D_8032F754[sp34].unk0;
+            sp38 = -WORLD(D_8032F754)[sp34].unk0;
         } else {
-            sp38 = D_8032F754[sp34].unk0;
+            sp38 = WORLD(D_8032F754)[sp34].unk0;
         }
 
         sp2C = spawn_object_relative(i, 0, i * sp3C, sp38, o, MODEL_CHECKERBOARD_PLATFORM,
                                      bhvCheckerboardPlatformSub);
-        sp2C->oCheckerBoardPlatformUnk1AC = D_8032F754[sp34].unk2;
-        vec3f_copy_2(sp2C->header.gfx.scale, D_8032F754[sp34].unk1);
+        sp2C->oCheckerBoardPlatformUnk1AC = WORLD(D_8032F754)[sp34].unk2;
+        vec3f_copy_2(sp2C->header.gfx.scale, WORLD(D_8032F754)[sp34].unk1);
     }
 }
 

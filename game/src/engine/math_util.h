@@ -17,11 +17,11 @@
  * exploits array sizes for range analysis-based optimizations as well).
  * Thus, for non-IDO compilers we use the standard-compliant version.
  */
-extern f32 gSineTable[];
+extern const f32 gSineTable[];
 #ifdef AVOID_UB
 #define gCosineTable (gSineTable + 0x400)
 #else
-extern f32 gCosineTable[];
+extern const f32 gCosineTable[];
 #endif
 
 #ifdef TARGET_N64

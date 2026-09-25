@@ -87,7 +87,7 @@ void (*sBulletBillActions[])(void) = {
 };
 
 void bhv_bullet_bill_loop(void) {
-    cur_obj_call_action_function(sBulletBillActions);
+    cur_obj_call_action_function(WORLD(sBulletBillActions));
     if (cur_obj_check_interacted()) {
         o->oAction = 4;
     }

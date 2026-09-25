@@ -32,7 +32,7 @@ extern const Collision sl_seg7_collision_sliding_snow_mound[];
 extern const Collision sl_seg7_collision_pound_explodes[];
 extern const Collision sl_seg7_area_2_collision[];
 extern const MacroObject sl_seg7_area_2_macro_objs[];
-extern const struct MovtexQuadCollection sl_movtex_water[];
+extern struct MovtexQuadCollection sl_movtex_water[];
 
 // script
 extern const LevelScript level_sl_entry[];

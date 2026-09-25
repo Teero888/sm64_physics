@@ -71,7 +71,7 @@ void bubba_act_1(void) {
             obj_move_pitch_approach(o->oBubbaUnk1AC, 400);
         }
     } else {
-        if (abs_angle_diff(gMarioObject->oFaceAngleYaw, o->oAngleToMario) < 0x3000) {
+        if (abs_angle_diff(WORLD(gMarioObject)->oFaceAngleYaw, o->oAngleToMario) < 0x3000) {
             s16 val04 = 0x4000 - atan2s(800.0f, o->oDistanceToMario - 800.0f);
             if ((s16)(o->oMoveAngleYaw - o->oAngleToMario) < 0) {
                 val04 = -val04;
@@ -153,7 +153,7 @@ void bhv_bubba_loop(void) {
     }
 
     obj_face_pitch_approach(o->oMoveAnglePitch, 400);
-    obj_check_attacks(&sBubbaHitbox, o->oAction);
+    obj_check_attacks(&WORLD(sBubbaHitbox), o->oAction);
 
     cur_obj_move_standard(78);
 

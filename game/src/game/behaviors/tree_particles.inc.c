@@ -19,7 +19,7 @@ void bhv_tree_snow_or_leaf_loop(void) {
     if (o->oTimer > 100) {
         obj_mark_for_deletion(o);
     }
-    if (gPrevFrameObjectCount > (OBJECT_POOL_CAPACITY - 28)) {
+    if (WORLD(gPrevFrameObjectCount) > (OBJECT_POOL_CAPACITY - 28)) {
         obj_mark_for_deletion(o);
     }
 
@@ -50,9 +50,9 @@ void bhv_snow_leaf_particle_spawn_init(void) {
     f32 scale;
     UNUSED u8 filler2[4];
 
-    gMarioObject->oActiveParticleFlags &= ~ACTIVE_PARTICLE_LEAF;
+    WORLD(gMarioObject)->oActiveParticleFlags &= ~ACTIVE_PARTICLE_LEAF;
 
-    if (gCurrLevelNum == LEVEL_CCM || gCurrLevelNum == LEVEL_SL) {
+    if (WORLD(gCurrLevelNum) == LEVEL_CCM || WORLD(gCurrLevelNum) == LEVEL_SL) {
         isSnow = TRUE;
     } else {
         isSnow = FALSE;

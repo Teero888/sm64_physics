@@ -67,21 +67,21 @@ void handle_debug_key_sequences(void) {
                                            L_JPAD, R_JPAD, L_JPAD, R_JPAD };
     static s16 sProfilerKey = 0;
     static s16 sDebugTextKey = 0;
-    if (gPlayer3Controller->buttonPressed != 0) {
-        if (sProfilerKeySequence[sProfilerKey++] == gPlayer3Controller->buttonPressed) {
-            if (sProfilerKey == ARRAY_COUNT(sProfilerKeySequence)) {
-                sProfilerKey = 0, gShowProfiler ^= 1;
+    if (WORLD(gPlayer3Controller)->buttonPressed != 0) {
+        if (WORLD(sProfilerKeySequence)[WORLD(sProfilerKey)++] == WORLD(gPlayer3Controller)->buttonPressed) {
+            if (WORLD(sProfilerKey) == ARRAY_COUNT(WORLD(sProfilerKeySequence))) {
+                WORLD(sProfilerKey) = 0, WORLD(gShowProfiler) ^= 1;
             }
         } else {
-            sProfilerKey = 0;
+            WORLD(sProfilerKey) = 0;
         }
 
-        if (sDebugTextKeySequence[sDebugTextKey++] == gPlayer3Controller->buttonPressed) {
-            if (sDebugTextKey == ARRAY_COUNT(sDebugTextKeySequence)) {
-                sDebugTextKey = 0, gShowDebugText ^= 1;
+        if (WORLD(sDebugTextKeySequence)[WORLD(sDebugTextKey)++] == WORLD(gPlayer3Controller)->buttonPressed) {
+            if (WORLD(sDebugTextKey) == ARRAY_COUNT(WORLD(sDebugTextKeySequence))) {
+                WORLD(sDebugTextKey) = 0, WORLD(gShowDebugText) ^= 1;
             }
         } else {
-            sDebugTextKey = 0;
+            WORLD(sDebugTextKey) = 0;
         }
     }
 }
@@ -115,17 +115,17 @@ void stub_main_3(void) {
 }
 
 void setup_mesg_queues(void) {
-    osCreateMesgQueue(&gDmaMesgQueue, gDmaMesgBuf, ARRAY_COUNT(gDmaMesgBuf));
-    osCreateMesgQueue(&gSIEventMesgQueue, gSIEventMesgBuf, ARRAY_COUNT(gSIEventMesgBuf));
-    osSetEventMesg(OS_EVENT_SI, &gSIEventMesgQueue, NULL);
+    osCreateMesgQueue(&WORLD(gDmaMesgQueue), WORLD(gDmaMesgBuf), ARRAY_COUNT(WORLD(gDmaMesgBuf)));
+    osCreateMesgQueue(&WORLD(gSIEventMesgQueue), WORLD(gSIEventMesgBuf), ARRAY_COUNT(WORLD(gSIEventMesgBuf)));
+    osSetEventMesg(OS_EVENT_SI, &WORLD(gSIEventMesgQueue), NULL);
 
-    osCreateMesgQueue(&gSPTaskMesgQueue, gUnknownMesgBuf, ARRAY_COUNT(gUnknownMesgBuf));
-    osCreateMesgQueue(&gIntrMesgQueue, gIntrMesgBuf, ARRAY_COUNT(gIntrMesgBuf));
-    osViSetEvent(&gIntrMesgQueue, (OSMesg) MESG_VI_VBLANK, 1);
+    osCreateMesgQueue(&WORLD(gSPTaskMesgQueue), WORLD(gUnknownMesgBuf), ARRAY_COUNT(WORLD(gUnknownMesgBuf)));
+    osCreateMesgQueue(&WORLD(gIntrMesgQueue), WORLD(gIntrMesgBuf), ARRAY_COUNT(WORLD(gIntrMesgBuf)));
+    osViSetEvent(&WORLD(gIntrMesgQueue), (OSMesg) MESG_VI_VBLANK, 1);
 
-    osSetEventMesg(OS_EVENT_SP, &gIntrMesgQueue, (OSMesg) MESG_SP_COMPLETE);
-    osSetEventMesg(OS_EVENT_DP, &gIntrMesgQueue, (OSMesg) MESG_DP_COMPLETE);
-    osSetEventMesg(OS_EVENT_PRENMI, &gIntrMesgQueue, (OSMesg) MESG_NMI_REQUEST);
+    osSetEventMesg(OS_EVENT_SP, &WORLD(gIntrMesgQueue), (OSMesg) MESG_SP_COMPLETE);
+    osSetEventMesg(OS_EVENT_DP, &WORLD(gIntrMesgQueue), (OSMesg) MESG_DP_COMPLETE);
+    osSetEventMesg(OS_EVENT_PRENMI, &WORLD(gIntrMesgQueue), (OSMesg) MESG_NMI_REQUEST);
 }
 
 void alloc_pool(void) {
@@ -133,7 +133,7 @@ void alloc_pool(void) {
     void *end = (void *) SEG_POOL_END;
 
     main_pool_init(start, end);
-    gEffectsMemoryPool = mem_pool_init(0x4000, MEMORY_POOL_LEFT);
+    WORLD(gEffectsMemoryPool) = mem_pool_init(0x4000, MEMORY_POOL_LEFT);
 }
 
 void create_thread(OSThread *thread, OSId id, void (*entry)(void *), void *arg, void *sp, OSPri pri) {
@@ -147,8 +147,8 @@ extern void func_sh_802f69cc(void);
 #endif
 
 void handle_nmi_request(void) {
-    gResetTimer = 1;
-    gNmiResetBarsTimer = 0;
+    WORLD(gResetTimer) = 1;
+    WORLD(gNmiResetBarsTimer) = 0;
     stop_sounds_in_continuous_banks();
     sound_banks_disable(SEQ_PLAYER_SFX, SOUND_BANKS_BACKGROUND);
     fadeout_music(90);
@@ -160,26 +160,26 @@ void handle_nmi_request(void) {
 void receive_new_tasks(void) {
     struct SPTask *spTask;
 
-    while (osRecvMesg(&gSPTaskMesgQueue, (OSMesg *) &spTask, OS_MESG_NOBLOCK) != -1) {
+    while (osRecvMesg(&WORLD(gSPTaskMesgQueue), (OSMesg *) &spTask, OS_MESG_NOBLOCK) != -1) {
         spTask->state = SPTASK_STATE_NOT_STARTED;
         switch (spTask->task.t.type) {
             case 2:
-                sNextAudioSPTask = spTask;
+                WORLD(sNextAudioSPTask) = spTask;
                 break;
             case 1:
-                sNextDisplaySPTask = spTask;
+                WORLD(sNextDisplaySPTask) = spTask;
                 break;
         }
     }
 
-    if (sCurrentAudioSPTask == NULL && sNextAudioSPTask != NULL) {
-        sCurrentAudioSPTask = sNextAudioSPTask;
-        sNextAudioSPTask = NULL;
+    if (WORLD(sCurrentAudioSPTask) == NULL && WORLD(sNextAudioSPTask) != NULL) {
+        WORLD(sCurrentAudioSPTask) = WORLD(sNextAudioSPTask);
+        WORLD(sNextAudioSPTask) = NULL;
     }
 
-    if (sCurrentDisplaySPTask == NULL && sNextDisplaySPTask != NULL) {
-        sCurrentDisplaySPTask = sNextDisplaySPTask;
-        sNextDisplaySPTask = NULL;
+    if (WORLD(sCurrentDisplaySPTask) == NULL && WORLD(sNextDisplaySPTask) != NULL) {
+        WORLD(sCurrentDisplaySPTask) = WORLD(sNextDisplaySPTask);
+        WORLD(sNextDisplaySPTask) = NULL;
     }
 }
 
@@ -187,49 +187,49 @@ void start_sptask(s32 taskType) {
     UNUSED u8 filler[4];
 
     if (taskType == M_AUDTASK) {
-        gActiveSPTask = sCurrentAudioSPTask;
+        WORLD(gActiveSPTask) = WORLD(sCurrentAudioSPTask);
     } else {
-        gActiveSPTask = sCurrentDisplaySPTask;
+        WORLD(gActiveSPTask) = WORLD(sCurrentDisplaySPTask);
     }
 
-    osSpTaskLoad(&gActiveSPTask->task);
-    osSpTaskStartGo(&gActiveSPTask->task);
-    gActiveSPTask->state = SPTASK_STATE_RUNNING;
+    osSpTaskLoad(&WORLD(gActiveSPTask)->task);
+    osSpTaskStartGo(&WORLD(gActiveSPTask)->task);
+    WORLD(gActiveSPTask)->state = SPTASK_STATE_RUNNING;
 }
 
 void interrupt_gfx_sptask(void) {
-    if (gActiveSPTask->task.t.type == M_GFXTASK) {
-        gActiveSPTask->state = SPTASK_STATE_INTERRUPTED;
+    if (WORLD(gActiveSPTask)->task.t.type == M_GFXTASK) {
+        WORLD(gActiveSPTask)->state = SPTASK_STATE_INTERRUPTED;
         osSpTaskYield();
     }
 }
 
 void start_gfx_sptask(void) {
-    if (gActiveSPTask == NULL && sCurrentDisplaySPTask != NULL
-        && sCurrentDisplaySPTask->state == SPTASK_STATE_NOT_STARTED) {
+    if (WORLD(gActiveSPTask) == NULL && WORLD(sCurrentDisplaySPTask) != NULL
+        && WORLD(sCurrentDisplaySPTask)->state == SPTASK_STATE_NOT_STARTED) {
         profiler_log_gfx_time(TASKS_QUEUED);
         start_sptask(M_GFXTASK);
     }
 }
 
 void pretend_audio_sptask_done(void) {
-    gActiveSPTask = sCurrentAudioSPTask;
-    gActiveSPTask->state = SPTASK_STATE_RUNNING;
-    osSendMesg(&gIntrMesgQueue, (OSMesg) MESG_SP_COMPLETE, OS_MESG_NOBLOCK);
+    WORLD(gActiveSPTask) = WORLD(sCurrentAudioSPTask);
+    WORLD(gActiveSPTask)->state = SPTASK_STATE_RUNNING;
+    osSendMesg(&WORLD(gIntrMesgQueue), (OSMesg) MESG_SP_COMPLETE, OS_MESG_NOBLOCK);
 }
 
 void handle_vblank(void) {
     UNUSED u8 filler[4];
 
     stub_main_3();
-    gNumVblanks++;
+    WORLD(gNumVblanks)++;
 #if defined(VERSION_SH) || defined(VERSION_CN)
     if (gResetTimer > 0 && gResetTimer < 100) {
         gResetTimer++;
     }
 #else
-    if (gResetTimer > 0) {
-        gResetTimer++;
+    if (WORLD(gResetTimer) > 0) {
+        WORLD(gResetTimer)++;
     }
 #endif
 
@@ -240,20 +240,20 @@ void handle_vblank(void) {
     // will pick up on what we're doing and start the audio task for us.
     // If there is already an audio task running, there is nothing to do.
     // If there is no audio task available, try a gfx task instead.
-    if (sCurrentAudioSPTask != NULL) {
-        if (gActiveSPTask != NULL) {
+    if (WORLD(sCurrentAudioSPTask) != NULL) {
+        if (WORLD(gActiveSPTask) != NULL) {
             interrupt_gfx_sptask();
         } else {
             profiler_log_vblank_time();
-            if (sAudioEnabled) {
+            if (WORLD(sAudioEnabled)) {
                 start_sptask(M_AUDTASK);
             } else {
                 pretend_audio_sptask_done();
             }
         }
     } else {
-        if (gActiveSPTask == NULL && sCurrentDisplaySPTask != NULL
-            && sCurrentDisplaySPTask->state != SPTASK_STATE_FINISHED) {
+        if (WORLD(gActiveSPTask) == NULL && WORLD(sCurrentDisplaySPTask) != NULL
+            && WORLD(sCurrentDisplaySPTask)->state != SPTASK_STATE_FINISHED) {
             profiler_log_gfx_time(TASKS_QUEUED);
             start_sptask(M_GFXTASK);
         }
@@ -263,18 +263,18 @@ void handle_vblank(void) {
 #endif
 
     // Notify the game loop about the vblank.
-    if (gVblankHandler1 != NULL) {
-        osSendMesg(gVblankHandler1->queue, gVblankHandler1->msg, OS_MESG_NOBLOCK);
+    if (WORLD(gVblankHandler1) != NULL) {
+        osSendMesg(WORLD(gVblankHandler1)->queue, WORLD(gVblankHandler1)->msg, OS_MESG_NOBLOCK);
     }
-    if (gVblankHandler2 != NULL) {
-        osSendMesg(gVblankHandler2->queue, gVblankHandler2->msg, OS_MESG_NOBLOCK);
+    if (WORLD(gVblankHandler2) != NULL) {
+        osSendMesg(WORLD(gVblankHandler2)->queue, WORLD(gVblankHandler2)->msg, OS_MESG_NOBLOCK);
     }
 }
 
 void handle_sp_complete(void) {
-    struct SPTask *curSPTask = gActiveSPTask;
+    struct SPTask *curSPTask = WORLD(gActiveSPTask);
 
-    gActiveSPTask = NULL;
+    WORLD(gActiveSPTask) = NULL;
 
     if (curSPTask->state == SPTASK_STATE_INTERRUPTED) {
         // handle_vblank tried to start an audio task while there was already a
@@ -289,7 +289,7 @@ void handle_sp_complete(void) {
 
         // Start the audio task, as expected by handle_vblank.
         profiler_log_vblank_time();
-        if (sAudioEnabled) {
+        if (WORLD(sAudioEnabled)) {
             start_sptask(M_AUDTASK);
         } else {
             pretend_audio_sptask_done();
@@ -299,14 +299,14 @@ void handle_sp_complete(void) {
         if (curSPTask->task.t.type == M_AUDTASK) {
             // After audio tasks come gfx tasks.
             profiler_log_vblank_time();
-            if (sCurrentDisplaySPTask != NULL
-                && sCurrentDisplaySPTask->state != SPTASK_STATE_FINISHED) {
-                if (sCurrentDisplaySPTask->state != SPTASK_STATE_INTERRUPTED) {
+            if (WORLD(sCurrentDisplaySPTask) != NULL
+                && WORLD(sCurrentDisplaySPTask)->state != SPTASK_STATE_FINISHED) {
+                if (WORLD(sCurrentDisplaySPTask)->state != SPTASK_STATE_INTERRUPTED) {
                     profiler_log_gfx_time(TASKS_QUEUED);
                 }
                 start_sptask(M_GFXTASK);
             }
-            sCurrentAudioSPTask = NULL;
+            WORLD(sCurrentAudioSPTask) = NULL;
             if (curSPTask->msgqueue != NULL) {
                 osSendMesg(curSPTask->msgqueue, curSPTask->msg, OS_MESG_NOBLOCK);
             }
@@ -321,12 +321,12 @@ void handle_sp_complete(void) {
 
 void handle_dp_complete(void) {
     // Gfx SP task is completely done.
-    if (sCurrentDisplaySPTask->msgqueue != NULL) {
-        osSendMesg(sCurrentDisplaySPTask->msgqueue, sCurrentDisplaySPTask->msg, OS_MESG_NOBLOCK);
+    if (WORLD(sCurrentDisplaySPTask)->msgqueue != NULL) {
+        osSendMesg(WORLD(sCurrentDisplaySPTask)->msgqueue, WORLD(sCurrentDisplaySPTask)->msg, OS_MESG_NOBLOCK);
     }
     profiler_log_gfx_time(RDP_COMPLETE);
-    sCurrentDisplaySPTask->state = SPTASK_STATE_FINISHED_DP;
-    sCurrentDisplaySPTask = NULL;
+    WORLD(sCurrentDisplaySPTask)->state = SPTASK_STATE_FINISHED_DP;
+    WORLD(sCurrentDisplaySPTask) = NULL;
 }
 
 void thread3_main(UNUSED void *arg) {
@@ -334,16 +334,16 @@ void thread3_main(UNUSED void *arg) {
     alloc_pool();
     load_engine_code_segment();
 
-    create_thread(&gSoundThread, 4, thread4_sound, NULL, gThread4Stack + 0x2000, 20);
-    osStartThread(&gSoundThread);
+    create_thread(&WORLD(gSoundThread), 4, thread4_sound, NULL, WORLD(gThread4Stack) + 0x2000, 20);
+    osStartThread(&WORLD(gSoundThread));
 
-    create_thread(&gGameLoopThread, 5, thread5_game_loop, NULL, gThread5Stack + 0x2000, 10);
-    osStartThread(&gGameLoopThread);
+    create_thread(&WORLD(gGameLoopThread), 5, thread5_game_loop, NULL, WORLD(gThread5Stack) + 0x2000, 10);
+    osStartThread(&WORLD(gGameLoopThread));
 
     while (TRUE) {
         OSMesg msg;
 
-        osRecvMesg(&gIntrMesgQueue, &msg, OS_MESG_BLOCK);
+        osRecvMesg(&WORLD(gIntrMesgQueue), &msg, OS_MESG_BLOCK);
         switch ((uintptr_t) msg) {
             case MESG_VI_VBLANK:
                 handle_vblank();
@@ -371,23 +371,23 @@ void set_vblank_handler(s32 index, struct VblankHandler *handler, OSMesgQueue *q
 
     switch (index) {
         case 1:
-            gVblankHandler1 = handler;
+            WORLD(gVblankHandler1) = handler;
             break;
         case 2:
-            gVblankHandler2 = handler;
+            WORLD(gVblankHandler2) = handler;
             break;
     }
 }
 
 void send_sp_task_message(OSMesg *msg) {
     osWritebackDCacheAll();
-    osSendMesg(&gSPTaskMesgQueue, msg, OS_MESG_NOBLOCK);
+    osSendMesg(&WORLD(gSPTaskMesgQueue), msg, OS_MESG_NOBLOCK);
 }
 
 void dispatch_audio_sptask(struct SPTask *spTask) {
-    if (sAudioEnabled && spTask != NULL) {
+    if (WORLD(sAudioEnabled) && spTask != NULL) {
         osWritebackDCacheAll();
-        osSendMesg(&gSPTaskMesgQueue, spTask, OS_MESG_NOBLOCK);
+        osSendMesg(&WORLD(gSPTaskMesgQueue), spTask, OS_MESG_NOBLOCK);
     }
 }
 
@@ -395,23 +395,23 @@ void exec_display_list(struct SPTask *spTask) {
     if (spTask != NULL) {
         osWritebackDCacheAll();
         spTask->state = SPTASK_STATE_NOT_STARTED;
-        if (sCurrentDisplaySPTask == NULL) {
-            sCurrentDisplaySPTask = spTask;
-            sNextDisplaySPTask = NULL;
-            osSendMesg(&gIntrMesgQueue, (OSMesg) MESG_START_GFX_SPTASK, OS_MESG_NOBLOCK);
+        if (WORLD(sCurrentDisplaySPTask) == NULL) {
+            WORLD(sCurrentDisplaySPTask) = spTask;
+            WORLD(sNextDisplaySPTask) = NULL;
+            osSendMesg(&WORLD(gIntrMesgQueue), (OSMesg) MESG_START_GFX_SPTASK, OS_MESG_NOBLOCK);
         } else {
-            sNextDisplaySPTask = spTask;
+            WORLD(sNextDisplaySPTask) = spTask;
         }
     }
 }
 
 void turn_on_audio(void) {
-    sAudioEnabled = TRUE;
+    WORLD(sAudioEnabled) = TRUE;
 }
 
 void turn_off_audio(void) {
-    sAudioEnabled = FALSE;
-    while (sCurrentAudioSPTask != NULL) {
+    WORLD(sAudioEnabled) = FALSE;
+    while (WORLD(sCurrentAudioSPTask) != NULL) {
         ;
     }
 }
@@ -421,28 +421,28 @@ void turn_off_audio(void) {
  */
 void thread1_idle(UNUSED void *arg) {
 #if defined(VERSION_US) || defined(VERSION_SH) || defined(VERSION_CN)
-    s32 sp24 = osTvType;
+    s32 sp24 = WORLD(osTvType);
 #endif
 
     osCreateViManager(OS_PRIORITY_VIMGR);
 #if defined(VERSION_US) || defined(VERSION_SH) || defined(VERSION_CN)
     if (sp24 == TV_TYPE_NTSC) {
-        osViSetMode(&osViModeTable[OS_VI_NTSC_LAN1]);
+        osViSetMode(&WORLD(osViModeTable)[OS_VI_NTSC_LAN1]);
     } else {
-        osViSetMode(&osViModeTable[OS_VI_PAL_LAN1]);
+        osViSetMode(&WORLD(osViModeTable)[OS_VI_PAL_LAN1]);
     }
 #elif defined(VERSION_JP)
-    osViSetMode(&osViModeTable[OS_VI_NTSC_LAN1]);
+    osViSetMode(&WORLD(osViModeTable)[OS_VI_NTSC_LAN1]);
 #else // VERSION_EU
     osViSetMode(&osViModeTable[OS_VI_PAL_LAN1]);
 #endif
     osViBlack(TRUE);
     osViSetSpecialFeatures(OS_VI_DITHER_FILTER_ON);
     osViSetSpecialFeatures(OS_VI_GAMMA_OFF);
-    osCreatePiManager(OS_PRIORITY_PIMGR, &gPIMesgQueue, gPIMesgBuf, ARRAY_COUNT(gPIMesgBuf));
-    create_thread(&gMainThread, 3, thread3_main, NULL, gThread3Stack + 0x2000, 100);
-    if (D_8032C650 == 0) {
-        osStartThread(&gMainThread);
+    osCreatePiManager(OS_PRIORITY_PIMGR, &WORLD(gPIMesgQueue), WORLD(gPIMesgBuf), ARRAY_COUNT(WORLD(gPIMesgBuf)));
+    create_thread(&WORLD(gMainThread), 3, thread3_main, NULL, WORLD(gThread3Stack) + 0x2000, 100);
+    if (WORLD(D_8032C650) == 0) {
+        osStartThread(&WORLD(gMainThread));
     }
     osSetThreadPri(NULL, 0);
 
@@ -457,6 +457,6 @@ void main_func(void) {
 
     osInitialize();
     stub_main_1();
-    create_thread(&gIdleThread, 1, thread1_idle, NULL, gIdleThreadStack + 0x800, 100);
-    osStartThread(&gIdleThread);
+    create_thread(&WORLD(gIdleThread), 1, thread1_idle, NULL, WORLD(gIdleThreadStack) + 0x800, 100);
+    osStartThread(&WORLD(gIdleThread));
 }

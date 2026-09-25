@@ -24,6 +24,24 @@
 #include "elf_symbols.h"
 #include "layout_tables.h"
 #include "sm64_physics.h"
+#include "world.h"
+
+// The native game: one world, current on this thread.
+static sm64_world *sWorld;
+
+// The state section's bounds (platform/state.ld): its symbols live in the
+// world at the thread's offset.
+extern char sm64_state_start[], sm64_state_end[];
+
+static bool in_state(const void *p) {
+    return (const char *) p >= sm64_state_start && (const char *) p < sm64_state_end;
+}
+
+// A native symbol's address: in the world, if it is part of the state.
+static const uint8_t *native_symbol(const char *name) {
+    const uint8_t *p = elf_symbol(name, NULL);
+    return p && in_state(p) ? p + gHostWorldOffset : p;
+}
 
 #define OBJECT_POOL_CAPACITY 240
 #define MAX_REPORTED 40
@@ -204,6 +222,10 @@ static target native_target(const void *p) {
         t.index = (a - pool) / sizeof(struct Object);
         t.offset = (a - pool) % sizeof(struct Object);
         return t;
+    }
+    // Symbols are known by their address in the state section.
+    if (in_state((const char *) p - gHostWorldOffset)) {
+        p = (const char *) p - gHostWorldOffset;
     }
     const char *name = elf_symbol_containing(p, &t.offset, &t.size);
     if (name) {
@@ -502,7 +524,7 @@ static void compare_all(void) {
         if (gl->overlay && !resident) {
             continue;
         }
-        const uint8_t *native = elf_symbol(gl->name, NULL);
+        const uint8_t *native = native_symbol(gl->name);
         uint32_t n64 = n64_lookup(gl->name)->address;
         if (!native) {
             fprintf(stderr, "lockstep: no native symbol %s\n", gl->name);
@@ -571,7 +593,9 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         load_table(&sSegmented, SM64_ORACLE_DIR "/symbols/" SM64_VERSION_NAME "_segments.tsv");
         sN64ObjectPool = n64_lookup("gObjectPool")->address;
         sN64SegmentTable = n64_lookup("sSegmentTable")->address;
-        sNativeObjectPool = elf_symbol("gObjectPool", NULL);
+        sWorld = sm64_world_create();
+        sm64_world_enter(sWorld);
+        sNativeObjectPool = (struct Object *) native_symbol("gObjectPool");
         sOverlayCode = n64_lookup("bhv_menu_button_init")->address;
         for (size_t i = 0; i < sizeof(sNamedSegments) / sizeof(sNamedSegments[0]); ++i) {
             sNamedSegmentSize[i] = segment_size(sNamedSegments[i]);
@@ -579,12 +603,11 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         // SM64_LOCKSTEP_DRAW=1: the game step also draws, as on the N64.
         const char *draw = getenv("SM64_LOCKSTEP_DRAW");
         sm64_set_draw(draw && strcmp(draw, "0") != 0);
-        sm64_boot();
         return 0;
     }
     // A load in the frame just run: the segment is in the emulator's RAM now.
-    if (gHostOverlayLoads != sOverlayLoadsSeen) {
-        sOverlayLoadsSeen = gHostOverlayLoads;
+    if (WORLD(gHostOverlayLoads) != sOverlayLoadsSeen) {
+        sOverlayLoadsSeen = WORLD(gHostOverlayLoads);
         for (int i = 0; i < 16; ++i) {
             sOverlayFingerprint[i] = n64_u32(sOverlayCode + 4 * i);
         }
@@ -600,6 +623,6 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
     if (poll % 1000 == 0) {
         fprintf(stderr, "lockstep: %u polls identical\n", poll);
     }
-    sm64_step(input);
+    sm64_step(sWorld, input);
     return 0;
 }

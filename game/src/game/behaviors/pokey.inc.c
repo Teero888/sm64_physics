@@ -82,7 +82,7 @@ void bhv_pokey_body_part_update(void) {
             }
 
             //! Pausing causes jumps in offset angle
-            offsetAngle = o->oBhvParams2ndByte * 0x4000 + gGlobalTimer * 0x800;
+            offsetAngle = o->oBhvParams2ndByte * 0x4000 + WORLD(gGlobalTimer) * 0x800;
             o->oPosX = o->parentObj->oPosX + coss(offsetAngle) * 6.0f;
             o->oPosZ = o->parentObj->oPosZ + sins(offsetAngle) * 6.0f;
 
@@ -108,7 +108,7 @@ void bhv_pokey_body_part_update(void) {
             // If the body part was attacked, then die. If the head was killed,
             // then die after a delay.
 
-            if (obj_handle_attacks(&sPokeyBodyPartHitbox, o->oAction, sPokeyBodyPartAttackHandlers)) {
+            if (obj_handle_attacks(&WORLD(sPokeyBodyPartHitbox), o->oAction, WORLD(sPokeyBodyPartAttackHandlers))) {
                 o->parentObj->oPokeyNumAliveBodyParts--;
                 if (o->oBhvParams2ndByte == 0) {
                     o->parentObj->oPokeyHeadWasKilled = TRUE;

@@ -148,8 +148,8 @@ extern const Collision inside_castle_seg7_collision_floor_trap[];
 extern const Collision inside_castle_seg7_collision_star_door[];
 extern const Collision inside_castle_seg7_collision_water_level_pillar[];
 extern const Trajectory *const inside_castle_seg7_trajectory_mips[];
-extern const struct MovtexQuadCollection inside_castle_movtex_green_room_water[];
-extern const struct MovtexQuadCollection inside_castle_movtex_moat_water[];
+extern struct MovtexQuadCollection inside_castle_movtex_green_room_water[];
+extern struct MovtexQuadCollection inside_castle_movtex_moat_water[];
 
 // script
 extern const LevelScript level_castle_inside_entry[];

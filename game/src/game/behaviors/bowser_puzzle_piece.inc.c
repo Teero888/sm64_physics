@@ -105,11 +105,11 @@ void bhv_lll_bowser_puzzle_spawn_pieces(f32 pieceWidth) {
 
     // Spawn all 14 puzzle pieces.
     for (i = 0; i < 14; i++) {
-        bhv_lll_bowser_puzzle_spawn_piece(sBowserPuzzlePieces[i].model, bhvLLLBowserPuzzlePiece,
-                                          sBowserPuzzlePieces[i].xOffset * pieceWidth / 10.0f,
-                                          sBowserPuzzlePieces[i].zOffset * pieceWidth / 10.0f,
-                                          sBowserPuzzlePieces[i].initialAction,
-                                          sBowserPuzzlePieces[i].actionList);
+        bhv_lll_bowser_puzzle_spawn_piece(WORLD(sBowserPuzzlePieces)[i].model, bhvLLLBowserPuzzlePiece,
+                                          WORLD(sBowserPuzzlePieces)[i].xOffset * pieceWidth / 10.0f,
+                                          WORLD(sBowserPuzzlePieces)[i].zOffset * pieceWidth / 10.0f,
+                                          WORLD(sBowserPuzzlePieces)[i].initialAction,
+                                          WORLD(sBowserPuzzlePieces)[i].actionList);
     }
 
     // The pieces should only be spawned once so go to the next action.
@@ -170,7 +170,7 @@ void bhv_lll_bowser_puzzle_piece_update(void) {
     s8 *nextAction = o->oBowserPuzzlePieceNextAction;
 
     // If Mario is standing on this puzzle piece, set a flag in the parent.
-    if (gMarioObject->platform == o) {
+    if (WORLD(gMarioObject)->platform == o) {
         o->parentObj->oBowserPuzzleCompletionFlags = 1;
     }
 
@@ -268,7 +268,7 @@ void (*sBowserPuzzlePieceActions[])(void) = {
 void bhv_lll_bowser_puzzle_piece_loop(void) {
     bhv_lll_bowser_puzzle_piece_update();
 
-    cur_obj_call_action_function(sBowserPuzzlePieceActions);
+    cur_obj_call_action_function(WORLD(sBowserPuzzlePieceActions));
 
     o->oPosX = o->oBowserPuzzlePieceOffsetX + o->oHomeX;
     o->oPosY = o->oBowserPuzzlePieceOffsetY + o->oHomeY;

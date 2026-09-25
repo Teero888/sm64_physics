@@ -13,7 +13,7 @@ void bhv_sushi_shark_loop(void) {
     o->oMoveAngleYaw = o->oSushiSharkUnkF4 + 0x4000;
     o->oSushiSharkUnkF4 += 0x80;
 
-    if (gMarioObject->oPosY - sp1C > -500.0f) {
+    if (WORLD(gMarioObject)->oPosY - sp1C > -500.0f) {
         if (o->oPosY - sp1C > -200.0f) {
             spawn_object_with_scale(o, MODEL_WAVE_TRAIL, bhvObjectWaveTrail, 4.0f);
         }

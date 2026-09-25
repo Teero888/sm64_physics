@@ -11,8 +11,8 @@ void bhv_yoshi_init(void) {
     o->oBuoyancy = 1.3f;
     o->oInteractionSubtype = INT_SUBTYPE_NPC;
 
-    if (save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) < 120
-        || sYoshiDead == TRUE) {
+    if (save_file_get_total_star_count(WORLD(gCurrSaveFileNum) - 1, COURSE_MIN - 1, COURSE_MAX - 1) < 120
+        || WORLD(sYoshiDead) == TRUE) {
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     }
 }
@@ -58,8 +58,8 @@ void yoshi_idle_loop(void) {
             o->oYoshiChosenHome = chosenHome;
         }
 
-        o->oHomeX = sYoshiHomeLocations[o->oYoshiChosenHome * 2];
-        o->oHomeZ = sYoshiHomeLocations[o->oYoshiChosenHome * 2 + 1];
+        o->oHomeX = WORLD(sYoshiHomeLocations)[o->oYoshiChosenHome * 2];
+        o->oHomeZ = WORLD(sYoshiHomeLocations)[o->oYoshiChosenHome * 2 + 1];
         o->oYoshiTargetYaw = atan2s(o->oHomeZ - o->oPosZ, o->oHomeX - o->oPosX);
         o->oAction = YOSHI_ACT_WALK;
     }
@@ -71,8 +71,8 @@ void yoshi_idle_loop(void) {
     }
 
     // Credits; Yoshi appears at this position overlooking the castle near the end of the credits
-    if (gPlayerCameraState->cameraEvent == CAM_EVENT_START_ENDING ||
-        gPlayerCameraState->cameraEvent == CAM_EVENT_START_END_WAVING) {
+    if (WORLD(gPlayerCameraState)->cameraEvent == CAM_EVENT_START_ENDING ||
+        WORLD(gPlayerCameraState)->cameraEvent == CAM_EVENT_START_END_WAVING) {
         o->oAction = YOSHI_ACT_CREDITS;
         o->oPosX = -1798.0f;
         o->oPosY = 3174.0f;
@@ -88,8 +88,8 @@ void yoshi_talk_loop(void) {
             if (cutscene_object_with_dialog(CUTSCENE_DIALOG, o, DIALOG_161) != 0) {
                 o->activeFlags &= ~ACTIVE_FLAG_INITIATED_TIME_STOP;
                 o->oInteractStatus = 0;
-                o->oHomeX = sYoshiHomeLocations[2];
-                o->oHomeZ = sYoshiHomeLocations[3];
+                o->oHomeX = WORLD(sYoshiHomeLocations)[2];
+                o->oHomeZ = WORLD(sYoshiHomeLocations)[3];
                 o->oYoshiTargetYaw = atan2s(o->oHomeZ - o->oPosZ, o->oHomeX - o->oPosX);
                 o->oAction = YOSHI_ACT_GIVE_PRESENT;
             }
@@ -136,25 +136,25 @@ void yoshi_finish_jumping_and_despawn_loop(void) {
 
     if (o->oPosY < 2100.0f) {
         set_mario_npc_dialog(MARIO_DIALOG_STOP);
-        gObjCutsceneDone = TRUE;
-        sYoshiDead = TRUE;
+        WORLD(gObjCutsceneDone) = TRUE;
+        WORLD(sYoshiDead) = TRUE;
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     }
 }
 
 void yoshi_give_present_loop(void) {
-    s32 globalTimer = gGlobalTimer;
+    s32 globalTimer = WORLD(gGlobalTimer);
 
-    if (gHudDisplay.lives == 100) {
-        play_sound(SOUND_GENERAL_COLLECT_1UP, gGlobalSoundSource);
-        gSpecialTripleJump = TRUE;
+    if (WORLD(gHudDisplay).lives == 100) {
+        play_sound(SOUND_GENERAL_COLLECT_1UP, WORLD(gGlobalSoundSource));
+        WORLD(gSpecialTripleJump) = TRUE;
         o->oAction = YOSHI_ACT_WALK_JUMP_OFF_ROOF;
         return;
     }
 
     if (!(globalTimer & 3)) {
-        play_sound(SOUND_MENU_YOSHI_GAIN_LIVES, gGlobalSoundSource);
-        gMarioState->numLives++;
+        play_sound(SOUND_MENU_YOSHI_GAIN_LIVES, WORLD(gGlobalSoundSource));
+        WORLD(gMarioState)->numLives++;
     }
 }
 

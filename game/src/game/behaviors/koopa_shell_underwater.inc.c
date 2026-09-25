@@ -13,7 +13,7 @@ struct ObjectHitbox sKoopaShellUnderwaterHitbox = {
 };
 
 void set_koopa_shell_underwater_hitbox(void) {
-    obj_set_hitbox(o, &sKoopaShellUnderwaterHitbox);
+    obj_set_hitbox(o, &WORLD(sKoopaShellUnderwaterHitbox));
 }
 
 void bhv_koopa_shell_underwater_loop(void) {

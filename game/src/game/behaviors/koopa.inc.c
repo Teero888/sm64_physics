@@ -266,7 +266,7 @@ void shelled_koopa_attack_handler(s32 attackType) {
 
         // If attacked from the side, get knocked away from mario
         if (attackType != ATTACK_FROM_ABOVE && attackType != ATTACK_GROUND_POUND_OR_TWIRL) {
-            o->oMoveAngleYaw = obj_angle_to_object(gMarioObject, o);
+            o->oMoveAngleYaw = obj_angle_to_object(WORLD(gMarioObject), o);
         }
 
         cur_obj_set_model(MODEL_KOOPA_WITHOUT_SHELL);
@@ -309,10 +309,10 @@ static void koopa_shelled_update(void) {
     }
 
     if (o->header.gfx.scale[0] > 0.8f) {
-        obj_handle_attacks(&sKoopaHitbox, o->oAction, sKoopaShelledAttackHandlers);
+        obj_handle_attacks(&WORLD(sKoopaHitbox), o->oAction, WORLD(sKoopaShelledAttackHandlers));
     } else {
         // If tiny koopa, die after attacking mario.
-        obj_handle_attacks(&sKoopaHitbox, KOOPA_SHELLED_ACT_DIE, sKoopaUnshelledAttackHandlers);
+        obj_handle_attacks(&WORLD(sKoopaHitbox), KOOPA_SHELLED_ACT_DIE, WORLD(sKoopaUnshelledAttackHandlers));
         if (o->oAction == KOOPA_SHELLED_ACT_DIE) {
             obj_die_if_health_non_positive();
         }
@@ -404,7 +404,7 @@ static void koopa_unshelled_act_dive(void) {
         //  units behind mario.
         //  Using this, we can get the koopa to pick up and despawn its shell
         //  while mario is riding it.
-        if (shell != NULL && dist_between_objects(shell, gMarioObject) > 200.0f
+        if (shell != NULL && dist_between_objects(shell, WORLD(gMarioObject)) > 200.0f
             && distToShell < 50.0f) {
             o->oKoopaMovementType = KOOPA_BP_NORMAL;
             o->oAction = KOOPA_SHELLED_ACT_LYING;
@@ -461,7 +461,7 @@ static void koopa_unshelled_update(void) {
             break;
     }
 
-    obj_handle_attacks(&sKoopaHitbox, o->oAction, sKoopaUnshelledAttackHandlers);
+    obj_handle_attacks(&WORLD(sKoopaHitbox), o->oAction, WORLD(sKoopaUnshelledAttackHandlers));
     cur_obj_move_standard(-78);
 }
 
@@ -517,18 +517,18 @@ static void koopa_the_quick_act_wait_before_race(void) {
  */
 static void koopa_the_quick_act_show_init_text(void) {
     s32 response = obj_update_race_proposition_dialog(
-        sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].initDialogID);
+        WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].initDialogID);
 
     if (response == DIALOG_RESPONSE_YES) {
         UNUSED u8 filler[4];
 
-        gMarioShotFromCannon = FALSE;
+        WORLD(gMarioShotFromCannon) = FALSE;
         o->oAction = KOOPA_THE_QUICK_ACT_RACE;
         o->oForwardVel = 0.0f;
 
         o->parentObj = cur_obj_nearest_object_with_behavior(bhvKoopaRaceEndpoint);
         o->oPathedStartWaypoint = o->oPathedPrevWaypoint =
-            segmented_to_virtual(sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].path);
+            segmented_to_virtual(WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].path);
 
         o->oKoopaTurningAwayFromWall = FALSE;
         o->oFlags |= OBJ_FLAG_ACTIVE_FROM_AFAR;
@@ -721,7 +721,7 @@ static void koopa_the_quick_act_after_race(void) {
                 } else {
                     // Mario won
                     o->parentObj->oKoopaRaceEndpointDialog =
-                        sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].winDialogID;
+                        WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].winDialogID;
                 }
             } else {
                 // KtQ won
@@ -738,9 +738,9 @@ static void koopa_the_quick_act_after_race(void) {
             o->oTimer = 0;
         }
     } else if (o->parentObj->oKoopaRaceEndpointRaceStatus != 0) {
-        spawn_default_star(sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].starPos[0],
-                           sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].starPos[1],
-                           sKoopaTheQuickProperties[o->oKoopaTheQuickRaceIndex].starPos[2]);
+        spawn_default_star(WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].starPos[0],
+                           WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].starPos[1],
+                           WORLD(sKoopaTheQuickProperties)[o->oKoopaTheQuickRaceIndex].starPos[2]);
 
         o->parentObj->oKoopaRaceEndpointRaceStatus = 0;
     }
@@ -830,7 +830,7 @@ void bhv_koopa_race_endpoint_update(void) {
 
             if (!o->oKoopaRaceEndpointKoopaFinished) {
                 play_race_fanfare();
-                if (gMarioShotFromCannon) {
+                if (WORLD(gMarioShotFromCannon)) {
                     o->oKoopaRaceEndpointRaceStatus = -1;
                 } else {
                     o->oKoopaRaceEndpointRaceStatus = 1;

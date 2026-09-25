@@ -29,9 +29,9 @@ void bhv_ttc_elevator_init(void) {
  * Update function for bhvTTCElevator.
  */
 void bhv_ttc_elevator_update(void) {
-    o->oVelY = sTTCElevatorSpeeds[gTTCSpeedSetting] * o->oTTCElevatorDir;
+    o->oVelY = WORLD(sTTCElevatorSpeeds)[WORLD(gTTCSpeedSetting)] * o->oTTCElevatorDir;
 
-    if (gTTCSpeedSetting == TTC_SPEED_RANDOM) {
+    if (WORLD(gTTCSpeedSetting) == TTC_SPEED_RANDOM) {
         // Occasionally stop for 5 frames then change direction
         if (o->oTimer > o->oTTCElevatorMoveTime) {
             o->oTTCElevatorDir = random_sign();

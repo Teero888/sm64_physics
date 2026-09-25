@@ -105,8 +105,8 @@ extern const Collision bbh_seg7_collision_haunted_bookshelf[];
 extern const Collision bbh_seg7_collision_mesh_elevator[];
 extern const Collision bbh_seg7_collision_merry_go_round[];
 extern const Collision bbh_seg7_collision_coffin[];
-extern const struct MovtexQuadCollection bbh_movtex_merry_go_round_water_entrance[];
-extern const struct MovtexQuadCollection bbh_movtex_merry_go_round_water_side[];
+extern struct MovtexQuadCollection bbh_movtex_merry_go_round_water_entrance[];
+extern struct MovtexQuadCollection bbh_movtex_merry_go_round_water_side[];
 
 // script
 extern const LevelScript level_bbh_entry[];

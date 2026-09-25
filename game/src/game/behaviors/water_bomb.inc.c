@@ -32,11 +32,11 @@ void bhv_water_bomb_spawner_update(void) {
     f32 latDistToMario;
     f32 spawnerRadius = 50 * (u16)(o->oBhvParams >> 16) + 200.0f;
 
-    latDistToMario = lateral_dist_between_objects(o, gMarioObject);
+    latDistToMario = lateral_dist_between_objects(o, WORLD(gMarioObject));
 
     // When mario is in range and a water bomb isn't already active
     if (!o->oWaterBombSpawnerBombActive && latDistToMario < spawnerRadius
-        && gMarioObject->oPosY - o->oPosY < 1000.0f) {
+        && WORLD(gMarioObject)->oPosY - o->oPosY < 1000.0f) {
         if (o->oWaterBombSpawnerTimeToSpawn != 0) {
             o->oWaterBombSpawnerTimeToSpawn--;
         } else {
@@ -45,14 +45,14 @@ void bhv_water_bomb_spawner_update(void) {
 
             if (waterBomb != NULL) {
                 // Drop farther ahead of mario when he is moving faster
-                f32 waterBombDistToMario = 28.0f * gMarioStates[0].forwardVel + 100.0f;
+                f32 waterBombDistToMario = 28.0f * WORLD(gMarioStates)[0].forwardVel + 100.0f;
 
                 waterBomb->oAction = WATER_BOMB_ACT_INIT;
 
                 waterBomb->oPosX =
-                    gMarioObject->oPosX + waterBombDistToMario * sins(gMarioObject->oMoveAngleYaw);
+                    WORLD(gMarioObject)->oPosX + waterBombDistToMario * sins(WORLD(gMarioObject)->oMoveAngleYaw);
                 waterBomb->oPosZ =
-                    gMarioObject->oPosZ + waterBombDistToMario * coss(gMarioObject->oMoveAngleYaw);
+                    WORLD(gMarioObject)->oPosZ + waterBombDistToMario * coss(WORLD(gMarioObject)->oMoveAngleYaw);
 
                 spawn_object(waterBomb, MODEL_WATER_BOMB_SHADOW, bhvWaterBombShadow);
 
@@ -82,11 +82,11 @@ void water_bomb_spawn_explode_particles(s8 offsetY, s8 forwardVelRange, s8 velYB
         /* sizeRange:       */ 10.0f,
     };
 
-    waterBombExplodeParticles.offsetY = offsetY;
-    waterBombExplodeParticles.forwardVelRange = forwardVelRange;
-    waterBombExplodeParticles.velYBase = velYBase;
+    WORLD(waterBombExplodeParticles).offsetY = offsetY;
+    WORLD(waterBombExplodeParticles).forwardVelRange = forwardVelRange;
+    WORLD(waterBombExplodeParticles).velYBase = velYBase;
 
-    cur_obj_spawn_particles(&waterBombExplodeParticles);
+    cur_obj_spawn_particles(&WORLD(waterBombExplodeParticles));
 }
 
 /**
@@ -107,7 +107,7 @@ static void water_bomb_act_init(void) {
 static void water_bomb_act_drop(void) {
     f32 stretch;
 
-    obj_set_hitbox(o, &sWaterBombHitbox);
+    obj_set_hitbox(o, &WORLD(sWaterBombHitbox));
 
     // Explode if touched or if hit water
     if ((o->oInteractStatus & INT_STATUS_INTERACTED) || (o->oMoveFlags & OBJ_MOVE_ENTERED_WATER)) {
@@ -197,7 +197,7 @@ static void water_bomb_act_shot_from_cannon(void) {
             if (o->oTimer == 1) {
                 water_bomb_spawn_explode_particles(-20, 10, 30);
             }
-            cur_obj_spawn_particles(&waterBombCannonParticle);
+            cur_obj_spawn_particles(&WORLD(waterBombCannonParticle));
         }
 
         if (o->header.gfx.scale[1] > 1.2f) {

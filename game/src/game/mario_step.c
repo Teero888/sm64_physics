@@ -176,7 +176,7 @@ u32 mario_update_moving_sand(struct MarioState *m) {
     if (floorType == SURFACE_DEEP_MOVING_QUICKSAND || floorType == SURFACE_SHALLOW_MOVING_QUICKSAND
         || floorType == SURFACE_MOVING_QUICKSAND || floorType == SURFACE_INSTANT_MOVING_QUICKSAND) {
         s16 pushAngle = floor->force << 8;
-        f32 pushSpeed = sMovingSandSpeeds[floor->force >> 8];
+        f32 pushSpeed = WORLD(sMovingSandSpeeds)[floor->force >> 8];
 
         m->vel[0] += pushSpeed * sins(pushAngle);
         m->vel[2] += pushSpeed * coss(pushAngle);
@@ -205,7 +205,7 @@ u32 mario_update_windy_ground(struct MarioState *m) {
 
             pushSpeed *= coss(pushDYaw);
         } else {
-            pushSpeed = 3.2f + (gGlobalTimer % 4);
+            pushSpeed = 3.2f + (WORLD(gGlobalTimer) % 4);
         }
 
         m->vel[0] += pushSpeed * sins(pushAngle);
@@ -280,7 +280,7 @@ static s32 perform_ground_quarter_step(struct MarioState *m, Vec3f nextPos) {
 
     if ((m->action & ACT_FLAG_RIDING_SHELL) && floorHeight < waterLevel) {
         floorHeight = waterLevel;
-        floor = &gWaterSurfacePseudoFloor;
+        floor = &WORLD(gWaterSurfacePseudoFloor);
         floor->originOffset = floorHeight; //! Wrong origin offset (no effect)
     }
 
@@ -423,7 +423,7 @@ s32 perform_air_quarter_step(struct MarioState *m, Vec3f intendedPos, u32 stepAr
 
     if ((m->action & ACT_FLAG_RIDING_SHELL) && floorHeight < waterLevel) {
         floorHeight = waterLevel;
-        floor = &gWaterSurfacePseudoFloor;
+        floor = &WORLD(gWaterSurfacePseudoFloor);
         floor->originOffset = floorHeight; //! Incorrect origin offset (no effect)
     }
 

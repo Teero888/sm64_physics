@@ -2,7 +2,8 @@
 
 #include <stdlib.h>
 
-uint32_t gN64StackPointer;
+// Per thread: it only lives during a step.
+__thread uint32_t gN64StackPointer __attribute__((tls_model("initial-exec")));
 
 // Function address -> N64 frame size, open addressing. Every instrumented
 // call looks up here twice, so it has to be cheap.

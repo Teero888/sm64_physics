@@ -87,8 +87,8 @@ void play_step_sound(struct MarioState *m, s16 frame1, s16 frame2) {
 
 void align_with_floor(struct MarioState *m) {
     m->pos[1] = m->floorHeight;
-    mtxf_align_terrain_triangle(sFloorAlignMatrix[m->unk00], m->pos, m->faceAngle[1], 40.0f);
-    m->marioObj->header.gfx.throwMatrix = &sFloorAlignMatrix[m->unk00];
+    mtxf_align_terrain_triangle(WORLD(sFloorAlignMatrix)[m->unk00], m->pos, m->faceAngle[1], 40.0f);
+    m->marioObj->header.gfx.throwMatrix = &WORLD(sFloorAlignMatrix)[m->unk00];
 }
 
 s32 begin_walking_action(struct MarioState *m, f32 forwardVel, u32 action, u32 actionArg) {
@@ -353,7 +353,7 @@ void update_shell_speed(struct MarioState *m) {
 
     if (m->floorHeight < m->waterLevel) {
         m->floorHeight = m->waterLevel;
-        m->floor = &gWaterSurfacePseudoFloor;
+        m->floor = &WORLD(gWaterSurfacePseudoFloor);
         m->floor->originOffset = m->waterLevel; //! Negative origin offset
     }
 
@@ -1790,7 +1790,7 @@ s32 common_landing_cancels(struct MarioState *m, struct LandingAction *landingAc
 }
 
 s32 act_jump_land(struct MarioState *m) {
-    if (common_landing_cancels(m, &sJumpLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sJumpLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1799,7 +1799,7 @@ s32 act_jump_land(struct MarioState *m) {
 }
 
 s32 act_freefall_land(struct MarioState *m) {
-    if (common_landing_cancels(m, &sFreefallLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sFreefallLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1808,7 +1808,7 @@ s32 act_freefall_land(struct MarioState *m) {
 }
 
 s32 act_side_flip_land(struct MarioState *m) {
-    if (common_landing_cancels(m, &sSideFlipLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sSideFlipLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1823,7 +1823,7 @@ s32 act_hold_jump_land(struct MarioState *m) {
         return drop_and_set_mario_action(m, ACT_JUMP_LAND_STOP, 0);
     }
 
-    if (common_landing_cancels(m, &sHoldJumpLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sHoldJumpLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1836,7 +1836,7 @@ s32 act_hold_freefall_land(struct MarioState *m) {
         return drop_and_set_mario_action(m, ACT_FREEFALL_LAND_STOP, 0);
     }
 
-    if (common_landing_cancels(m, &sHoldFreefallLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sHoldFreefallLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1856,7 +1856,7 @@ s32 act_long_jump_land(struct MarioState *m) {
         m->input &= ~INPUT_A_PRESSED;
     }
 
-    if (common_landing_cancels(m, &sLongJumpLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sLongJumpLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1872,7 +1872,7 @@ s32 act_long_jump_land(struct MarioState *m) {
 }
 
 s32 act_double_jump_land(struct MarioState *m) {
-    if (common_landing_cancels(m, &sDoubleJumpLandAction, set_triple_jump_action)) {
+    if (common_landing_cancels(m, &WORLD(sDoubleJumpLandAction), set_triple_jump_action)) {
         return TRUE;
     }
     common_landing_action(m, MARIO_ANIM_LAND_FROM_DOUBLE_JUMP, ACT_FREEFALL);
@@ -1882,7 +1882,7 @@ s32 act_double_jump_land(struct MarioState *m) {
 s32 act_triple_jump_land(struct MarioState *m) {
     m->input &= ~INPUT_A_PRESSED;
 
-    if (common_landing_cancels(m, &sTripleJumpLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sTripleJumpLandAction), set_jumping_action)) {
         return TRUE;
     }
 
@@ -1899,7 +1899,7 @@ s32 act_backflip_land(struct MarioState *m) {
         m->input &= ~INPUT_A_PRESSED;
     }
 
-    if (common_landing_cancels(m, &sBackflipLandAction, set_jumping_action)) {
+    if (common_landing_cancels(m, &WORLD(sBackflipLandAction), set_jumping_action)) {
         return TRUE;
     }
 

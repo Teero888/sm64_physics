@@ -6,14 +6,14 @@ void spawn_child_obj_relative(struct Object *parent, s16 xOffset, s16 yOffset, s
     struct Object *obj = spawn_object(parent, model, behavior);
 
     obj->header.gfx.animInfo.animFrame = random_float() * 6.0f;
-    obj->oEndBirdUnk104 = sCutsceneVars[9].point[0];
+    obj->oEndBirdUnk104 = WORLD(sCutsceneVars)[9].point[0];
 
-    sCutsceneVars[9].point[0] += 1.0f;
+    WORLD(sCutsceneVars)[9].point[0] += 1.0f;
 
     obj->oPosX += xOffset;
     obj->oPosY += yOffset;
 
-    if (gCutsceneTimer > 700) {
+    if (WORLD(gCutsceneTimer) > 700) {
         obj->oPosY += -150.0f;
     }
 
@@ -27,15 +27,15 @@ void spawn_child_obj_relative(struct Object *parent, s16 xOffset, s16 yOffset, s
 void bhv_intro_scene_loop(void) {
     UNUSED struct Object *obj;
 
-    if (gCutsceneObjSpawn != 0) {
-        o->oPosX = gCamera->pos[0];
-        o->oPosY = gCamera->pos[1];
-        o->oPosZ = gCamera->pos[2];
+    if (WORLD(gCutsceneObjSpawn) != 0) {
+        o->oPosX = WORLD(gCamera)->pos[0];
+        o->oPosY = WORLD(gCamera)->pos[1];
+        o->oPosZ = WORLD(gCamera)->pos[2];
 
         o->oMoveAnglePitch = 0;
         o->oMoveAngleYaw = 0;
 
-        switch (gCutsceneObjSpawn) {
+        switch (WORLD(gCutsceneObjSpawn)) {
             case 6:
                 obj = spawn_object(o, MODEL_LAKITU, bhvBeginningLakitu);
                 break;
@@ -82,6 +82,6 @@ void bhv_intro_scene_loop(void) {
                 break;
         }
 
-        gCutsceneObjSpawn = 0;
+        WORLD(gCutsceneObjSpawn) = 0;
     }
 }

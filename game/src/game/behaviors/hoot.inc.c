@@ -78,8 +78,8 @@ void hoot_free_step(s16 fastOscY, s32 speed) {
 }
 
 void hoot_player_set_yaw(void) {
-    s16 stickX = gPlayer3Controller->rawStickX;
-    s16 stickY = gPlayer3Controller->rawStickY;
+    s16 stickX = WORLD(gPlayer3Controller)->rawStickX;
+    s16 stickY = WORLD(gPlayer3Controller)->rawStickY;
     UNUSED s16 pitch = o->oMoveAnglePitch;
 
     if (stickX < 10 && stickX >= -9) {
@@ -128,7 +128,7 @@ void hoot_surface_collision(f32 xPrev, UNUSED f32 yPrev, f32 zPrev) {
         o->oPosX = hitbox.x;
         o->oPosY = hitbox.y;
         o->oPosZ = hitbox.z;
-        gMarioObject->oInteractStatus |= INT_STATUS_MARIO_UNK7;
+        WORLD(gMarioObject)->oInteractStatus |= INT_STATUS_MARIO_UNK7;
     }
 
     floorY = find_floor_height_and_data(o->oPosX, o->oPosY, o->oPosZ, &floorGeo);
@@ -206,7 +206,7 @@ void hoot_action_loop(void) {
             hoot_carry_step(20, xPrev, zPrev);
 
             if (o->oTimer > 60) {
-                gMarioObject->oInteractStatus |= INT_STATUS_MARIO_UNK7;
+                WORLD(gMarioObject)->oInteractStatus |= INT_STATUS_MARIO_UNK7;
             }
             break;
     }

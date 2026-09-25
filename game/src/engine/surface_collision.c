@@ -109,7 +109,7 @@ static s32 find_wall_collisions_from_list(struct SurfaceNode *surfaceNode,
         }
 
         // Determine if checking for the camera or not.
-        if (gCheckingSurfaceCollisionsForCamera) {
+        if (WORLD(gCheckingSurfaceCollisionsForCamera)) {
             if (surf->flags & SURFACE_FLAG_NO_CAM_COLLISION) {
                 continue;
             }
@@ -122,14 +122,14 @@ static s32 find_wall_collisions_from_list(struct SurfaceNode *surfaceNode,
             // If an object can pass through a vanish cap wall, pass through.
             if (surf->type == SURFACE_VANISH_CAP_WALLS) {
                 // If an object can pass through a vanish cap wall, pass through.
-                if (gCurrentObject != NULL
-                    && (gCurrentObject->activeFlags & ACTIVE_FLAG_MOVE_THROUGH_GRATE)) {
+                if (WORLD(gCurrentObject) != NULL
+                    && (WORLD(gCurrentObject)->activeFlags & ACTIVE_FLAG_MOVE_THROUGH_GRATE)) {
                     continue;
                 }
 
                 // If Mario has a vanish cap, pass through the vanish cap wall.
-                if (gCurrentObject != NULL && gCurrentObject == gMarioObject
-                    && (gMarioState->flags & MARIO_VANISH_CAP)) {
+                if (WORLD(gCurrentObject) != NULL && WORLD(gCurrentObject) == WORLD(gMarioObject)
+                    && (WORLD(gMarioState)->flags & MARIO_VANISH_CAP)) {
                     continue;
                 }
             }
@@ -203,15 +203,15 @@ s32 find_wall_collisions(struct WallCollisionData *colData) {
     cellZ = ((z + LEVEL_BOUNDARY_MAX) / CELL_SIZE) & NUM_CELLS_INDEX;
 
     // Check for surfaces belonging to objects.
-    node = gDynamicSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_WALLS].next;
+    node = WORLD(gDynamicSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_WALLS].next;
     numCollisions += find_wall_collisions_from_list(node, colData);
 
     // Check for surfaces that are a part of level geometry.
-    node = gStaticSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_WALLS].next;
+    node = WORLD(gStaticSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_WALLS].next;
     numCollisions += find_wall_collisions_from_list(node, colData);
 
     // Increment the debug tracker.
-    gNumCalls.wall++;
+    WORLD(gNumCalls).wall++;
 
     return numCollisions;
 }
@@ -256,7 +256,7 @@ static struct Surface *find_ceil_from_list(struct SurfaceNode *surfaceNode, s32 
         }
 
         // Determine if checking for the camera or not.
-        if (gCheckingSurfaceCollisionsForCamera != 0) {
+        if (WORLD(gCheckingSurfaceCollisionsForCamera) != 0) {
             if (surf->flags & SURFACE_FLAG_NO_CAM_COLLISION) {
                 continue;
             }
@@ -333,11 +333,11 @@ f32 find_ceil(f32 posX, f32 posY, f32 posZ, struct Surface **pceil) {
     cellZ = ((z + LEVEL_BOUNDARY_MAX) / CELL_SIZE) & NUM_CELLS_INDEX;
 
     // Check for surfaces belonging to objects.
-    surfaceList = gDynamicSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_CEILS].next;
+    surfaceList = WORLD(gDynamicSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_CEILS].next;
     dynamicCeil = find_ceil_from_list(surfaceList, x, y, z, &dynamicHeight);
 
     // Check for surfaces that are a part of level geometry.
-    surfaceList = gStaticSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_CEILS].next;
+    surfaceList = WORLD(gStaticSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_CEILS].next;
     ceil = find_ceil_from_list(surfaceList, x, y, z, &height);
 
     if (dynamicHeight < height) {
@@ -348,7 +348,7 @@ f32 find_ceil(f32 posX, f32 posY, f32 posZ, struct Surface **pceil) {
     *pceil = ceil;
 
     // Increment the debug tracker.
-    gNumCalls.ceil++;
+    WORLD(gNumCalls).ceil++;
 
     return height;
 }
@@ -385,12 +385,12 @@ f32 find_floor_height_and_data(f32 xPos, f32 yPos, f32 zPos, struct FloorGeometr
     *floorGeo = NULL;
 
     if (floor != NULL) {
-        sFloorGeo.normalX = floor->normal.x;
-        sFloorGeo.normalY = floor->normal.y;
-        sFloorGeo.normalZ = floor->normal.z;
-        sFloorGeo.originOffset = floor->originOffset;
+        WORLD(sFloorGeo).normalX = floor->normal.x;
+        WORLD(sFloorGeo).normalY = floor->normal.y;
+        WORLD(sFloorGeo).normalZ = floor->normal.z;
+        WORLD(sFloorGeo).originOffset = floor->originOffset;
 
-        *floorGeo = &sFloorGeo;
+        *floorGeo = &WORLD(sFloorGeo);
     }
     return floorHeight;
 }
@@ -433,7 +433,7 @@ static struct Surface *find_floor_from_list(struct SurfaceNode *surfaceNode, s32
         }
 
         // Determine if we are checking for the camera or not.
-        if (gCheckingSurfaceCollisionsForCamera != 0) {
+        if (WORLD(gCheckingSurfaceCollisionsForCamera) != 0) {
             if (surf->flags & SURFACE_FLAG_NO_CAM_COLLISION) {
                 continue;
             }
@@ -499,7 +499,7 @@ f32 unused_find_dynamic_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfl
     s16 cellX = ((x + LEVEL_BOUNDARY_MAX) / CELL_SIZE) & NUM_CELLS_INDEX;
     s16 cellZ = ((z + LEVEL_BOUNDARY_MAX) / CELL_SIZE) & NUM_CELLS_INDEX;
 
-    surfaceList = gDynamicSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
+    surfaceList = WORLD(gDynamicSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
     floor = find_floor_from_list(surfaceList, x, y, z, &floorHeight);
 
     *pfloor = floor;
@@ -540,17 +540,17 @@ f32 find_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfloor) {
     cellZ = ((z + LEVEL_BOUNDARY_MAX) / CELL_SIZE) & NUM_CELLS_INDEX;
 
     // Check for surfaces belonging to objects.
-    surfaceList = gDynamicSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
+    surfaceList = WORLD(gDynamicSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
     dynamicFloor = find_floor_from_list(surfaceList, x, y, z, &dynamicHeight);
 
     // Check for surfaces that are a part of level geometry.
-    surfaceList = gStaticSurfacePartition[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
+    surfaceList = WORLD(gStaticSurfacePartition)[cellZ][cellX][SPATIAL_PARTITION_FLOORS].next;
     floor = find_floor_from_list(surfaceList, x, y, z, &height);
 
     // To prevent the Merry-Go-Round room from loading when Mario passes above the hole that leads
     // there, SURFACE_INTANGIBLE is used. This prevent the wrong room from loading, but can also allow
     // Mario to pass through.
-    if (!gFindFloorIncludeSurfaceIntangible) {
+    if (!WORLD(gFindFloorIncludeSurfaceIntangible)) {
         //! (BBH Crash) Most NULL checking is done by checking the height of the floor returned
         //  instead of checking directly for a NULL floor. If this check returns a NULL floor
         //  (happens when there is no floor under the SURFACE_INTANGIBLE floor) but returns the height
@@ -560,12 +560,12 @@ f32 find_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfloor) {
         }
     } else {
         // To prevent accidentally leaving the floor tangible, stop checking for it.
-        gFindFloorIncludeSurfaceIntangible = FALSE;
+        WORLD(gFindFloorIncludeSurfaceIntangible) = FALSE;
     }
 
     // If a floor was missed, increment the debug counter.
     if (floor == NULL) {
-        gNumFindFloorMisses++;
+        WORLD(gNumFindFloorMisses)++;
     }
 
     if (dynamicHeight > height) {
@@ -576,7 +576,7 @@ f32 find_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfloor) {
     *pfloor = floor;
 
     // Increment the debug tracker.
-    gNumCalls.floor++;
+    WORLD(gNumCalls).floor++;
 
     return height;
 }
@@ -594,7 +594,7 @@ f32 find_water_level(f32 x, f32 z) {
     TerrainData val;
     f32 loX, hiX, loZ, hiZ;
     f32 waterLevel = FLOOR_LOWER_LIMIT;
-    TerrainData *p = gEnvironmentRegions;
+    TerrainData *p = WORLD(gEnvironmentRegions);
 
     if (p != NULL) {
         numRegions = *p++;
@@ -630,7 +630,7 @@ f32 find_poison_gas_level(f32 x, f32 z) {
     TerrainData val;
     f32 loX, hiX, loZ, hiZ;
     f32 gasLevel = FLOOR_LOWER_LIMIT;
-    TerrainData *p = gEnvironmentRegions;
+    TerrainData *p = WORLD(gEnvironmentRegions);
 
     if (p != NULL) {
         numRegions = *p++;
@@ -691,22 +691,22 @@ void debug_surface_list_info(f32 xPos, f32 zPos) {
     s32 cellX = (xPos + LEVEL_BOUNDARY_MAX) / CELL_SIZE;
     s32 cellZ = (zPos + LEVEL_BOUNDARY_MAX) / CELL_SIZE;
 
-    list = gStaticSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_FLOORS].next;
+    list = WORLD(gStaticSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_FLOORS].next;
     numFloors += surface_list_length(list);
 
-    list = gDynamicSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_FLOORS].next;
+    list = WORLD(gDynamicSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_FLOORS].next;
     numFloors += surface_list_length(list);
 
-    list = gStaticSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_WALLS].next;
+    list = WORLD(gStaticSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_WALLS].next;
     numWalls += surface_list_length(list);
 
-    list = gDynamicSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_WALLS].next;
+    list = WORLD(gDynamicSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_WALLS].next;
     numWalls += surface_list_length(list);
 
-    list = gStaticSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_CEILS].next;
+    list = WORLD(gStaticSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_CEILS].next;
     numCeils += surface_list_length(list);
 
-    list = gDynamicSurfacePartition[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_CEILS].next;
+    list = WORLD(gDynamicSurfacePartition)[cellZ & NUM_CELLS_INDEX][cellX & NUM_CELLS_INDEX][SPATIAL_PARTITION_CEILS].next;
     numCeils += surface_list_length(list);
 
     print_debug_top_down_mapinfo("area   %x", cellZ * NUM_CELLS + cellX);
@@ -718,20 +718,20 @@ void debug_surface_list_info(f32 xPos, f32 zPos) {
 
     set_text_array_x_y(80, -3);
 
-    print_debug_top_down_mapinfo("%d", gNumCalls.floor);
-    print_debug_top_down_mapinfo("%d", gNumCalls.wall);
-    print_debug_top_down_mapinfo("%d", gNumCalls.ceil);
+    print_debug_top_down_mapinfo("%d", WORLD(gNumCalls).floor);
+    print_debug_top_down_mapinfo("%d", WORLD(gNumCalls).wall);
+    print_debug_top_down_mapinfo("%d", WORLD(gNumCalls).ceil);
 
     set_text_array_x_y(-80, 0);
 
     // listal- List Allocated?, statbg- Static Background?, movebg- Moving Background?
-    print_debug_top_down_mapinfo("listal %d", gSurfaceNodesAllocated);
-    print_debug_top_down_mapinfo("statbg %d", gNumStaticSurfaces);
-    print_debug_top_down_mapinfo("movebg %d", gSurfacesAllocated - gNumStaticSurfaces);
+    print_debug_top_down_mapinfo("listal %d", WORLD(gSurfaceNodesAllocated));
+    print_debug_top_down_mapinfo("statbg %d", WORLD(gNumStaticSurfaces));
+    print_debug_top_down_mapinfo("movebg %d", WORLD(gSurfacesAllocated) - WORLD(gNumStaticSurfaces));
 
-    gNumCalls.floor = 0;
-    gNumCalls.ceil = 0;
-    gNumCalls.wall = 0;
+    WORLD(gNumCalls).floor = 0;
+    WORLD(gNumCalls).ceil = 0;
+    WORLD(gNumCalls).wall = 0;
 }
 
 /**

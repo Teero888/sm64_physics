@@ -57,10 +57,10 @@ struct MemTracker *new_memtracker(const char *name) {
     s32 i;
     struct MemTracker *tracker = NULL;
 
-    for (i = 0; i < ARRAY_COUNT(sMemTrackers); i++) {
-        if (sMemTrackers[i].name == NULL) {
-            sMemTrackers[i].name = name;
-            tracker = &sMemTrackers[i];
+    for (i = 0; i < ARRAY_COUNT(WORLD(sMemTrackers)); i++) {
+        if (WORLD(sMemTrackers)[i].name == NULL) {
+            WORLD(sMemTrackers)[i].name = name;
+            tracker = &WORLD(sMemTrackers)[i];
             break;
         }
     }
@@ -79,10 +79,10 @@ struct MemTracker *new_memtracker(const char *name) {
 struct MemTracker *get_memtracker(const char *name) {
     s32 i;
 
-    for (i = 0; i < ARRAY_COUNT(sMemTrackers); i++) {
-        if (sMemTrackers[i].name != NULL) {
-            if (gd_str_not_equal(sMemTrackers[i].name, name) == FALSE) {
-                return &sMemTrackers[i];
+    for (i = 0; i < ARRAY_COUNT(WORLD(sMemTrackers)); i++) {
+        if (WORLD(sMemTrackers)[i].name != NULL) {
+            if (gd_str_not_equal(WORLD(sMemTrackers)[i].name, name) == FALSE) {
+                return &WORLD(sMemTrackers)[i];
             }
         }
     }
@@ -105,18 +105,18 @@ struct MemTracker *start_memtracker(const char *name) {
     }
 
     tracker->begin = (f32) get_alloc_mem_amt();
-    if (sNumActiveMemTrackers >= ARRAY_COUNT(sActiveMemTrackers)) {
+    if (WORLD(sNumActiveMemTrackers) >= ARRAY_COUNT(WORLD(sActiveMemTrackers))) {
         fatal_printf("too many memtracker calls");
     }
 
-    sActiveMemTrackers[sNumActiveMemTrackers++] = tracker;
+    WORLD(sActiveMemTrackers)[WORLD(sNumActiveMemTrackers)++] = tracker;
 
     return tracker;
 }
 
 /* @ 23ABE0 -> 23AC28; not called; orig name: Unknown8018C410 */
 void print_most_recent_memtracker_name(void) {
-    gd_printf("%s\n", sActiveMemTrackers[sNumActiveMemTrackers - 1]->name);
+    gd_printf("%s\n", WORLD(sActiveMemTrackers)[WORLD(sNumActiveMemTrackers) - 1]->name);
 }
 
 /**
@@ -125,7 +125,7 @@ void print_most_recent_memtracker_name(void) {
 u32 stop_memtracker(const char *name) {
     struct MemTracker *tracker;
 
-    if (sNumActiveMemTrackers-- < 0) {
+    if (WORLD(sNumActiveMemTrackers)-- < 0) {
         fatal_printf("bad mem tracker count");
     }
 
@@ -146,15 +146,15 @@ u32 stop_memtracker(const char *name) {
 void remove_all_memtrackers(void) {
     s32 i;
 
-    for (i = 0; i < ARRAY_COUNT(sMemTrackers); i++) {
-        sMemTrackers[i].name = NULL;
-        sMemTrackers[i].begin = 0.0f;
-        sMemTrackers[i].end = 0.0f;
-        sMemTrackers[i].total = 0.0f;
+    for (i = 0; i < ARRAY_COUNT(WORLD(sMemTrackers)); i++) {
+        WORLD(sMemTrackers)[i].name = NULL;
+        WORLD(sMemTrackers)[i].begin = 0.0f;
+        WORLD(sMemTrackers)[i].end = 0.0f;
+        WORLD(sMemTrackers)[i].total = 0.0f;
     }
 
 #ifdef AVOID_UB
-    sNumActiveMemTrackers = 0;
+    WORLD(sNumActiveMemTrackers) = 0;
 #endif
 }
 
@@ -162,7 +162,7 @@ void remove_all_memtrackers(void) {
  * Returns a memtracker by index rather than name
  */
 struct MemTracker *get_memtracker_by_index(s32 index) {
-    return &sMemTrackers[index];
+    return &WORLD(sMemTrackers)[index];
 }
 
 /**
@@ -171,9 +171,9 @@ struct MemTracker *get_memtracker_by_index(s32 index) {
 void print_all_memtrackers(void) {
     s32 i;
 
-    for (i = 0; i < ARRAY_COUNT(sMemTrackers); i++) {
-        if (sMemTrackers[i].name != NULL) {
-            gd_printf("'%s' = %dk\n", sMemTrackers[i].name, (s32)(sMemTrackers[i].total / 1024.0f));
+    for (i = 0; i < ARRAY_COUNT(WORLD(sMemTrackers)); i++) {
+        if (WORLD(sMemTrackers)[i].name != NULL) {
+            gd_printf("'%s' = %dk\n", WORLD(sMemTrackers)[i].name, (s32)(WORLD(sMemTrackers)[i].total / 1024.0f));
         }
     }
 }
@@ -193,22 +193,22 @@ void print_all_timers(void) {
     s32 i;
 
     gd_printf("\nTimers:\n");
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
-        if (sTimers[i].name != NULL) {
-            gd_printf("'%s' = %f (%d)\n", sTimers[i].name, sTimers[i].scaledTotal,
-                      sTimers[i].resetCount);
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
+        if (WORLD(sTimers)[i].name != NULL) {
+            gd_printf("'%s' = %f (%d)\n", WORLD(sTimers)[i].name, WORLD(sTimers)[i].scaledTotal,
+                      WORLD(sTimers)[i].resetCount);
         }
     }
 }
 
 /* 23AFB0 -> 23AFC8; orig name: func_8018C7E0 */
 void deactivate_timing(void) {
-    sTimingActive = FALSE;
+    WORLD(sTimingActive) = FALSE;
 }
 
 /* 23AFC8 -> 23AFE4; orig name: func_8018C7F8 */
 void activate_timing(void) {
-    sTimingActive = TRUE;
+    WORLD(sTimingActive) = TRUE;
 }
 
 /**
@@ -217,14 +217,14 @@ void activate_timing(void) {
 void remove_all_timers(void) {
     s32 i;
 
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
-        sTimers[i].name = NULL;
-        sTimers[i].total = 0;
-        sTimers[i].unused = 0.0f;
-        sTimers[i].scaledTotal = 0.0f;
-        sTimers[i].prevScaledTotal = 0.0f;
-        sTimers[i].gadgetColourNum = sTimerGadgetColours[(u32) i % 7];
-        sTimers[i].resetCount = 0;
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
+        WORLD(sTimers)[i].name = NULL;
+        WORLD(sTimers)[i].total = 0;
+        WORLD(sTimers)[i].unused = 0.0f;
+        WORLD(sTimers)[i].scaledTotal = 0.0f;
+        WORLD(sTimers)[i].prevScaledTotal = 0.0f;
+        WORLD(sTimers)[i].gadgetColourNum = WORLD(sTimerGadgetColours)[(u32) i % 7];
+        WORLD(sTimers)[i].resetCount = 0;
     }
     activate_timing();
 }
@@ -236,10 +236,10 @@ static struct GdTimer *new_timer(const char *name) {
     s32 i;
     struct GdTimer *timer = NULL;
 
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
-        if (sTimers[i].name == NULL) {
-            sTimers[i].name = name;
-            timer = &sTimers[i];
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
+        if (WORLD(sTimers)[i].name == NULL) {
+            WORLD(sTimers)[i].name = name;
+            timer = &WORLD(sTimers)[i];
             break;
         }
     }
@@ -253,10 +253,10 @@ static struct GdTimer *new_timer(const char *name) {
 struct GdTimer *get_timer(const char *timerName) {
     s32 i;
 
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
-        if (sTimers[i].name != NULL) {
-            if (gd_str_not_equal(sTimers[i].name, timerName) == FALSE) {
-                return &sTimers[i];
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
+        if (WORLD(sTimers)[i].name != NULL) {
+            if (gd_str_not_equal(WORLD(sTimers)[i].name, timerName) == FALSE) {
+                return &WORLD(sTimers)[i];
             }
         }
     }
@@ -283,16 +283,16 @@ static struct GdTimer *get_timer_checked(const char *timerName) {
  * Returns a timer by index rather than name
  */
 struct GdTimer *get_timernum(s32 index) {
-    if (index >= ARRAY_COUNT(sTimers)) {
-        fatal_printf("get_timernum(): Timer number %d out of range (MAX %d)", index, ARRAY_COUNT(sTimers));
+    if (index >= ARRAY_COUNT(WORLD(sTimers))) {
+        fatal_printf("get_timernum(): Timer number %d out of range (MAX %d)", index, ARRAY_COUNT(WORLD(sTimers)));
     }
 
-    return &sTimers[index];
+    return &WORLD(sTimers)[index];
 }
 
 /* 23B350 -> 23B42C; orig name: func_8018CB80 */
 void split_timer_ptr(struct GdTimer *timer) {
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
@@ -312,7 +312,7 @@ void split_all_timers(void) {
     s32 i;
     struct GdTimer *timer;
 
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
         timer = get_timernum(i);
         if (timer->name != NULL) {
             split_timer_ptr(timer);
@@ -327,11 +327,11 @@ void start_all_timers(void) {
     s32 i;
     struct GdTimer *timer;
 
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
-    for (i = 0; i < ARRAY_COUNT(sTimers); i++) {
+    for (i = 0; i < ARRAY_COUNT(WORLD(sTimers)); i++) {
         timer = get_timernum(i);
 
         if (timer->name != NULL) {
@@ -346,7 +346,7 @@ void start_all_timers(void) {
 void start_timer(const char *name) {
     struct GdTimer *timer;
 
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
@@ -371,7 +371,7 @@ void start_timer(const char *name) {
 void restart_timer(const char *name) {
     struct GdTimer *timer;
 
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
@@ -395,7 +395,7 @@ void restart_timer(const char *name) {
 void split_timer(const char *name) {
     struct GdTimer *timer;
 
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
@@ -409,7 +409,7 @@ void split_timer(const char *name) {
 void stop_timer(const char *name) {
     struct GdTimer *timer;
 
-    if (!sTimingActive) {
+    if (!WORLD(sTimingActive)) {
         return;
     }
 
@@ -460,8 +460,8 @@ void fatal_print(const char *str) {
 void print_stack_trace(void) {
     s32 i;
 
-    for (i = 0; i < sNumRoutinesInStack; i++) {
-        gd_printf("\tIn: '%s'\n", sRoutineNames[i]);
+    for (i = 0; i < WORLD(sNumRoutinesInStack); i++) {
+        gd_printf("\tIn: '%s'\n", WORLD(sRoutineNames)[i]);
     }
 }
 
@@ -524,10 +524,10 @@ void fatal_printf(const char *fmt, ...) {
  * Adds the function name to the stack trace
  */
 void imin(const char *routine) {
-    sRoutineNames[sNumRoutinesInStack++] = routine;
-    sRoutineNames[sNumRoutinesInStack] = NULL;  //! array bounds is checked after writing this.
+    WORLD(sRoutineNames)[WORLD(sNumRoutinesInStack)++] = routine;
+    WORLD(sRoutineNames)[WORLD(sNumRoutinesInStack)] = NULL;  //! array bounds is checked after writing this.
 
-    if (sNumRoutinesInStack >= ARRAY_COUNT(sRoutineNames)) {
+    if (WORLD(sNumRoutinesInStack) >= ARRAY_COUNT(WORLD(sRoutineNames))) {
         fatal_printf("You're in too many routines");
     }
 }
@@ -539,10 +539,10 @@ void imin(const char *routine) {
 void imout(void) {
     s32 i;
 
-    if (--sNumRoutinesInStack < 0) {
-        for (i = 0; i < ARRAY_COUNT(sRoutineNames); i++) {
-            if (sRoutineNames[i] != NULL) {
-                gd_printf(" - %s\n", sRoutineNames[i]);
+    if (--WORLD(sNumRoutinesInStack) < 0) {
+        for (i = 0; i < ARRAY_COUNT(WORLD(sRoutineNames)); i++) {
+            if (WORLD(sRoutineNames)[i] != NULL) {
+                gd_printf(" - %s\n", WORLD(sRoutineNames)[i]);
             } else {
                 break;
             }
@@ -562,22 +562,22 @@ f32 gd_rand_float(void) {
     f32 val;
 
     for (i = 0; i < 4; i++) {
-        if (sPrimarySeed & 0x80000000) {
-            sPrimarySeed = sPrimarySeed << 1 | 1;
+        if (WORLD(sPrimarySeed) & 0x80000000) {
+            WORLD(sPrimarySeed) = WORLD(sPrimarySeed) << 1 | 1;
         } else {
-            sPrimarySeed <<= 1;
+            WORLD(sPrimarySeed) <<= 1;
         }
     }
-    sPrimarySeed += 4;
+    WORLD(sPrimarySeed) += 4;
 
     /* Seed Switch */
-    if ((sPrimarySeed ^= gd_get_ostime()) & 1) {
-        temp = sPrimarySeed;
-        sPrimarySeed = sSecondarySeed;
-        sSecondarySeed = temp;
+    if ((WORLD(sPrimarySeed) ^= gd_get_ostime()) & 1) {
+        temp = WORLD(sPrimarySeed);
+        WORLD(sPrimarySeed) = WORLD(sSecondarySeed);
+        WORLD(sSecondarySeed) = temp;
     }
 
-    val = (sPrimarySeed & 0xFFFF) / 65535.0; // 65535.0f
+    val = (WORLD(sPrimarySeed) & 0xFFFF) / 65535.0; // 65535.0f
 
     return val;
 }
@@ -634,7 +634,7 @@ char *format_number_hex(char *str, s32 val) {
     s32 shift;
 
     for (shift = 28; shift > -4; shift -= 4) {
-        *str++ = sHexNumerals[(val >> shift) & 0xF];
+        *str++ = WORLD(sHexNumerals)[(val >> shift) & 0xF];
     }
 
     *str = '\0';
@@ -662,7 +662,7 @@ char *format_number_decimal(char *str, s32 val, s32 padnum) {
 
     while (padnum > 0) {
         if (padnum <= val) {
-            sPadNumPrint = TRUE;
+            WORLD(sPadNumPrint) = TRUE;
 
             for (i = 0; i < 9; i++) {
                 val -= padnum;
@@ -674,7 +674,7 @@ char *format_number_decimal(char *str, s32 val, s32 padnum) {
 
             *str++ = i + '0';
         } else {
-            if (sPadNumPrint) {
+            if (WORLD(sPadNumPrint)) {
                 *str++ = '0';
             }
         }
@@ -712,18 +712,18 @@ char *sprint_val_withspecifiers(char *str, union PrintVal val, char *specifiers)
 
     while ((cur = *specifiers++)) {
         if (cur == 'd') {
-            sPadNumPrint = FALSE;
+            WORLD(sPadNumPrint) = FALSE;
             str = format_number_decimal(str, val.i, 1000000000);
         } else if (cur == 'x') {
-            sPadNumPrint = TRUE; /* doesn't affect hex printing, though... */
+            WORLD(sPadNumPrint) = TRUE; /* doesn't affect hex printing, though... */
             str = format_number_hex(str, val.i);
         } else if (cur == 'f') {
             intPart = (s32) val.f;
             fracPart = (s32)((val.f - (f32) intPart) * (f32) int_sci_notation(10, fracPrec));
-            sPadNumPrint = FALSE;
+            WORLD(sPadNumPrint) = FALSE;
             str = format_number_decimal(str, intPart, int_sci_notation(10, intPrec));
             *str++ = '.';
-            sPadNumPrint = TRUE;
+            WORLD(sPadNumPrint) = TRUE;
             str = format_number_decimal(str, fracPart, int_sci_notation(10, fracPrec - 1));
         } else if (cur >= '0' && cur <= '9') {
             cur = cur - '0';
@@ -851,10 +851,10 @@ struct GdFile *gd_fopen(const char *filename, const char *mode) {
     while (TRUE) {
         bufbytes = (u8 *) &buf;
         for (i = 0; i < sizeof(struct UnkBufThing); i++) {
-            *bufbytes++ = gGdStreamBuffer[filecsr++];
+            *bufbytes++ = WORLD(gGdStreamBuffer)[filecsr++];
         }
         stub_renderer_13(&buf);
-        fileposptr = &gGdStreamBuffer[filecsr];
+        fileposptr = &WORLD(gGdStreamBuffer)[filecsr];
         filecsr += buf.size;
 
         loadedname = buf.name;

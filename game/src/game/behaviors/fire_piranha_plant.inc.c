@@ -33,8 +33,8 @@ s32 sNumActiveFirePiranhaPlants;
 s32 sNumKilledFirePiranhaPlants;
 
 void bhv_fire_piranha_plant_init(void) {
-    o->oFirePiranhaPlantNeutralScale = D_80331B5C[(u16)(o->oBhvParams >> 16)];
-    obj_set_hitbox(o, &sFirePiranhaPlantHitbox);
+    o->oFirePiranhaPlantNeutralScale = WORLD(D_80331B5C)[(u16)(o->oBhvParams >> 16)];
+    obj_set_hitbox(o, &WORLD(sFirePiranhaPlantHitbox));
 
     if ((u16)(o->oBhvParams >> 16) != 0) {
         o->oFlags |= OBJ_FLAG_PERSISTENT_RESPAWN;
@@ -47,7 +47,7 @@ void bhv_fire_piranha_plant_init(void) {
         }
     }
 
-    sNumActiveFirePiranhaPlants = sNumKilledFirePiranhaPlants = 0;
+    WORLD(sNumActiveFirePiranhaPlants) = WORLD(sNumKilledFirePiranhaPlants) = 0;
 }
 
 static void fire_piranha_plant_act_hide(void) {
@@ -64,23 +64,23 @@ static void fire_piranha_plant_act_hide(void) {
         cur_obj_become_intangible();
 
         if (o->oFirePiranhaPlantActive) {
-            sNumActiveFirePiranhaPlants--;
+            WORLD(sNumActiveFirePiranhaPlants)--;
             o->oFirePiranhaPlantActive = FALSE;
 
             if ((u16)(o->oBhvParams >> 16) != 0 && o->oHealth == 0) {
-                if (++sNumKilledFirePiranhaPlants == 5) {
+                if (++WORLD(sNumKilledFirePiranhaPlants) == 5) {
                     spawn_default_star(-6300.0f, -1850.0f, -6300.0f);
                 }
 
                 obj_die_if_health_non_positive();
                 set_object_respawn_info_bits(o, 1);
             }
-        } else if (sNumActiveFirePiranhaPlants < 2 && o->oTimer > 100
+        } else if (WORLD(sNumActiveFirePiranhaPlants) < 2 && o->oTimer > 100
                    && o->oDistanceToMario > 100.0f && o->oDistanceToMario < 800.0f) {
             cur_obj_play_sound_2(SOUND_OBJ_PIRANHA_PLANT_APPEAR);
 
             o->oFirePiranhaPlantActive = TRUE;
-            sNumActiveFirePiranhaPlants++;
+            WORLD(sNumActiveFirePiranhaPlants)++;
 
             cur_obj_unhide();
             o->oAction = FIRE_PIRANHA_PLANT_ACT_GROW;
@@ -128,10 +128,10 @@ void bhv_fire_piranha_plant_update(void) {
             break;
     }
 
-    if (obj_check_attacks(&sFirePiranhaPlantHitbox, o->oAction) != 0) {
+    if (obj_check_attacks(&WORLD(sFirePiranhaPlantHitbox), o->oAction) != 0) {
         if (--o->oHealth < 0) {
             if (o->oFirePiranhaPlantActive) {
-                sNumActiveFirePiranhaPlants--;
+                WORLD(sNumActiveFirePiranhaPlants)--;
             }
         } else {
             cur_obj_init_animation_with_sound(2);

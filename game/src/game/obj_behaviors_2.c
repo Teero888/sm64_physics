@@ -50,7 +50,7 @@
 #define POS_OP_COMPUTE_VELOCITY 1
 #define POS_OP_RESTORE_POSITION 2
 
-#define o gCurrentObject
+#define o WORLD(gCurrentObject)
 
 /* BSS (declared to force order) */
 extern s32 sNumActiveFirePiranhaPlants;
@@ -127,21 +127,21 @@ static s32 obj_is_near_to_and_facing_mario(f32 maxDist, s16 maxAngleDiff) {
 static BAD_RETURN(u32) obj_perform_position_op(s32 op) {
     switch (op) {
         case POS_OP_SAVE_POSITION:
-            sObjSavedPosX = o->oPosX;
-            sObjSavedPosY = o->oPosY;
-            sObjSavedPosZ = o->oPosZ;
+            WORLD(sObjSavedPosX) = o->oPosX;
+            WORLD(sObjSavedPosY) = o->oPosY;
+            WORLD(sObjSavedPosZ) = o->oPosZ;
             break;
 
         case POS_OP_COMPUTE_VELOCITY:
-            o->oVelX = o->oPosX - sObjSavedPosX;
-            o->oVelY = o->oPosY - sObjSavedPosY;
-            o->oVelZ = o->oPosZ - sObjSavedPosZ;
+            o->oVelX = o->oPosX - WORLD(sObjSavedPosX);
+            o->oVelY = o->oPosY - WORLD(sObjSavedPosY);
+            o->oVelZ = o->oPosZ - WORLD(sObjSavedPosZ);
             break;
 
         case POS_OP_RESTORE_POSITION:
-            o->oPosX = sObjSavedPosX;
-            o->oPosY = sObjSavedPosY;
-            o->oPosZ = sObjSavedPosZ;
+            o->oPosX = WORLD(sObjSavedPosX);
+            o->oPosY = WORLD(sObjSavedPosY);
+            o->oPosZ = WORLD(sObjSavedPosZ);
             break;
     }
 }
@@ -379,7 +379,7 @@ static s16 obj_turn_pitch_toward_mario(f32 targetOffsetY, s16 turnAmount) {
     s16 targetPitch;
 
     o->oPosY -= targetOffsetY;
-    targetPitch = obj_turn_toward_object(o, gMarioObject, O_MOVE_ANGLE_PITCH_INDEX, turnAmount);
+    targetPitch = obj_turn_toward_object(o, WORLD(gMarioObject), O_MOVE_ANGLE_PITCH_INDEX, turnAmount);
     o->oPosY += targetOffsetY;
 
     return targetPitch;
@@ -559,7 +559,7 @@ static s32 obj_resolve_object_collisions(s32 *targetYaw) {
 
     if (o->numCollidedObjs != 0) {
         otherObject = o->collidedObjs[0];
-        if (otherObject != gMarioObject) {
+        if (otherObject != WORLD(gMarioObject)) {
             //! If one object moves after collisions are detected and this code
             //  runs, the objects can move toward each other (transport cloning)
 
@@ -663,7 +663,7 @@ static void obj_set_knockback_action(s32 attackType) {
     }
 
     o->oFlags &= ~OBJ_FLAG_SET_FACE_YAW_TO_MOVE_YAW;
-    o->oMoveAngleYaw = obj_angle_to_object(gMarioObject, o);
+    o->oMoveAngleYaw = obj_angle_to_object(WORLD(gMarioObject), o);
 }
 
 static void obj_set_squished_action(void) {
@@ -883,9 +883,9 @@ static void treat_far_home_as_mario(f32 threshold) {
         o->oAngleToMario = atan2s(dz, dx);
         o->oDistanceToMario = 25000.0f;
     } else {
-        dx = o->oHomeX - gMarioObject->oPosX;
-        dy = o->oHomeY - gMarioObject->oPosY;
-        dz = o->oHomeZ - gMarioObject->oPosZ;
+        dx = o->oHomeX - WORLD(gMarioObject)->oPosX;
+        dy = o->oHomeY - WORLD(gMarioObject)->oPosY;
+        dz = o->oHomeZ - WORLD(gMarioObject)->oPosZ;
         distance = sqrtf(dx * dx + dy * dy + dz * dz);
 
         if (distance > threshold) {

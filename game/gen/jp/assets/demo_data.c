@@ -36,11 +36,11 @@ NULL,
 
 // Library: the demo inputs, from the ROM (platform/host.c).
 void host_load_demo_inputs(const unsigned char *rom) {
-    memcpy(gDemoInputs.bbh, rom + 0x577bf8, sizeof(gDemoInputs.bbh));
-    memcpy(gDemoInputs.ccm, rom + 0x577fd4, sizeof(gDemoInputs.ccm));
-    memcpy(gDemoInputs.hmc, rom + 0x5784fc, sizeof(gDemoInputs.hmc));
-    memcpy(gDemoInputs.jrb, rom + 0x5788d0, sizeof(gDemoInputs.jrb));
-    memcpy(gDemoInputs.pss, rom + 0x578ddc, sizeof(gDemoInputs.pss));
-    memcpy(gDemoInputs.unused, rom + 0x5790c8, sizeof(gDemoInputs.unused));
-    memcpy(gDemoInputs.wf, rom + 0x578b3c, sizeof(gDemoInputs.wf));
+    memcpy(WORLD(gDemoInputs).bbh, rom + 0x577bf8, sizeof(WORLD(gDemoInputs).bbh));
+    memcpy(WORLD(gDemoInputs).ccm, rom + 0x577fd4, sizeof(WORLD(gDemoInputs).ccm));
+    memcpy(WORLD(gDemoInputs).hmc, rom + 0x5784fc, sizeof(WORLD(gDemoInputs).hmc));
+    memcpy(WORLD(gDemoInputs).jrb, rom + 0x5788d0, sizeof(WORLD(gDemoInputs).jrb));
+    memcpy(WORLD(gDemoInputs).pss, rom + 0x578ddc, sizeof(WORLD(gDemoInputs).pss));
+    memcpy(WORLD(gDemoInputs).unused, rom + 0x5790c8, sizeof(WORLD(gDemoInputs).unused));
+    memcpy(WORLD(gDemoInputs).wf, rom + 0x578b3c, sizeof(WORLD(gDemoInputs).wf));
 }

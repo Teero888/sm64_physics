@@ -29,7 +29,7 @@ static Movtex jrb_movtex_ocean_cave_water_data[] = {
 };
 
 // 0x0700D2CC
-const struct MovtexQuadCollection jrb_movtex_water[] = {
+struct MovtexQuadCollection jrb_movtex_water[] = {
     {0, jrb_movtex_water_data},
     {1, jrb_movtex_ocean_cave_water_data},
     {-1, NULL},
@@ -51,7 +51,7 @@ static Movtex jrb_movtex_initial_mist_data[] = {
 };
 
 // 0x0700D304
-const struct MovtexQuadCollection jrb_movtex_initial_mist[] = {
+struct MovtexQuadCollection jrb_movtex_initial_mist[] = {
     {51, jrb_movtex_initial_mist_data},
     {-1, NULL},
 };

@@ -214,7 +214,7 @@ void stop_other_paintings(s16 *idptr, struct Painting *paintingGroup[]) {
 f32 painting_mario_y(struct Painting *painting) {
     //! Unnecessary use of double constants
     // Add 50 to make the ripple closer to Mario's center of mass.
-    f32 relY = gPaintingMarioYPos - painting->posY + 50.0;
+    f32 relY = WORLD(gPaintingMarioYPos) - painting->posY + 50.0;
 
     if (relY < 0.0) {
         relY = 0.0;
@@ -228,7 +228,7 @@ f32 painting_mario_y(struct Painting *painting) {
  * @return Mario's z position inside the painting (bounded).
  */
 f32 painting_mario_z(struct Painting *painting) {
-    f32 relZ = painting->posZ - gPaintingMarioZPos;
+    f32 relZ = painting->posZ - WORLD(gPaintingMarioZPos);
 
     if (relZ < 0.0) {
         relZ = 0.0;
@@ -291,7 +291,7 @@ f32 painting_nearest_4th(struct Painting *painting) {
  * @return Mario's x position inside the painting (bounded).
  */
 f32 painting_mario_x(struct Painting *painting) {
-    f32 relX = gPaintingMarioXPos - painting->posX;
+    f32 relX = WORLD(gPaintingMarioXPos) - painting->posX;
 
     if (relX < 0.0) {
         relX = 0.0;
@@ -353,13 +353,13 @@ void painting_state(s8 state, struct Painting *painting, struct Painting *painti
     painting->state = state;
     painting->rippleX = painting_ripple_x(painting, xSource);
     painting->rippleY = painting_ripple_y(painting, ySource);
-    gPaintingMarioYEntry = gPaintingMarioYPos;
+    WORLD(gPaintingMarioYEntry) = WORLD(gPaintingMarioYPos);
 
     // Because true or false would be too simple...
     if (resetTimer == RESET_TIMER) {
         painting->rippleTimer = 0.0f;
     }
-    gRipplingPainting = painting;
+    WORLD(gRipplingPainting) = painting;
 }
 
 /**
@@ -534,22 +534,22 @@ void painting_update_floors(struct Painting *painting) {
     \* and sets a bitfield accordingly.                                               */
 
     // check if Mario's current floor is one of the special floors
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
         rippleLeft = RIPPLE_LEFT;
     }
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
         rippleMiddle = RIPPLE_MIDDLE;
     }
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
         rippleRight = RIPPLE_RIGHT;
     }
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
         enterLeft = ENTER_LEFT;
     }
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
         enterMiddle = ENTER_MIDDLE;
     }
-    if (gPaintingMarioFloorType == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
+    if (WORLD(gPaintingMarioFloorType) == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
         enterRight = ENTER_RIGHT;
     }
 
@@ -563,7 +563,7 @@ void painting_update_floors(struct Painting *painting) {
 
     painting->marioWasUnder = painting->marioIsUnder;
     // Check if Mario has fallen below the painting (used for floor paintings)
-    if (gPaintingMarioYPos < painting->posY) {
+    if (WORLD(gPaintingMarioYPos) < painting->posY) {
         painting->marioIsUnder = TRUE;
     } else {
         painting->marioIsUnder = FALSE;
@@ -580,7 +580,7 @@ void painting_update_floors(struct Painting *painting) {
  * ripple's magnitude becomes small enough.
  */
 void painting_update_ripple_state(struct Painting *painting) {
-    if (gPaintingUpdateCounter != gLastPaintingUpdateCounter) {
+    if (WORLD(gPaintingUpdateCounter) != WORLD(gLastPaintingUpdateCounter)) {
         painting->currRippleMag *= painting->rippleDecay;
 
         //! After ~6.47 days, paintings with RIPPLE_TRIGGER_CONTINUOUS will increment this to
@@ -593,7 +593,7 @@ void painting_update_ripple_state(struct Painting *painting) {
         // if the painting is barely rippling, make it stop rippling
         if (painting->currRippleMag <= 1.0) {
             painting->state = PAINTING_IDLE;
-            gRipplingPainting = NULL;
+            WORLD(gRipplingPainting) = NULL;
         }
     } else if (painting->rippleTrigger == RIPPLE_TRIGGER_CONTINUOUS) {
 
@@ -684,17 +684,17 @@ s16 ripple_if_movable(struct Painting *painting, s16 movable, s16 posX, s16 posY
 void painting_generate_mesh(struct Painting *painting, s16 *mesh, s16 numTris) {
     s16 i;
 
-    gPaintingMesh = mem_pool_alloc(gEffectsMemoryPool, numTris * sizeof(struct PaintingMeshVertex));
-    if (gPaintingMesh == NULL) {
+    WORLD(gPaintingMesh) = mem_pool_alloc(WORLD(gEffectsMemoryPool), numTris * sizeof(struct PaintingMeshVertex));
+    if (WORLD(gPaintingMesh) == NULL) {
     }
     // accesses are off by 1 since the first entry is the number of vertices
     for (i = 0; i < numTris; i++) {
-        gPaintingMesh[i].pos[0] = mesh[i * 3 + 1];
-        gPaintingMesh[i].pos[1] = mesh[i * 3 + 2];
+        WORLD(gPaintingMesh)[i].pos[0] = mesh[i * 3 + 1];
+        WORLD(gPaintingMesh)[i].pos[1] = mesh[i * 3 + 2];
         // The "z coordinate" of each vertex in the mesh is either 1 or 0. Instead of being an
         // actual coordinate, it just determines whether the vertex moves
-        gPaintingMesh[i].pos[2] = ripple_if_movable(painting, mesh[i * 3 + 3],
-                                                    gPaintingMesh[i].pos[0], gPaintingMesh[i].pos[1]);
+        WORLD(gPaintingMesh)[i].pos[2] = ripple_if_movable(painting, mesh[i * 3 + 3],
+                                                    WORLD(gPaintingMesh)[i].pos[0], WORLD(gPaintingMesh)[i].pos[1]);
     }
 }
 
@@ -716,8 +716,8 @@ void painting_generate_mesh(struct Painting *painting, s16 *mesh, s16 numTris) {
 void painting_calculate_triangle_normals(s16 *mesh, s16 numVtx, s16 numTris) {
     s16 i;
 
-    gPaintingTriNorms = mem_pool_alloc(gEffectsMemoryPool, numTris * sizeof(Vec3f));
-    if (gPaintingTriNorms == NULL) {
+    WORLD(gPaintingTriNorms) = mem_pool_alloc(WORLD(gEffectsMemoryPool), numTris * sizeof(Vec3f));
+    if (WORLD(gPaintingTriNorms) == NULL) {
     }
     for (i = 0; i < numTris; i++) {
         s16 tri = numVtx * 3 + i * 3 + 2; // Add 2 because of the 2 length entries preceding the list
@@ -725,22 +725,22 @@ void painting_calculate_triangle_normals(s16 *mesh, s16 numVtx, s16 numTris) {
         s16 v1 = mesh[tri + 1];
         s16 v2 = mesh[tri + 2];
 
-        f32 x0 = gPaintingMesh[v0].pos[0];
-        f32 y0 = gPaintingMesh[v0].pos[1];
-        f32 z0 = gPaintingMesh[v0].pos[2];
+        f32 x0 = WORLD(gPaintingMesh)[v0].pos[0];
+        f32 y0 = WORLD(gPaintingMesh)[v0].pos[1];
+        f32 z0 = WORLD(gPaintingMesh)[v0].pos[2];
 
-        f32 x1 = gPaintingMesh[v1].pos[0];
-        f32 y1 = gPaintingMesh[v1].pos[1];
-        f32 z1 = gPaintingMesh[v1].pos[2];
+        f32 x1 = WORLD(gPaintingMesh)[v1].pos[0];
+        f32 y1 = WORLD(gPaintingMesh)[v1].pos[1];
+        f32 z1 = WORLD(gPaintingMesh)[v1].pos[2];
 
-        f32 x2 = gPaintingMesh[v2].pos[0];
-        f32 y2 = gPaintingMesh[v2].pos[1];
-        f32 z2 = gPaintingMesh[v2].pos[2];
+        f32 x2 = WORLD(gPaintingMesh)[v2].pos[0];
+        f32 y2 = WORLD(gPaintingMesh)[v2].pos[1];
+        f32 z2 = WORLD(gPaintingMesh)[v2].pos[2];
 
         // Cross product to find each triangle's normal vector
-        gPaintingTriNorms[i][0] = (y1 - y0) * (z2 - z1) - (z1 - z0) * (y2 - y1);
-        gPaintingTriNorms[i][1] = (z1 - z0) * (x2 - x1) - (x1 - x0) * (z2 - z1);
-        gPaintingTriNorms[i][2] = (x1 - x0) * (y2 - y1) - (y1 - y0) * (x2 - x1);
+        WORLD(gPaintingTriNorms)[i][0] = (y1 - y0) * (z2 - z1) - (z1 - z0) * (y2 - y1);
+        WORLD(gPaintingTriNorms)[i][1] = (z1 - z0) * (x2 - x1) - (x1 - x0) * (z2 - z1);
+        WORLD(gPaintingTriNorms)[i][2] = (x1 - x0) * (y2 - y1) - (y1 - y0) * (x2 - x1);
     }
 }
 
@@ -794,9 +794,9 @@ void painting_average_vertex_normals(s16 *neighborTris, s16 numVtx) {
         neighbors = neighborTris[entry];
         for (j = 0; j < neighbors; j++) {
             tri = neighborTris[entry + j + 1];
-            nx += gPaintingTriNorms[tri][0];
-            ny += gPaintingTriNorms[tri][1];
-            nz += gPaintingTriNorms[tri][2];
+            nx += WORLD(gPaintingTriNorms)[tri][0];
+            ny += WORLD(gPaintingTriNorms)[tri][1];
+            nz += WORLD(gPaintingTriNorms)[tri][2];
         }
         // Move to the next vertex's entry
         entry += neighbors + 1;
@@ -808,13 +808,13 @@ void painting_average_vertex_normals(s16 *neighborTris, s16 numVtx) {
         nlen = sqrtf(nx * nx + ny * ny + nz * nz);
 
         if (nlen == 0.0) {
-            gPaintingMesh[i].norm[0] = 0;
-            gPaintingMesh[i].norm[1] = 0;
-            gPaintingMesh[i].norm[2] = 0;
+            WORLD(gPaintingMesh)[i].norm[0] = 0;
+            WORLD(gPaintingMesh)[i].norm[1] = 0;
+            WORLD(gPaintingMesh)[i].norm[2] = 0;
         } else {
-            gPaintingMesh[i].norm[0] = normalize_component(nx / nlen);
-            gPaintingMesh[i].norm[1] = normalize_component(ny / nlen);
-            gPaintingMesh[i].norm[2] = normalize_component(nz / nlen);
+            WORLD(gPaintingMesh)[i].norm[0] = normalize_component(nx / nlen);
+            WORLD(gPaintingMesh)[i].norm[1] = normalize_component(ny / nlen);
+            WORLD(gPaintingMesh)[i].norm[2] = normalize_component(nz / nlen);
         }
     }
 }
@@ -870,9 +870,9 @@ Gfx *render_painting(u8 *img, s16 tWidth, s16 tHeight, s16 *textureMap, s16 mapV
             ty = textureMap[mapping * 3 + 3];
 
             // Map the texture and place it in the verts array
-            make_vertex(verts, group * 15 + map, gPaintingMesh[meshVtx].pos[0], gPaintingMesh[meshVtx].pos[1],
-                        gPaintingMesh[meshVtx].pos[2], tx, ty, gPaintingMesh[meshVtx].norm[0],
-                        gPaintingMesh[meshVtx].norm[1], gPaintingMesh[meshVtx].norm[2], alpha);
+            make_vertex(verts, group * 15 + map, WORLD(gPaintingMesh)[meshVtx].pos[0], WORLD(gPaintingMesh)[meshVtx].pos[1],
+                        WORLD(gPaintingMesh)[meshVtx].pos[2], tx, ty, WORLD(gPaintingMesh)[meshVtx].norm[0],
+                        WORLD(gPaintingMesh)[meshVtx].norm[1], WORLD(gPaintingMesh)[meshVtx].norm[2], alpha);
         }
 
         // Load the vertices and draw the 5 triangles
@@ -888,9 +888,9 @@ Gfx *render_painting(u8 *img, s16 tWidth, s16 tHeight, s16 *textureMap, s16 mapV
         meshVtx = textureMap[mapping * 3 + 1];
         tx = textureMap[mapping * 3 + 2];
         ty = textureMap[mapping * 3 + 3];
-        make_vertex(verts, triGroups * 15 + map, gPaintingMesh[meshVtx].pos[0], gPaintingMesh[meshVtx].pos[1],
-                    gPaintingMesh[meshVtx].pos[2], tx, ty, gPaintingMesh[meshVtx].norm[0],
-                    gPaintingMesh[meshVtx].norm[1], gPaintingMesh[meshVtx].norm[2], alpha);
+        make_vertex(verts, triGroups * 15 + map, WORLD(gPaintingMesh)[meshVtx].pos[0], WORLD(gPaintingMesh)[meshVtx].pos[1],
+                    WORLD(gPaintingMesh)[meshVtx].pos[2], tx, ty, WORLD(gPaintingMesh)[meshVtx].norm[0],
+                    WORLD(gPaintingMesh)[meshVtx].norm[1], WORLD(gPaintingMesh)[meshVtx].norm[2], alpha);
     }
 
     // Draw the triangles individually
@@ -1037,8 +1037,8 @@ Gfx *display_painting_rippling(struct Painting *painting) {
     }
 
     // The mesh data is freed every frame.
-    mem_pool_free(gEffectsMemoryPool, gPaintingMesh);
-    mem_pool_free(gEffectsMemoryPool, gPaintingTriNorms);
+    mem_pool_free(WORLD(gEffectsMemoryPool), WORLD(gPaintingMesh));
+    mem_pool_free(WORLD(gEffectsMemoryPool), WORLD(gPaintingTriNorms));
     return dlist;
 }
 
@@ -1070,7 +1070,7 @@ void reset_painting(struct Painting *painting) {
     painting->marioIsUnder = 0;
     painting->marioWentUnder = 0;
 
-    gRipplingPainting = NULL;
+    WORLD(gRipplingPainting) = NULL;
 
 #ifdef NO_SEGMENTED_MEMORY
     // Make sure all variables are reset correctly.
@@ -1084,7 +1084,7 @@ void reset_painting(struct Painting *painting) {
     painting->rippleTimer = 0.0f;
     painting->rippleX = 0.0f;
     painting->rippleY = 0.0f;
-    if (painting == &ddd_painting) {
+    if (painting == &WORLD(ddd_painting)) {
         // Move DDD painting to initial position, in case the animation
         // that moves the painting stops during level unload.
         painting->posX = 3456.0f;
@@ -1109,7 +1109,7 @@ void reset_painting(struct Painting *painting) {
  */
 void move_ddd_painting(struct Painting *painting, f32 frontPos, f32 backPos, f32 speed) {
     // Obtain the DDD star flags
-    u32 dddFlags = save_file_get_star_flags(gCurrSaveFileNum - 1, COURSE_NUM_TO_INDEX(COURSE_DDD));
+    u32 dddFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(COURSE_DDD));
     // Get the other save file flags
     u32 saveFileFlags = save_file_get_flags();
     // Find out whether Board Bowser's Sub was collected
@@ -1120,12 +1120,12 @@ void move_ddd_painting(struct Painting *painting, f32 frontPos, f32 backPos, f32
     if (!bowsersSubBeaten && !dddBack) {
         // If we haven't collected the star or moved the painting, put the painting at the front
         painting->posX = frontPos;
-        gDDDPaintingStatus = 0;
+        WORLD(gDDDPaintingStatus) = 0;
     } else if (bowsersSubBeaten && !dddBack) {
         // If we've collected the star but not moved the painting back,
         // Each frame, move the painting by a certain speed towards the back area.
         painting->posX += speed;
-        gDDDPaintingStatus = BOWSERS_SUB_BEATEN;
+        WORLD(gDDDPaintingStatus) = BOWSERS_SUB_BEATEN;
         if (painting->posX >= backPos) {
             painting->posX = backPos;
             // Tell the save file that we've moved DDD back.
@@ -1134,7 +1134,7 @@ void move_ddd_painting(struct Painting *painting, f32 frontPos, f32 backPos, f32
     } else if (bowsersSubBeaten && dddBack) {
         // If the painting has already moved back, place it in the back position.
         painting->posX = backPos;
-        gDDDPaintingStatus = BOWSERS_SUB_BEATEN | DDD_BACK;
+        WORLD(gDDDPaintingStatus) = BOWSERS_SUB_BEATEN | DDD_BACK;
     }
 }
 
@@ -1229,7 +1229,7 @@ Gfx *geo_painting_draw(s32 callContext, struct GraphNode *node, UNUSED void *con
     s32 group = (gen->parameter >> 8) & 0xFF;
     s32 id = gen->parameter & 0xFF;
     Gfx *paintingDlist = NULL;
-    struct Painting **paintingGroup = sPaintingGroups[group];
+    struct Painting **paintingGroup = WORLD(sPaintingGroups)[group];
     struct Painting *painting = segmented_to_virtual(paintingGroup[id]);
 
     if (callContext != GEO_CONTEXT_RENDER) {
@@ -1272,18 +1272,18 @@ Gfx *geo_painting_update(s32 callContext, UNUSED struct GraphNode *node, UNUSED 
 
     // Reset the update counter
     if (callContext != GEO_CONTEXT_RENDER) {
-        gLastPaintingUpdateCounter = gAreaUpdateCounter - 1;
-        gPaintingUpdateCounter = gAreaUpdateCounter;
+        WORLD(gLastPaintingUpdateCounter) = WORLD(gAreaUpdateCounter) - 1;
+        WORLD(gPaintingUpdateCounter) = WORLD(gAreaUpdateCounter);
     } else {
-        gLastPaintingUpdateCounter = gPaintingUpdateCounter;
-        gPaintingUpdateCounter = gAreaUpdateCounter;
+        WORLD(gLastPaintingUpdateCounter) = WORLD(gPaintingUpdateCounter);
+        WORLD(gPaintingUpdateCounter) = WORLD(gAreaUpdateCounter);
 
         // Store Mario's floor and position
-        find_floor(gMarioObject->oPosX, gMarioObject->oPosY, gMarioObject->oPosZ, &surface);
-        gPaintingMarioFloorType = surface->type;
-        gPaintingMarioXPos = gMarioObject->oPosX;
-        gPaintingMarioYPos = gMarioObject->oPosY;
-        gPaintingMarioZPos = gMarioObject->oPosZ;
+        find_floor(WORLD(gMarioObject)->oPosX, WORLD(gMarioObject)->oPosY, WORLD(gMarioObject)->oPosZ, &surface);
+        WORLD(gPaintingMarioFloorType) = surface->type;
+        WORLD(gPaintingMarioXPos) = WORLD(gMarioObject)->oPosX;
+        WORLD(gPaintingMarioYPos) = WORLD(gMarioObject)->oPosY;
+        WORLD(gPaintingMarioZPos) = WORLD(gMarioObject)->oPosZ;
     }
     return NULL;
 }

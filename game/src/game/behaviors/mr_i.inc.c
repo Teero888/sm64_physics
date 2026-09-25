@@ -39,7 +39,7 @@ void (*sMrIParticleActions[])(void) = {
 };
 
 void bhv_mr_i_particle_loop(void) {
-    cur_obj_call_action_function(sMrIParticleActions);
+    cur_obj_call_action_function(WORLD(sMrIParticleActions));
 }
 
 void spawn_mr_i_particle(void) {
@@ -168,8 +168,8 @@ void mr_i_act_2(void) {
         o->oMrIUnk104 = 0;
     }
 
-    obj_turn_toward_object(o, gMarioObject, 0x10, 0x800);
-    obj_turn_toward_object(o, gMarioObject, 0x0F, 0x400);
+    obj_turn_toward_object(o, WORLD(gMarioObject), 0x10, 0x800);
+    obj_turn_toward_object(o, WORLD(gMarioObject), 0x0F, 0x400);
 
     sp1C = sp1E - (s16)(o->oMoveAngleYaw);
 
@@ -228,9 +228,9 @@ void mr_i_act_2(void) {
 }
 
 void mr_i_act_1(void) {
-    s16 sp1E = obj_angle_to_object(o, gMarioObject);
+    s16 sp1E = obj_angle_to_object(o, WORLD(gMarioObject));
     s16 sp1C = abs_angle_diff(o->oMoveAngleYaw, sp1E);
-    s16 sp1A = abs_angle_diff(o->oMoveAngleYaw, gMarioObject->oFaceAngleYaw);
+    s16 sp1A = abs_angle_diff(o->oMoveAngleYaw, WORLD(gMarioObject)->oFaceAngleYaw);
 
     if (o->oTimer == 0) {
         cur_obj_become_tangible();
@@ -305,8 +305,8 @@ struct ObjectHitbox sMrIHitbox = {
 };
 
 void bhv_mr_i_loop(void) {
-    obj_set_hitbox(o, &sMrIHitbox);
-    cur_obj_call_action_function(sMrIActions);
+    obj_set_hitbox(o, &WORLD(sMrIHitbox));
+    cur_obj_call_action_function(WORLD(sMrIActions));
 
     if (o->oAction != 3) {
         if ((o->oDistanceToMario > 3000.0f) || (o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {

@@ -251,11 +251,11 @@ void play_mario_jump_sound(struct MarioState *m) {
     if (!(m->flags & MARIO_MARIO_SOUND_PLAYED)) {
 #ifndef VERSION_JP
         if (m->action == ACT_TRIPLE_JUMP) {
-            play_sound(SOUND_MARIO_YAHOO_WAHA_YIPPEE + ((gAudioRandom % 5) << 16),
+            play_sound(SOUND_MARIO_YAHOO_WAHA_YIPPEE + ((WORLD(gAudioRandom) % 5) << 16),
                        m->marioObj->header.gfx.cameraToObject);
         } else {
 #endif
-            play_sound(SOUND_MARIO_YAH_WAH_HOO + ((gAudioRandom % 3) << 16),
+            play_sound(SOUND_MARIO_YAH_WAH_HOO + ((WORLD(gAudioRandom) % 3) << 16),
                        m->marioObj->header.gfx.cameraToObject);
 #ifndef VERSION_JP
         }
@@ -465,7 +465,7 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
     if (m->floor != NULL) {
         floorType = m->floor->type;
 
-        if ((gCurrLevelNum != LEVEL_LLL) && (m->floorHeight < (m->waterLevel - 10))) {
+        if ((WORLD(gCurrLevelNum) != LEVEL_LLL) && (m->floorHeight < (m->waterLevel - 10))) {
             // Water terrain sound, excluding LLL since it uses water in the volcano.
             ret = SOUND_TERRAIN_WATER << 16;
         } else if (SURFACE_IS_QUICKSAND(floorType)) {
@@ -508,7 +508,7 @@ u32 mario_get_terrain_sound_addend(struct MarioState *m) {
                     break;
             }
 
-            ret = sTerrainSounds[terrainType][floorSoundType] << 16;
+            ret = WORLD(sTerrainSounds)[terrainType][floorSoundType] << 16;
         }
     }
 
@@ -721,7 +721,7 @@ void update_mario_sound_and_camera(struct MarioState *m) {
 
     if (action == ACT_FIRST_PERSON) {
         raise_background_noise(2);
-        gCameraMovementFlags &= ~CAM_MOVE_C_UP_MODE;
+        WORLD(gCameraMovementFlags) &= ~CAM_MOVE_C_UP_MODE;
         // Go back to the last camera mode
         set_camera_mode(m->area->camera, -1, 1);
     } else if (action == ACT_SLEEPING) {
@@ -1213,9 +1213,9 @@ void squish_mario_model(struct MarioState *m) {
             m->squishTimer -= 1;
 
             m->marioObj->header.gfx.scale[1] =
-                1.0f - ((sSquishScaleOverTime[15 - m->squishTimer] * 0.6f) / 100.0f);
+                1.0f - ((WORLD(sSquishScaleOverTime)[15 - m->squishTimer] * 0.6f) / 100.0f);
             m->marioObj->header.gfx.scale[0] =
-                ((sSquishScaleOverTime[15 - m->squishTimer] * 0.4f) / 100.0f) + 1.0f;
+                ((WORLD(sSquishScaleOverTime)[15 - m->squishTimer] * 0.4f) / 100.0f) + 1.0f;
 
             m->marioObj->header.gfx.scale[2] = m->marioObj->header.gfx.scale[0];
         } else {
@@ -1233,7 +1233,7 @@ void debug_print_speed_action_normal(struct MarioState *m) {
     f32 steepness;
     f32 floor_nY;
 
-    if (gShowDebugText) {
+    if (WORLD(gShowDebugText)) {
         steepness = sqrtf(
             ((m->floor->normal.x * m->floor->normal.x) + (m->floor->normal.z * m->floor->normal.z)));
         floor_nY = m->floor->normal.y;
@@ -1382,11 +1382,11 @@ void update_mario_inputs(struct MarioState *m) {
 
     debug_print_speed_action_normal(m);
 
-    if (gCameraMovementFlags & CAM_MOVE_C_UP_MODE) {
+    if (WORLD(gCameraMovementFlags) & CAM_MOVE_C_UP_MODE) {
         if (m->action & ACT_FLAG_ALLOW_FIRST_PERSON) {
             m->input |= INPUT_FIRST_PERSON;
         } else {
-            gCameraMovementFlags &= ~CAM_MOVE_C_UP_MODE;
+            WORLD(gCameraMovementFlags) &= ~CAM_MOVE_C_UP_MODE;
         }
     }
 
@@ -1458,7 +1458,7 @@ void update_mario_health(struct MarioState *m) {
         // When already healing or hurting Mario, Mario's HP is not changed any more here.
         if (((u32) m->healCounter | (u32) m->hurtCounter) == 0) {
             if ((m->input & INPUT_IN_POISON_GAS) && !(m->action & ACT_FLAG_INTANGIBLE)) {
-                if (!(m->flags & MARIO_METAL_CAP) && !gDebugLevelSelect) {
+                if (!(m->flags & MARIO_METAL_CAP) && !WORLD(gDebugLevelSelect)) {
                     m->health -= 4;
                 }
             } else {
@@ -1470,7 +1470,7 @@ void update_mario_health(struct MarioState *m) {
                     // If using the debug level select, do not lose any HP to water.
                     if ((m->pos[1] >= (m->waterLevel - 140)) && !terrainIsSnow) {
                         m->health += 0x1A;
-                    } else if (!gDebugLevelSelect) {
+                    } else if (!WORLD(gDebugLevelSelect)) {
                         m->health -= (terrainIsSnow ? 3 : 1);
                     }
                 }
@@ -1495,7 +1495,7 @@ void update_mario_health(struct MarioState *m) {
 
         // Play a noise to alert the player when Mario is close to drowning.
         if (((m->action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED) && (m->health < 0x300)) {
-            play_sound(SOUND_MOVING_ALMOST_DROWNING, gGlobalSoundSource);
+            play_sound(SOUND_MOVING_ALMOST_DROWNING, WORLD(gGlobalSoundSource));
 #if ENABLE_RUMBLE
             if (gRumblePakTimer == 0) {
                 gRumblePakTimer = 36;
@@ -1592,7 +1592,7 @@ u32 update_and_return_cap_flags(struct MarioState *m) {
 
         // This code flickers the cap through a long binary string, increasing in how
         // common it flickers near the end.
-        if ((m->capTimer < 64) && ((1ULL << m->capTimer) & sCapFlickerFrames)) {
+        if ((m->capTimer < 64) && ((1ULL << m->capTimer) & WORLD(sCapFlickerFrames))) {
             flags &= ~MARIO_SPECIAL_CAPS;
             if (!(flags & MARIO_CAPS)) {
                 flags &= ~MARIO_CAP_ON_HEAD;
@@ -1625,8 +1625,8 @@ void mario_update_hitbox_and_cap_model(struct MarioState *m) {
     //! (Pause buffered hitstun) Since the global timer increments while paused,
     //  this can be paused through to give continual invisibility. This leads to
     //  no interaction with objects.
-    if ((m->invincTimer >= 3) && (gGlobalTimer & 1)) {
-        gMarioState->marioObj->header.gfx.node.flags |= GRAPH_RENDER_INVISIBLE;
+    if ((m->invincTimer >= 3) && (WORLD(gGlobalTimer) & 1)) {
+        WORLD(gMarioState)->marioObj->header.gfx.node.flags |= GRAPH_RENDER_INVISIBLE;
     }
 
     if (flags & MARIO_CAP_IN_HAND) {
@@ -1666,12 +1666,12 @@ UNUSED static void debug_update_mario_cap(u16 button, s32 flags, u16 capTimer, u
     // This checks for Z_TRIG instead of Z_DOWN flag
     // (which is also what other debug functions do),
     // so likely debug behavior rather than unused behavior.
-    if ((gPlayer1Controller->buttonDown & Z_TRIG) && (gPlayer1Controller->buttonPressed & button)
-        && !(gMarioState->flags & flags)) {
-        gMarioState->flags |= (flags + MARIO_CAP_ON_HEAD);
+    if ((WORLD(gPlayer1Controller)->buttonDown & Z_TRIG) && (WORLD(gPlayer1Controller)->buttonPressed & button)
+        && !(WORLD(gMarioState)->flags & flags)) {
+        WORLD(gMarioState)->flags |= (flags + MARIO_CAP_ON_HEAD);
 
-        if (capTimer > gMarioState->capTimer) {
-            gMarioState->capTimer = capTimer;
+        if (capTimer > WORLD(gMarioState)->capTimer) {
+            WORLD(gMarioState)->capTimer = capTimer;
         }
 
         play_cap_music(capMusic);
@@ -1699,15 +1699,15 @@ void func_sh_8025574C(void) {
 s32 execute_mario_action(UNUSED struct Object *o) {
     s32 inLoop = TRUE;
 
-    if (gMarioState->action) {
-        gMarioState->marioObj->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
-        mario_reset_bodystate(gMarioState);
-        update_mario_inputs(gMarioState);
-        mario_handle_special_floors(gMarioState);
-        mario_process_interactions(gMarioState);
+    if (WORLD(gMarioState)->action) {
+        WORLD(gMarioState)->marioObj->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
+        mario_reset_bodystate(WORLD(gMarioState));
+        update_mario_inputs(WORLD(gMarioState));
+        mario_handle_special_floors(WORLD(gMarioState));
+        mario_process_interactions(WORLD(gMarioState));
 
         // If Mario is OOB, stop executing actions.
-        if (gMarioState->floor == NULL) {
+        if (WORLD(gMarioState)->floor == NULL) {
             return 0;
         }
 
@@ -1715,67 +1715,67 @@ s32 execute_mario_action(UNUSED struct Object *o) {
         // which can lead to unexpected sub-frame behavior. Could potentially hang
         // if a loop of actions were found, but there has not been a situation found.
         while (inLoop) {
-            switch (gMarioState->action & ACT_GROUP_MASK) {
+            switch (WORLD(gMarioState)->action & ACT_GROUP_MASK) {
                 case ACT_GROUP_STATIONARY:
-                    inLoop = mario_execute_stationary_action(gMarioState);
+                    inLoop = mario_execute_stationary_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_MOVING:
-                    inLoop = mario_execute_moving_action(gMarioState);
+                    inLoop = mario_execute_moving_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_AIRBORNE:
-                    inLoop = mario_execute_airborne_action(gMarioState);
+                    inLoop = mario_execute_airborne_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_SUBMERGED:
-                    inLoop = mario_execute_submerged_action(gMarioState);
+                    inLoop = mario_execute_submerged_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_CUTSCENE:
-                    inLoop = mario_execute_cutscene_action(gMarioState);
+                    inLoop = mario_execute_cutscene_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_AUTOMATIC:
-                    inLoop = mario_execute_automatic_action(gMarioState);
+                    inLoop = mario_execute_automatic_action(WORLD(gMarioState));
                     break;
 
                 case ACT_GROUP_OBJECT:
-                    inLoop = mario_execute_object_action(gMarioState);
+                    inLoop = mario_execute_object_action(WORLD(gMarioState));
                     break;
             }
         }
 
-        sink_mario_in_quicksand(gMarioState);
-        squish_mario_model(gMarioState);
-        set_submerged_cam_preset_and_spawn_bubbles(gMarioState);
-        update_mario_health(gMarioState);
-        update_mario_info_for_cam(gMarioState);
-        mario_update_hitbox_and_cap_model(gMarioState);
+        sink_mario_in_quicksand(WORLD(gMarioState));
+        squish_mario_model(WORLD(gMarioState));
+        set_submerged_cam_preset_and_spawn_bubbles(WORLD(gMarioState));
+        update_mario_health(WORLD(gMarioState));
+        update_mario_info_for_cam(WORLD(gMarioState));
+        mario_update_hitbox_and_cap_model(WORLD(gMarioState));
 
         // Both of the wind handling portions play wind audio only in
         // non-Japanese releases.
-        if (gMarioState->floor->type == SURFACE_HORIZONTAL_WIND) {
-            spawn_wind_particles(0, (gMarioState->floor->force << 8));
+        if (WORLD(gMarioState)->floor->type == SURFACE_HORIZONTAL_WIND) {
+            spawn_wind_particles(0, (WORLD(gMarioState)->floor->force << 8));
 #ifndef VERSION_JP
-            play_sound(SOUND_ENV_WIND2, gMarioState->marioObj->header.gfx.cameraToObject);
+            play_sound(SOUND_ENV_WIND2, WORLD(gMarioState)->marioObj->header.gfx.cameraToObject);
 #endif
         }
 
-        if (gMarioState->floor->type == SURFACE_VERTICAL_WIND) {
+        if (WORLD(gMarioState)->floor->type == SURFACE_VERTICAL_WIND) {
             spawn_wind_particles(1, 0);
 #ifndef VERSION_JP
-            play_sound(SOUND_ENV_WIND2, gMarioState->marioObj->header.gfx.cameraToObject);
+            play_sound(SOUND_ENV_WIND2, WORLD(gMarioState)->marioObj->header.gfx.cameraToObject);
 #endif
         }
 
         play_infinite_stairs_music();
-        gMarioState->marioObj->oInteractStatus = 0;
+        WORLD(gMarioState)->marioObj->oInteractStatus = 0;
 #if ENABLE_RUMBLE
         func_sh_8025574C();
 #endif
 
-        return gMarioState->particleFlags;
+        return WORLD(gMarioState)->particleFlags;
     }
 
     return 0;
@@ -1789,74 +1789,74 @@ void init_mario(void) {
     Vec3s capPos;
     struct Object *capObject;
 
-    unused80339F10 = 0;
+    WORLD(unused80339F10) = 0;
 
-    gMarioState->actionTimer = 0;
-    gMarioState->framesSinceA = 0xFF;
-    gMarioState->framesSinceB = 0xFF;
+    WORLD(gMarioState)->actionTimer = 0;
+    WORLD(gMarioState)->framesSinceA = 0xFF;
+    WORLD(gMarioState)->framesSinceB = 0xFF;
 
-    gMarioState->invincTimer = 0;
+    WORLD(gMarioState)->invincTimer = 0;
 
     if (save_file_get_flags()
         & (SAVE_FLAG_CAP_ON_GROUND | SAVE_FLAG_CAP_ON_KLEPTO | SAVE_FLAG_CAP_ON_UKIKI
            | SAVE_FLAG_CAP_ON_MR_BLIZZARD)) {
-        gMarioState->flags = 0;
+        WORLD(gMarioState)->flags = 0;
     } else {
-        gMarioState->flags = (MARIO_NORMAL_CAP | MARIO_CAP_ON_HEAD);
+        WORLD(gMarioState)->flags = (MARIO_NORMAL_CAP | MARIO_CAP_ON_HEAD);
     }
 
-    gMarioState->forwardVel = 0.0f;
-    gMarioState->squishTimer = 0;
+    WORLD(gMarioState)->forwardVel = 0.0f;
+    WORLD(gMarioState)->squishTimer = 0;
 
-    gMarioState->hurtCounter = 0;
-    gMarioState->healCounter = 0;
+    WORLD(gMarioState)->hurtCounter = 0;
+    WORLD(gMarioState)->healCounter = 0;
 
-    gMarioState->capTimer = 0;
-    gMarioState->quicksandDepth = 0.0f;
+    WORLD(gMarioState)->capTimer = 0;
+    WORLD(gMarioState)->quicksandDepth = 0.0f;
 
-    gMarioState->heldObj = NULL;
-    gMarioState->riddenObj = NULL;
-    gMarioState->usedObj = NULL;
+    WORLD(gMarioState)->heldObj = NULL;
+    WORLD(gMarioState)->riddenObj = NULL;
+    WORLD(gMarioState)->usedObj = NULL;
 
-    gMarioState->waterLevel =
-        find_water_level(gMarioSpawnInfo->startPos[0], gMarioSpawnInfo->startPos[2]);
+    WORLD(gMarioState)->waterLevel =
+        find_water_level(WORLD(gMarioSpawnInfo)->startPos[0], WORLD(gMarioSpawnInfo)->startPos[2]);
 
-    gMarioState->area = gCurrentArea;
-    gMarioState->marioObj = gMarioObject;
-    gMarioState->marioObj->header.gfx.animInfo.animID = -1;
-    vec3s_copy(gMarioState->faceAngle, gMarioSpawnInfo->startAngle);
-    vec3s_set(gMarioState->angleVel, 0, 0, 0);
-    vec3s_to_vec3f(gMarioState->pos, gMarioSpawnInfo->startPos);
-    vec3f_set(gMarioState->vel, 0, 0, 0);
-    gMarioState->floorHeight =
-        find_floor(gMarioState->pos[0], gMarioState->pos[1], gMarioState->pos[2], &gMarioState->floor);
+    WORLD(gMarioState)->area = WORLD(gCurrentArea);
+    WORLD(gMarioState)->marioObj = WORLD(gMarioObject);
+    WORLD(gMarioState)->marioObj->header.gfx.animInfo.animID = -1;
+    vec3s_copy(WORLD(gMarioState)->faceAngle, WORLD(gMarioSpawnInfo)->startAngle);
+    vec3s_set(WORLD(gMarioState)->angleVel, 0, 0, 0);
+    vec3s_to_vec3f(WORLD(gMarioState)->pos, WORLD(gMarioSpawnInfo)->startPos);
+    vec3f_set(WORLD(gMarioState)->vel, 0, 0, 0);
+    WORLD(gMarioState)->floorHeight =
+        find_floor(WORLD(gMarioState)->pos[0], WORLD(gMarioState)->pos[1], WORLD(gMarioState)->pos[2], &WORLD(gMarioState)->floor);
 
-    if (gMarioState->pos[1] < gMarioState->floorHeight) {
-        gMarioState->pos[1] = gMarioState->floorHeight;
+    if (WORLD(gMarioState)->pos[1] < WORLD(gMarioState)->floorHeight) {
+        WORLD(gMarioState)->pos[1] = WORLD(gMarioState)->floorHeight;
     }
 
-    gMarioState->marioObj->header.gfx.pos[1] = gMarioState->pos[1];
+    WORLD(gMarioState)->marioObj->header.gfx.pos[1] = WORLD(gMarioState)->pos[1];
 
-    gMarioState->action =
-        (gMarioState->pos[1] <= (gMarioState->waterLevel - 100)) ? ACT_WATER_IDLE : ACT_IDLE;
+    WORLD(gMarioState)->action =
+        (WORLD(gMarioState)->pos[1] <= (WORLD(gMarioState)->waterLevel - 100)) ? ACT_WATER_IDLE : ACT_IDLE;
 
-    mario_reset_bodystate(gMarioState);
-    update_mario_info_for_cam(gMarioState);
-    gMarioState->marioBodyState->punchState = 0;
+    mario_reset_bodystate(WORLD(gMarioState));
+    update_mario_info_for_cam(WORLD(gMarioState));
+    WORLD(gMarioState)->marioBodyState->punchState = 0;
 
-    gMarioState->marioObj->oPosX = gMarioState->pos[0];
-    gMarioState->marioObj->oPosY = gMarioState->pos[1];
-    gMarioState->marioObj->oPosZ = gMarioState->pos[2];
+    WORLD(gMarioState)->marioObj->oPosX = WORLD(gMarioState)->pos[0];
+    WORLD(gMarioState)->marioObj->oPosY = WORLD(gMarioState)->pos[1];
+    WORLD(gMarioState)->marioObj->oPosZ = WORLD(gMarioState)->pos[2];
 
-    gMarioState->marioObj->oMoveAnglePitch = gMarioState->faceAngle[0];
-    gMarioState->marioObj->oMoveAngleYaw = gMarioState->faceAngle[1];
-    gMarioState->marioObj->oMoveAngleRoll = gMarioState->faceAngle[2];
+    WORLD(gMarioState)->marioObj->oMoveAnglePitch = WORLD(gMarioState)->faceAngle[0];
+    WORLD(gMarioState)->marioObj->oMoveAngleYaw = WORLD(gMarioState)->faceAngle[1];
+    WORLD(gMarioState)->marioObj->oMoveAngleRoll = WORLD(gMarioState)->faceAngle[2];
 
-    vec3f_copy(gMarioState->marioObj->header.gfx.pos, gMarioState->pos);
-    vec3s_set(gMarioState->marioObj->header.gfx.angle, 0, gMarioState->faceAngle[1], 0);
+    vec3f_copy(WORLD(gMarioState)->marioObj->header.gfx.pos, WORLD(gMarioState)->pos);
+    vec3s_set(WORLD(gMarioState)->marioObj->header.gfx.angle, 0, WORLD(gMarioState)->faceAngle[1], 0);
 
     if (save_file_get_cap_pos(capPos)) {
-        capObject = spawn_object(gMarioState->marioObj, MODEL_MARIOS_CAP, bhvNormalCap);
+        capObject = spawn_object(WORLD(gMarioState)->marioObj, MODEL_MARIOS_CAP, bhvNormalCap);
 
         capObject->oPosX = capPos[0];
         capObject->oPosY = capPos[1];
@@ -1869,26 +1869,26 @@ void init_mario(void) {
 }
 
 void init_mario_from_save_file(void) {
-    gMarioState->unk00 = 0;
-    gMarioState->flags = 0;
-    gMarioState->action = 0;
-    gMarioState->spawnInfo = &gPlayerSpawnInfos[0];
-    gMarioState->statusForCamera = &gPlayerCameraState[0];
-    gMarioState->marioBodyState = &gBodyStates[0];
-    gMarioState->controller = &gControllers[0];
-    gMarioState->animList = &gMarioAnimsBuf;
+    WORLD(gMarioState)->unk00 = 0;
+    WORLD(gMarioState)->flags = 0;
+    WORLD(gMarioState)->action = 0;
+    WORLD(gMarioState)->spawnInfo = &WORLD(gPlayerSpawnInfos)[0];
+    WORLD(gMarioState)->statusForCamera = &WORLD(gPlayerCameraState)[0];
+    WORLD(gMarioState)->marioBodyState = &WORLD(gBodyStates)[0];
+    WORLD(gMarioState)->controller = &WORLD(gControllers)[0];
+    WORLD(gMarioState)->animList = &WORLD(gMarioAnimsBuf);
 
-    gMarioState->numCoins = 0;
-    gMarioState->numStars =
-        save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1);
-    gMarioState->numKeys = 0;
+    WORLD(gMarioState)->numCoins = 0;
+    WORLD(gMarioState)->numStars =
+        save_file_get_total_star_count(WORLD(gCurrSaveFileNum) - 1, COURSE_MIN - 1, COURSE_MAX - 1);
+    WORLD(gMarioState)->numKeys = 0;
 
-    gMarioState->numLives = 4;
-    gMarioState->health = 0x880;
+    WORLD(gMarioState)->numLives = 4;
+    WORLD(gMarioState)->health = 0x880;
 
-    gMarioState->prevNumStarsForDialog = gMarioState->numStars;
-    gMarioState->unkB0 = 0xBD;
+    WORLD(gMarioState)->prevNumStarsForDialog = WORLD(gMarioState)->numStars;
+    WORLD(gMarioState)->unkB0 = 0xBD;
 
-    gHudDisplay.coins = 0;
-    gHudDisplay.wedges = 8;
+    WORLD(gHudDisplay).coins = 0;
+    WORLD(gHudDisplay).wedges = 8;
 }

@@ -10,7 +10,7 @@ void bhv_water_mist_loop(void) {
     f32 scale;
 
     if (o->oTimer == 0) {
-        o->oMoveAngleYaw = gMarioObject->oMoveAngleYaw;
+        o->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw;
         obj_translate_xz_random(o, 10.0f);
     }
 

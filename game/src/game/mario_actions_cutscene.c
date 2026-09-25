@@ -115,12 +115,12 @@ void print_displaying_credits_entry(void) {
     s16 lineHeight;
 #endif
 
-    if (sDispCreditsEntry != NULL) {
-        currStrPtr = (char **) sDispCreditsEntry->unk0C;
+    if (WORLD(sDispCreditsEntry) != NULL) {
+        currStrPtr = (char **) WORLD(sDispCreditsEntry)->unk0C;
         titleStr = *currStrPtr++;
         numLines = *titleStr++ - '0';
 
-        strY = (sDispCreditsEntry->unk02 & 0x20 ? 28 : 172) + (numLines == 1) * 16;
+        strY = (WORLD(sDispCreditsEntry)->unk02 & 0x20 ? 28 : 172) + (numLines == 1) * 16;
 #ifndef VERSION_JP
         lineHeight = 16;
 #endif
@@ -166,28 +166,28 @@ void print_displaying_credits_entry(void) {
         }
 
         dl_rgba16_stop_cutscene_msg_fade();
-        sDispCreditsEntry = NULL;
+        WORLD(sDispCreditsEntry) = NULL;
     }
 }
 
 void bhv_end_peach_loop(void) {
-    cur_obj_init_animation_with_sound(sEndPeachAnimation);
+    cur_obj_init_animation_with_sound(WORLD(sEndPeachAnimation));
     if (cur_obj_check_if_near_animation_end()) {
         // anims: 0-3, 4, 5, 6-8, 9, 10, 11
-        if (sEndPeachAnimation < 3 || sEndPeachAnimation == 6 || sEndPeachAnimation == 7) {
-            sEndPeachAnimation++;
+        if (WORLD(sEndPeachAnimation) < 3 || WORLD(sEndPeachAnimation) == 6 || WORLD(sEndPeachAnimation) == 7) {
+            WORLD(sEndPeachAnimation)++;
         }
     }
 }
 
 void bhv_end_toad_loop(void) {
-    s32 toadAnimIndex = (gCurrentObject->oPosX >= 0.0f);
+    s32 toadAnimIndex = (WORLD(gCurrentObject)->oPosX >= 0.0f);
 
-    cur_obj_init_animation_with_sound(sEndToadAnims[toadAnimIndex]);
+    cur_obj_init_animation_with_sound(WORLD(sEndToadAnims)[toadAnimIndex]);
     if (cur_obj_check_if_near_animation_end()) {
         // 0-1, 2-3, 4, 5, 6, 7
-        if (sEndToadAnims[toadAnimIndex] == 0 || sEndToadAnims[toadAnimIndex] == 2) {
-            sEndToadAnims[toadAnimIndex]++;
+        if (WORLD(sEndToadAnims)[toadAnimIndex] == 0 || WORLD(sEndToadAnims)[toadAnimIndex] == 2) {
+            WORLD(sEndToadAnims)[toadAnimIndex]++;
         }
     }
 }
@@ -198,15 +198,15 @@ s32 geo_switch_peach_eyes(s32 run, struct GraphNode *node, UNUSED s32 a2) {
     s16 timer;
 
     if (run == TRUE) {
-        if (D_8032CBE4 == 0) {
-            timer = (gAreaUpdateCounter + 0x20) >> 1 & 0x1F;
+        if (WORLD(D_8032CBE4) == 0) {
+            timer = (WORLD(gAreaUpdateCounter) + 0x20) >> 1 & 0x1F;
             if (timer < 7) {
-                switchCase->selectedCase = D_8032CBE8 * 4 + D_8032CBEC[timer];
+                switchCase->selectedCase = WORLD(D_8032CBE8) * 4 + WORLD(D_8032CBEC)[timer];
             } else {
-                switchCase->selectedCase = D_8032CBE8 * 4 + 1;
+                switchCase->selectedCase = WORLD(D_8032CBE8) * 4 + 1;
             }
         } else {
-            switchCase->selectedCase = D_8032CBE8 * 4 + D_8032CBE4 - 1;
+            switchCase->selectedCase = WORLD(D_8032CBE8) * 4 + WORLD(D_8032CBE4) - 1;
         }
     }
 
@@ -232,8 +232,8 @@ s32 get_star_collection_dialog(struct MarioState *m) {
     s32 dialogID = 0;
     s32 numStarsRequired;
 
-    for (i = 0; i < ARRAY_COUNT(sStarsNeededForDialog); i++) {
-        numStarsRequired = sStarsNeededForDialog[i];
+    for (i = 0; i < ARRAY_COUNT(WORLD(sStarsNeededForDialog)); i++) {
+        numStarsRequired = WORLD(sStarsNeededForDialog)[i];
         if (m->prevNumStarsForDialog < numStarsRequired && m->numStars >= numStarsRequired) {
             dialogID = i + DIALOG_141;
             break;
@@ -248,18 +248,18 @@ s32 get_star_collection_dialog(struct MarioState *m) {
 void handle_save_menu(struct MarioState *m) {
     s32 dialogID;
     // wait for the menu to show up
-    if (is_anim_past_end(m) && gSaveOptSelectIndex != MENU_OPT_NONE) {
+    if (is_anim_past_end(m) && WORLD(gSaveOptSelectIndex) != MENU_OPT_NONE) {
         // save and continue / save and quit
-        if (gSaveOptSelectIndex == MENU_OPT_SAVE_AND_CONTINUE || gSaveOptSelectIndex == MENU_OPT_SAVE_AND_QUIT) {
-            save_file_do_save(gCurrSaveFileNum - 1);
+        if (WORLD(gSaveOptSelectIndex) == MENU_OPT_SAVE_AND_CONTINUE || WORLD(gSaveOptSelectIndex) == MENU_OPT_SAVE_AND_QUIT) {
+            save_file_do_save(WORLD(gCurrSaveFileNum) - 1);
 
-            if (gSaveOptSelectIndex == MENU_OPT_SAVE_AND_QUIT) {
+            if (WORLD(gSaveOptSelectIndex) == MENU_OPT_SAVE_AND_QUIT) {
                 fade_into_special_warp(-2, 0); // reset game
             }
         }
 
         // not quitting
-        if (gSaveOptSelectIndex != MENU_OPT_SAVE_AND_QUIT) {
+        if (WORLD(gSaveOptSelectIndex) != MENU_OPT_SAVE_AND_QUIT) {
             disable_time_stop();
             m->faceAngle[1] += 0x8000;
             // figure out what dialog to show, if we should
@@ -323,13 +323,13 @@ void cutscene_put_cap_on(struct MarioState *m) {
  * 3: Mario must not be in first person mode.
  */
 s32 mario_ready_to_speak(void) {
-    u32 actionGroup = gMarioState->action & ACT_GROUP_MASK;
+    u32 actionGroup = WORLD(gMarioState)->action & ACT_GROUP_MASK;
     s32 isReadyToSpeak = FALSE;
 
-    if ((gMarioState->action == ACT_WAITING_FOR_DIALOG || actionGroup == ACT_GROUP_STATIONARY
+    if ((WORLD(gMarioState)->action == ACT_WAITING_FOR_DIALOG || actionGroup == ACT_GROUP_STATIONARY
          || actionGroup == ACT_GROUP_MOVING)
-        && (!(gMarioState->action & (ACT_FLAG_RIDING_SHELL | ACT_FLAG_INVULNERABLE))
-            && gMarioState->action != ACT_FIRST_PERSON)) {
+        && (!(WORLD(gMarioState)->action & (ACT_FLAG_RIDING_SHELL | ACT_FLAG_INVULNERABLE))
+            && WORLD(gMarioState)->action != ACT_FIRST_PERSON)) {
         isReadyToSpeak = TRUE;
     }
 
@@ -346,20 +346,20 @@ s32 set_mario_npc_dialog(s32 actionArg) {
     s32 dialogState = MARIO_DIALOG_STATUS_NONE;
 
     // in dialog
-    if (gMarioState->action == ACT_READING_NPC_DIALOG) {
-        if (gMarioState->actionState < 8) {
+    if (WORLD(gMarioState)->action == ACT_READING_NPC_DIALOG) {
+        if (WORLD(gMarioState)->actionState < 8) {
             dialogState = MARIO_DIALOG_STATUS_START; // starting dialog
         }
-        if (gMarioState->actionState == 8) {
+        if (WORLD(gMarioState)->actionState == 8) {
             if (actionArg == MARIO_DIALOG_STOP) {
-                gMarioState->actionState++; // exit dialog
+                WORLD(gMarioState)->actionState++; // exit dialog
             } else {
                 dialogState = MARIO_DIALOG_STATUS_SPEAK;
             }
         }
     } else if (actionArg != 0 && mario_ready_to_speak()) {
-        gMarioState->usedObj = gCurrentObject;
-        set_mario_action(gMarioState, ACT_READING_NPC_DIALOG, actionArg);
+        WORLD(gMarioState)->usedObj = WORLD(gCurrentObject);
+        set_mario_action(WORLD(gMarioState), ACT_READING_NPC_DIALOG, actionArg);
         dialogState = MARIO_DIALOG_STATUS_START; // starting dialog
     }
 
@@ -475,8 +475,8 @@ s32 act_reading_automatic_dialog(struct MarioState *m) {
         // finished action
         else if (m->actionState == 25) {
             disable_time_stop();
-            if (gNeverEnteredCastle) {
-                gNeverEnteredCastle = FALSE;
+            if (WORLD(gNeverEnteredCastle)) {
+                WORLD(gNeverEnteredCastle) = FALSE;
                 play_cutscene_music(SEQUENCE_ARGS(0, SEQ_LEVEL_INSIDE_CASTLE));
             }
             if (m->prevAction == ACT_STAR_DANCE_WATER) {
@@ -521,7 +521,7 @@ s32 act_reading_sign(struct MarioState *m) {
         // in dialog
         case 2:
             // dialog finished
-            if (gCamera->cutscene == 0) {
+            if (WORLD(gCamera)->cutscene == 0) {
                 disable_time_stop();
                 set_mario_action(m, ACT_IDLE, 0);
             }
@@ -541,18 +541,18 @@ s32 act_debug_free_move(struct MarioState *m) {
     u32 action;
 
     // integer immediates, generates convert instructions for some reason
-    speed = gPlayer1Controller->buttonDown & B_BUTTON ? 4 : 1;
-    if (gPlayer1Controller->buttonDown & L_TRIG) {
+    speed = WORLD(gPlayer1Controller)->buttonDown & B_BUTTON ? 4 : 1;
+    if (WORLD(gPlayer1Controller)->buttonDown & L_TRIG) {
         speed = 0.01f;
     }
 
     set_mario_animation(m, MARIO_ANIM_A_POSE);
     vec3f_copy(pos, m->pos);
 
-    if (gPlayer1Controller->buttonDown & U_JPAD) {
+    if (WORLD(gPlayer1Controller)->buttonDown & U_JPAD) {
         pos[1] += 16.0f * speed;
     }
-    if (gPlayer1Controller->buttonDown & D_JPAD) {
+    if (WORLD(gPlayer1Controller)->buttonDown & D_JPAD) {
         pos[1] -= 16.0f * speed;
     }
 
@@ -575,7 +575,7 @@ s32 act_debug_free_move(struct MarioState *m) {
     vec3f_copy(m->marioObj->header.gfx.pos, m->pos);
     vec3s_set(m->marioObj->header.gfx.angle, 0, m->faceAngle[1], 0);
 
-    if (gPlayer1Controller->buttonPressed == A_BUTTON) {
+    if (WORLD(gPlayer1Controller)->buttonPressed == A_BUTTON) {
         if (m->pos[1] <= m->waterLevel - 100) {
             action = ACT_WATER_IDLE;
         } else {
@@ -597,7 +597,7 @@ void general_star_dance_handler(struct MarioState *m, s32 isInWater) {
                 if (m->actionArg & 1) {
                     play_course_clear();
                 } else {
-                    if (gCurrLevelNum == LEVEL_BOWSER_1 || gCurrLevelNum == LEVEL_BOWSER_2) {
+                    if (WORLD(gCurrLevelNum) == LEVEL_BOWSER_1 || WORLD(gCurrLevelNum) == LEVEL_BOWSER_2) {
                         play_music(SEQ_PLAYER_ENV, SEQUENCE_ARGS(15, SEQ_EVENT_CUTSCENE_COLLECT_KEY), 0);
                     } else {
                         play_music(SEQ_PLAYER_ENV, SEQUENCE_ARGS(15, SEQ_EVENT_CUTSCENE_COLLECT_STAR), 0);
@@ -614,14 +614,14 @@ void general_star_dance_handler(struct MarioState *m, s32 isInWater) {
                     level_trigger_warp(m, WARP_OP_STAR_EXIT);
                 } else {
                     enable_time_stop();
-                    create_dialog_box_with_response(gLastCompletedStarNum == 7 ? DIALOG_013 : DIALOG_014);
+                    create_dialog_box_with_response(WORLD(gLastCompletedStarNum) == 7 ? DIALOG_013 : DIALOG_014);
                     m->actionState = 1;
                 }
                 break;
         }
-    } else if (m->actionState == 1 && gDialogResponse != DIALOG_RESPONSE_NONE) {
-        if (gDialogResponse == DIALOG_RESPONSE_YES) {
-            save_file_do_save(gCurrSaveFileNum - 1);
+    } else if (m->actionState == 1 && WORLD(gDialogResponse) != DIALOG_RESPONSE_NONE) {
+        if (WORLD(gDialogResponse) == DIALOG_RESPONSE_YES) {
+            save_file_do_save(WORLD(gCurrSaveFileNum) - 1);
         }
         m->actionState = 2;
     } else if (m->actionState == 2 && is_anim_at_end(m)) {
@@ -957,7 +957,7 @@ s32 act_warp_door_spawn(struct MarioState *m) {
             m->usedObj->oInteractStatus = INT_STATUS_UNK19;
         }
     } else if (m->usedObj->oAction == 0) {
-        if (gNeverEnteredCastle == TRUE && gCurrLevelNum == LEVEL_CASTLE) {
+        if (WORLD(gNeverEnteredCastle) == TRUE && WORLD(gCurrLevelNum) == LEVEL_CASTLE) {
             set_mario_action(m, ACT_READING_AUTOMATIC_DIALOG, DIALOG_021);
         } else {
             set_mario_action(m, ACT_IDLE, 0);
@@ -980,8 +980,8 @@ s32 act_emerge_from_pipe(struct MarioState *m) {
 
     play_sound_if_no_flag(m, SOUND_MARIO_YAHOO, MARIO_MARIO_SOUND_PLAYED);
 
-    if (gCurrLevelNum == LEVEL_THI) {
-        if (gCurrAreaIndex == 2) {
+    if (WORLD(gCurrLevelNum) == LEVEL_THI) {
+        if (WORLD(gCurrAreaIndex) == 2) {
             play_sound_if_no_flag(m, SOUND_MENU_EXIT_PIPE, MARIO_ACTION_SOUND_PLAYED);
         } else {
             play_sound_if_no_flag(m, SOUND_MENU_ENTER_PIPE, MARIO_ACTION_SOUND_PLAYED);
@@ -1080,20 +1080,20 @@ s32 act_exit_land_save_dialog(struct MarioState *m) {
             set_mario_animation(m, m->actionArg == 0 ? MARIO_ANIM_GENERAL_LAND
                                                      : MARIO_ANIM_LAND_FROM_SINGLE_JUMP);
             if (is_anim_past_end(m)) {
-                if (gLastCompletedCourseNum != COURSE_BITDW
-                    && gLastCompletedCourseNum != COURSE_BITFS) {
+                if (WORLD(gLastCompletedCourseNum) != COURSE_BITDW
+                    && WORLD(gLastCompletedCourseNum) != COURSE_BITFS) {
                     enable_time_stop();
                 }
 
                 set_menu_mode(MENU_MODE_RENDER_COURSE_COMPLETE_SCREEN);
-                gSaveOptSelectIndex = MENU_OPT_NONE;
+                WORLD(gSaveOptSelectIndex) = MENU_OPT_NONE;
 
                 m->actionState = 3; // star exit with cap
                 if (!(m->flags & MARIO_CAP_ON_HEAD)) {
                     m->actionState = 2; // star exit without cap
                 }
-                if (gLastCompletedCourseNum == COURSE_BITDW
-                    || gLastCompletedCourseNum == COURSE_BITFS) {
+                if (WORLD(gLastCompletedCourseNum) == COURSE_BITDW
+                    || WORLD(gLastCompletedCourseNum) == COURSE_BITFS) {
                     m->actionState = 1; // key exit
                 }
             }
@@ -1660,7 +1660,7 @@ static void advance_cutscene_step(struct MarioState *m) {
 }
 
 static void intro_cutscene_hide_hud_and_mario(struct MarioState *m) {
-    gHudDisplay.flags = HUD_DISPLAY_NONE;
+    WORLD(gHudDisplay).flags = HUD_DISPLAY_NONE;
     m->statusForCamera->cameraEvent = CAM_EVENT_START_INTRO;
     m->marioObj->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
     advance_cutscene_step(m);
@@ -1675,8 +1675,8 @@ static void intro_cutscene_hide_hud_and_mario(struct MarioState *m) {
 static void intro_cutscene_peach_lakitu_scene(struct MarioState *m) {
     if ((s16) m->statusForCamera->cameraEvent != CAM_EVENT_START_INTRO) {
         if (m->actionTimer++ == TIMER_SPAWN_PIPE) {
-            sIntroWarpPipeObj =
-                spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_CASTLE_GROUNDS_WARP_PIPE,
+            WORLD(sIntroWarpPipeObj) =
+                spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_CASTLE_GROUNDS_WARP_PIPE,
                                           bhvStaticObject, -1328, 60, 4664, 0, 180, 0);
             advance_cutscene_step(m);
         }
@@ -1691,10 +1691,10 @@ static void intro_cutscene_peach_lakitu_scene(struct MarioState *m) {
 #endif
 
 static void intro_cutscene_raise_pipe(struct MarioState *m) {
-    sIntroWarpPipeObj->oPosY = camera_approach_f32_symmetric(sIntroWarpPipeObj->oPosY, 260.0f, 10.0f);
+    WORLD(sIntroWarpPipeObj)->oPosY = camera_approach_f32_symmetric(WORLD(sIntroWarpPipeObj)->oPosY, 260.0f, 10.0f);
 
     if (m->actionTimer == 0) {
-        play_sound(SOUND_MENU_EXIT_PIPE, sIntroWarpPipeObj->header.gfx.cameraToObject);
+        play_sound(SOUND_MENU_EXIT_PIPE, WORLD(sIntroWarpPipeObj)->header.gfx.cameraToObject);
     }
 
     if (m->actionTimer++ == TIMER_RAISE_PIPE) {
@@ -1706,7 +1706,7 @@ static void intro_cutscene_raise_pipe(struct MarioState *m) {
 
 static void intro_cutscene_jump_out_of_pipe(struct MarioState *m) {
     if (m->actionTimer == 25) {
-        gHudDisplay.flags = HUD_DISPLAY_DEFAULT;
+        WORLD(gHudDisplay).flags = HUD_DISPLAY_DEFAULT;
     }
 
     if (m->actionTimer++ >= 118) {
@@ -1748,13 +1748,13 @@ static void intro_cutscene_land_outside_pipe(struct MarioState *m) {
 
 static void intro_cutscene_lower_pipe(struct MarioState *m) {
     if (m->actionTimer++ == 0) {
-        play_sound(SOUND_MENU_ENTER_PIPE, sIntroWarpPipeObj->header.gfx.cameraToObject);
+        play_sound(SOUND_MENU_ENTER_PIPE, WORLD(sIntroWarpPipeObj)->header.gfx.cameraToObject);
         set_mario_animation(m, MARIO_ANIM_FIRST_PERSON);
     }
 
-    sIntroWarpPipeObj->oPosY -= 5.0f;
-    if (sIntroWarpPipeObj->oPosY <= 50.0f) {
-        obj_mark_for_deletion(sIntroWarpPipeObj);
+    WORLD(sIntroWarpPipeObj)->oPosY -= 5.0f;
+    if (WORLD(sIntroWarpPipeObj)->oPosY <= 50.0f) {
+        obj_mark_for_deletion(WORLD(sIntroWarpPipeObj));
         advance_cutscene_step(m);
     }
 
@@ -1762,8 +1762,8 @@ static void intro_cutscene_lower_pipe(struct MarioState *m) {
 }
 
 static void intro_cutscene_set_mario_to_idle(struct MarioState *m) {
-    if (gCamera->cutscene == 0) {
-        gCameraMovementFlags &= ~CAM_MOVE_C_UP_MODE;
+    if (WORLD(gCamera)->cutscene == 0) {
+        WORLD(gCameraMovementFlags) &= ~CAM_MOVE_C_UP_MODE;
         set_mario_action(m, ACT_IDLE, 0);
     }
 
@@ -1858,7 +1858,7 @@ static s32 jumbo_star_cutscene_taking_off(struct MarioState *m) {
 
         switch (animFrame) {
             case 3:
-                play_sound(SOUND_MARIO_YAH_WAH_HOO + (gAudioRandom % 3 << 16),
+                play_sound(SOUND_MARIO_YAH_WAH_HOO + (WORLD(gAudioRandom) % 3 << 16),
                            m->marioObj->header.gfx.cameraToObject);
                 break;
 
@@ -1900,7 +1900,7 @@ static s32 jumbo_star_cutscene_flying(struct MarioState *m) {
     switch (m->actionState) {
         case 0:
             set_mario_animation(m, MARIO_ANIM_WING_CAP_FLY);
-            anim_spline_init(sJumboStarKeyframes);
+            anim_spline_init(WORLD(sJumboStarKeyframes));
             m->actionState++;
             // fallthrough
         case 1:
@@ -1959,11 +1959,11 @@ void generate_yellow_sparkles(s16 x, s16 y, s16 z, f32 radius) {
     static s32 sSparkleGenTheta = 0;
     static s32 sSparkleGenPhi = 0;
 
-    s16 offsetX = radius * coss(sSparkleGenTheta) * sins(sSparkleGenPhi);
-    s16 offsetY = radius * sins(sSparkleGenTheta);
-    s16 offsetZ = radius * coss(sSparkleGenTheta) * coss(sSparkleGenPhi);
+    s16 offsetX = radius * coss(WORLD(sSparkleGenTheta)) * sins(WORLD(sSparkleGenPhi));
+    s16 offsetY = radius * sins(WORLD(sSparkleGenTheta));
+    s16 offsetZ = radius * coss(WORLD(sSparkleGenTheta)) * coss(WORLD(sSparkleGenPhi));
 
-    spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_NONE, bhvSparkleSpawn, x + offsetX, y + offsetY,
+    spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_NONE, bhvSparkleSpawn, x + offsetX, y + offsetY,
                               z + offsetZ, 0, 0, 0);
 
     //! copy paste error
@@ -1971,11 +1971,11 @@ void generate_yellow_sparkles(s16 x, s16 y, s16 z, f32 radius) {
     offsetX = offsetY * 4 / 3;
     offsetX = offsetZ * 4 / 3;
 
-    spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_NONE, bhvSparkleSpawn, x - offsetX, y - offsetY,
+    spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_NONE, bhvSparkleSpawn, x - offsetX, y - offsetY,
                               z - offsetZ, 0, 0, 0);
 
-    sSparkleGenTheta += 0x3800;
-    sSparkleGenPhi += 0x6000;
+    WORLD(sSparkleGenTheta) += 0x3800;
+    WORLD(sSparkleGenPhi) += 0x6000;
 }
 
 // not sure what this does, returns the height of the floor.
@@ -2023,9 +2023,9 @@ static void end_peach_cutscene_mario_landing(struct MarioState *m) {
         // make wing cap run out
         m->capTimer = 60;
 
-        sEndJumboStarObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_STAR, bhvStaticObject, 0,
+        WORLD(sEndJumboStarObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_STAR, bhvStaticObject, 0,
                                                      2528, -1800, 0, 0, 0);
-        obj_scale(sEndJumboStarObj, 3.0);
+        obj_scale(WORLD(sEndJumboStarObj), 3.0);
         advance_cutscene_step(m);
     }
 }
@@ -2045,9 +2045,9 @@ static void end_peach_cutscene_summon_jumbo_star(struct MarioState *m) {
         advance_cutscene_step(m);
     }
 
-    sEndJumboStarObj->oFaceAngleYaw += 0x400;
+    WORLD(sEndJumboStarObj)->oFaceAngleYaw += 0x400;
     generate_yellow_sparkles(0, 2528, -1800, 250.0f);
-    play_sound(SOUND_AIR_PEACH_TWINKLE, sEndJumboStarObj->header.gfx.cameraToObject);
+    play_sound(SOUND_AIR_PEACH_TWINKLE, WORLD(sEndJumboStarObj)->header.gfx.cameraToObject);
 }
 
 #if defined(VERSION_EU)
@@ -2067,37 +2067,37 @@ static void end_peach_cutscene_spawn_peach(struct MarioState *m) {
         play_transition(WARP_TRANSITION_FADE_INTO_COLOR, 14, 255, 255, 255);
     }
     if (m->actionTimer == 2) {
-        play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
+        play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
     }
     if (m->actionTimer == 44) {
         play_transition(WARP_TRANSITION_FADE_FROM_COLOR, 192, 255, 255, 255);
     }
     if (m->actionTimer == 40) {
-        obj_mark_for_deletion(sEndJumboStarObj);
+        obj_mark_for_deletion(WORLD(sEndJumboStarObj));
 
-        sEndPeachObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_PEACH, bhvEndPeach, 0, 2428,
+        WORLD(sEndPeachObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_PEACH, bhvEndPeach, 0, 2428,
                                                  -1300, 0, 0, 0);
-        gCutsceneFocus = sEndPeachObj;
+        WORLD(gCutsceneFocus) = WORLD(sEndPeachObj);
 
-        sEndRightToadObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_TOAD, bhvEndToad, 200,
+        WORLD(sEndRightToadObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_TOAD, bhvEndToad, 200,
                                                      906, -1290, 0, 0, 0);
 
-        sEndLeftToadObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_TOAD, bhvEndToad, -200,
+        WORLD(sEndLeftToadObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_TOAD, bhvEndToad, -200,
                                                     906, -1290, 0, 0, 0);
 
-        sEndPeachObj->oOpacity = 127;
-        sEndRightToadObj->oOpacity = 255;
-        sEndLeftToadObj->oOpacity = 255;
+        WORLD(sEndPeachObj)->oOpacity = 127;
+        WORLD(sEndRightToadObj)->oOpacity = 255;
+        WORLD(sEndLeftToadObj)->oOpacity = 255;
 
-        D_8032CBE4 = 4;
-        sEndPeachAnimation = 4;
+        WORLD(D_8032CBE4) = 4;
+        WORLD(sEndPeachAnimation) = 4;
 
-        sEndToadAnims[0] = 4;
-        sEndToadAnims[1] = 5;
+        WORLD(sEndToadAnims)[0] = 4;
+        WORLD(sEndToadAnims)[1] = 5;
     }
 
     if (m->actionTimer >= TIMER_FADE_IN_PEACH) {
-        sEndPeachObj->oOpacity = camera_approach_f32_symmetric(sEndPeachObj->oOpacity, 255.0f, 2.0f);
+        WORLD(sEndPeachObj)->oOpacity = camera_approach_f32_symmetric(WORLD(sEndPeachObj)->oOpacity, 255.0f, 2.0f);
     }
     if (m->actionTimer >= 40) {
         generate_yellow_sparkles(0, 2628, -1300, 150.0f);
@@ -2108,7 +2108,7 @@ static void end_peach_cutscene_spawn_peach(struct MarioState *m) {
     }
     // probably added sounds later and missed the previous >= 40 check
     if (m->actionTimer >= 40) {
-        play_sound(SOUND_AIR_PEACH_TWINKLE, sEndPeachObj->header.gfx.cameraToObject);
+        play_sound(SOUND_AIR_PEACH_TWINKLE, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
     }
 }
 
@@ -2120,9 +2120,9 @@ static void end_peach_cutscene_spawn_peach(struct MarioState *m) {
 
 // descend peach
 static void end_peach_cutscene_descend_peach(struct MarioState *m) {
-    generate_yellow_sparkles(0, sEndPeachObj->oPosY, -1300, 150.0f);
+    generate_yellow_sparkles(0, WORLD(sEndPeachObj)->oPosY, -1300, 150.0f);
 
-    if (sEndPeachObj->oPosY >= 1300.0f) {
+    if (WORLD(sEndPeachObj)->oPosY >= 1300.0f) {
         if (m->actionState < 60) {
             m->actionState += 5;
         }
@@ -2133,11 +2133,11 @@ static void end_peach_cutscene_descend_peach(struct MarioState *m) {
         set_mario_animation(m, MARIO_ANIM_CREDITS_RETURN_FROM_LOOK_UP);
     }
 
-    if ((sEndPeachObj->oPosY -= m->actionState / 10) <= 907.0f) {
-        sEndPeachObj->oPosY = 906.0f;
+    if ((WORLD(sEndPeachObj)->oPosY -= m->actionState / 10) <= 907.0f) {
+        WORLD(sEndPeachObj)->oPosY = 906.0f;
     }
 
-    play_sound(SOUND_AIR_PEACH_TWINKLE, sEndPeachObj->header.gfx.cameraToObject);
+    play_sound(SOUND_AIR_PEACH_TWINKLE, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 
     if (m->actionTimer >= TIMER_RUN_TO_PEACH) {
         advance_cutscene_step(m);
@@ -2151,7 +2151,7 @@ static void end_peach_cutscene_run_to_peach(struct MarioState *m) {
     struct Surface *surf;
 
     if (m->actionTimer == 22) {
-        sEndPeachAnimation = 5;
+        WORLD(sEndPeachAnimation) = 5;
     }
 
     if ((m->pos[2] -= 20.0f) <= -1181.0f) {
@@ -2191,7 +2191,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #else
         case 80:
 #endif
-            sEndPeachAnimation = 6;
+            WORLD(sEndPeachAnimation) = 6;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2199,7 +2199,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #else
         case 81:
 #endif
-            D_8032CBE4 = 3;
+            WORLD(D_8032CBE4) = 3;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2207,7 +2207,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #else
         case 145:
 #endif
-            D_8032CBE4 = 2;
+            WORLD(D_8032CBE4) = 2;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2215,8 +2215,8 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #else
         case 228:
 #endif
-            D_8032CBE4 = 1;
-            D_8032CBE8 = 1;
+            WORLD(D_8032CBE4) = 1;
+            WORLD(D_8032CBE8) = 1;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2227,7 +2227,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
             set_cutscene_message(160, 227, 0, 30);
 #ifndef VERSION_JP
             seq_player_lower_volume(SEQ_PLAYER_LEVEL, 60, 40);
-            play_sound(SOUND_PEACH_MARIO, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_MARIO, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
@@ -2236,8 +2236,8 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #else
         case 275:
 #endif
-            D_8032CBE4 = 0;
-            D_8032CBE8 = 0;
+            WORLD(D_8032CBE4) = 0;
+            WORLD(D_8032CBE8) = 0;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2247,7 +2247,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 #endif
             set_cutscene_message(160, 227, 1, 60);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_POWER_OF_THE_STARS, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_POWER_OF_THE_STARS, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
@@ -2277,7 +2277,7 @@ static void end_peach_cutscene_dialog_1(struct MarioState *m) {
 // "Thank you Mario!"
 // "We have to do something special for you..."
 static void end_peach_cutscene_dialog_2(struct MarioState *m) {
-    sEndPeachAnimation = 9;
+    WORLD(sEndPeachAnimation) = 9;
 
     switch (m->actionTimer) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2287,7 +2287,7 @@ static void end_peach_cutscene_dialog_2(struct MarioState *m) {
 #endif
             set_cutscene_message(160, 227, 2, 30);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_THANKS_TO_YOU, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_THANKS_TO_YOU, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
@@ -2296,7 +2296,7 @@ static void end_peach_cutscene_dialog_2(struct MarioState *m) {
 #else
         case 45:
 #endif
-            D_8032CBE8 = 1;
+            WORLD(D_8032CBE8) = 1;
             break;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
@@ -2306,14 +2306,14 @@ static void end_peach_cutscene_dialog_2(struct MarioState *m) {
 #endif
             set_cutscene_message(160, 227, 3, 30);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_THANK_YOU_MARIO, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_THANK_YOU_MARIO, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
         case TIMER_SOMETHING_SPECIAL:
             set_cutscene_message(160, 227, 4, 40);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_SOMETHING_SPECIAL, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_SOMETHING_SPECIAL, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
@@ -2336,24 +2336,24 @@ static u8 sMarioBlinkOverride[20] = {
 };
 
 static void end_peach_cutscene_kiss_from_peach(struct MarioState *m) {
-    sEndPeachAnimation = 10;
+    WORLD(sEndPeachAnimation) = 10;
 
     if (m->actionTimer >= 90) {
         m->marioBodyState->eyeState =
-            m->actionTimer < 110 ? sMarioBlinkOverride[m->actionTimer - 90] : MARIO_EYES_HALF_CLOSED;
+            m->actionTimer < 110 ? WORLD(sMarioBlinkOverride)[m->actionTimer - 90] : MARIO_EYES_HALF_CLOSED;
     }
 
     switch (m->actionTimer) {
         case 8:
-            D_8032CBE8 = 0;
+            WORLD(D_8032CBE8) = 0;
             break;
 
         case 10:
-            D_8032CBE4 = 3;
+            WORLD(D_8032CBE4) = 3;
             break;
 
         case 50:
-            D_8032CBE4 = 4;
+            WORLD(D_8032CBE4) = 4;
             break;
 
         case 75:
@@ -2365,11 +2365,11 @@ static void end_peach_cutscene_kiss_from_peach(struct MarioState *m) {
             break;
 
         case 100:
-            D_8032CBE4 = 3;
+            WORLD(D_8032CBE4) = 3;
             break;
 
         case 136:
-            D_8032CBE4 = 0;
+            WORLD(D_8032CBE4) = 0;
             break;
 
         case 140:
@@ -2397,19 +2397,19 @@ static void end_peach_cutscene_star_dance(struct MarioState *m) {
 
     switch (m->actionTimer) {
         case 70:
-            D_8032CBE4 = 1;
+            WORLD(D_8032CBE4) = 1;
             break;
 
         case 86:
-            D_8032CBE4 = 2;
+            WORLD(D_8032CBE4) = 2;
             break;
 
         case 90:
-            D_8032CBE4 = 3;
+            WORLD(D_8032CBE4) = 3;
             break;
 
         case 120:
-            D_8032CBE4 = 0;
+            WORLD(D_8032CBE4) = 0;
             break;
 
         case 140:
@@ -2432,19 +2432,19 @@ static void end_peach_cutscene_star_dance(struct MarioState *m) {
 static void end_peach_cutscene_dialog_3(struct MarioState *m) {
     set_mario_animation(m, MARIO_ANIM_FIRST_PERSON);
 
-    sEndPeachObj->oPosY = end_obj_set_visual_pos(sEndPeachObj);
-    sEndRightToadObj->oPosY = end_obj_set_visual_pos(sEndRightToadObj);
-    sEndLeftToadObj->oPosY = end_obj_set_visual_pos(sEndLeftToadObj);
+    WORLD(sEndPeachObj)->oPosY = end_obj_set_visual_pos(WORLD(sEndPeachObj));
+    WORLD(sEndRightToadObj)->oPosY = end_obj_set_visual_pos(WORLD(sEndRightToadObj));
+    WORLD(sEndLeftToadObj)->oPosY = end_obj_set_visual_pos(WORLD(sEndLeftToadObj));
 
     switch (m->actionTimer) {
         case 1:
-            sEndPeachAnimation = 0;
-            sEndToadAnims[0] = 0;
-            sEndToadAnims[1] = 2;
-            D_8032CBE8 = 1;
+            WORLD(sEndPeachAnimation) = 0;
+            WORLD(sEndToadAnims)[0] = 0;
+            WORLD(sEndToadAnims)[1] = 2;
+            WORLD(D_8032CBE8) = 1;
             set_cutscene_message(160, 227, 5, 30);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_BAKE_A_CAKE, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_BAKE_A_CAKE, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
 
@@ -2455,7 +2455,7 @@ static void end_peach_cutscene_dialog_3(struct MarioState *m) {
         case 130:
             set_cutscene_message(160, 227, 7, 50);
 #ifndef VERSION_JP
-            play_sound(SOUND_PEACH_FOR_MARIO, sEndPeachObj->header.gfx.cameraToObject);
+            play_sound(SOUND_PEACH_FOR_MARIO, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
             break;
     }
@@ -2479,7 +2479,7 @@ static void end_peach_cutscene_run_to_castle(struct MarioState *m) {
     if (m->actionTimer == 95) {
         set_cutscene_message(160, 227, 0, 40);
 #ifndef VERSION_JP
-        play_sound(SOUND_PEACH_MARIO2, sEndPeachObj->header.gfx.cameraToObject);
+        play_sound(SOUND_PEACH_MARIO2, WORLD(sEndPeachObj)->header.gfx.cameraToObject);
 #endif
     }
     if (m->actionTimer == 389) {
@@ -2490,7 +2490,7 @@ static void end_peach_cutscene_run_to_castle(struct MarioState *m) {
 static void end_peach_cutscene_fade_out(struct MarioState *m) {
     if (m->actionState == 0) {
         level_trigger_warp(m, WARP_OP_CREDITS_NEXT);
-        gPaintingMarioYEntry = 1500.0f; // ensure medium water level in WDW credits cutscene
+        WORLD(gPaintingMarioYEntry) = 1500.0f; // ensure medium water level in WDW credits cutscene
         m->actionState = 1;
     }
 }
@@ -2556,11 +2556,11 @@ static s32 act_end_peach_cutscene(struct MarioState *m) {
 
     m->actionTimer++;
 
-    sEndCutsceneVp.vp.vscale[0] = 640;
-    sEndCutsceneVp.vp.vscale[1] = 360;
-    sEndCutsceneVp.vp.vtrans[0] = 640;
-    sEndCutsceneVp.vp.vtrans[1] = 480;
-    override_viewport_and_clip(NULL, &sEndCutsceneVp, 0, 0, 0);
+    WORLD(sEndCutsceneVp).vp.vscale[0] = 640;
+    WORLD(sEndCutsceneVp).vp.vscale[1] = 360;
+    WORLD(sEndCutsceneVp).vp.vtrans[0] = 640;
+    WORLD(sEndCutsceneVp).vp.vtrans[1] = 480;
+    override_viewport_and_clip(NULL, &WORLD(sEndCutsceneVp), 0, 0, 0);
 
     return FALSE;
 }
@@ -2609,14 +2609,14 @@ static s32 act_credits_cutscene(struct MarioState *m) {
         width = m->actionState * 640 / 100;
         height = m->actionState * 480 / 100;
 
-        sEndCutsceneVp.vp.vscale[0] = 640 - width;
-        sEndCutsceneVp.vp.vscale[1] = 480 - height;
-        sEndCutsceneVp.vp.vtrans[0] =
-            (gCurrCreditsEntry->unk02 & 0x10 ? width : -width) * 56 / 100 + 640;
-        sEndCutsceneVp.vp.vtrans[1] =
-            (gCurrCreditsEntry->unk02 & 0x20 ? height : -height) * 66 / 100 + 480;
+        WORLD(sEndCutsceneVp).vp.vscale[0] = 640 - width;
+        WORLD(sEndCutsceneVp).vp.vscale[1] = 480 - height;
+        WORLD(sEndCutsceneVp).vp.vtrans[0] =
+            (WORLD(gCurrCreditsEntry)->unk02 & 0x10 ? width : -width) * 56 / 100 + 640;
+        WORLD(sEndCutsceneVp).vp.vtrans[1] =
+            (WORLD(gCurrCreditsEntry)->unk02 & 0x20 ? height : -height) * 66 / 100 + 480;
 
-        override_viewport_and_clip(&sEndCutsceneVp, 0, 0, 0, 0);
+        override_viewport_and_clip(&WORLD(sEndCutsceneVp), 0, 0, 0, 0);
     }
 
     if (m->actionTimer == TIMER_CREDITS_PROGRESS) {
@@ -2624,14 +2624,14 @@ static s32 act_credits_cutscene(struct MarioState *m) {
     }
 
     if (m->actionTimer >= TIMER_CREDITS_PROGRESS) {
-        sDispCreditsEntry = gCurrCreditsEntry;
+        WORLD(sDispCreditsEntry) = WORLD(gCurrCreditsEntry);
     }
 
     if (m->actionTimer++ == TIMER_CREDITS_WARP) {
         level_trigger_warp(m, WARP_OP_CREDITS_NEXT);
     }
 
-    m->marioObj->header.gfx.angle[1] += (gCurrCreditsEntry->unk02 & 0xC0) << 8;
+    m->marioObj->header.gfx.angle[1] += (WORLD(gCurrCreditsEntry)->unk02 & 0xC0) << 8;
 
     return FALSE;
 }
@@ -2640,22 +2640,22 @@ static s32 act_end_waving_cutscene(struct MarioState *m) {
     if (m->actionState == 0) {
         m->statusForCamera->cameraEvent = CAM_EVENT_START_END_WAVING;
 
-        sEndPeachObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_PEACH, bhvEndPeach, 60, 906,
+        WORLD(sEndPeachObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_PEACH, bhvEndPeach, 60, 906,
                                                  -1180, 0, 0, 0);
 
-        sEndRightToadObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_TOAD, bhvEndToad, 180,
+        WORLD(sEndRightToadObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_TOAD, bhvEndToad, 180,
                                                      906, -1170, 0, 0, 0);
 
-        sEndLeftToadObj = spawn_object_abs_with_rot(gCurrentObject, 0, MODEL_TOAD, bhvEndToad, -180,
+        WORLD(sEndLeftToadObj) = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_TOAD, bhvEndToad, -180,
                                                     906, -1170, 0, 0, 0);
 
-        sEndPeachObj->oOpacity = 255;
-        sEndRightToadObj->oOpacity = 255;
-        sEndLeftToadObj->oOpacity = 255;
+        WORLD(sEndPeachObj)->oOpacity = 255;
+        WORLD(sEndRightToadObj)->oOpacity = 255;
+        WORLD(sEndLeftToadObj)->oOpacity = 255;
 
-        sEndPeachAnimation = 11;
-        sEndToadAnims[0] = 6;
-        sEndToadAnims[1] = 7;
+        WORLD(sEndPeachAnimation) = 11;
+        WORLD(sEndToadAnims)[0] = 6;
+        WORLD(sEndToadAnims)[1] = 7;
 
         m->actionState = 1;
     }

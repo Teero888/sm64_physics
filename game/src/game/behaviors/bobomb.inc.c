@@ -42,11 +42,11 @@ void bobomb_act_explode(void) {
 }
 
 void bobomb_check_interactions(void) {
-    obj_set_hitbox(o, &sBobombHitbox);
+    obj_set_hitbox(o, &WORLD(sBobombHitbox));
 
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
         if (o->oInteractStatus & INT_STATUS_MARIO_KNOCKBACK_DMG) {
-            o->oMoveAngleYaw = gMarioObject->header.gfx.angle[1];
+            o->oMoveAngleYaw = WORLD(gMarioObject)->header.gfx.angle[1];
             o->oForwardVel = 25.0f;
             o->oVelY = 30.0f;
             o->oAction = BOBOMB_ACT_LAUNCHED;
@@ -78,7 +78,7 @@ void bobomb_act_patrol(void) {
         o->oAction = BOBOMB_ACT_CHASE_MARIO;
     }
 
-    obj_check_floor_death(collisionFlags, sObjFloor);
+    obj_check_floor_death(collisionFlags, WORLD(sObjFloor));
 }
 
 void bobomb_act_chase_mario(void) {
@@ -93,8 +93,8 @@ void bobomb_act_chase_mario(void) {
         cur_obj_play_sound_2(SOUND_OBJ_BOBOMB_WALK);
     }
 
-    obj_turn_toward_object(o, gMarioObject, 16, 0x800);
-    obj_check_floor_death(collisionFlags, sObjFloor);
+    obj_turn_toward_object(o, WORLD(gMarioObject), 16, 0x800);
+    obj_check_floor_death(collisionFlags, WORLD(sObjFloor));
 }
 
 void bobomb_act_launched(void) {
@@ -182,14 +182,14 @@ void bobomb_free_loop(void) {
 void bobomb_held_loop(void) {
     o->header.gfx.node.flags |= GRAPH_RENDER_INVISIBLE;
     cur_obj_init_animation(1);
-    cur_obj_set_pos_relative(gMarioObject, 0, 60.0f, 100.0);
+    cur_obj_set_pos_relative(WORLD(gMarioObject), 0, 60.0f, 100.0);
 
     o->oBobombFuseLit = 1;
     if (o->oBobombFuseTimer > 150) {
         //! Although the Bob-omb's action is set to explode when the fuse timer expires,
         //  bobomb_act_explode() will not execute until the bob-omb's held state changes.
         //  This allows the Bob-omb to be regrabbed indefinitely.
-        gMarioObject->oInteractStatus |= INT_STATUS_MARIO_DROP_OBJECT;
+        WORLD(gMarioObject)->oInteractStatus |= INT_STATUS_MARIO_DROP_OBJECT;
         o->oAction = BOBOMB_ACT_EXPLODE;
     }
 }
@@ -391,7 +391,7 @@ void bobomb_buddy_act_talk(void) {
                 break;
 
             case BOBOMB_BUDDY_ROLE_CANNON:
-                if (gCurrCourseNum == COURSE_BOB) {
+                if (WORLD(gCurrCourseNum) == COURSE_BOB) {
                     bobomb_buddy_cannon_dialog(DIALOG_004, DIALOG_105);
                 } else {
                     bobomb_buddy_cannon_dialog(DIALOG_047, DIALOG_106);

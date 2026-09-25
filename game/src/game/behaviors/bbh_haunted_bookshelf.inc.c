@@ -12,7 +12,7 @@ void bhv_haunted_bookshelf_loop(void) {
     // oDistanceToMario is unused by this object.
     // This may have been used for revealing the books when Mario comes near,
     // but in the final game this is done by bhvHauntedBookshelfManager.
-    o->oDistanceToMario = dist_between_objects(o, gMarioObject);
+    o->oDistanceToMario = dist_between_objects(o, WORLD(gMarioObject));
 
     o->oFaceAngleYaw = 0;
 

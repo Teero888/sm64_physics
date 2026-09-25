@@ -15,7 +15,7 @@ struct ObjectHitbox sEyerokHitbox = {
 s8 D_80331BA4[] = { 0, 1, 3, 2, 1, 0 };
 
 static s32 eyerok_check_mario_relative_z(s32 arg0) {
-    if (gMarioObject->oPosZ - o->oHomeZ < arg0) {
+    if (WORLD(gMarioObject)->oPosZ - o->oHomeZ < arg0) {
         return TRUE;
     } else {
         return FALSE;
@@ -107,7 +107,7 @@ static void eyerok_boss_act_fight(void) {
                     o->oEyerokBossUnk108 = 1.0f;
                 }
 
-                o->oEyerokBossUnk10C = gMarioObject->oPosZ;
+                o->oEyerokBossUnk10C = WORLD(gMarioObject)->oPosZ;
                 clamp_f32(&o->oEyerokBossUnk10C, o->oPosZ + 400.0f, o->oPosZ + 1600.0f);
             } else if ((o->oEyerokBossActiveHand = o->oEyerokBossUnkFC & 0x1) == 0) {
                 o->oEyerokBossActiveHand = -1;
@@ -223,7 +223,7 @@ static void eyerok_hand_act_idle(void) {
                     o->oGravity = 0.0f;
                 } else {
                     o->oAction = EYEROK_HAND_ACT_FIST_PUSH;
-                    if (o->parentObj->oPosX - gMarioObject->oPosX < 0.0f) {
+                    if (o->parentObj->oPosX - WORLD(gMarioObject)->oPosX < 0.0f) {
                         o->oMoveAngleYaw = -0x800;
                     } else {
                         o->oMoveAngleYaw = 0x800;
@@ -279,7 +279,7 @@ static void eyerok_hand_act_show_eye(void) {
                 if (o->oEyerokHandUnkFC != 0) {
                     o->oEyerokHandUnkFC--;
                 }
-                o->oAnimState = D_80331BA4[o->oEyerokHandUnkFC];
+                o->oAnimState = WORLD(D_80331BA4)[o->oEyerokHandUnkFC];
             } else {
                 o->oEyerokHandUnkFC = 5;
                 o->oEyerokHandUnk100 = random_linear_offset(20, 50);
@@ -288,7 +288,7 @@ static void eyerok_hand_act_show_eye(void) {
             if (o->parentObj->oEyerokBossNumHands != 2) {
                 obj_face_yaw_approach(o->oMoveAngleYaw, 0x800);
                 if (o->oTimer > 10
-                    && (o->oPosZ - gMarioObject->oPosZ > 0.0f || (o->oMoveFlags & OBJ_MOVE_HIT_EDGE))) {
+                    && (o->oPosZ - WORLD(gMarioObject)->oPosZ > 0.0f || (o->oMoveFlags & OBJ_MOVE_HIT_EDGE))) {
                     o->parentObj->oEyerokBossActiveHand = 0;
                     o->oForwardVel = 0.0f;
                 }
@@ -372,7 +372,7 @@ static void eyerok_hand_act_retreat(void) {
 }
 
 static void eyerok_hand_act_target_mario(void) {
-    if (eyerok_check_mario_relative_z(400) || o->oPosZ - gMarioObject->oPosZ > 0.0f
+    if (eyerok_check_mario_relative_z(400) || o->oPosZ - WORLD(gMarioObject)->oPosZ > 0.0f
         || o->oPosZ - o->parentObj->oPosZ > 1700.0f || absf(o->oPosX - o->parentObj->oPosX) > 900.0f
         || (o->oMoveFlags & OBJ_MOVE_HIT_WALL)) {
         o->oForwardVel = 0.0f;
@@ -412,11 +412,11 @@ static void eyerok_hand_act_smash(void) {
 }
 
 static void eyerok_hand_act_fist_push(void) {
-    if (o->oTimer > 5 && (o->oPosZ - gMarioObject->oPosZ > 0.0f || (o->oMoveFlags & OBJ_MOVE_HIT_EDGE))) {
+    if (o->oTimer > 5 && (o->oPosZ - WORLD(gMarioObject)->oPosZ > 0.0f || (o->oMoveFlags & OBJ_MOVE_HIT_EDGE))) {
         o->oAction = EYEROK_HAND_ACT_FIST_SWEEP;
         o->oForwardVel = 0.0f;
 
-        if (o->oPosX - gMarioObject->oPosX < 0.0f) {
+        if (o->oPosX - WORLD(gMarioObject)->oPosX < 0.0f) {
             o->oMoveAngleYaw = 0x4000;
         } else {
             o->oMoveAngleYaw = -0x4000;
@@ -535,7 +535,7 @@ void bhv_eyerok_hand_loop(void) {
                 break;
         }
 
-        o->oEyerokReceivedAttack = obj_check_attacks(&sEyerokHitbox, o->oAction);
+        o->oEyerokReceivedAttack = obj_check_attacks(&WORLD(sEyerokHitbox), o->oAction);
         cur_obj_move_standard(-78);
     }
 

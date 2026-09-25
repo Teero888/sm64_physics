@@ -35,7 +35,7 @@ void breakable_box_init(void) {
 void hidden_breakable_box_actions(void) {
     struct Object *purpleSwitch;
 
-    obj_set_hitbox(o, &sBreakableBoxHitbox);
+    obj_set_hitbox(o, &WORLD(sBreakableBoxHitbox));
     cur_obj_set_model(MODEL_BREAKABLE_BOX_SMALL);
 
     if (o->oAction == HIDDEN_OBJECT_ACT_INACTIVE) {

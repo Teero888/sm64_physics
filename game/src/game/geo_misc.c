@@ -87,7 +87,7 @@ Gfx *geo_exec_inside_castle_light(s32 callContext, struct GraphNode *node, UNUSE
 
     if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         flags = save_file_get_flags();
-        if (gHudDisplay.stars >= 10 && !(flags & SAVE_FLAG_HAVE_WING_CAP)) {
+        if (WORLD(gHudDisplay).stars >= 10 && !(flags & SAVE_FLAG_HAVE_WING_CAP)) {
             displayList = alloc_display_list(2 * sizeof(*displayList));
 
             if (displayList == NULL) {
@@ -113,15 +113,15 @@ Gfx *geo_exec_inside_castle_light(s32 callContext, struct GraphNode *node, UNUSE
 Gfx *geo_exec_flying_carpet_timer_update(s32 callContext, UNUSED struct GraphNode *node,
                                          UNUSED f32 mtx[4][4]) {
     if (callContext != GEO_CONTEXT_RENDER) {
-        sFlyingCarpetRippleTimer = 0;
-        sPrevAreaTimer = gAreaUpdateCounter - 1;
-        sCurAreaTimer = gAreaUpdateCounter;
-        gFlyingCarpetState = FLYING_CARPET_IDLE;
+        WORLD(sFlyingCarpetRippleTimer) = 0;
+        WORLD(sPrevAreaTimer) = WORLD(gAreaUpdateCounter) - 1;
+        WORLD(sCurAreaTimer) = WORLD(gAreaUpdateCounter);
+        WORLD(gFlyingCarpetState) = FLYING_CARPET_IDLE;
     } else {
-        sPrevAreaTimer = sCurAreaTimer;
-        sCurAreaTimer = gAreaUpdateCounter;
-        if (sPrevAreaTimer != sCurAreaTimer) {
-            sFlyingCarpetRippleTimer += 0x400;
+        WORLD(sPrevAreaTimer) = WORLD(sCurAreaTimer);
+        WORLD(sCurAreaTimer) = WORLD(gAreaUpdateCounter);
+        if (WORLD(sPrevAreaTimer) != WORLD(sCurAreaTimer)) {
+            WORLD(sFlyingCarpetRippleTimer) += 0x400;
         }
     }
 
@@ -158,7 +158,7 @@ Gfx *geo_exec_flying_carpet_create(s32 callContext, struct GraphNode *node, UNUS
                 col = n % 3;
 
                 x = sp64[n * 4 + 0];
-                y = round_float(sins(sFlyingCarpetRippleTimer + (row << 12) + (col << 14)) * 20.0);
+                y = round_float(sins(WORLD(sFlyingCarpetRippleTimer) + (row << 12) + (col << 14)) * 20.0);
                 z = sp64[n * 4 + 1];
                 tx = sp64[n * 4 + 2];
                 ty = sp64[n * 4 + 3];
@@ -180,13 +180,13 @@ Gfx *geo_exec_flying_carpet_create(s32 callContext, struct GraphNode *node, UNUS
             gSPEndDisplayList(displayListHead);
         }
 
-        curGraphNodeObject = (struct Object *) gCurGraphNodeObject;
-        if (gMarioObject->platform == curGraphNodeObject) {
-            gFlyingCarpetState = FLYING_CARPET_MOVING_WITH_MARIO;
+        curGraphNodeObject = (struct Object *) WORLD(gCurGraphNodeObject);
+        if (WORLD(gMarioObject)->platform == curGraphNodeObject) {
+            WORLD(gFlyingCarpetState) = FLYING_CARPET_MOVING_WITH_MARIO;
         } else if (curGraphNodeObject->oForwardVel != 0.0) {
-            gFlyingCarpetState = FLYING_CARPET_MOVING_WITHOUT_MARIO;
+            WORLD(gFlyingCarpetState) = FLYING_CARPET_MOVING_WITHOUT_MARIO;
         } else {
-            gFlyingCarpetState = FLYING_CARPET_IDLE;
+            WORLD(gFlyingCarpetState) = FLYING_CARPET_IDLE;
         }
     }
 
