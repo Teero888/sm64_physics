@@ -264,8 +264,18 @@ static void level_cmd_pop_pool_state(void) {
     sCurrentCmd = CMD_NEXT;
 }
 
+#ifdef NO_SEGMENTED_MEMORY
+void host_reload_overlay(void);
+#endif
+
 static void level_cmd_load_to_fixed_address(void) {
     load_to_fixed_pool_addr(CMD_GET(void *, 4), CMD_GET(void *, 8), CMD_GET(void *, 12));
+#ifdef NO_SEGMENTED_MEMORY
+    // On the N64 this loads the Goddard and menu code segment from ROM again,
+    // which puts every variable of it back to its initial value. The host
+    // does the same (platform/host.c).
+    host_reload_overlay();
+#endif
     sCurrentCmd = CMD_NEXT;
 }
 
@@ -275,8 +285,20 @@ static void level_cmd_load_raw(void) {
     sCurrentCmd = CMD_NEXT;
 }
 
+#ifdef NO_SEGMENTED_MEMORY
+void host_reload_level_data(void);
+#endif
+
 static void level_cmd_load_mio0(void) {
     load_segment_decompress(CMD_GET(s16, 2), CMD_GET(void *, 4), CMD_GET(void *, 8));
+#ifdef NO_SEGMENTED_MEMORY
+    // On the N64 segment 7 is the level's own data, decompressed from ROM on
+    // every level load: what the game wrote into it (objects marked not to
+    // respawn, painting state) is gone. The host restores it (platform/host.c).
+    if (CMD_GET(s16, 2) == 0x07) {
+        host_reload_level_data();
+    }
+#endif
     sCurrentCmd = CMD_NEXT;
 }
 

@@ -554,6 +554,14 @@ static void compare_all(void) {
 
 // --- Oracle hook ---------------------------------------------------------------
 
+// The native game gets what it takes from the ROM from the emulator's ROM.
+void lockstep_rom(const uint8_t *rom, size_t size) {
+    if (!sm64_load_rom(rom, size)) {
+        fprintf(stderr, "lockstep: the ROM is not the version the library is built for\n");
+        exit(1);
+    }
+}
+
 int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
     sRam = ram;
     sPoll = poll;

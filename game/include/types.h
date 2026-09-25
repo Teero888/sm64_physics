@@ -103,6 +103,11 @@ struct Animation {
 struct GraphNode {
     /*0x00*/ s16 type; // structure type
     /*0x02*/ s16 flags; // hi = drawing layer, lo = rendering modes
+#ifndef TARGET_N64
+    // Library: what the render walk without drawing needs to know of the node
+    // and its children (docs/changes.md 12). In the padding before prev.
+    u16 hostWalk;
+#endif
     /*0x04*/ struct GraphNode *prev;
     /*0x08*/ struct GraphNode *next;
     /*0x0C*/ struct GraphNode *parent;

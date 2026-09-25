@@ -11,6 +11,12 @@
 extern "C" {
 #endif
 
+// The user's ROM (.z64, .v64 or .n64 byte order) of the version this library
+// is built for: the library carries the game, but not what the decomp takes
+// from the ROM. Call it once, before the game boots; returns false if it is
+// not that ROM. Without it the title screen's demos have no inputs.
+bool sm64_load_rom(const void *rom, size_t size);
+
 // Power-on: what the console does before the first game frame. sm64_step
 // calls it on first use.
 void sm64_boot(void);

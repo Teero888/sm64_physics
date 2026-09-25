@@ -472,16 +472,23 @@ Gfx *envfx_update_bubble_particles(s32 mode, UNUSED Vec3s marioPos, Vec3s camFro
     Vec3s vertex2;
     Vec3s vertex3;
 
-    Gfx *gfxStart = alloc_display_list(((sBubbleParticleMaxCount / 5) * 10 + sBubbleParticleMaxCount + 3)
-                                       * sizeof(Gfx));
-    if (gfxStart == NULL) {
-        return NULL;
-    }
+    Gfx *gfxStart = NULL;
 
-    sGfxCursor = gfxStart;
+    if (SM64_DRAW) {
+        gfxStart = alloc_display_list(((sBubbleParticleMaxCount / 5) * 10 + sBubbleParticleMaxCount + 3)
+                                      * sizeof(Gfx));
+        if (gfxStart == NULL) {
+            return NULL;
+        }
+
+        sGfxCursor = gfxStart;
+    }
 
     orbit_from_positions(camTo, camFrom, &radius, &pitch, &yaw);
     envfx_bubbles_update_switch(mode, camTo, vertex1, vertex2, vertex3);
+    if (!SM64_DRAW) {
+        return NULL;
+    }
     rotate_triangle_vertices(vertex1, vertex2, vertex3, pitch, yaw);
 
     gSPDisplayList(sGfxCursor++, &tiny_bubble_dl_0B006D38);

@@ -329,7 +329,7 @@ Gfx *geo_mirror_mario_set_alpha(s32 callContext, struct GraphNode *node, UNUSED 
     s16 alpha;
     UNUSED u8 filler2[4];
 
-    if (callContext == GEO_CONTEXT_RENDER) {
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         alpha = (bodyState->modelState & 0x100) ? (bodyState->modelState & 0xFF) : 255;
         gfx = make_gfx_mario_alpha(asGenerated, alpha);
     }
@@ -631,7 +631,7 @@ Gfx *geo_mirror_mario_backface_culling(s32 callContext, struct GraphNode *node, 
     struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
     Gfx *gfx = NULL;
 
-    if (callContext == GEO_CONTEXT_RENDER && gCurGraphNodeObject == &gMirrorMario) {
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW && gCurGraphNodeObject == &gMirrorMario) {
         gfx = alloc_display_list(3 * sizeof(*gfx));
 
         if (asGenerated->parameter == 0) {

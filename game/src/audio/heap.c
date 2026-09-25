@@ -1085,11 +1085,20 @@ s32 audio_shut_down_and_reset_step(void) {
 /**
  * Waits until a specified number of audio frames have been created
  */
+#ifndef TARGET_N64
+// The host runs the sound thread's work itself (platform/host.c).
+void host_run_audio_frame(void);
+#endif
+
 void wait_for_audio_frames(s32 frames) {
     gAudioFrameCount = 0;
     // Sound thread will update gAudioFrameCount
     while (gAudioFrameCount < frames) {
+#ifdef TARGET_N64
         // spin
+#else
+        host_run_audio_frame();
+#endif
     }
 }
 #endif

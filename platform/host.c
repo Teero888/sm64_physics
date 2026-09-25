@@ -87,13 +87,13 @@ static void restore_initial_values(section_group *group) {
 // only reads the menus' variables in the emulator while the segment is there.
 unsigned gHostOverlayLoads;
 
-// FIXED_LOAD (patches/0006): the Goddard/menu segment is read from ROM again.
+// FIXED_LOAD (docs/changes.md 6): the Goddard/menu segment is read from ROM again.
 void host_reload_overlay(void) {
     gHostOverlayLoads++;
     restore_initial_values(&sOverlay);
 }
 
-// LOAD_MIO0 of segment 7 (patches/0008): the level's data is decompressed
+// LOAD_MIO0 of segment 7 (docs/changes.md 8): the level's data is decompressed
 // from ROM again. The other levels' data is not in use, so restoring all of it
 // is the same.
 void host_reload_level_data(void) {
@@ -105,6 +105,59 @@ static bool sBooted;
 // The N64 pool runs from the end of the framebuffers to the end of RDRAM;
 // pointers are twice as wide here.
 static u8 sPoolMemory[DOUBLE_SIZE_ON_64_BIT(SEG_POOL_SIZE)] __attribute__((aligned(16)));
+
+// --- The ROM -----------------------------------------------------------------
+// The library carries the game's code and data, but not what the decomp takes
+// from the ROM: the demo inputs the title screen plays (and, for drawing and
+// sound, textures and sound banks).
+
+void host_load_demo_inputs(const unsigned char *rom); // game/gen/<version>/assets/demo_data.c
+
+// Game code and checksums in the ROM header, big-endian (.z64) byte order.
+#ifdef VERSION_JP
+static const char sRomCode[4] = "NSMJ";
+static const u32 sRomCrc[2] = { 0x4eaa3d0e, 0x74757c24 };
+#else
+static const char sRomCode[4] = "NSME";
+static const u32 sRomCrc[2] = { 0x635a2bff, 0x8b022326 };
+#endif
+
+
+static u32 read_be32(const unsigned char *p) {
+    return (u32) p[0] << 24 | (u32) p[1] << 16 | (u32) p[2] << 8 | p[3];
+}
+
+bool sm64_load_rom(const void *data, size_t size) {
+    // .z64 is big-endian, .v64 swaps each 16-bit word, .n64 each 32-bit one.
+    const unsigned char *in = data;
+    if (size < 0x800000 || size % 4 != 0) {
+        return false;
+    }
+    int swap;
+    if (in[0] == 0x80 && in[1] == 0x37) {
+        swap = 0;
+    } else if (in[0] == 0x37 && in[1] == 0x80) {
+        swap = 1;
+    } else if (in[0] == 0x40 && in[3] == 0x80) {
+        swap = 3;
+    } else {
+        return false;
+    }
+    unsigned char *rom = malloc(size);
+    if (!rom) {
+        return false;
+    }
+    for (size_t i = 0; i < size; ++i) {
+        rom[i] = in[swap == 1 ? i ^ 1 : swap == 3 ? i ^ 3 : i];
+    }
+    const bool match = memcmp(rom + 0x3b, sRomCode, 4) == 0 && read_be32(rom + 0x10) == sRomCrc[0]
+                       && read_be32(rom + 0x14) == sRomCrc[1];
+    if (match) {
+        host_load_demo_inputs(rom);
+    }
+    free(rom);
+    return match;
+}
 
 void sm64_boot(void) {
     save_initial_values(&sOverlay);
@@ -158,7 +211,7 @@ void sm64_set_draw(bool enabled) {
 }
 
 // One iteration of thread4_sound's loop. The game waits for one in
-// sound_reset (patches/0002): without sound, the frame just counts.
+// sound_reset (docs/changes.md 2): without sound, the frame just counts.
 void host_run_audio_frame(void) {
     if (sRunAudio) {
         create_next_audio_frame_task();

@@ -8,9 +8,9 @@ sites only affect sound and the title screen's Mario head and are not audited.
 
 | Site | What AVOID_UB does | N64 | Status |
 |---|---|---|---|
-| `object_collision.c` `detect_object_hitbox_overlap`, `detect_object_hurtbox_overlap` | missing return is 0 | returns v0: the previous result of either in the collision pass | **patch 0004** |
-| `wiggler.inc.c` init | sets health to 4 | JP/US read 0 (fields are zeroed at spawn); only EU sets 4 | **patch 0005** |
-| `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode (`0x6e78`, `0x6eb0` in the JP 1-key TAS, depending on the call path) | **patch 0007**, from the N64 stack pointer model (`platform/n64stack.h`) |
+| `object_collision.c` `detect_object_hitbox_overlap`, `detect_object_hurtbox_overlap` | missing return is 0 | returns v0: the previous result of either in the collision pass | **docs/changes.md 4** |
+| `wiggler.inc.c` init | sets health to 4 | JP/US read 0 (fields are zeroed at spawn); only EU sets 4 | **docs/changes.md 5** |
+| `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode (`0x6e78`, `0x6eb0` in the JP 1-key TAS, depending on the call path) | **docs/changes.md 7**, from the N64 stack pointer model (`platform/n64stack.h`) |
 | `camera_lakitu.inc.c` intro dialog | target pitch/yaw start at 0 | uninitialized registers, read while Lakitu hovers during his dialog | matches the emulator in the JP 1-key TAS (new file, full intro) |
 | `mario_actions_airborne.c` wall kick | returns `set_mario_animation`'s result | same value is in v0 | faithful |
 | `shadow.c` water shadow height | returns `waterLevel` | same | faithful (rendering) |
@@ -29,17 +29,17 @@ sites only affect sound and the title screen's Mario head and are not audited.
 
 | | N64 | Native | Status |
 |---|---|---|---|
-| Goddard/menu segment reloads (`FIXED_LOAD`) | all of src/menu's and src/goddard's variables return to their initial values | kept their values | **patch 0006** and `host_reload_overlay` |
-| `GraphNodeCamera.config` union | pointer and mode are both 32 bits | pointer's upper half uninitialized | **patch 0003** |
+| Goddard/menu segment reloads (`FIXED_LOAD`) | all of src/menu's and src/goddard's variables return to their initial values | kept their values | **docs/changes.md 6** and `host_reload_overlay` |
+| `GraphNodeCamera.config` union | pointer and mode are both 32 bits | pointer's upper half uninitialized | **docs/changes.md 3** |
 | `load_to_fixed_pool_addr` | allocates the segment at the right end of the main pool | nothing | pool addresses differ anyway; only matters if the pool runs out |
-| Level data (segment 7) | decompressed from ROM on every level load | linked in; the decomp copies terrain and macro objects per load, the rest (paintings) kept its values | **patch 0008** and `host_reload_level_data` |
-| Float to unsigned conversions | IDO's code: negative values become 0xFFFFFFFF, 2^31 and up take a second conversion | x86 wraps | `platform/ido.h`; **patch 0009** for `sins`/`coss` with float angles |
+| Level data (segment 7) | decompressed from ROM on every level load | linked in; the decomp copies terrain and macro objects per load, the rest (paintings) kept its values | **docs/changes.md 8** and `host_reload_level_data` |
+| Float to unsigned conversions | IDO's code: negative values become 0xFFFFFFFF, 2^31 and up take a second conversion | x86 wraps | `platform/ido.h`; **docs/changes.md 9** for `sins`/`coss` with float angles |
 | Object fields used as two s16 | `asS16[i][0]` is the upper half of the slot | the lower half | each side reads its own layout; only the comparator cares |
 
 ## The N64 stack pointer model
 
 Where the original leaks a stack address into game state (only
-`set_camera_mode`, patches/0007), the value depends on how deep the call path
+`set_camera_mode`, docs/changes.md 7), the value depends on how deep the call path
 is. `platform/n64stack.c` keeps the N64 game thread's stack pointer: every
 function from which the N64 can call `set_camera_mode`, and that function
 itself, moves it by its N64 frame size on entry and back on return.

@@ -80,6 +80,7 @@ static uint8_t ram_byte(const uint8_t *ram, uint32_t address) { return ram[(addr
 // The native library's comparator (tools/lockstep): compares this poll's RAM
 // with the native state and steps the native game. Nonzero stops the run.
 int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input);
+void lockstep_rom(const uint8_t *rom, size_t size);
 #endif
 
 static void stop(oracle *o) {
@@ -370,6 +371,9 @@ int main(int argc, char **argv) {
 
   size_t rom_size = 0;
   uint8_t *rom = read_all(rom_path, &rom_size);
+#ifdef SM64_LOCKSTEP
+  lockstep_rom(rom, rom_size);
+#endif
   if (o.command(M64CMD_ROM_OPEN, (int)rom_size, rom) != M64ERR_SUCCESS) die("cannot open %s", rom_path);
   free(rom);
 

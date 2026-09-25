@@ -412,10 +412,17 @@ Gfx *movtex_gen_from_quad(s16 y, struct MovtexQuad *quad) {
     s16 rotDir = quad->rotDir;
     s16 alpha = quad->alpha;
     s16 textureId = quad->textureId;
-    Vtx *verts = alloc_display_list(4 * sizeof(*verts));
+    Vtx *verts;
     Gfx *gfxHead;
     Gfx *gfx;
 
+    if (!SM64_DRAW) {
+        if (gMovtexCounter != gMovtexCounterPrev) {
+            quad->rot += rotspeed;
+        }
+        return NULL;
+    }
+    verts = alloc_display_list(4 * sizeof(*verts));
     if (textureId == gMovetexLastTextureId) {
         gfxHead = alloc_display_list(3 * sizeof(*gfxHead));
     } else {
@@ -469,14 +476,18 @@ Gfx *movtex_gen_from_quad(s16 y, struct MovtexQuad *quad) {
 Gfx *movtex_gen_from_quad_array(s16 y, void *quadArrSegmented) {
     s16 *quadArr = segmented_to_virtual(quadArrSegmented);
     s16 numLists = quadArr[0];
-    Gfx *gfxHead = alloc_display_list((numLists + 1) * sizeof(*gfxHead));
-    Gfx *gfx = gfxHead;
+    Gfx *gfxHead = NULL;
+    Gfx *gfx;
     Gfx *subList;
     s32 i;
 
-    if (gfxHead == NULL) {
-        return NULL;
+    if (SM64_DRAW) {
+        gfxHead = alloc_display_list((numLists + 1) * sizeof(*gfxHead));
+        if (gfxHead == NULL) {
+            return NULL;
+        }
     }
+    gfx = gfxHead;
     for (i = 0; i < numLists; i++) {
         // quadArr is an array of s16, so sizeof(MovtexQuad) gets divided by 2
         subList = movtex_gen_from_quad(
@@ -485,7 +496,9 @@ Gfx *movtex_gen_from_quad_array(s16 y, void *quadArrSegmented) {
             gSPDisplayList(gfx++, VIRTUAL_TO_PHYSICAL(subList));
         }
     }
-    gSPEndDisplayList(gfx);
+    if (SM64_DRAW) {
+        gSPEndDisplayList(gfx);
+    }
     return gfxHead;
 }
 
@@ -636,11 +649,13 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
             return NULL;
         }
         numWaterBoxes = gEnvironmentRegions[0];
-        gfxHead = alloc_display_list((numWaterBoxes + 3) * sizeof(*gfxHead));
-        if (gfxHead == NULL) {
-            return NULL;
-        } else {
-            gfx = gfxHead;
+        if (SM64_DRAW) {
+            gfxHead = alloc_display_list((numWaterBoxes + 3) * sizeof(*gfxHead));
+            if (gfxHead == NULL) {
+                return NULL;
+            } else {
+                gfx = gfxHead;
+            }
         }
         asGenerated = (struct GraphNodeGenerated *) node;
         if (asGenerated->parameter == JRB_MOVTEX_INITIAL_MIST) {
@@ -664,7 +679,9 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
         asGenerated->fnNode.node.flags =
             (asGenerated->fnNode.node.flags & 0xFF) | (LAYER_TRANSPARENT_INTER << 8);
 
-        movtex_change_texture_format(asGenerated->parameter, &gfx);
+        if (SM64_DRAW) {
+            movtex_change_texture_format(asGenerated->parameter, &gfx);
+        }
         gMovetexLastTextureId = -1;
         for (i = 0; i < numWaterBoxes; i++) {
             waterId = gEnvironmentRegions[i * 6 + 1];
@@ -674,8 +691,10 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
                 gSPDisplayList(gfx++, VIRTUAL_TO_PHYSICAL(subList));
             }
         }
-        gSPDisplayList(gfx++, dl_waterbox_end);
-        gSPEndDisplayList(gfx);
+        if (SM64_DRAW) {
+            gSPDisplayList(gfx++, dl_waterbox_end);
+            gSPEndDisplayList(gfx);
+        }
     }
     return gfxHead;
 }
@@ -805,11 +824,17 @@ void movtex_write_vertex_index(Vtx *verts, s32 index, s16 *movtexVerts, struct M
  * 'attrLayout' is one of MOVTEX_LAYOUT_NOCOLOR and MOVTEX_LAYOUT_COLORED.
  */
 Gfx *movtex_gen_list(s16 *movtexVerts, struct MovtexObject *movtexList, s8 attrLayout) {
-    Vtx *verts = alloc_display_list(movtexList->vtx_count * sizeof(*verts));
-    Gfx *gfxHead = alloc_display_list(11 * sizeof(*gfxHead));
-    Gfx *gfx = gfxHead;
+    Vtx *verts;
+    Gfx *gfxHead;
+    Gfx *gfx;
     s32 i;
 
+    if (!SM64_DRAW) {
+        return NULL;
+    }
+    verts = alloc_display_list(movtexList->vtx_count * sizeof(*verts));
+    gfxHead = alloc_display_list(11 * sizeof(*gfxHead));
+    gfx = gfxHead;
     if (verts == NULL || gfxHead == NULL) {
         return NULL;
     }

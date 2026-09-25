@@ -68,7 +68,9 @@ Gfx *geo_update_layer_transparency(s32 callContext, struct GraphNode *node, UNUS
         }
 
         objectOpacity = objectGraphNode->oOpacity;
-        dlStart = alloc_display_list(sizeof(Gfx) * 3);
+        if (SM64_DRAW) {
+            dlStart = alloc_display_list(sizeof(Gfx) * 3);
+        }
 
         dlHead = dlStart;
 
@@ -95,11 +97,11 @@ Gfx *geo_update_layer_transparency(s32 callContext, struct GraphNode *node, UNUS
 
 #ifdef VERSION_JP
             if (currentGraphNode->parameter == 10) {
-                if (gDebugInfo[DEBUG_PAGE_ENEMYINFO][3]) {
+                if (gDebugInfo[DEBUG_PAGE_ENEMYINFO][3] && SM64_DRAW) {
                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
                 }
             } else {
-                if (objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) {
+                if ((objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) && SM64_DRAW) {
                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
                 }
             }
@@ -110,7 +112,7 @@ Gfx *geo_update_layer_transparency(s32 callContext, struct GraphNode *node, UNUS
             // the debug info check was removed in US. so we need to
             // perform the only necessary check instead of the debuginfo
             // one.
-            if (currentGraphNode->parameter != 10) {
+            if (currentGraphNode->parameter != 10 && SM64_DRAW) {
                 if (objectGraphNode->activeFlags & ACTIVE_FLAG_DITHERED_ALPHA) {
                     gDPSetAlphaCompare(dlHead++, G_AC_DITHER);
                 }
@@ -118,8 +120,10 @@ Gfx *geo_update_layer_transparency(s32 callContext, struct GraphNode *node, UNUS
 #endif
         }
 
-        gDPSetEnvColor(dlHead++, 255, 255, 255, objectOpacity);
-        gSPEndDisplayList(dlHead);
+        if (SM64_DRAW) {
+            gDPSetEnvColor(dlHead++, 255, 255, 255, objectOpacity);
+            gSPEndDisplayList(dlHead);
+        }
     }
 
     return dlStart;

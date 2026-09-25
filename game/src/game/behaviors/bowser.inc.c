@@ -1947,7 +1947,7 @@ Gfx *geo_bits_bowser_coloring(s32 callContext, struct GraphNode *node, UNUSED s3
     Gfx *gfxHead = NULL;
     Gfx *gfx;
 
-    if (callContext == GEO_CONTEXT_RENDER) {
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         struct Object *obj = (struct Object *) gCurGraphNodeObject;
         struct GraphNodeGenerated *graphNode = (struct GraphNodeGenerated *) node;
 

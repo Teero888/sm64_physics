@@ -194,10 +194,13 @@ static int check_state(const uint32_t *inputs, uint32_t count, uint32_t at) {
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
     bool audio = false, draw = false;
+    const char *rom_path = NULL;
     long limit = -1, check_at = -1;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
             trace_path = argv[++i];
+        } else if (strcmp(argv[i], "--rom") == 0 && i + 1 < argc) {
+            rom_path = argv[++i];
         } else if (strcmp(argv[i], "--audio") == 0) {
             audio = true;
         } else if (strcmp(argv[i], "--draw") == 0) {
@@ -211,7 +214,7 @@ int main(int argc, char **argv) {
         }
     }
     if (!polls_path) {
-        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--audio] [--draw] [--check-state FRAME]\n");
+        fprintf(stderr, "usage: sm64_run POLLS [--trace OUT] [--frames N] [--rom ROM] [--audio] [--draw] [--check-state FRAME]\n");
         return 1;
     }
     FILE *polls = fopen(polls_path, "rb");
@@ -237,6 +240,23 @@ int main(int argc, char **argv) {
     // boot first, then record before every step. Its first poll is a
     // controller read during boot, before the game loop; game frame N reads
     // poll N + 1, and records carry the poll number to line up.
+    if (rom_path) {
+        FILE *rom = fopen(rom_path, "rb");
+        if (!rom) {
+            perror(rom_path);
+            return 1;
+        }
+        fseek(rom, 0, SEEK_END);
+        const long size = ftell(rom);
+        fseek(rom, 0, SEEK_SET);
+        void *bytes = malloc(size);
+        if (fread(bytes, 1, size, rom) != (size_t) size || !sm64_load_rom(bytes, size)) {
+            fprintf(stderr, "sm64_run: %s is not the ROM this library is built for\n", rom_path);
+            return 1;
+        }
+        free(bytes);
+        fclose(rom);
+    }
     sm64_set_audio(audio);
     sm64_set_draw(draw);
     sm64_boot();

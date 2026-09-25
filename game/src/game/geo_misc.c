@@ -85,7 +85,7 @@ Gfx *geo_exec_inside_castle_light(s32 callContext, struct GraphNode *node, UNUSE
     Gfx *displayListHead = NULL;
     Gfx *displayList = NULL;
 
-    if (callContext == GEO_CONTEXT_RENDER) {
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         flags = save_file_get_flags();
         if (gHudDisplay.stars >= 10 && !(flags & SAVE_FLAG_HAVE_WING_CAP)) {
             displayList = alloc_display_list(2 * sizeof(*displayList));
@@ -142,41 +142,43 @@ Gfx *geo_exec_flying_carpet_create(s32 callContext, struct GraphNode *node, UNUS
     struct Object *curGraphNodeObject;
 
     if (callContext == GEO_CONTEXT_RENDER) {
-        verts = alloc_display_list(NUM_FLYING_CARPET_VERTICES * sizeof(*verts));
-        displayList = alloc_display_list(7 * sizeof(*displayList));
-        displayListHead = displayList;
+        if (SM64_DRAW) {
+            verts = alloc_display_list(NUM_FLYING_CARPET_VERTICES * sizeof(*verts));
+            displayList = alloc_display_list(7 * sizeof(*displayList));
+            displayListHead = displayList;
 
-        if (verts == NULL || displayList == NULL) {
-            return NULL;
+            if (verts == NULL || displayList == NULL) {
+                return NULL;
+            }
+
+            generatedNode->fnNode.node.flags = (generatedNode->fnNode.node.flags & 0xFF) | 0x100;
+
+            for (n = 0; n <= 20; n++) {
+                row = n / 3;
+                col = n % 3;
+
+                x = sp64[n * 4 + 0];
+                y = round_float(sins(sFlyingCarpetRippleTimer + (row << 12) + (col << 14)) * 20.0);
+                z = sp64[n * 4 + 1];
+                tx = sp64[n * 4 + 2];
+                ty = sp64[n * 4 + 3];
+
+                make_vertex(verts, n, x, y, z, tx, ty, 0, 127, 0, 255);
+            }
+
+            gSPDisplayList(displayListHead++, dl_flying_carpet_begin);
+
+            // The forward half.
+            gSPVertex(displayListHead++, verts, 12, 0);
+            gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
+
+            // The back half.
+            gSPVertex(displayListHead++, verts + 9, 12, 0);
+            gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
+
+            gSPDisplayList(displayListHead++, dl_flying_carpet_end);
+            gSPEndDisplayList(displayListHead);
         }
-
-        generatedNode->fnNode.node.flags = (generatedNode->fnNode.node.flags & 0xFF) | 0x100;
-
-        for (n = 0; n <= 20; n++) {
-            row = n / 3;
-            col = n % 3;
-
-            x = sp64[n * 4 + 0];
-            y = round_float(sins(sFlyingCarpetRippleTimer + (row << 12) + (col << 14)) * 20.0);
-            z = sp64[n * 4 + 1];
-            tx = sp64[n * 4 + 2];
-            ty = sp64[n * 4 + 3];
-
-            make_vertex(verts, n, x, y, z, tx, ty, 0, 127, 0, 255);
-        }
-
-        gSPDisplayList(displayListHead++, dl_flying_carpet_begin);
-
-        // The forward half.
-        gSPVertex(displayListHead++, verts, 12, 0);
-        gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
-
-        // The back half.
-        gSPVertex(displayListHead++, verts + 9, 12, 0);
-        gSPDisplayList(displayListHead++, dl_flying_carpet_model_half);
-
-        gSPDisplayList(displayListHead++, dl_flying_carpet_end);
-        gSPEndDisplayList(displayListHead);
 
         curGraphNodeObject = (struct Object *) gCurGraphNodeObject;
         if (gMarioObject->platform == curGraphNodeObject) {
@@ -199,7 +201,7 @@ Gfx *geo_exec_cake_end_screen(s32 callContext, struct GraphNode *node, UNUSED f3
     Gfx *displayList = NULL;
     Gfx *displayListHead = NULL;
 
-    if (callContext == GEO_CONTEXT_RENDER) {
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         displayList = alloc_display_list(3 * sizeof(*displayList));
         displayListHead = displayList;
 

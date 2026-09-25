@@ -150,7 +150,9 @@ void wiggler_init_segments(void) {
         cur_obj_unhide();
     }
 
-#if defined(VERSION_EU) || defined(AVOID_UB)
+// Not undefined on JP and US: object fields are zeroed when the object is
+// spawned, so Wiggler's first frame of acceleration reads a health of 0.
+#if defined(VERSION_EU)
     o->oHealth = 4; // This fixes Wiggler reading UB on his first frame of his acceleration, as his health is not set.
 #endif
 }

@@ -24,8 +24,16 @@ extern f32 gSineTable[];
 extern f32 gCosineTable[];
 #endif
 
+#ifdef TARGET_N64
 #define sins(x) gSineTable[(u16) (x) >> 4]
 #define coss(x) gCosineTable[(u16) (x) >> 4]
+#else
+// Called with float arguments too: those convert to u16 as IDO compiled it
+// (negative values become 0xFFFF), not as the host does.
+#include "ido.h"
+#define sins(x) gSineTable[IDO_U16(x) >> 4]
+#define coss(x) gCosineTable[IDO_U16(x) >> 4]
+#endif
 
 #define min(a, b) ((a) <= (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))

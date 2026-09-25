@@ -1,19 +1,23 @@
 # sm64_physics
 
-Super Mario 64 as a native library: the game code of
-[n64decomp/sm64](https://github.com/n64decomp/sm64), compiled for the host and
-stepped one game frame at a time, bit-identical to the console.
+Super Mario 64 as a native library: the whole game, stepped one frame at a
+time, bit-identical to the console. Its code in `game/` started as
+[n64decomp/sm64](https://github.com/n64decomp/sm64)'s (at `9921382`) and is the
+library's own; the decomp stays a reference. `docs/changes.md` lists what
+changed from it.
 
 This is the rewrite. Where it is headed:
 
 - **The whole game, not a physics model.** Level scripts, objects, the camera,
   menus and dialogs run as the decomp wrote them, from power-on, so TAS inputs
   made against the library replay on an emulator and back.
-- **No graphics in the library.** Drawing moves out to FrameTee's SM64 module;
-  the parts of the rendering path that change game state (camera update,
-  animation frames, dialog and menu state) stay here. Until that split lands the
-  build runs the original rendering path into a discarded display list: the
-  reference the split is checked against.
+- **No graphics in a game step.** The render walk's drawing is behind a runtime
+  switch (`sm64_set_draw`, `platform/draw.h`): a step without it keeps only
+  what changes game state (camera, animation frames, geo functions' state).
+  Drawing a frame reruns its step with drawing on.
+- **No ROM data in the library.** What the decomp extracts from the ROM
+  (textures, skyboxes, demo inputs, sound) is loaded from the user's ROM
+  (`sm64_load_rom`); `game/rom_assets/` lists where each is.
 - **Verified against an emulator.** `oracle/` records the game's state at every
   frame of real TAS movies on mupen64plus; the library must reproduce it.
 
@@ -29,20 +33,22 @@ from power-on to their last frame:
 | 1 key (TASVideos 4490M) | JP | 7431 |
 | all trees (7239M) | JP | 14609 |
 | 0 stars (2016M) | US | 8827 |
+| 16 stars (6943M) | US | 23303 |
+| 70 stars (2062M) | US | 74451 |
+| 120 stars (7310M) | US | 128863 |
 
 `docs/avoid_ub.md` lists where a native build of the decomp differs from the
 N64 and how each difference is handled.
 
 ## Building
 
-Needs a checkout of the decomp at `9921382`, built once for JP from the user's
-ROM: that build generates the assets the game data includes (animations, demo
-inputs, text, textures, sound). See `oracle/README.md` for building it.
+Needs CMake, a C compiler and Python 3. One library per game version
+(`SM64_VERSION`, jp or us).
 
 ```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSM64_DECOMP_DIR=~/software/sm64-decomp -DSM64_VERSION=jp
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSM64_VERSION=jp
 cmake --build build
-./build/sm64_run oracle/out/jp-1key.polls --trace build/jp-1key.native.trace
+./build/sm64_run oracle/out/jp-1key.polls --rom "Super Mario 64 (Japan).z64" --trace build/jp-1key.native.trace
 python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.trace
 ```
 
@@ -53,9 +59,11 @@ python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.t
 | `platform/host.c` | Power-on and the per-frame loop: what the N64's threads do, without threads. |
 | `platform/ultra.c` | The SDK functions the game calls: message queues, DMA as copies, the controller, EEPROM. |
 | `platform/ultra_math.h` | libultra's `sinf`/`cosf` for the game, under other names. |
-| `patches/` | Every change to the decomp, one reviewed patch each, applied to copies in the build tree. |
-| `tools/overlay.py` | Applies `patches/`. |
-| `tools/native_sound.py` | The sound banks in the host's layout (the decomp's N64 build lays them out big endian, 32-bit). |
+| `game/` | The game's code. `game/gen/<version>/` holds what the decomp generates from its own sources (text, level headers); `game/rom_assets/<version>.tsv` lists what comes from the ROM. |
+| `platform/draw.h` | The runtime switch for the render walk's drawing. |
+| `tools/vendor.py` | The one-time import from the decomp, kept as a record. |
+| `tools/rom_stubs.py` | Names for the ROM's textures, without their pixels, for the build. |
+| `tools/n64stack/` | The N64 stack pointer model's table (`<version>.tsv`) and the tools that derive it from a decomp build. |
 | `tools/run.c` | Steps an oracle polls file and writes a trace in the oracle's format, laid out as on the N64. |
 | `oracle/` | The emulator reference. |
 

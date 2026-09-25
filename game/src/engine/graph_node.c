@@ -29,6 +29,7 @@ void init_scene_graph_node_links(struct GraphNode *graphNode, s32 type) {
     graphNode->next = graphNode;
     graphNode->parent = NULL;
     graphNode->children = NULL;
+    graphNode->hostWalk = 0;
 }
 
 /**
@@ -198,6 +199,13 @@ struct GraphNodeCamera *init_graph_node_camera(struct AllocOnlyPool *pool,
         vec3f_copy(graphNode->pos, pos);
         vec3f_copy(graphNode->focus, focus);
         graphNode->fnNode.func = func;
+#if IS_64_BIT
+        // config is a union of the Camera pointer and the mode. On the N64 both
+        // are 32 bits, so a camera without a create function (the intro's and
+        // the menus') reads the mode as its pointer. Keep that when pointers
+        // are wider instead of leaving the upper half uninitialized.
+        graphNode->config.camera = (struct Camera *) (uintptr_t) (u32) mode;
+#endif
         graphNode->config.mode = mode;
         graphNode->roll = 0;
         graphNode->rollScreen = 0;

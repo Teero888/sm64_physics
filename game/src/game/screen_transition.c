@@ -295,7 +295,7 @@ Gfx *geo_cannon_circle_base(s32 callContext, struct GraphNode *node, UNUSED Mat4
     struct GraphNodeGenerated *graphNode = (struct GraphNodeGenerated *) node;
     Gfx *dlist = NULL;
 
-    if (callContext == GEO_CONTEXT_RENDER && gCurrentArea != NULL
+    if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW && gCurrentArea != NULL
         && gCurrentArea->camera->mode == CAMERA_MODE_INSIDE_CANNON) {
         graphNode->fnNode.node.flags = (graphNode->fnNode.node.flags & 0xFF) | 0x500;
         dlist = render_cannon_circle_base();

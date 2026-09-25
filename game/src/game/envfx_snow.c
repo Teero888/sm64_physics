@@ -388,11 +388,13 @@ Gfx *envfx_update_snow(s32 snowMode, Vec3s marioPos, Vec3s camFrom, Vec3s camTo)
     vertex2 = gSnowFlakeVertex2;
     vertex3 = gSnowFlakeVertex3;
 
-    gfxStart = (Gfx *) alloc_display_list((gSnowParticleCount * 6 + 3) * sizeof(Gfx));
-    gfx = gfxStart;
+    if (SM64_DRAW) {
+        gfxStart = (Gfx *) alloc_display_list((gSnowParticleCount * 6 + 3) * sizeof(Gfx));
+        gfx = gfxStart;
 
-    if (gfxStart == NULL) {
-        return NULL;
+        if (gfxStart == NULL) {
+            return NULL;
+        }
     }
 
     envfx_update_snowflake_count(snowMode, marioPos);
@@ -434,6 +436,10 @@ Gfx *envfx_update_snow(s32 snowMode, Vec3s marioPos, Vec3s camFrom, Vec3s camTo)
             pos_from_orbit(camTo, snowCylinderPos, radius, pitch, yaw);
             envfx_update_snow_blizzard(snowCylinderPos[0], snowCylinderPos[1], snowCylinderPos[2]);
             break;
+    }
+
+    if (!SM64_DRAW) {
+        return NULL;
     }
 
     rotate_triangle_vertices((s16 *) &vertex1, (s16 *) &vertex2, (s16 *) &vertex3, pitch, yaw);

@@ -1,6 +1,5 @@
 #if !defined(VERSION_SH) && !defined(VERSION_CN)
 #include <ultra64.h>
-#include <PR/os.h>
 
 #include "data.h"
 #include "external.h"

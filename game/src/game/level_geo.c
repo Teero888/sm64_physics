@@ -65,7 +65,7 @@ Gfx *geo_skybox_main(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) 
 
     if (callContext == GEO_CONTEXT_AREA_LOAD) {
         backgroundNode->unused = 0;
-    } else if (callContext == GEO_CONTEXT_RENDER) {
+    } else if (callContext == GEO_CONTEXT_RENDER && SM64_DRAW) {
         struct GraphNodeCamera *camNode = (struct GraphNodeCamera *) gCurGraphNodeRoot->views[0];
         struct GraphNodePerspective *camFrustum =
             (struct GraphNodePerspective *) camNode->fnNode.node.parent;

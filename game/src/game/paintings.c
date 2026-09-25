@@ -1241,11 +1241,13 @@ Gfx *geo_painting_draw(s32 callContext, struct GraphNode *node, UNUSED void *con
             move_ddd_painting(painting, 3456.0f, 5529.6f, 20.0f);
         }
 
-        // Determine if the painting is transparent
-        set_painting_layer(gen, painting);
+        if (SM64_DRAW) {
+            // Determine if the painting is transparent
+            set_painting_layer(gen, painting);
 
-        // Draw before updating
-        paintingDlist = display_painting(painting);
+            // Draw before updating
+            paintingDlist = display_painting(painting);
+        }
 
         // Update the painting
         painting_update_floors(painting);
