@@ -11,9 +11,12 @@
 #include "rom.h"
 
 // Game code and checksums in the ROM header, big-endian (.z64) byte order.
-#ifdef VERSION_JP
+#if defined(VERSION_JP)
 static const char sRomCode[4] = "NSMJ";
 static const uint32_t sRomCrc[2] = { 0x4eaa3d0e, 0x74757c24 };
+#elif defined(VERSION_EU)
+static const char sRomCode[4] = "NSMP";
+static const uint32_t sRomCrc[2] = { 0xa03cf036, 0xbcc1c5d2 };
 #else
 static const char sRomCode[4] = "NSME";
 static const uint32_t sRomCrc[2] = { 0x635a2bff, 0x8b022326 };

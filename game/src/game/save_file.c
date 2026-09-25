@@ -585,13 +585,13 @@ void save_file_move_cap_to_default_location(void) {
 
 #ifdef VERSION_EU
 void eu_set_language(u16 language) {
-    gSaveBuffer.menuData[0].language = language;
-    gMainMenuDataModified = TRUE;
+    WORLD(gSaveBuffer).menuData[0].language = language;
+    WORLD(gMainMenuDataModified) = TRUE;
     save_main_menu_data();
 }
 
 u16 eu_get_language(void) {
-    return gSaveBuffer.menuData[0].language;
+    return WORLD(gSaveBuffer).menuData[0].language;
 }
 #endif
 

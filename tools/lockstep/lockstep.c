@@ -499,10 +499,13 @@ static const global sGlobals[] = {
 
 // The Goddard/menu segment is loaded into the pool and later overwritten by
 // level data. Its code, fingerprinted right after each load, tells whether
-// it is still there.
+// it is still there. The load takes the pool from the segment up to its top
+// and zeroes it; later allocations come from the top down, so they reach the
+// zeroed memory right after the segment's variables before the variables: a
+// word there that is no longer zero means the variables may be gone too.
 extern unsigned gHostOverlayLoads;
 static unsigned sOverlayLoadsSeen;
-static uint32_t sOverlayFingerprint[16], sOverlayCode;
+static uint32_t sOverlayFingerprint[16], sOverlayCode, sOverlayEnd;
 static bool sOverlayFingerprinted;
 
 static bool overlay_resident(void) {
@@ -511,6 +514,11 @@ static bool overlay_resident(void) {
     }
     for (int i = 0; i < 16; ++i) {
         if (n64_u32(sOverlayCode + 4 * i) != sOverlayFingerprint[i]) {
+            return false;
+        }
+    }
+    for (int i = 0; i < 64; ++i) {
+        if (n64_u32(sOverlayEnd + 4 * i) != 0) {
             return false;
         }
     }
@@ -597,6 +605,7 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         sm64_world_enter(sWorld);
         sNativeObjectPool = (struct Object *) native_symbol("gObjectPool");
         sOverlayCode = n64_lookup("bhv_menu_button_init")->address;
+        sOverlayEnd = (n64_lookup("_goddardSegmentNoloadEnd")->address + 15) & ~15u;
         for (size_t i = 0; i < sizeof(sNamedSegments) / sizeof(sNamedSegments[0]); ++i) {
             sNamedSegmentSize[i] = segment_size(sNamedSegments[i]);
         }

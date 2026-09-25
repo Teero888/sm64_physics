@@ -25,7 +25,7 @@
 #include "eu_translation.h"
 #ifdef VERSION_EU
 #undef LANGUAGE_FUNCTION
-#define LANGUAGE_FUNCTION sLanguageMode
+#define LANGUAGE_FUNCTION WORLD(sLanguageMode)
 #endif
 
 #ifdef VERSION_CN
@@ -1073,22 +1073,22 @@ void render_sound_mode_menu_buttons(struct Object *soundModeButton) {
 
 #ifdef VERSION_EU
     // English option button
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_ENGLISH] = spawn_object_rel_with_rot(
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_ENGLISH] = spawn_object_rel_with_rot(
         soundModeButton, MODEL_MAIN_MENU_GENERIC_BUTTON, bhvMenuButton, 533, -111, -100, 0, -0x8000, 0);
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_ENGLISH]->oMenuButtonScale = 0.11111111f;
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_ENGLISH]->oMenuButtonScale = 0.11111111f;
     // French option button
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_FRENCH] = spawn_object_rel_with_rot(
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_FRENCH] = spawn_object_rel_with_rot(
         soundModeButton, MODEL_MAIN_MENU_GENERIC_BUTTON, bhvMenuButton, 0, -111, -100, 0, -0x8000, 0);
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_FRENCH]->oMenuButtonScale = 0.11111111f;
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_FRENCH]->oMenuButtonScale = 0.11111111f;
     // German option button
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_GERMAN] = spawn_object_rel_with_rot(
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_GERMAN] = spawn_object_rel_with_rot(
         soundModeButton, MODEL_MAIN_MENU_GENERIC_BUTTON, bhvMenuButton, -533, -111, -100, 0, -0x8000, 0);
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_GERMAN]->oMenuButtonScale = 0.11111111f;
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_GERMAN]->oMenuButtonScale = 0.11111111f;
 
     // Return button
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_RETURN] = spawn_object_rel_with_rot(
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_RETURN] = spawn_object_rel_with_rot(
         soundModeButton, MODEL_MAIN_MENU_YELLOW_FILE_BUTTON, bhvMenuButton, 0, -533, -100, 0, -0x8000, 0);
-    sMainMenuButtons[MENU_BUTTON_LANGUAGE_RETURN]->oMenuButtonScale = 0.11111111f;
+    WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_RETURN]->oMenuButtonScale = 0.11111111f;
 #else
     // Zoom in current selection
     WORLD(sMainMenuButtons)[MENU_BUTTON_OPTION_MIN + WORLD(sSoundMode)]->oMenuButtonState = MENU_BUTTON_STATE_ZOOM_IN;
@@ -1133,17 +1133,17 @@ void check_sound_mode_menu_clicked_buttons(struct Object *soundModeButton) {
                 if (buttonID == MENU_BUTTON_LANGUAGE_ENGLISH || buttonID == MENU_BUTTON_LANGUAGE_FRENCH
                          || buttonID == MENU_BUTTON_LANGUAGE_GERMAN) {
                     if (soundModeButton->oMenuButtonActionPhase == SOUND_MODE_PHASE_MAIN) {
-                        play_sound(SOUND_MENU_CLICK_FILE_SELECT, gGlobalSoundSource);
-                        sMainMenuButtons[buttonID]->oMenuButtonState = MENU_BUTTON_STATE_ZOOM_IN_OUT;
-                        sLanguageMode = buttonID - MENU_BUTTON_LANGUAGE_MIN;
-                        eu_set_language(sLanguageMode);
+                        play_sound(SOUND_MENU_CLICK_FILE_SELECT, WORLD(gGlobalSoundSource));
+                        WORLD(sMainMenuButtons)[buttonID]->oMenuButtonState = MENU_BUTTON_STATE_ZOOM_IN_OUT;
+                        WORLD(sLanguageMode) = buttonID - MENU_BUTTON_LANGUAGE_MIN;
+                        eu_set_language(WORLD(sLanguageMode));
                     }
                 }
                 // If neither of the buttons above are pressed, return to main menu
                 if (buttonID == MENU_BUTTON_LANGUAGE_RETURN) {
-                    play_sound(SOUND_MENU_CLICK_FILE_SELECT, gGlobalSoundSource);
-                    sMainMenuButtons[buttonID]->oMenuButtonState = MENU_BUTTON_STATE_ZOOM_IN_OUT;
-                    sSelectedButtonID = buttonID;
+                    play_sound(SOUND_MENU_CLICK_FILE_SELECT, WORLD(gGlobalSoundSource));
+                    WORLD(sMainMenuButtons)[buttonID]->oMenuButtonState = MENU_BUTTON_STATE_ZOOM_IN_OUT;
+                    WORLD(sSelectedButtonID) = buttonID;
                 }
 #endif
                 WORLD(sCurrentMenuLevel) = MENU_LAYER_SUBMENU;
@@ -1406,7 +1406,7 @@ void bhv_menu_button_manager_init(void) {
  */
 void check_main_menu_clicked_buttons(void) {
 #ifdef VERSION_EU
-    if (sMainMenuTimer >= 5) {
+    if (WORLD(sMainMenuTimer) >= 5) {
 #endif
         // Sound mode menu is handled separately because the button ID for it
         // is not grouped with the IDs of the other submenus.
@@ -1432,10 +1432,10 @@ void check_main_menu_clicked_buttons(void) {
         }
 #ifdef VERSION_EU
         // Open Options Menu if sOpenLangSettings is TRUE (It's TRUE when there's no saves)
-        if (sOpenLangSettings == TRUE) {
-            sMainMenuButtons[MENU_BUTTON_SOUND_MODE]->oMenuButtonState = MENU_BUTTON_STATE_GROWING;
-            sSelectedButtonID = MENU_BUTTON_SOUND_MODE;
-            sOpenLangSettings = FALSE;
+        if (WORLD(sOpenLangSettings) == TRUE) {
+            WORLD(sMainMenuButtons)[MENU_BUTTON_SOUND_MODE]->oMenuButtonState = MENU_BUTTON_STATE_GROWING;
+            WORLD(sSelectedButtonID) = MENU_BUTTON_SOUND_MODE;
+            WORLD(sOpenLangSettings) = FALSE;
         }
 #endif
 
@@ -1611,7 +1611,7 @@ void bhv_menu_button_manager_loop(void) {
         // exiting the Options menu, as a result they added a return button
 #ifdef VERSION_EU
         case MENU_BUTTON_LANGUAGE_RETURN:
-            return_to_main_menu(MENU_BUTTON_SOUND_MODE, sMainMenuButtons[MENU_BUTTON_LANGUAGE_RETURN]);
+            return_to_main_menu(MENU_BUTTON_SOUND_MODE, WORLD(sMainMenuButtons)[MENU_BUTTON_LANGUAGE_RETURN]);
             break;
 #else
         case MENU_BUTTON_STEREO:
@@ -1918,24 +1918,24 @@ void print_main_lang_strings(void) {
     static s16 centeredX;
 
     // Print "SELECT FILE" text
-    gSPDisplayList(gDisplayListHead++, dl_rgba16_text_begin);
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, sTextBaseAlpha);
-    centeredX = get_str_x_pos_from_center_scale(160, textSelectFile[sLanguageMode], 12.0f);
-    print_hud_lut_string(HUD_LUT_GLOBAL, centeredX, 35, textSelectFile[sLanguageMode]);
-    gSPDisplayList(gDisplayListHead++, dl_rgba16_text_end);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_rgba16_text_begin);
+    gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
+    WORLD(centeredX) = get_str_x_pos_from_center_scale(160, WORLD(textSelectFile)[WORLD(sLanguageMode)], 12.0f);
+    print_hud_lut_string(HUD_LUT_GLOBAL, WORLD(centeredX), 35, WORLD(textSelectFile)[WORLD(sLanguageMode)]);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_rgba16_text_end);
 
     // Print menu names
-    gSPDisplayList(gDisplayListHead++, dl_ia_text_begin);
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, sTextBaseAlpha);
-    centeredX = get_str_x_pos_from_center(76, textScore[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 39, textScore[sLanguageMode]);
-    centeredX = get_str_x_pos_from_center(131, textCopy[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 39, textCopy[sLanguageMode]);
-    centeredX = get_str_x_pos_from_center(189, textErase[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 39, textErase[sLanguageMode]);
-    centeredX = get_str_x_pos_from_center(245, textOption[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 39, textOption[sLanguageMode]);
-    gSPDisplayList(gDisplayListHead++, dl_ia_text_end);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_begin);
+    gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
+    WORLD(centeredX) = get_str_x_pos_from_center(76, WORLD(textScore)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(WORLD(centeredX), 39, WORLD(textScore)[WORLD(sLanguageMode)]);
+    WORLD(centeredX) = get_str_x_pos_from_center(131, WORLD(textCopy)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(WORLD(centeredX), 39, WORLD(textCopy)[WORLD(sLanguageMode)]);
+    WORLD(centeredX) = get_str_x_pos_from_center(189, WORLD(textErase)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(WORLD(centeredX), 39, WORLD(textErase)[WORLD(sLanguageMode)]);
+    WORLD(centeredX) = get_str_x_pos_from_center(245, WORLD(textOption)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(WORLD(centeredX), 39, WORLD(textOption)[WORLD(sLanguageMode)]);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_end);
 
     print_main_menu_strings();
 }
@@ -1970,13 +1970,13 @@ void score_menu_display_message(s8 messageID) {
     switch (messageID) {
         case SCORE_MSG_CHECK_FILE:
 #ifdef VERSION_EU
-            checkFileX = get_str_x_pos_from_center_scale(160, LANGUAGE_ARRAY(textCheckFile), 12.0f);
+            checkFileX = get_str_x_pos_from_center_scale(160, LANGUAGE_ARRAY(WORLD(textCheckFile)), 12.0f);
 #endif
             print_hud_lut_string_fade(HUD_LUT_DIFF, CHECK_FILE_X, CHECK_FILE_Y, LANGUAGE_ARRAY(WORLD(textCheckFile)));
             break;
         case SCORE_MSG_NOSAVE_DATA:
 #ifdef VERSION_EU
-            noSaveDataX = get_str_x_pos_from_center(160, LANGUAGE_ARRAY(textNoSavedDataExists), 10.0f);
+            noSaveDataX = get_str_x_pos_from_center(160, LANGUAGE_ARRAY(WORLD(textNoSavedDataExists)), 10.0f);
 #endif
             print_generic_string_fade(NOSAVE_DATA_X1, 190, LANGUAGE_ARRAY(WORLD(textNoSavedDataExists)));
             break;
@@ -2056,15 +2056,15 @@ void print_score_menu_strings(void) {
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_begin);
     gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(69, textReturn[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(69, WORLD(textReturn)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(RETURN_X, 35, LANGUAGE_ARRAY(WORLD(textReturn)));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(159, textCopyFileButton[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(159, WORLD(textCopyFileButton)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(COPYFILE_X1, 35, LANGUAGE_ARRAY(WORLD(textCopyFileButton)));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(249, textEraseFileButton[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(249, WORLD(textEraseFileButton)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(ERASEFILE_X1, 35, LANGUAGE_ARRAY(WORLD(textEraseFileButton)));
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_end);
@@ -2129,39 +2129,39 @@ void copy_menu_display_message(s8 messageID) {
         case COPY_MSG_MAIN_TEXT:
             if (WORLD(sAllFilesExist) == TRUE) {
 #ifdef VERSION_EU
-                centeredX = get_str_x_pos_from_center(160, textNoFileToCopyFrom[sLanguageMode], 10.0f);
+                centeredX = get_str_x_pos_from_center(160, WORLD(textNoFileToCopyFrom)[WORLD(sLanguageMode)], 10.0f);
 #endif
                 print_generic_string_fade(NOFILE_COPY_X, 190, LANGUAGE_ARRAY(WORLD(textNoFileToCopyFrom)));
             } else {
 #ifdef VERSION_EU
-                centeredX = get_str_x_pos_from_center_scale(160, textCopyFile[sLanguageMode], 12.0f);
+                centeredX = get_str_x_pos_from_center_scale(160, WORLD(textCopyFile)[WORLD(sLanguageMode)], 12.0f);
 #endif
                 print_hud_lut_string_fade(HUD_LUT_DIFF, COPY_FILE_X, COPY_FILE_Y, LANGUAGE_ARRAY(WORLD(textCopyFile)));
             }
             break;
         case COPY_MSG_COPY_WHERE:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textCopyItToWhere[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textCopyItToWhere)[WORLD(sLanguageMode)], 10.0f);
 #endif
             print_generic_string_fade(COPYIT_WHERE_X, 190, LANGUAGE_ARRAY(WORLD(textCopyItToWhere)));
             break;
         case COPY_MSG_NOSAVE_EXISTS:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textNoSavedDataExists[sLanguageMode], 10.0f);
-            print_generic_string_fade(NOSAVE_DATA_X2, 190, textNoSavedDataExists[sLanguageMode]);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textNoSavedDataExists)[WORLD(sLanguageMode)], 10.0f);
+            print_generic_string_fade(NOSAVE_DATA_X2, 190, WORLD(textNoSavedDataExists)[WORLD(sLanguageMode)]);
 #else
             print_generic_string_fade(NOSAVE_DATA_X2, 190, WORLD(textNoSavedDataExistsCopy));
 #endif
             break;
         case COPY_MSG_COPY_COMPLETE:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textCopyCompleted[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textCopyCompleted)[WORLD(sLanguageMode)], 10.0f);
 #endif
             print_generic_string_fade(COPYCOMPLETE_X, 190, LANGUAGE_ARRAY(WORLD(textCopyCompleted)));
             break;
         case COPY_MSG_SAVE_EXISTS:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textSavedDataExists[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textSavedDataExists)[WORLD(sLanguageMode)], 10.0f);
 #endif
             print_generic_string_fade(SAVE_EXISTS_X1, 190, LANGUAGE_ARRAY(WORLD(textSavedDataExists)));
             break;
@@ -2264,15 +2264,15 @@ void print_copy_menu_strings(void) {
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_begin);
     gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(69, textReturn[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(69, WORLD(textReturn)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(RETURN_X, 35, LANGUAGE_ARRAY(WORLD(textReturn)));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(159, textViewScore[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(159, WORLD(textViewScore)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(VIEWSCORE_X1, 35, LANGUAGE_ARRAY(WORLD(textViewScore)));
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(249, textEraseFileButton[sLanguageMode], 10.0f);
+    centeredX = get_str_x_pos_from_center(249, WORLD(textEraseFileButton)[WORLD(sLanguageMode)], 10.0f);
 #endif
     print_generic_string(ERASEFILE_X2, 35, LANGUAGE_ARRAY(WORLD(textEraseFileButton)));
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_end);
@@ -2465,32 +2465,32 @@ void erase_menu_display_message(s8 messageID) {
     switch (messageID) {
         case ERASE_MSG_MAIN_TEXT:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center_scale(160, textEraseFile[sLanguageMode], 12.0f);
+            centeredX = get_str_x_pos_from_center_scale(160, WORLD(textEraseFile)[WORLD(sLanguageMode)], 12.0f);
 #endif
-            print_hud_lut_string_fade(HUD_LUT_DIFF, ERASE_FILE_X, ERASE_FILE_Y, LANGUAGE_ARRAY(textEraseFile));
+            print_hud_lut_string_fade(HUD_LUT_DIFF, ERASE_FILE_X, ERASE_FILE_Y, LANGUAGE_ARRAY(WORLD(textEraseFile)));
             break;
         case ERASE_MSG_PROMPT:
-            print_generic_string_fade(90, 190, LANGUAGE_ARRAY(textSure));
+            print_generic_string_fade(90, 190, LANGUAGE_ARRAY(WORLD(textSure)));
             print_erase_menu_prompt(90, 190); // YES NO, has functions for it too
             break;
         case ERASE_MSG_NOSAVE_EXISTS:
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textNoSavedDataExists[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textNoSavedDataExists)[WORLD(sLanguageMode)], 10.0f);
 #endif
-            print_generic_string_fade(NOSAVE_DATA_X3, 190, LANGUAGE_ARRAY(textNoSavedDataExists));
+            print_generic_string_fade(NOSAVE_DATA_X3, 190, LANGUAGE_ARRAY(WORLD(textNoSavedDataExists)));
             break;
         case ERASE_MSG_MARIO_ERASED:
-            LANGUAGE_ARRAY(textMarioAJustErased)[MARIO_ERASED_VAR] = WORLD(sSelectedFileIndex) + 10;
+            LANGUAGE_ARRAY(WORLD(textMarioAJustErased))[MARIO_ERASED_VAR] = WORLD(sSelectedFileIndex) + 10;
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textMarioAJustErased[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textMarioAJustErased)[WORLD(sLanguageMode)], 10.0f);
 #endif
-            print_generic_string_fade(MARIO_ERASED_X, 190, LANGUAGE_ARRAY(textMarioAJustErased));
+            print_generic_string_fade(MARIO_ERASED_X, 190, LANGUAGE_ARRAY(WORLD(textMarioAJustErased)));
             break;
         case ERASE_MSG_SAVE_EXISTS: // unused
 #ifdef VERSION_EU
-            centeredX = get_str_x_pos_from_center(160, textSavedDataExists[sLanguageMode], 10.0f);
+            centeredX = get_str_x_pos_from_center(160, WORLD(textSavedDataExists)[WORLD(sLanguageMode)], 10.0f);
 #endif
-            print_generic_string_fade(SAVE_EXISTS_X2, 190, LANGUAGE_ARRAY(textSavedDataExists));
+            print_generic_string_fade(SAVE_EXISTS_X2, 190, LANGUAGE_ARRAY(WORLD(textSavedDataExists)));
             break;
     }
 }
@@ -2584,12 +2584,12 @@ void print_erase_menu_strings(void) {
     gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
 
 #ifdef VERSION_EU
-    centeredX = get_str_x_pos_from_center(69, textReturn[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 35, textReturn[sLanguageMode]);
-    centeredX = get_str_x_pos_from_center(159, textViewScore[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 35, textViewScore[sLanguageMode]);
-    centeredX = get_str_x_pos_from_center(249, textCopyFileButton[sLanguageMode], 10.0f);
-    print_generic_string(centeredX, 35, textCopyFileButton[sLanguageMode]);
+    centeredX = get_str_x_pos_from_center(69, WORLD(textReturn)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(centeredX, 35, WORLD(textReturn)[WORLD(sLanguageMode)]);
+    centeredX = get_str_x_pos_from_center(159, WORLD(textViewScore)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(centeredX, 35, WORLD(textViewScore)[WORLD(sLanguageMode)]);
+    centeredX = get_str_x_pos_from_center(249, WORLD(textCopyFileButton)[WORLD(sLanguageMode)], 10.0f);
+    print_generic_string(centeredX, 35, WORLD(textCopyFileButton)[WORLD(sLanguageMode)]);
 #else
     print_generic_string(RETURN_X_OLD, 35, WORLD(textReturn));
     print_generic_string(VIEWSCORE_X2, 35, WORLD(textViewScore));
@@ -2645,8 +2645,8 @@ void print_sound_mode_menu_strings(void) {
     gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
 
 #ifdef VERSION_EU
-    print_hud_lut_string(HUD_LUT_DIFF, 47, 32, textSoundSelect[sLanguageMode]);
-    print_hud_lut_string(HUD_LUT_DIFF, 47, 101, textLanguageSelect[sLanguageMode]);
+    print_hud_lut_string(HUD_LUT_DIFF, 47, 32, WORLD(textSoundSelect)[WORLD(sLanguageMode)]);
+    print_hud_lut_string(HUD_LUT_DIFF, 47, 101, WORLD(textLanguageSelect)[WORLD(sLanguageMode)]);
 #else
     print_hud_lut_string(HUD_LUT_DIFF, SOUND_HUD_X, SOUND_HUD_Y, textSoundSelect);
 #endif
@@ -2658,26 +2658,26 @@ void print_sound_mode_menu_strings(void) {
 #ifdef VERSION_EU // In EU their X position get increased each string
     // Print sound mode names
     for (mode = 0, textX = 90; mode < 3; textX += 70, mode++) {
-        if (mode == sSoundMode) {
-            gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, sTextBaseAlpha);
+        if (mode == WORLD(sSoundMode)) {
+            gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
         } else {
-            gDPSetEnvColor(gDisplayListHead++, 0, 0, 0, sTextBaseAlpha);
+            gDPSetEnvColor(WORLD(gDisplayListHead)++, 0, 0, 0, WORLD(sTextBaseAlpha));
         }
         print_generic_string(
-            get_str_x_pos_from_center(textX, textSoundModes[sLanguageMode * 3 + mode], 10.0f),
-            141, textSoundModes[sLanguageMode * 3 + mode]);
+            get_str_x_pos_from_center(textX, WORLD(textSoundModes)[WORLD(sLanguageMode) * 3 + mode], 10.0f),
+            141, WORLD(textSoundModes)[WORLD(sLanguageMode) * 3 + mode]);
     }
 
     // In EU, print language mode names
     for (mode = 0, textX = 90; mode < 3; textX += 70, mode++) {
-        if (mode == sLanguageMode) {
-            gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, sTextBaseAlpha);
+        if (mode == WORLD(sLanguageMode)) {
+            gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
         } else {
-            gDPSetEnvColor(gDisplayListHead++, 0, 0, 0, sTextBaseAlpha);
+            gDPSetEnvColor(WORLD(gDisplayListHead)++, 0, 0, 0, WORLD(sTextBaseAlpha));
         }
         print_generic_string(
-            get_str_x_pos_from_center(textX, textLanguage[mode], 10.0f),
-            72, textLanguage[mode]);
+            get_str_x_pos_from_center(textX, WORLD(textLanguage)[mode], 10.0f),
+            72, WORLD(textLanguage)[mode]);
     }
 #else
     // Print sound mode names
@@ -2698,8 +2698,8 @@ void print_sound_mode_menu_strings(void) {
 #endif
 
 #ifdef VERSION_EU
-    gDPSetEnvColor(gDisplayListHead++, 255, 255, 255, sTextBaseAlpha);
-    print_generic_string(182, 29, textReturn[sLanguageMode]);
+    gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
+    print_generic_string(182, 29, WORLD(textReturn)[WORLD(sLanguageMode)]);
 #endif
 
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_end);
@@ -2876,8 +2876,8 @@ void print_score_file_star_score(s8 fileIndex, s16 courseIndex, s16 x, s16 y) {
     #define LEVEL_NAME_X 23
     #define STAR_SCORE_X 171
 #ifdef VERSION_EU
-    #define MYSCORE_X get_str_x_pos_from_center(257, textMyScore[sLanguageMode], 10.0f)
-    #define HISCORE_X get_str_x_pos_from_center(257, textHiScore[sLanguageMode], 10.0f)
+    #define MYSCORE_X get_str_x_pos_from_center(257, WORLD(textMyScore)[WORLD(sLanguageMode)], 10.0f)
+    #define HISCORE_X get_str_x_pos_from_center(257, WORLD(textHiScore)[WORLD(sLanguageMode)], 10.0f)
 #else
     #define MYSCORE_X 238
     #define HISCORE_X 231
@@ -2930,7 +2930,7 @@ void print_save_file_scores(s8 fileIndex) {
     u8 textFileLetter[] = { TEXT_ZERO };
     void **levelNameTable;
 
-    switch (sLanguageMode) {
+    switch (WORLD(sLanguageMode)) {
         case LANGUAGE_ENGLISH:
             levelNameTable = segmented_to_virtual(eu_course_strings_en_table);
             break;
@@ -2948,7 +2948,7 @@ void print_save_file_scores(s8 fileIndex) {
     // Print file name at top
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_rgba16_text_begin);
     gDPSetEnvColor(WORLD(gDisplayListHead)++, 255, 255, 255, WORLD(sTextBaseAlpha));
-    print_hud_lut_string(HUD_LUT_DIFF, MARIO_X, MARIO_Y, textMario);
+    print_hud_lut_string(HUD_LUT_DIFF, MARIO_X, MARIO_Y, WORLD(textMario));
     print_hud_lut_string(HUD_LUT_GLOBAL, FILE_LETTER_X, 15, textFileLetter);
 
     // Print save file star count at top
@@ -3030,9 +3030,9 @@ void print_save_file_scores(s8 fileIndex) {
 
     // Print current coin score mode
     if (WORLD(sScoreFileCoinScoreMode) == 0) {
-        FILE_SELECT_PRINT_STRING(MYSCORE_X, MYSCORE_Y, LANGUAGE_ARRAY(textMyScore));
+        FILE_SELECT_PRINT_STRING(MYSCORE_X, MYSCORE_Y, LANGUAGE_ARRAY(WORLD(textMyScore)));
     } else {
-        FILE_SELECT_PRINT_STRING(HISCORE_X, HISCORE_Y, LANGUAGE_ARRAY(textHiScore));
+        FILE_SELECT_PRINT_STRING(HISCORE_X, HISCORE_Y, LANGUAGE_ARRAY(WORLD(textHiScore)));
     }
 
 #ifdef VERSION_CN
@@ -3165,14 +3165,14 @@ s32 lvl_init_menu_values_and_cursor_pos(UNUSED s32 arg, UNUSED s32 unused) {
     WORLD(sEraseYesNoHoverState) = MENU_ERASE_HOVER_NONE;
     WORLD(sSoundMode) = save_file_get_sound_mode();
 #ifdef VERSION_EU
-    sLanguageMode = eu_get_language();
+    WORLD(sLanguageMode) = eu_get_language();
 
     for (fileIndex = 0; fileIndex <= 3; fileIndex++) {
         if (save_file_exists(fileIndex) == TRUE) {
-            sOpenLangSettings = FALSE;
+            WORLD(sOpenLangSettings) = FALSE;
             break;
         } else {
-            sOpenLangSettings = TRUE;
+            WORLD(sOpenLangSettings) = TRUE;
         }
     }
 #endif

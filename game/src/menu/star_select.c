@@ -220,17 +220,17 @@ void print_course_number(void) {
     // Change upper part of the wood texture depending of the language defined
     switch (language) {
         case LANGUAGE_ENGLISH:
-            gSPDisplayList(gDisplayListHead++, dl_menu_texture_course_upper);
+            gSPDisplayList(WORLD(gDisplayListHead)++, dl_menu_texture_course_upper);
             break;
         case LANGUAGE_FRENCH:
-            gSPDisplayList(gDisplayListHead++, dl_menu_texture_niveau_upper);
+            gSPDisplayList(WORLD(gDisplayListHead)++, dl_menu_texture_niveau_upper);
             break;
         case LANGUAGE_GERMAN:
-            gSPDisplayList(gDisplayListHead++, dl_menu_texture_kurs_upper);
+            gSPDisplayList(WORLD(gDisplayListHead)++, dl_menu_texture_kurs_upper);
             break;
     }
 
-    gSPDisplayList(gDisplayListHead++, dl_menu_rgba16_wood_course_end);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_menu_rgba16_wood_course_end);
 #endif
 
     gSPPopMatrix(WORLD(gDisplayListHead)++, G_MTX_MODELVIEW);
@@ -300,7 +300,7 @@ void print_act_selector_strings(void) {
             levelNameTbl = segmented_to_virtual(course_name_table_eu_de);
             break;
     }
-    currLevelName = segmented_to_virtual(levelNameTbl[COURSE_NUM_TO_INDEX(gCurrCourseNum)]);
+    currLevelName = segmented_to_virtual(levelNameTbl[COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum))]);
 #endif
 
     // Print the coin highscore.
@@ -370,7 +370,7 @@ void print_act_selector_strings(void) {
     for (i = 1; i <= WORLD(sVisibleStars); i++) {
         starNumbers[0] = i;
 #ifdef VERSION_EU
-        print_menu_generic_string(128 - (sVisibleStars - 1) * 15 + i * 30, 38, starNumbers);
+        print_menu_generic_string(128 - (WORLD(sVisibleStars) - 1) * 15 + i * 30, 38, starNumbers);
 #else
         print_menu_generic_string(122 - (WORLD(sVisibleStars) - 1) * 17 + i * 34, 38, starNumbers);
 #endif
@@ -433,7 +433,7 @@ s32 lvl_update_obj_and_load_act_button_actions(UNUSED s32 arg, UNUSED s32 unused
          || (WORLD(gPlayer3Controller)->buttonPressed & START_BUTTON)
          || (WORLD(gPlayer3Controller)->buttonPressed & B_BUTTON))
 #else
-        if (gPlayer3Controller->buttonPressed & (A_BUTTON | START_BUTTON | B_BUTTON | Z_TRIG))
+        if (WORLD(gPlayer3Controller)->buttonPressed & (A_BUTTON | START_BUTTON | B_BUTTON | Z_TRIG))
 #endif
         {
 #ifdef VERSION_JP

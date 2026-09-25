@@ -25,7 +25,7 @@ This is the rewrite. Where it is headed:
 
 ## Status
 
-JP and US. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
+JP, US and EU. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
 all objects, the camera and its internal state, cutscene and menu state,
 controllers, areas and the save file every frame, these TASes are identical
 from power-on to their last frame:
@@ -38,6 +38,14 @@ from power-on to their last frame:
 | 16 stars (6943M) | US | 23303 |
 | 70 stars (2062M) | US | 74451 |
 | 120 stars (7310M) | US | 128863 |
+| no input: the title demos (`oracle/make_movie.py idle`) | EU | 20000 |
+| random input, seed 64 (`oracle/make_movie.py random`) | EU | 30000 |
+
+The US 16, 70 and 120 star movies do not play out as published on this
+emulator (mupen64plus), which the TASes were not made on: the library follows
+the emulator there, desyncs included. EU has no TAS in the corpus yet; its
+made-up movies cover the title demos, the menus (languages included) and
+play on the castle grounds.
 
 `docs/avoid_ub.md` lists where a native build of the decomp differs from the
 N64 and how each difference is handled.

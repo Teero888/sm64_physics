@@ -166,7 +166,7 @@ void decrease_sample_dma_ttls() {
 
     for (i = 0; i < WORLD(sSampleDmaListSize1); i++) {
 #if defined(VERSION_EU)
-        struct SharedDma *temp = &sSampleDmas[i];
+        struct SharedDma *temp = &WORLD(sSampleDmas)[i];
 #else
         struct SharedDma *temp = WORLD(sSampleDmas) + i;
 #endif
@@ -181,7 +181,7 @@ void decrease_sample_dma_ttls() {
 
     for (i = WORLD(sSampleDmaListSize1); i < WORLD(gSampleDmaNumListItems); i++) {
 #if defined(VERSION_EU)
-        struct SharedDma *temp = &sSampleDmas[i];
+        struct SharedDma *temp = &WORLD(sSampleDmas)[i];
 #else
         struct SharedDma *temp = WORLD(sSampleDmas) + i;
 #endif
@@ -210,7 +210,7 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
     if (arg2 != 0 || *dmaIndexRef >= WORLD(sSampleDmaListSize1)) {
         for (i = WORLD(sSampleDmaListSize1); i < WORLD(gSampleDmaNumListItems); i++) {
 #if defined(VERSION_EU)
-            dma = &sSampleDmas[i];
+            dma = &WORLD(sSampleDmas)[i];
 #else
             dma = WORLD(sSampleDmas) + i;
 #endif
@@ -248,7 +248,7 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
         }
     } else {
 #if defined(VERSION_EU)
-        dma = sSampleDmas;
+        dma = WORLD(sSampleDmas);
         dma += *dmaIndexRef;
 #else
         dma = WORLD(sSampleDmas) + *dmaIndexRef;
@@ -297,8 +297,8 @@ void *dma_sample_data(uintptr_t devAddr, u32 size, s32 arg2, u8 *dmaIndexRef) {
     osInvalDCache(dma->buffer, transfer);
 #endif
 #if defined(VERSION_EU)
-    osPiStartDma(&gCurrAudioFrameDmaIoMesgBufs[gCurrAudioFrameDmaCount++], OS_MESG_PRI_NORMAL,
-                     OS_READ, dmaDevAddr, dma->buffer, transfer, &gCurrAudioFrameDmaQueue);
+    osPiStartDma(&WORLD(gCurrAudioFrameDmaIoMesgBufs)[WORLD(gCurrAudioFrameDmaCount)++], OS_MESG_PRI_NORMAL,
+                     OS_READ, dmaDevAddr, dma->buffer, transfer, &WORLD(gCurrAudioFrameDmaQueue));
     *dmaIndexRef = dmaIndex;
     return (devAddr - dmaDevAddr) + dma->buffer;
 #else
@@ -320,13 +320,13 @@ void init_sample_dma_buffers(UNUSED s32 arg0) {
 #endif
 
 #if defined(VERSION_EU)
-    sDmaBufSize = 0x400;
+    WORLD(sDmaBufSize) = 0x400;
 #else
     WORLD(sDmaBufSize) = 144 * 9;
 #endif
 
 #if defined(VERSION_EU)
-    for (i = 0; i < gMaxSimultaneousNotes * 3 * gAudioBufferParameters.presetUnk4; i++)
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes) * 3 * WORLD(gAudioBufferParameters).presetUnk4; i++)
 #else
     for (i = 0; i < WORLD(gMaxSimultaneousNotes) * 3; i++)
 #endif
@@ -364,7 +364,7 @@ out1:
     WORLD(sSampleDmaListSize1) = WORLD(gSampleDmaNumListItems);
 
 #if defined(VERSION_EU)
-    sDmaBufSize = 0x200;
+    WORLD(sDmaBufSize) = 0x200;
 #else
     WORLD(sDmaBufSize) = 160 * 9;
 #endif
@@ -428,7 +428,7 @@ void patch_sound(UNUSED struct AudioBankSound *sound, UNUSED u8 *memBase, UNUSED
 #if defined(VERSION_EU)
         else if (sample->loaded == 0x80) {
             PATCH(sample->sampleAddr, offsetBase);
-            mem = soundAlloc(&gNotesAndBuffersPool, sample->sampleSize);
+            mem = soundAlloc(&WORLD(gNotesAndBuffersPool), sample->sampleSize);
             if (mem == NULL) {
                 sample->sampleAddr = patched;
                 sample->loaded = 1;
@@ -637,10 +637,10 @@ struct AudioBank *bank_load_async(s32 bankId, s32 arg1, struct SequencePlayer *s
     numDrums = buf[1];
     seqPlayer->loadingBankId = (u8) bankId;
 #if defined(VERSION_EU)
-    gCtlEntries[bankId].numInstruments = numInstruments;
-    gCtlEntries[bankId].numDrums = numDrums;
-    gCtlEntries[bankId].instruments = ret->instruments;
-    gCtlEntries[bankId].drums = 0;
+    WORLD(gCtlEntries)[bankId].numInstruments = numInstruments;
+    WORLD(gCtlEntries)[bankId].numDrums = numDrums;
+    WORLD(gCtlEntries)[bankId].instruments = ret->instruments;
+    WORLD(gCtlEntries)[bankId].drums = 0;
     seqPlayer->bankDmaCurrMemAddr = (u8 *) ret;
     seqPlayer->bankDmaCurrDevAddr = (uintptr_t)(ctlData + 0x10);
     seqPlayer->bankDmaRemaining = alloc;
@@ -731,9 +731,9 @@ u8 get_missing_bank(u32 seqId, s32 *nonNullCount, s32 *nullCount) {
     *nullCount = 0;
     *nonNullCount = 0;
 #if defined(VERSION_EU)
-    offset = ((u16 *) gAlBankSets)[seqId];
-    for (i = gAlBankSets[offset++], ret = 0; i != 0; i--) {
-        bankId = gAlBankSets[offset++];
+    offset = ((u16 *) WORLD(gAlBankSets))[seqId];
+    for (i = WORLD(gAlBankSets)[offset++], ret = 0; i != 0; i--) {
+        bankId = WORLD(gAlBankSets)[offset++];
 #else
     offset = ((u16 *) WORLD(gAlBankSets))[seqId] + 1;
     for (i = WORLD(gAlBankSets)[offset - 1], ret = 0; i != 0; i--) {
@@ -743,7 +743,7 @@ u8 get_missing_bank(u32 seqId, s32 *nonNullCount, s32 *nullCount) {
 
         if (IS_BANK_LOAD_COMPLETE(bankId) == TRUE) {
 #if defined(VERSION_EU)
-            temp = get_bank_or_seq(&gBankLoadedPool, 2, bankId);
+            temp = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, bankId);
 #else
             temp = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, WORLD(gAlBankSets)[offset - 1]);
 #endif
@@ -770,8 +770,8 @@ struct AudioBank *load_banks_immediate(s32 seqId, u8 *outDefaultBank) {
 
     offset = ((u16 *) WORLD(gAlBankSets))[seqId];
 #ifdef VERSION_EU
-    for (i = gAlBankSets[offset++]; i != 0; i--) {
-        bankId = gAlBankSets[offset++];
+    for (i = WORLD(gAlBankSets)[offset++]; i != 0; i--) {
+        bankId = WORLD(gAlBankSets)[offset++];
 #else
     offset++;
     for (i = WORLD(gAlBankSets)[offset - 1]; i != 0; i--) {
@@ -781,7 +781,7 @@ struct AudioBank *load_banks_immediate(s32 seqId, u8 *outDefaultBank) {
 
         if (IS_BANK_LOAD_COMPLETE(bankId) == TRUE) {
 #ifdef VERSION_EU
-            ret = get_bank_or_seq(&gBankLoadedPool, 2, bankId);
+            ret = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, bankId);
 #else
             ret = get_bank_or_seq(&WORLD(gBankLoadedPool), 2, WORLD(gAlBankSets)[offset - 1]);
 #endif
@@ -961,8 +961,8 @@ void audio_init() {
 #endif
 
 #else
-    for (i = 0; i < gAudioHeapSize / 8; i++) {
-        ((u64 *) gAudioHeap)[i] = 0;
+    for (i = 0; i < WORLD(gAudioHeapSize) / 8; i++) {
+        ((u64 *) WORLD(gAudioHeap))[i] = 0;
     }
 
 #ifdef TARGET_N64
@@ -974,8 +974,8 @@ void audio_init() {
     }
 #endif
 
-    D_EU_802298D0 = 20.03042f;
-    gRefreshRate = 50;
+    WORLD(D_EU_802298D0) = 20.03042f;
+    WORLD(gRefreshRate) = 50;
     port_eu_init();
     if (k) {
     }
@@ -1020,8 +1020,8 @@ void audio_init() {
     }
 
 #if defined(VERSION_EU)
-    gAudioResetPresetIdToLoad = 0;
-    gAudioResetStatus = 1;
+    WORLD(gAudioResetPresetIdToLoad) = 0;
+    WORLD(gAudioResetStatus) = 1;
     audio_shut_down_and_reset_step();
 #else
     audio_reset_session(&WORLD(gAudioSessionPresets)[0]);
@@ -1038,7 +1038,7 @@ void audio_init() {
     audio_dma_copy_immediate((uintptr_t) data, WORLD(gSeqFileHeader), 0x10);
     WORLD(gSequenceCount) = WORLD(gSeqFileHeader)->seqCount;
 #if defined(VERSION_EU)
-    size = gSequenceCount * sizeof(ALSeqData) + 4;
+    size = WORLD(gSequenceCount) * sizeof(ALSeqData) + 4;
     size = ALIGN16(size);
 #else
     size = ALIGN16(WORLD(gSequenceCount) * sizeof(ALSeqData) + 4);

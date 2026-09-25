@@ -530,11 +530,11 @@ void audio_reset_session_eu(s32 presetId) {
     }
 
 #else
-    osRecvMesg(OSMesgQueues[3], &mesg, OS_MESG_NOBLOCK);
-    osSendMesg(OSMesgQueues[2], (OSMesg) presetId, OS_MESG_NOBLOCK);
-    osRecvMesg(OSMesgQueues[3], &mesg, OS_MESG_BLOCK);
+    osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_NOBLOCK);
+    osSendMesg(WORLD(OSMesgQueues)[2], (OSMesg) presetId, OS_MESG_NOBLOCK);
+    osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_BLOCK);
     if ((s32) mesg != presetId) {
-        osRecvMesg(OSMesgQueues[3], &mesg, OS_MESG_BLOCK);
+        osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_BLOCK);
     }
 #endif
 }
@@ -683,9 +683,9 @@ extern void func_sh_802F64C8(void);
  * Called from threads: thread5_game_loop
  */
 void maybe_tick_game_sound(void) {
-    if (sGameLoopTicked != 0) {
+    if (WORLD(sGameLoopTicked) != 0) {
         update_game_sound();
-        sGameLoopTicked = 0;
+        WORLD(sGameLoopTicked) = 0;
     }
 #ifdef VERSION_EU
     func_802ad7a0();
@@ -1400,7 +1400,7 @@ static void update_game_sound(void) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
                                     func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                                   get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1)
-                                                      * ((sSoundMovingSpeed[bank] + 8.0f) / 16));
+                                                      * ((WORLD(sSoundMovingSpeed)[bank] + 8.0f) / 16));
 #else
                                     value = get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->volume =
@@ -1409,8 +1409,8 @@ static void update_game_sound(void) {
                                 }
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
                                 func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                              get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                            *sSoundBanks[bank][soundIndex].z));
+                                              get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                            *WORLD(sSoundBanks)[bank][soundIndex].z));
 #else
                                 WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->pan =
                                     get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
@@ -1423,7 +1423,7 @@ static void update_game_sound(void) {
                                     func_802ad728(
                                         0x04020000 | ((channelIndex & 0xff) << 8),
                                         get_sound_freq_scale(bank, soundIndex)
-                                            + ((f32) sSoundMovingSpeed[bank] / US_FLOAT(80.0)));
+                                            + ((f32) WORLD(sSoundMovingSpeed)[bank] / US_FLOAT(80.0)));
 #else
                                     value = get_sound_freq_scale(bank, soundIndex);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->freqScale =
@@ -1434,7 +1434,7 @@ static void update_game_sound(void) {
                                     func_802ad728(
                                         0x04020000 | ((channelIndex & 0xff) << 8),
                                         get_sound_freq_scale(bank, soundIndex)
-                                            + ((f32) sSoundMovingSpeed[bank] / US_FLOAT(400.0)));
+                                            + ((f32) WORLD(sSoundMovingSpeed)[bank] / US_FLOAT(400.0)));
 #else
                                     value = get_sound_freq_scale(bank, soundIndex);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->freqScale =
@@ -1472,8 +1472,8 @@ static void update_game_sound(void) {
                             func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                           get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1));
                             func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                          get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                        *sSoundBanks[bank][soundIndex].z)
+                                          get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                        *WORLD(sSoundBanks)[bank][soundIndex].z)
                                                   * 127.0f
                                               + 0.5f);
                             func_802ad728(0x04020000 | ((channelIndex & 0xff) << 8),
@@ -1502,8 +1502,8 @@ static void update_game_sound(void) {
                             func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                           get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK2));
                             func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                          get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                        *sSoundBanks[bank][soundIndex].z)
+                                          get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                        *WORLD(sSoundBanks)[bank][soundIndex].z)
                                                   * 127.0f
                                               + 0.5f);
                             func_802ad728(0x04020000 | ((channelIndex & 0xff) << 8),
@@ -1584,7 +1584,7 @@ static void update_game_sound(void) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
                                     func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                                   get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1)
-                                                      * ((sSoundMovingSpeed[bank] + 8.0f) / 16));
+                                                      * ((WORLD(sSoundMovingSpeed)[bank] + 8.0f) / 16));
 #else
                                     value = get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->volume =
@@ -1593,8 +1593,8 @@ static void update_game_sound(void) {
                                 }
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
                                 func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                              get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                            *sSoundBanks[bank][soundIndex].z));
+                                              get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                            *WORLD(sSoundBanks)[bank][soundIndex].z));
 #else
                                 WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->pan =
                                     get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
@@ -1607,7 +1607,7 @@ static void update_game_sound(void) {
                                     func_802ad728(
                                         0x04020000 | ((channelIndex & 0xff) << 8),
                                         get_sound_freq_scale(bank, soundIndex)
-                                            + ((f32) sSoundMovingSpeed[bank] / US_FLOAT(80.0)));
+                                            + ((f32) WORLD(sSoundMovingSpeed)[bank] / US_FLOAT(80.0)));
 #else
                                     value = get_sound_freq_scale(bank, soundIndex);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->freqScale =
@@ -1618,7 +1618,7 @@ static void update_game_sound(void) {
                                     func_802ad728(
                                         0x04020000 | ((channelIndex & 0xff) << 8),
                                         get_sound_freq_scale(bank, soundIndex)
-                                            + ((f32) sSoundMovingSpeed[bank] / US_FLOAT(400.0)));
+                                            + ((f32) WORLD(sSoundMovingSpeed)[bank] / US_FLOAT(400.0)));
 #else
                                     value = get_sound_freq_scale(bank, soundIndex);
                                     WORLD(gSequencePlayers)[SEQ_PLAYER_SFX].channels[channelIndex]->freqScale =
@@ -1656,8 +1656,8 @@ static void update_game_sound(void) {
                             func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                           get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK1));
                             func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                          get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                        *sSoundBanks[bank][soundIndex].z)
+                                          get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                        *WORLD(sSoundBanks)[bank][soundIndex].z)
                                                   * 127.0f
                                               + 0.5f);
                             func_802ad728(0x04020000 | ((channelIndex & 0xff) << 8),
@@ -1686,8 +1686,8 @@ static void update_game_sound(void) {
                             func_802ad728(0x02020000 | ((channelIndex & 0xff) << 8),
                                           get_sound_volume(bank, soundIndex, VOLUME_RANGE_UNK2));
                             func_802ad770(0x03020000 | ((channelIndex & 0xff) << 8),
-                                          get_sound_pan(*sSoundBanks[bank][soundIndex].x,
-                                                        *sSoundBanks[bank][soundIndex].z)
+                                          get_sound_pan(*WORLD(sSoundBanks)[bank][soundIndex].x,
+                                                        *WORLD(sSoundBanks)[bank][soundIndex].z)
                                                   * 127.0f
                                               + 0.5f);
                             func_802ad728(0x04020000 | ((channelIndex & 0xff) << 8),
@@ -1744,7 +1744,7 @@ static void seq_player_play_sequence(u8 player, u8 seqId, u16 arg2) {
     if (player == SEQ_PLAYER_LEVEL) {
         targetVolume = begin_background_music_fade(0);
         if (targetVolume != 0xff) {
-            gSequencePlayers[SEQ_PLAYER_LEVEL].fadeVolumeScale = (f32) targetVolume / US_FLOAT(127.0);
+            WORLD(gSequencePlayers)[SEQ_PLAYER_LEVEL].fadeVolumeScale = (f32) targetVolume / US_FLOAT(127.0);
         }
     }
 #else
@@ -1775,7 +1775,7 @@ void seq_player_fade_out(u8 player, u16 fadeDuration) {
     s32 fd = fadeDuration; // will also match if we change function signature func_802ad74c to use s32 as arg1
 #endif
     if (!player) {
-        sCurrentBackgroundMusicSeqId = SEQUENCE_NONE;
+        WORLD(sCurrentBackgroundMusicSeqId) = SEQUENCE_NONE;
     }
     func_802ad74c(0x83000000 | (player & 0xff) << 16, fd);
 #else
@@ -1826,7 +1826,7 @@ static void func_8031F96C(u8 player) {
             WORLD(D_80360928)[player][i].current += WORLD(D_80360928)[player][i].velocity;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
             func_802ad728(0x01000000 | (player & 0xff) << 16 | (i & 0xff) << 8,
-                          D_80360928[player][i].current);
+                          WORLD(D_80360928)[player][i].current);
 #else
             WORLD(gSequencePlayers)[player].channels[i]->volumeScale = WORLD(D_80360928)[player][i].current;
 #endif
@@ -1834,7 +1834,7 @@ static void func_8031F96C(u8 player) {
             if (WORLD(D_80360928)[player][i].remainingFrames == 0) {
 #if defined(VERSION_EU)
                 func_802ad728(0x01000000 | (player & 0xff) << 16 | (i & 0xff) << 8,
-                              FLOAT_CAST(D_80360928[player][i].target) / 127.0);
+                              FLOAT_CAST(WORLD(D_80360928)[player][i].target) / 127.0);
 #elif defined(VERSION_SH) || defined(VERSION_CN)
                 func_802ad728(0x01000000 | (player & 0xff) << 16 | (i & 0xff) << 8,
                               FLOAT_CAST(D_80360928[player][i].target) / 127.0f);
@@ -2500,12 +2500,12 @@ u16 get_current_background_music(void) {
  */
 void func_80320ED8(void) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    if (D_EU_80300558 != 0) {
-        D_EU_80300558--;
+    if (WORLD(D_EU_80300558) != 0) {
+        WORLD(D_EU_80300558)--;
     }
 
-    if (gSequencePlayers[SEQ_PLAYER_ENV].enabled
-        || sBackgroundMusicMaxTargetVolume == TARGET_VOLUME_UNSET || D_EU_80300558 != 0) {
+    if (WORLD(gSequencePlayers)[SEQ_PLAYER_ENV].enabled
+        || WORLD(sBackgroundMusicMaxTargetVolume) == TARGET_VOLUME_UNSET || WORLD(D_EU_80300558) != 0) {
 #else
     if (WORLD(gSequencePlayers)[SEQ_PLAYER_ENV].enabled
         || WORLD(sBackgroundMusicMaxTargetVolume) == TARGET_VOLUME_UNSET) {
@@ -2608,7 +2608,7 @@ void play_course_clear(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_CUTSCENE_COLLECT_STAR, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 0;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2620,7 +2620,7 @@ void play_peachs_jingle(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_PEACH_MESSAGE, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 0;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2636,7 +2636,7 @@ void play_puzzle_jingle(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_SOLVE_PUZZLE, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2648,7 +2648,7 @@ void play_star_fanfare(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_HIGH_SCORE, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2663,7 +2663,7 @@ void play_power_star_jingle(u8 arg0) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_CUTSCENE_STAR_SPAWN, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2675,7 +2675,7 @@ void play_race_fanfare(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_RACE, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }
@@ -2687,7 +2687,7 @@ void play_toads_jingle(void) {
     seq_player_play_sequence(SEQ_PLAYER_ENV, SEQ_EVENT_TOAD_MESSAGE, 0);
     WORLD(sBackgroundMusicMaxTargetVolume) = TARGET_VOLUME_IS_PRESENT_FLAG | 20;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    D_EU_80300558 = 2;
+    WORLD(D_EU_80300558) = 2;
 #endif
     begin_background_music_fade(50);
 }

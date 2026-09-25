@@ -16,7 +16,7 @@ extern "C" {
 // visibility; this header's, with default visibility, are its API.
 #pragma GCC visibility push(default)
 
-// The game version this library is built for: "jp" or "us".
+// The game version this library is built for: "jp", "us" or "eu".
 const char *sm64_version(void);
 
 // The user's ROM (.z64, .v64 or .n64 byte order) of the version this library

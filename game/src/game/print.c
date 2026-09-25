@@ -470,13 +470,13 @@ void render_text_labels(void) {
                 // This produces a colorful Ü.
                 if (glyphIndex == GLYPH_BETA_KEY) {
                     add_glyph_texture(GLYPH_U);
-                    render_textrect(sTextLabels[i]->x, sTextLabels[i]->y, j);
+                    render_textrect(WORLD(sTextLabels)[i]->x, WORLD(sTextLabels)[i]->y, j);
 
                     add_glyph_texture(GLYPH_UMLAUT);
-                    render_textrect(sTextLabels[i]->x, sTextLabels[i]->y + 3, j);
+                    render_textrect(WORLD(sTextLabels)[i]->x, WORLD(sTextLabels)[i]->y + 3, j);
                 } else {
                     add_glyph_texture(glyphIndex);
-                    render_textrect(sTextLabels[i]->x, sTextLabels[i]->y, j);
+                    render_textrect(WORLD(sTextLabels)[i]->x, WORLD(sTextLabels)[i]->y, j);
                 }
 #elif defined(VERSION_CN)
                 if ((u8) glyphIndex == 0xB0) {

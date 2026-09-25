@@ -92,7 +92,7 @@ u8 audioString2[] = "cont %x: delaybytes %d : olddelay %d\n";
 // just that the reverb structure is chosen from an array with index
 void prepare_reverb_ring_buffer(s32 chunkLen, u32 updateIndex, s32 reverbIndex) {
     struct ReverbRingBufferItem *item;
-    struct SynthesisReverb *reverb = &gSynthesisReverbs[reverbIndex];
+    struct SynthesisReverb *reverb = &WORLD(gSynthesisReverbs)[reverbIndex];
     s32 srcPos;
     s32 dstPos;
     s32 nSamples;
@@ -199,10 +199,10 @@ void prepare_reverb_ring_buffer(s32 chunkLen, u32 updateIndex) {
 #ifdef VERSION_EU
 u64 *synthesis_load_reverb_ring_buffer(u64 *cmd, u16 addr, u16 srcOffset, s32 len, s32 reverbIndex) {
     aSetBuffer(cmd++, 0, addr, 0, len);
-    aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&gSynthesisReverbs[reverbIndex].ringBuffer.left[srcOffset]));
+    aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.left[srcOffset]));
 
     aSetBuffer(cmd++, 0, addr + DEFAULT_LEN_1CH, 0, len);
-    aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&gSynthesisReverbs[reverbIndex].ringBuffer.right[srcOffset]));
+    aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.right[srcOffset]));
 
     return cmd;
 }
@@ -211,10 +211,10 @@ u64 *synthesis_load_reverb_ring_buffer(u64 *cmd, u16 addr, u16 srcOffset, s32 le
 #ifdef VERSION_EU
 u64 *synthesis_save_reverb_ring_buffer(u64 *cmd, u16 addr, u16 destOffset, s32 len, s32 reverbIndex) {
     aSetBuffer(cmd++, 0, 0, addr, len);
-    aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&gSynthesisReverbs[reverbIndex].ringBuffer.left[destOffset]));
+    aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.left[destOffset]));
 
     aSetBuffer(cmd++, 0, 0, addr + DEFAULT_LEN_1CH, len);
-    aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&gSynthesisReverbs[reverbIndex].ringBuffer.right[destOffset]));
+    aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.right[destOffset]));
 
     return cmd;
 }
@@ -226,9 +226,9 @@ void synthesis_load_note_subs_eu(s32 updateIndex) {
     struct NoteSubEu *dest;
     s32 i;
 
-    for (i = 0; i < gMaxSimultaneousNotes; i++) {
-        src = &gNotes[i].noteSubEu;
-        dest = &gNoteSubsEu[gMaxSimultaneousNotes * updateIndex + i];
+    for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+        src = &WORLD(gNotes)[i].noteSubEu;
+        dest = &WORLD(gNoteSubsEu)[WORLD(gMaxSimultaneousNotes) * updateIndex + i];
         if (src->enabled) {
             *dest = *src;
             src->needsInit = FALSE;
@@ -273,47 +273,47 @@ u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
     s32 chunkLen;
     s32 nextVolRampTable;
 
-    for (i = gAudioBufferParameters.updatesPerFrame; i > 0; i--) {
+    for (i = WORLD(gAudioBufferParameters).updatesPerFrame; i > 0; i--) {
         process_sequences(i - 1);
-        synthesis_load_note_subs_eu(gAudioBufferParameters.updatesPerFrame - i);
+        synthesis_load_note_subs_eu(WORLD(gAudioBufferParameters).updatesPerFrame - i);
     }
     aSegment(cmd++, 0, 0);
     aiBufPtr = (u32 *) aiBuf;
-    for (i = gAudioBufferParameters.updatesPerFrame; i > 0; i--) {
+    for (i = WORLD(gAudioBufferParameters).updatesPerFrame; i > 0; i--) {
         if (i == 1) {
 #pragma GCC diagnostic push
 #if defined(__clang__)
 #pragma GCC diagnostic ignored "-Wself-assign"
 #endif
             // self-assignment has no affect when added here, could possibly simplify a macro definition
-            chunkLen = bufLen; nextVolRampTable = nextVolRampTable; leftVolRamp = gLeftVolRampings[nextVolRampTable]; rightVolRamp = gRightVolRampings[nextVolRampTable & 0xFFFFFFFF];
+            chunkLen = bufLen; nextVolRampTable = nextVolRampTable; leftVolRamp = WORLD(gLeftVolRampings)[nextVolRampTable]; rightVolRamp = WORLD(gRightVolRampings)[nextVolRampTable & 0xFFFFFFFF];
 #pragma GCC diagnostic pop
         } else {
-            if (bufLen / i >= gAudioBufferParameters.samplesPerUpdateMax) {
-                chunkLen = gAudioBufferParameters.samplesPerUpdateMax; nextVolRampTable = 2; leftVolRamp = gLeftVolRampings[2]; rightVolRamp = gRightVolRampings[2];
-            } else if (bufLen / i <= gAudioBufferParameters.samplesPerUpdateMin) {
-                chunkLen = gAudioBufferParameters.samplesPerUpdateMin; nextVolRampTable = 0; leftVolRamp = gLeftVolRampings[0]; rightVolRamp = gRightVolRampings[0];
+            if (bufLen / i >= WORLD(gAudioBufferParameters).samplesPerUpdateMax) {
+                chunkLen = WORLD(gAudioBufferParameters).samplesPerUpdateMax; nextVolRampTable = 2; leftVolRamp = WORLD(gLeftVolRampings)[2]; rightVolRamp = WORLD(gRightVolRampings)[2];
+            } else if (bufLen / i <= WORLD(gAudioBufferParameters).samplesPerUpdateMin) {
+                chunkLen = WORLD(gAudioBufferParameters).samplesPerUpdateMin; nextVolRampTable = 0; leftVolRamp = WORLD(gLeftVolRampings)[0]; rightVolRamp = WORLD(gRightVolRampings)[0];
             } else {
-                chunkLen = gAudioBufferParameters.samplesPerUpdate; nextVolRampTable = 1; leftVolRamp = gLeftVolRampings[1]; rightVolRamp = gRightVolRampings[1];
+                chunkLen = WORLD(gAudioBufferParameters).samplesPerUpdate; nextVolRampTable = 1; leftVolRamp = WORLD(gLeftVolRampings)[1]; rightVolRamp = WORLD(gRightVolRampings)[1];
             }
         }
-        gCurrentLeftVolRamping = leftVolRamp;
-        gCurrentRightVolRamping = rightVolRamp;
-        for (j = 0; j < gNumSynthesisReverbs; j++) {
-            if (gSynthesisReverbs[j].useReverb != 0) {
-                prepare_reverb_ring_buffer(chunkLen, gAudioBufferParameters.updatesPerFrame - i, j);
+        WORLD(gCurrentLeftVolRamping) = leftVolRamp;
+        WORLD(gCurrentRightVolRamping) = rightVolRamp;
+        for (j = 0; j < WORLD(gNumSynthesisReverbs); j++) {
+            if (WORLD(gSynthesisReverbs)[j].useReverb != 0) {
+                prepare_reverb_ring_buffer(chunkLen, WORLD(gAudioBufferParameters).updatesPerFrame - i, j);
             }
         }
-        cmd = synthesis_do_one_audio_update((s16 *) aiBufPtr, chunkLen, cmd, gAudioBufferParameters.updatesPerFrame - i);
+        cmd = synthesis_do_one_audio_update((s16 *) aiBufPtr, chunkLen, cmd, WORLD(gAudioBufferParameters).updatesPerFrame - i);
         bufLen -= chunkLen;
         aiBufPtr += chunkLen;
     }
 
-    for (j = 0; j < gNumSynthesisReverbs; j++) {
-        if (gSynthesisReverbs[j].framesLeftToIgnore != 0) {
-            gSynthesisReverbs[j].framesLeftToIgnore--;
+    for (j = 0; j < WORLD(gNumSynthesisReverbs); j++) {
+        if (WORLD(gSynthesisReverbs)[j].framesLeftToIgnore != 0) {
+            WORLD(gSynthesisReverbs)[j].framesLeftToIgnore--;
         }
-        gSynthesisReverbs[j].curFrame ^= 1;
+        WORLD(gSynthesisReverbs)[j].curFrame ^= 1;
     }
     *writtenCmds = cmd - cmdBuf;
     return cmd;
@@ -366,17 +366,17 @@ u64 *synthesis_resample_and_mix_reverb(u64 *cmd, s32 bufLen, s16 reverbIndex, s1
     s16 startPad;
     s16 paddedLengthA;
 
-    item = &gSynthesisReverbs[reverbIndex].items[gSynthesisReverbs[reverbIndex].curFrame][updateIndex];
+    item = &WORLD(gSynthesisReverbs)[reverbIndex].items[WORLD(gSynthesisReverbs)[reverbIndex].curFrame][updateIndex];
 
     aClearBuffer(cmd++, DMEM_ADDR_WET_LEFT_CH, DEFAULT_LEN_2CH);
-    if (gSynthesisReverbs[reverbIndex].downsampleRate == 1) {
+    if (WORLD(gSynthesisReverbs)[reverbIndex].downsampleRate == 1) {
         cmd = synthesis_load_reverb_ring_buffer(cmd, DMEM_ADDR_WET_LEFT_CH, item->startPos, item->lengthA, reverbIndex);
         if (item->lengthB != 0) {
             cmd = synthesis_load_reverb_ring_buffer(cmd, DMEM_ADDR_WET_LEFT_CH + item->lengthA, 0, item->lengthB, reverbIndex);
         }
         aSetBuffer(cmd++, 0, 0, 0, DEFAULT_LEN_2CH);
         aMix(cmd++, 0, 0x7fff, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_LEFT_CH);
-        aMix(cmd++, 0, 0x8000 + gSynthesisReverbs[reverbIndex].reverbGain, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_WET_LEFT_CH);
+        aMix(cmd++, 0, 0x8000 + WORLD(gSynthesisReverbs)[reverbIndex].reverbGain, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_WET_LEFT_CH);
     } else {
         startPad = (item->startPos % 8u) * 2;
         paddedLengthA = ALIGN(startPad + item->lengthA, 4);
@@ -387,14 +387,14 @@ u64 *synthesis_resample_and_mix_reverb(u64 *cmd, s32 bufLen, s16 reverbIndex, s1
         }
 
         aSetBuffer(cmd++, 0, DMEM_ADDR_RESAMPLED + startPad, DMEM_ADDR_WET_LEFT_CH, bufLen * 2);
-        aResample(cmd++, gSynthesisReverbs[reverbIndex].resampleFlags, gSynthesisReverbs[reverbIndex].resampleRate, VIRTUAL_TO_PHYSICAL2(gSynthesisReverbs[reverbIndex].resampleStateLeft));
+        aResample(cmd++, WORLD(gSynthesisReverbs)[reverbIndex].resampleFlags, WORLD(gSynthesisReverbs)[reverbIndex].resampleRate, VIRTUAL_TO_PHYSICAL2(WORLD(gSynthesisReverbs)[reverbIndex].resampleStateLeft));
 
         aSetBuffer(cmd++, 0, DMEM_ADDR_RESAMPLED2 + startPad, DMEM_ADDR_WET_RIGHT_CH, bufLen * 2);
-        aResample(cmd++, gSynthesisReverbs[reverbIndex].resampleFlags, gSynthesisReverbs[reverbIndex].resampleRate, VIRTUAL_TO_PHYSICAL2(gSynthesisReverbs[reverbIndex].resampleStateRight));
+        aResample(cmd++, WORLD(gSynthesisReverbs)[reverbIndex].resampleFlags, WORLD(gSynthesisReverbs)[reverbIndex].resampleRate, VIRTUAL_TO_PHYSICAL2(WORLD(gSynthesisReverbs)[reverbIndex].resampleStateRight));
 
         aSetBuffer(cmd++, 0, 0, 0, DEFAULT_LEN_2CH);
         aMix(cmd++, 0, 0x7fff, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_LEFT_CH);
-        aMix(cmd++, 0, 0x8000 + gSynthesisReverbs[reverbIndex].reverbGain, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_WET_LEFT_CH);
+        aMix(cmd++, 0, 0x8000 + WORLD(gSynthesisReverbs)[reverbIndex].reverbGain, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_WET_LEFT_CH);
     }
     return cmd;
 }
@@ -402,9 +402,9 @@ u64 *synthesis_resample_and_mix_reverb(u64 *cmd, s32 bufLen, s16 reverbIndex, s1
 u64 *synthesis_save_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
     struct ReverbRingBufferItem *item;
 
-    item = &gSynthesisReverbs[reverbIndex].items[gSynthesisReverbs[reverbIndex].curFrame][updateIndex];
-    if (gSynthesisReverbs[reverbIndex].useReverb != 0) {
-        switch (gSynthesisReverbs[reverbIndex].downsampleRate) {
+    item = &WORLD(gSynthesisReverbs)[reverbIndex].items[WORLD(gSynthesisReverbs)[reverbIndex].curFrame][updateIndex];
+    if (WORLD(gSynthesisReverbs)[reverbIndex].useReverb != 0) {
+        switch (WORLD(gSynthesisReverbs)[reverbIndex].downsampleRate) {
             case 1:
                 // Put the oldest samples in the ring buffer into the wet channels
                 cmd = synthesis_save_reverb_ring_buffer(cmd, DMEM_ADDR_WET_LEFT_CH, item->startPos, item->lengthA, reverbIndex);
@@ -418,8 +418,8 @@ u64 *synthesis_save_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
                 // Downsampling is done later by CPU when RSP is done, therefore we need to have double
                 // buffering. Left and right buffers are adjacent in memory.
                 aSetBuffer(cmd++, 0, 0, DMEM_ADDR_WET_LEFT_CH, DEFAULT_LEN_2CH);
-                aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(gSynthesisReverbs[reverbIndex].items[gSynthesisReverbs[reverbIndex].curFrame][updateIndex].toDownsampleLeft));
-                gSynthesisReverbs[reverbIndex].resampleFlags = 0;
+                aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(WORLD(gSynthesisReverbs)[reverbIndex].items[WORLD(gSynthesisReverbs)[reverbIndex].curFrame][updateIndex].toDownsampleLeft));
+                WORLD(gSynthesisReverbs)[reverbIndex].resampleFlags = 0;
                 break;
         }
     }
@@ -436,61 +436,61 @@ u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateI
     s16 j;
     s16 notePos = 0;
 
-    if (gNumSynthesisReverbs == 0) {
-        for (i = 0; i < gMaxSimultaneousNotes; i++) {
-            if (gNoteSubsEu[gMaxSimultaneousNotes * updateIndex + i].enabled) {
+    if (WORLD(gNumSynthesisReverbs) == 0) {
+        for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+            if (WORLD(gNoteSubsEu)[WORLD(gMaxSimultaneousNotes) * updateIndex + i].enabled) {
                 noteIndices[notePos++] = i;
             }
         }
     } else {
-        for (j = 0; j < gNumSynthesisReverbs; j++) {
-            for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                noteSubEu = &gNoteSubsEu[gMaxSimultaneousNotes * updateIndex + i];
+        for (j = 0; j < WORLD(gNumSynthesisReverbs); j++) {
+            for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                noteSubEu = &WORLD(gNoteSubsEu)[WORLD(gMaxSimultaneousNotes) * updateIndex + i];
                 if (noteSubEu->enabled && j == noteSubEu->reverbIndex) {
                     noteIndices[notePos++] = i;
                 }
             }
         }
 
-        for (i = 0; i < gMaxSimultaneousNotes; i++) {
-            noteSubEu = &gNoteSubsEu[gMaxSimultaneousNotes * updateIndex + i];
-            if (noteSubEu->enabled && noteSubEu->reverbIndex >= gNumSynthesisReverbs) {
+        for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+            noteSubEu = &WORLD(gNoteSubsEu)[WORLD(gMaxSimultaneousNotes) * updateIndex + i];
+            if (noteSubEu->enabled && noteSubEu->reverbIndex >= WORLD(gNumSynthesisReverbs)) {
                 noteIndices[notePos++] = i;
             }
         }
     }
     aClearBuffer(cmd++, DMEM_ADDR_LEFT_CH, DEFAULT_LEN_2CH);
     i = 0;
-    for (j = 0; j < gNumSynthesisReverbs; j++) {
-        gUseReverb = gSynthesisReverbs[j].useReverb;
-        if (gUseReverb != 0) {
+    for (j = 0; j < WORLD(gNumSynthesisReverbs); j++) {
+        WORLD(gUseReverb) = WORLD(gSynthesisReverbs)[j].useReverb;
+        if (WORLD(gUseReverb) != 0) {
             cmd = synthesis_resample_and_mix_reverb(cmd, bufLen, j, updateIndex);
         }
         for (; i < notePos; i++) {
-            temp = updateIndex * gMaxSimultaneousNotes;
-            if (j == gNoteSubsEu[temp + noteIndices[i]].reverbIndex) {
-                cmd = synthesis_process_note(&gNotes[noteIndices[i]],
-                                             &gNoteSubsEu[temp + noteIndices[i]],
-                                             &gNotes[noteIndices[i]].synthesisState,
+            temp = updateIndex * WORLD(gMaxSimultaneousNotes);
+            if (j == WORLD(gNoteSubsEu)[temp + noteIndices[i]].reverbIndex) {
+                cmd = synthesis_process_note(&WORLD(gNotes)[noteIndices[i]],
+                                             &WORLD(gNoteSubsEu)[temp + noteIndices[i]],
+                                             &WORLD(gNotes)[noteIndices[i]].synthesisState,
                                              aiBuf, bufLen, cmd);
                 continue;
             } else {
                 break;
             }
         }
-        if (gSynthesisReverbs[j].useReverb != 0) {
+        if (WORLD(gSynthesisReverbs)[j].useReverb != 0) {
             cmd = synthesis_save_reverb_samples(cmd, j, updateIndex);
         }
     }
     for (; i < notePos; i++) {
-        temp = updateIndex * gMaxSimultaneousNotes;
-        if (IS_BANK_LOAD_COMPLETE(gNoteSubsEu[temp + noteIndices[i]].bankId) == TRUE) {
-            cmd = synthesis_process_note(&gNotes[noteIndices[i]],
-                                         &gNoteSubsEu[temp + noteIndices[i]],
-                                         &gNotes[noteIndices[i]].synthesisState,
+        temp = updateIndex * WORLD(gMaxSimultaneousNotes);
+        if (IS_BANK_LOAD_COMPLETE(WORLD(gNoteSubsEu)[temp + noteIndices[i]].bankId) == TRUE) {
+            cmd = synthesis_process_note(&WORLD(gNotes)[noteIndices[i]],
+                                         &WORLD(gNoteSubsEu)[temp + noteIndices[i]],
+                                         &WORLD(gNotes)[noteIndices[i]].synthesisState,
                                          aiBuf, bufLen, cmd);
         } else {
-            gAudioErrorFlags = (gNoteSubsEu[temp + noteIndices[i]].bankId + (i << 8)) + 0x10000000;
+            WORLD(gAudioErrorFlags) = (WORLD(gNoteSubsEu)[temp + noteIndices[i]].bankId + (i << 8)) + 0x10000000;
         }
     }
 
@@ -790,7 +790,7 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
 
 #ifdef VERSION_EU
                     if (noteSubEu->bookOffset) {
-                        curLoadedBook = euUnknownData_80301950; // what's this? never read
+                        curLoadedBook = WORLD(euUnknownData_80301950); // what's this? never read
                     }
 #endif
 
@@ -1238,8 +1238,8 @@ u64 *process_envelope(u64 *cmd, struct NoteSubEu *note, struct NoteSynthesisStat
         mixerFlags = A_INIT;
 
 #ifdef VERSION_EU
-        rampLeft = gCurrentLeftVolRamping[targetLeft >> 5] * gCurrentRightVolRamping[sourceLeft >> 5];
-        rampRight = gCurrentLeftVolRamping[targetRight >> 5] * gCurrentRightVolRamping[sourceRight >> 5];
+        rampLeft = WORLD(gCurrentLeftVolRamping)[targetLeft >> 5] * WORLD(gCurrentRightVolRamping)[sourceLeft >> 5];
+        rampRight = WORLD(gCurrentLeftVolRamping)[targetRight >> 5] * WORLD(gCurrentRightVolRamping)[sourceRight >> 5];
 #else
         rampLeft = get_volume_ramping(vol->sourceLeft, vol->targetLeft, nSamples);
         rampRight = get_volume_ramping(vol->sourceRight, vol->targetRight, nSamples);
@@ -1251,7 +1251,7 @@ u64 *process_envelope(u64 *cmd, struct NoteSubEu *note, struct NoteSynthesisStat
         aSetVolume(cmd++, A_VOL | A_RIGHT, sourceRight, 0, 0);
         aSetVolume32(cmd++, A_RATE | A_LEFT, targetLeft, rampLeft);
         aSetVolume32(cmd++, A_RATE | A_RIGHT, targetRight, rampRight);
-        aSetVolume(cmd++, A_AUX, gVolume, 0, note->reverbVol << 8);
+        aSetVolume(cmd++, A_AUX, WORLD(gVolume), 0, note->reverbVol << 8);
 #else
         aSetVolume(cmd++, A_VOL | A_LEFT, vol->sourceLeft, 0, 0);
         aSetVolume(cmd++, A_VOL | A_RIGHT, vol->sourceRight, 0, 0);
@@ -1262,7 +1262,7 @@ u64 *process_envelope(u64 *cmd, struct NoteSubEu *note, struct NoteSynthesisStat
     }
 
 #ifdef VERSION_EU
-    if (gUseReverb && note->reverbVol != 0) {
+    if (WORLD(gUseReverb) && note->reverbVol != 0) {
         aEnvMixer(cmd++, mixerFlags | A_AUX,
                   VIRTUAL_TO_PHYSICAL2(synthesisState->synthesisBuffers->mixEnvelopeState));
 #else

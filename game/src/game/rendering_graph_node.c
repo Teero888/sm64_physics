@@ -278,7 +278,7 @@ static void geo_process_perspective(struct GraphNodePerspective *node) {
             Mtx *mtx = alloc_display_list(sizeof(*mtx));
 
 #ifdef VERSION_EU
-            f32 aspect = ((f32) gCurGraphNodeRoot->width / (f32) gCurGraphNodeRoot->height) * 1.1f;
+            f32 aspect = ((f32) WORLD(gCurGraphNodeRoot)->width / (f32) WORLD(gCurGraphNodeRoot)->height) * 1.1f;
 #else
             f32 aspect = (f32) WORLD(gCurGraphNodeRoot)->width / (f32) WORLD(gCurGraphNodeRoot)->height;
 #endif

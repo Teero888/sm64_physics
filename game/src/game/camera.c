@@ -3672,13 +3672,13 @@ s32 move_point_along_spline(Vec3f p, struct CutsceneSplinePoint spline[], s16 *s
     progressChange = (secondSpeed - firstSpeed) * *progress + firstSpeed;
 
 #ifdef VERSION_EU
-    if (gCamera->cutscene == CUTSCENE_INTRO_PEACH) {
+    if (WORLD(gCamera)->cutscene == CUTSCENE_INTRO_PEACH) {
         progressChange += progressChange * 0.19f;
     }
-    if (gCamera->cutscene == CUTSCENE_CREDITS) {
+    if (WORLD(gCamera)->cutscene == CUTSCENE_CREDITS) {
         progressChange += progressChange * 0.15f;
     }
-    if (gCamera->cutscene == CUTSCENE_ENDING) {
+    if (WORLD(gCamera)->cutscene == CUTSCENE_ENDING) {
         progressChange += progressChange * 0.1f;
     }
 #endif

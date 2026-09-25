@@ -115,7 +115,7 @@ void print_intro_text(void) {
     if ((WORLD(gGlobalTimer) & 31) < 20) {
         if (WORLD(gControllerBits) == 0) {
 #ifdef VERSION_EU
-            print_text_centered(SCREEN_WIDTH / 2, 20, gNoControllerMsg[language]);
+            print_text_centered(SCREEN_WIDTH / 2, 20, WORLD(gNoControllerMsg)[language]);
 #else
             print_text_centered(SCREEN_WIDTH / 2, 20, "NO CONTROLLER");
 #endif

@@ -25,7 +25,7 @@
 
 #ifdef VERSION_EU
 #undef LANGUAGE_FUNCTION
-#define LANGUAGE_FUNCTION gInGameLanguage
+#define LANGUAGE_FUNCTION WORLD(gInGameLanguage)
 #endif
 
 FORCE_BSS u16 gMenuTextColorTransTimer;
@@ -307,8 +307,8 @@ void render_generic_char(u8 c)
 #endif
     gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_tex_settings);
 #ifdef VERSION_EU
-    gSPTextureRectangleFlip(gDisplayListHead++, gDialogX << 2, (gDialogY - 16) << 2,
-                            (gDialogX + 8) << 2, gDialogY << 2, G_TX_RENDERTILE, 8 << 6, 4 << 6, 1 << 10, 1 << 10);
+    gSPTextureRectangleFlip(WORLD(gDisplayListHead)++, WORLD(gDialogX) << 2, (WORLD(gDialogY) - 16) << 2,
+                            (WORLD(gDialogX) + 8) << 2, WORLD(gDialogY) << 2, G_TX_RENDERTILE, 8 << 6, 4 << 6, 1 << 10, 1 << 10);
 #endif
 }
 
@@ -319,6 +319,11 @@ u8 *alloc_ia4_tex_from_i1(u8 *in, s16 width, s16 height) {
     s32 inPos;
     s16 outPos = 0;
     u8 bitMask;
+
+    // Library: the glyph's pixels are in the ROM (platform/draw.h).
+    if (SM64_DRAW) {
+        in = (u8 *) host_texture_pixels(in);
+    }
 
     out = (u8 *) alloc_display_list(size);
 
@@ -346,23 +351,23 @@ void render_generic_char_at_pos(s16 xPos, s16 yPos, u8 c) {
     void *packedTexture = segmented_to_virtual(fontLUT[c]);
     void *unpackedTexture = alloc_ia4_tex_from_i1(packedTexture, 8, 8);
 
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, VIRTUAL_TO_PHYSICAL(unpackedTexture));
-    gSPDisplayList(gDisplayListHead++, dl_ia_text_tex_settings);
-    gSPTextureRectangleFlip(gDisplayListHead++, xPos << 2, (yPos - 16) << 2, (xPos + 8) << 2, yPos << 2,
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, VIRTUAL_TO_PHYSICAL(unpackedTexture));
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_tex_settings);
+    gSPTextureRectangleFlip(WORLD(gDisplayListHead)++, xPos << 2, (yPos - 16) << 2, (xPos + 8) << 2, yPos << 2,
                             G_TX_RENDERTILE, 8 << 6, 4 << 6, 1 << 10, 1 << 10);
 }
 
 void render_lowercase_diacritic(s16 *xPos, s16 *yPos, u8 letter, u8 diacritic) {
     render_generic_char_at_pos(*xPos, *yPos, letter);
     render_generic_char_at_pos(*xPos, *yPos, diacritic + 0xE7);
-    *xPos += gDialogCharWidths[letter];
+    *xPos += WORLD(gDialogCharWidths)[letter];
 }
 
 void render_uppercase_diacritic(s16 *xPos, s16 *yPos, u8 letter, u8 diacritic) {
     render_generic_char_at_pos(*xPos, *yPos, letter);
     render_generic_char_at_pos(*xPos, *yPos - 4, diacritic + 0xE3);
-    *xPos += gDialogCharWidths[letter];
+    *xPos += WORLD(gDialogCharWidths)[letter];
 }
 #endif // VERSION_EU
 
@@ -413,7 +418,7 @@ void render_multi_text_string(s16 *xPos, s16 *yPos, s8 multiTextID)
             MENU_MTX_NOPUSH, (f32)(WORLD(gDialogCharWidths)[textLengths[multiTextID].str[1 + i]]), 0.0f, 0.0f);
 #elif defined(VERSION_EU)
         render_generic_char_at_pos(*xPos, *yPos, textLengths[multiTextID].str[1 + i]);
-        *xPos += gDialogCharWidths[textLengths[multiTextID].str[1 + i]];
+        *xPos += WORLD(gDialogCharWidths)[textLengths[multiTextID].str[1 + i]];
 #endif
     }
 }
@@ -545,7 +550,7 @@ void print_generic_string(s16 x, s16 y, const u8 *str) {
 #if defined(VERSION_US) || defined(VERSION_EU) || defined(VERSION_CN)
             case SPECIAL_CHAR(DIALOG_CHAR_SLASH):
 #ifdef VERSION_EU
-                xCoord += gDialogCharWidths[DIALOG_CHAR_SPACE] * 2;
+                xCoord += WORLD(gDialogCharWidths)[DIALOG_CHAR_SPACE] * 2;
 #else
                 create_dl_translation_matrix(
                     MENU_MTX_NOPUSH, (f32)(WORLD(gDialogCharWidths)[DIALOG_CHAR_SPACE] * 2), 0.0f, 0.0f);
@@ -579,7 +584,7 @@ void print_generic_string(s16 x, s16 y, const u8 *str) {
             default:
 #ifdef VERSION_EU
                 render_generic_char_at_pos(xCoord, yCoord, CUR_CHAR);
-                xCoord += gDialogCharWidths[CUR_CHAR];
+                xCoord += WORLD(gDialogCharWidths)[CUR_CHAR];
 #else
 #ifdef VERSION_CN
                 if (strChar >= 0x0100) {
@@ -622,14 +627,14 @@ void print_generic_string(s16 x, s16 y, const u8 *str) {
 void print_hud_char_umlaut(s16 x, s16 y, u8 chr) {
     void **fontLUT = segmented_to_virtual(main_hud_lut);
 
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, fontLUT[chr]);
-    gSPDisplayList(gDisplayListHead++, dl_rgba16_load_tex_block);
-    gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + 16) << 2, (y + 16) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gDPPipeSync(WORLD(gDisplayListHead)++);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, fontLUT[chr]);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_rgba16_load_tex_block);
+    gSPTextureRectangle(WORLD(gDisplayListHead)++, x << 2, y << 2, (x + 16) << 2, (y + 16) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, fontLUT[GLYPH_UMLAUT]);
-    gSPDisplayList(gDisplayListHead++, dl_rgba16_load_tex_block);
-    gSPTextureRectangle(gDisplayListHead++, x << 2, (y - 4) << 2, (x + 16) << 2, (y + 12) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, fontLUT[GLYPH_UMLAUT]);
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_rgba16_load_tex_block);
+    gSPTextureRectangle(WORLD(gDisplayListHead)++, x << 2, (y - 4) << 2, (x + 16) << 2, (y + 12) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 }
 #endif
 
@@ -730,15 +735,15 @@ void print_hud_lut_string(s8 hudLUT, s16 x, s16 y, const u8 *str) {
 void print_menu_char_umlaut(s16 x, s16 y, u8 chr) {
     void **fontLUT = segmented_to_virtual(menu_font_lut);
 
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_IA, G_IM_SIZ_8b, 1, fontLUT[chr]);
-    gDPLoadSync(gDisplayListHead++);
-    gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, 8 * 8 - 1, CALC_DXT(8, G_IM_SIZ_8b_BYTES));
-    gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + 8) << 2, (y + 8) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_IA, G_IM_SIZ_8b, 1, fontLUT[chr]);
+    gDPLoadSync(WORLD(gDisplayListHead)++);
+    gDPLoadBlock(WORLD(gDisplayListHead)++, G_TX_LOADTILE, 0, 0, 8 * 8 - 1, CALC_DXT(8, G_IM_SIZ_8b_BYTES));
+    gSPTextureRectangle(WORLD(gDisplayListHead)++, x << 2, y << 2, (x + 8) << 2, (y + 8) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_IA, G_IM_SIZ_8b, 1, fontLUT[DIALOG_CHAR_UMLAUT]);
-    gDPLoadSync(gDisplayListHead++);
-    gDPLoadBlock(gDisplayListHead++, G_TX_LOADTILE, 0, 0, 8 * 8 - 1, CALC_DXT(8, G_IM_SIZ_8b_BYTES));
-    gSPTextureRectangle(gDisplayListHead++, x << 2, (y - 4) << 2, (x + 8) << 2, (y + 4) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_IA, G_IM_SIZ_8b, 1, fontLUT[DIALOG_CHAR_UMLAUT]);
+    gDPLoadSync(WORLD(gDisplayListHead)++);
+    gDPLoadBlock(WORLD(gDisplayListHead)++, G_TX_LOADTILE, 0, 0, 8 * 8 - 1, CALC_DXT(8, G_IM_SIZ_8b_BYTES));
+    gSPTextureRectangle(WORLD(gDisplayListHead)++, x << 2, (y - 4) << 2, (x + 8) << 2, (y + 4) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 }
 #endif
 
@@ -754,15 +759,15 @@ void print_menu_generic_string(s16 x, s16 y, const u8 *str) {
 #ifdef VERSION_EU
             case DIALOG_CHAR_UPPER_A_UMLAUT:
                 print_menu_char_umlaut(curX, curY, ASCII_TO_DIALOG('A'));
-                curX += gDialogCharWidths[str[strPos]];
+                curX += WORLD(gDialogCharWidths)[str[strPos]];
                 break;
             case DIALOG_CHAR_UPPER_U_UMLAUT:
                 print_menu_char_umlaut(curX, curY, ASCII_TO_DIALOG('U'));
-                curX += gDialogCharWidths[str[strPos]];
+                curX += WORLD(gDialogCharWidths)[str[strPos]];
                 break;
             case DIALOG_CHAR_UPPER_O_UMLAUT:
                 print_menu_char_umlaut(curX, curY, ASCII_TO_DIALOG('O'));
-                curX += gDialogCharWidths[str[strPos]];
+                curX += WORLD(gDialogCharWidths)[str[strPos]];
                 break;
 #else
             case DIALOG_CHAR_DAKUTEN:
@@ -1200,20 +1205,20 @@ void change_and_flash_dialog_text_color_lines(s8 colorMode, s8 lineNum) {
 
 #ifdef VERSION_EU
 void render_generic_dialog_char_at_pos(struct DialogEntry *dialog, s16 x, s16 y, u8 c) {
-    s16 width = (8.0 - (gDialogBoxScale * 0.8));
-    s16 height = (16.0 - (gDialogBoxScale * 0.8));
-    s16 tmpX = (dialog->leftOffset + (65.0 - (65.0 / gDialogBoxScale)));
-    s16 tmpY = ((240 - dialog->width) - ((40.0 / gDialogBoxScale) - 40));
-    s16 xCoord = (tmpX + (x / gDialogBoxScale));
-    s16 yCoord = (tmpY + (y / gDialogBoxScale));
+    s16 width = (8.0 - (WORLD(gDialogBoxScale) * 0.8));
+    s16 height = (16.0 - (WORLD(gDialogBoxScale) * 0.8));
+    s16 tmpX = (dialog->leftOffset + (65.0 - (65.0 / WORLD(gDialogBoxScale))));
+    s16 tmpY = ((240 - dialog->width) - ((40.0 / WORLD(gDialogBoxScale)) - 40));
+    s16 xCoord = (tmpX + (x / WORLD(gDialogBoxScale)));
+    s16 yCoord = (tmpY + (y / WORLD(gDialogBoxScale)));
 
     void **fontLUT = segmented_to_virtual(main_font_lut);
     void *packedTexture = segmented_to_virtual(fontLUT[c]);
     void *unpackedTexture = alloc_ia4_tex_from_i1(packedTexture, 8, 8);
 
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, VIRTUAL_TO_PHYSICAL(unpackedTexture));
-    gSPDisplayList(gDisplayListHead++, dl_ia_text_tex_settings);
-    gSPTextureRectangleFlip(gDisplayListHead++, xCoord << 2, (yCoord - height) << 2,
+    gDPSetTextureImage(WORLD(gDisplayListHead)++, G_IM_FMT_IA, G_IM_SIZ_16b, 1, VIRTUAL_TO_PHYSICAL(unpackedTexture));
+    gSPDisplayList(WORLD(gDisplayListHead)++, dl_ia_text_tex_settings);
+    gSPTextureRectangleFlip(WORLD(gDisplayListHead)++, xCoord << 2, (yCoord - height) << 2,
                             (xCoord + width) << 2, yCoord << 2, G_TX_RENDERTILE, 8 << 6, 4 << 6, 1 << 10, 1 << 10);
 }
 #endif
@@ -1244,7 +1249,7 @@ void handle_dialog_scroll_page_state(s8 lineNum, s8 totalLines, s8 *pageState, s
         return;
     }
 #ifdef VERSION_EU
-    gDialogY += 16;
+    WORLD(gDialogY) += 16;
 #else
     create_dl_translation_matrix(MENU_MTX_PUSH, X_VAL3, 2 - (lineNum * Y_VAL3), 0);
 
@@ -1293,8 +1298,8 @@ void render_star_count_dialog_text(s8 *xMatrix, s16 *linePos)
         *xMatrix = 1;
         (*linePos)++;
 #elif defined(VERSION_EU)
-        render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, tensDigit);
-        gDialogX += gDialogCharWidths[tensDigit];
+        render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), tensDigit);
+        WORLD(gDialogX) += WORLD(gDialogCharWidths)[tensDigit];
         *linePos = 1;
 #endif
     }
@@ -1322,8 +1327,8 @@ void render_star_count_dialog_text(s8 *xMatrix, s16 *linePos)
     (*linePos)++;
     *xMatrix = 1;
 #else // VERSION_EU
-    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, onesDigit);
-    gDialogX += gDialogCharWidths[onesDigit];
+    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), onesDigit);
+    WORLD(gDialogX) += WORLD(gDialogCharWidths)[onesDigit];
     *linePos = 1;
 #endif
 }
@@ -1350,8 +1355,8 @@ void render_multi_text_string_lines(s8 multiTextId, s8 lineNum, s16 *linePos, s8
 #endif
         for (i = 0; i < textLengths[multiTextId].str[0]; i++) {
 #ifdef VERSION_EU
-            render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, textLengths[multiTextId].str[1 + i]);
-            gDialogX += gDialogCharWidths[textLengths[multiTextId].str[1 + i]];
+            render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), textLengths[multiTextId].str[1 + i]);
+            WORLD(gDialogX) += WORLD(gDialogCharWidths)[textLengths[multiTextId].str[1 + i]];
 #else
             render_generic_char(textLengths[multiTextId].str[1 + i]);
             create_dl_translation_matrix(
@@ -1368,15 +1373,15 @@ void render_multi_text_string_lines(s8 multiTextId, s8 lineNum, s16 *linePos, s8
 
 #ifdef VERSION_EU
 void render_dialog_lowercase_diacritic(struct DialogEntry *dialog, u8 chr, u8 diacritic) {
-    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, chr);
-    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, diacritic + 0xE7);
-    gDialogX += gDialogCharWidths[chr];
+    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), chr);
+    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), diacritic + 0xE7);
+    WORLD(gDialogX) += WORLD(gDialogCharWidths)[chr];
 }
 
 void render_dialog_uppercase_diacritic(struct DialogEntry *dialog, u8 chr, u8 diacritic) {
-    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, chr);
-    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY - 4, diacritic + 0xE3);
-    gDialogX += gDialogCharWidths[chr];
+    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), chr);
+    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY) - 4, diacritic + 0xE3);
+    WORLD(gDialogX) += WORLD(gDialogCharWidths)[chr];
 }
 #endif
 
@@ -1436,13 +1441,13 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
     strIndex = WORLD(gDialogPageStartStrIndex);
 
 #ifdef VERSION_EU
-    gDialogX = 0;
-    gDialogY = startY;
+    WORLD(gDialogX) = 0;
+    WORLD(gDialogY) = startY;
 #endif
 
     if (WORLD(gMenuState) == MENU_STATE_DIALOG_SCROLLING) {
 #ifdef VERSION_EU
-        gDialogY -= gDialogScrollOffsetY;
+        WORLD(gDialogY) -= WORLD(gDialogScrollOffsetY);
 #else
         create_dl_translation_matrix(MENU_MTX_NOPUSH, 0, (f32) WORLD(gDialogScrollOffsetY), 0);
 #endif
@@ -1472,7 +1477,7 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
                 lineNum++;
 #ifdef VERSION_EU
                 handle_dialog_scroll_page_state(lineNum, totalLines, &pageState, &xMatrix);
-                gDialogX = 0;
+                WORLD(gDialogX) = 0;
 #else
                 handle_dialog_scroll_page_state(lineNum, totalLines, &pageState, &xMatrix, &linePos);
 #ifdef VERSION_SH
@@ -1548,7 +1553,7 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
 
             case SPECIAL_CHAR(DIALOG_CHAR_SPACE):
 #ifdef VERSION_EU
-                gDialogX += gDialogCharWidths[DIALOG_CHAR_SPACE];
+                WORLD(gDialogX) += WORLD(gDialogCharWidths)[DIALOG_CHAR_SPACE];
 #else
 #if defined(VERSION_JP) || defined(VERSION_SH)
                 if (linePos != 0) {
@@ -1568,7 +1573,7 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
 #else
             case SPECIAL_CHAR(DIALOG_CHAR_SLASH):
 #ifdef VERSION_EU
-                gDialogX += gDialogCharWidths[DIALOG_CHAR_SPACE] * 2;
+                WORLD(gDialogX) += WORLD(gDialogCharWidths)[DIALOG_CHAR_SPACE] * 2;
 #else
                 xMatrix += 2;
                 linePos += 2;
@@ -1602,8 +1607,8 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
 
 #ifdef VERSION_EU
             case SPECIAL_CHAR(DIALOG_CHAR_DOUBLE_LOW_QUOTE):
-                render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY + 8, 0xF6);
-                gDialogX += gDialogCharWidths[0xF6];
+                render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY) + 8, 0xF6);
+                WORLD(gDialogX) += WORLD(gDialogCharWidths)[0xF6];
                 break;
 #endif
 
@@ -1674,9 +1679,9 @@ void handle_dialog_text_and_pages(s8 colorMode, struct DialogEntry *dialog, s8 l
                 }
 #else // VERSION_EU
                 if (lineNum >= lowerBound && lineNum <= (lowerBound + linesPerBox)) {
-                    render_generic_dialog_char_at_pos(dialog, gDialogX, gDialogY, strChar);
+                    render_generic_dialog_char_at_pos(dialog, WORLD(gDialogX), WORLD(gDialogY), strChar);
                 }
-                gDialogX += gDialogCharWidths[strChar];
+                WORLD(gDialogX) += WORLD(gDialogCharWidths)[strChar];
 #endif
         }
 
@@ -1975,8 +1980,8 @@ void render_dialog_entries(void) {
 #endif
 
 #ifdef VERSION_EU
-    gInGameLanguage = eu_get_language();
-    switch (gInGameLanguage) {
+    WORLD(gInGameLanguage) = eu_get_language();
+    switch (WORLD(gInGameLanguage)) {
         case LANGUAGE_ENGLISH:
             dialogTable = segmented_to_virtual(dialog_table_eu_en);
             break;
@@ -1999,8 +2004,8 @@ void render_dialog_entries(void) {
     }
 
 #ifdef VERSION_EU
-    gDialogX = 0;
-    gDialogY = 0;
+    WORLD(gDialogX) = 0;
+    WORLD(gDialogY) = 0;
 #endif
 
     switch (WORLD(gMenuState)) {
@@ -2116,9 +2121,9 @@ void render_dialog_entries(void) {
 #ifdef WIDESCREEN
         SCREEN_WIDTH,
 #else
-        ensure_nonnegative(dialog->leftOffset + (DIAG_VAL3 / gDialogBoxScale)),
+        ensure_nonnegative(dialog->leftOffset + (DIAG_VAL3 / WORLD(gDialogBoxScale))),
 #endif
-        ensure_nonnegative((240 - dialog->width) + (dialog->linesPerBox * 80 / DIAG_VAL4 / gDialogBoxScale))
+        ensure_nonnegative((240 - dialog->width) + (dialog->linesPerBox * 80 / DIAG_VAL4 / WORLD(gDialogBoxScale)))
 #else
 #ifdef WIDESCREEN
         SCREEN_WIDTH,
@@ -2256,16 +2261,16 @@ void do_cutscene_handler(void) {
 #ifdef VERSION_EU
     switch (eu_get_language()) {
         case LANGUAGE_ENGLISH:
-            x = get_str_x_pos_from_center(gCutsceneMsgXOffset, gEndCutsceneStringsEn[gCutsceneMsgIndex], 10.0f);
-            print_generic_string(x, 240 - gCutsceneMsgYOffset, gEndCutsceneStringsEn[gCutsceneMsgIndex]);
+            x = get_str_x_pos_from_center(WORLD(gCutsceneMsgXOffset), WORLD(gEndCutsceneStringsEn)[WORLD(gCutsceneMsgIndex)], 10.0f);
+            print_generic_string(x, 240 - WORLD(gCutsceneMsgYOffset), WORLD(gEndCutsceneStringsEn)[WORLD(gCutsceneMsgIndex)]);
             break;
         case LANGUAGE_FRENCH:
-            x = get_str_x_pos_from_center(gCutsceneMsgXOffset, gEndCutsceneStringsFr[gCutsceneMsgIndex], 10.0f);
-            print_generic_string(x, 240 - gCutsceneMsgYOffset, gEndCutsceneStringsFr[gCutsceneMsgIndex]);
+            x = get_str_x_pos_from_center(WORLD(gCutsceneMsgXOffset), WORLD(gEndCutsceneStringsFr)[WORLD(gCutsceneMsgIndex)], 10.0f);
+            print_generic_string(x, 240 - WORLD(gCutsceneMsgYOffset), WORLD(gEndCutsceneStringsFr)[WORLD(gCutsceneMsgIndex)]);
             break;
         case LANGUAGE_GERMAN:
-            x = get_str_x_pos_from_center(gCutsceneMsgXOffset, gEndCutsceneStringsDe[gCutsceneMsgIndex], 10.0f);
-            print_generic_string(x, 240 - gCutsceneMsgYOffset, gEndCutsceneStringsDe[gCutsceneMsgIndex]);
+            x = get_str_x_pos_from_center(WORLD(gCutsceneMsgXOffset), WORLD(gEndCutsceneStringsDe)[WORLD(gCutsceneMsgIndex)], 10.0f);
+            print_generic_string(x, 240 - WORLD(gCutsceneMsgYOffset), WORLD(gEndCutsceneStringsDe)[WORLD(gCutsceneMsgIndex)]);
             break;
     }
 #else
@@ -2325,8 +2330,8 @@ void print_peach_letter_message(void) {
     u8 *str;
 
 #ifdef VERSION_EU
-    gInGameLanguage = eu_get_language();
-    switch (gInGameLanguage) {
+    WORLD(gInGameLanguage) = eu_get_language();
+    switch (WORLD(gInGameLanguage)) {
         case LANGUAGE_ENGLISH:
             dialogTable = segmented_to_virtual(dialog_table_eu_en);
             break;
@@ -2489,7 +2494,7 @@ u8 gTextCourse[][7] = {
     { TEXT_COURSE_FR },
     { TEXT_COURSE_DE }
 };
-#define textCourse gTextCourse
+#define textCourse WORLD(gTextCourse)
 #endif
 
 #if defined(VERSION_JP) || defined(VERSION_SH)
@@ -2557,7 +2562,7 @@ void render_pause_my_score_coins(void) {
     starFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)));
 
 #ifdef VERSION_EU
-    switch (gInGameLanguage) {
+    switch (WORLD(gInGameLanguage)) {
         case LANGUAGE_ENGLISH:
             actNameTbl = segmented_to_virtual(act_name_table_eu_en);
             courseNameTbl = segmented_to_virtual(course_name_table_eu_en);
@@ -2890,7 +2895,7 @@ void render_pause_castle_main_strings(s16 x, s16 y) {
     s16 prevCourseIndex = WORLD(gMenuLineNum);
 
 #ifdef VERSION_EU
-    switch (gInGameLanguage) {
+    switch (WORLD(gInGameLanguage)) {
         case LANGUAGE_ENGLISH:
             courseNameTbl = segmented_to_virtual(course_name_table_eu_en);
             break;
@@ -2974,7 +2979,7 @@ s16 render_pause_screen(void) {
     s16 index;
 
 #ifdef VERSION_EU
-    gInGameLanguage = eu_get_language();
+    WORLD(gInGameLanguage) = eu_get_language();
 #endif
 
     switch (WORLD(gMenuState)) {
@@ -3003,7 +3008,7 @@ s16 render_pause_screen(void) {
             }
 
 #ifdef VERSION_EU
-            if (gPlayer3Controller->buttonPressed & (A_BUTTON | START_BUTTON | Z_TRIG))
+            if (WORLD(gPlayer3Controller)->buttonPressed & (A_BUTTON | START_BUTTON | Z_TRIG))
 #else
             if ((WORLD(gPlayer3Controller)->buttonPressed & A_BUTTON)
              || (WORLD(gPlayer3Controller)->buttonPressed & START_BUTTON))
@@ -3031,7 +3036,7 @@ s16 render_pause_screen(void) {
             render_pause_castle_main_strings(104, 60);
 
 #ifdef VERSION_EU
-            if (gPlayer3Controller->buttonPressed & (A_BUTTON | START_BUTTON | Z_TRIG))
+            if (WORLD(gPlayer3Controller)->buttonPressed & (A_BUTTON | START_BUTTON | Z_TRIG))
 #else
             if ((WORLD(gPlayer3Controller)->buttonPressed & A_BUTTON)
              || (WORLD(gPlayer3Controller)->buttonPressed & START_BUTTON))
@@ -3206,7 +3211,7 @@ void render_course_complete_lvl_info_and_hud_str(void) {
 
 #ifdef VERSION_EU
     s16 centerX;
-    switch (gInGameLanguage) {
+    switch (WORLD(gInGameLanguage)) {
         case LANGUAGE_ENGLISH:
             actNameTbl = segmented_to_virtual(act_name_table_eu_en);
             courseNameTbl = segmented_to_virtual(course_name_table_eu_en);
@@ -3380,7 +3385,7 @@ void render_save_confirmation(s16 x, s16 y, s8 *index, s16 yOffset)
 s16 render_course_complete_screen(void) {
     s16 index;
 #ifdef VERSION_EU
-    gInGameLanguage = eu_get_language();
+    WORLD(gInGameLanguage) = eu_get_language();
 #endif
 
     switch (WORLD(gMenuState)) {
@@ -3398,7 +3403,7 @@ s16 render_course_complete_screen(void) {
             shade_screen();
             render_course_complete_lvl_info_and_hud_str();
 #ifdef VERSION_EU
-            render_save_confirmation(86, &gMenuLineNum, 20);
+            render_save_confirmation(86, &WORLD(gMenuLineNum), 20);
 #else
             render_save_confirmation(100, 86, &WORLD(gMenuLineNum), 20);
 #endif
@@ -3407,7 +3412,7 @@ s16 render_course_complete_screen(void) {
                 && ((WORLD(gPlayer3Controller)->buttonPressed & A_BUTTON)
                  || (WORLD(gPlayer3Controller)->buttonPressed & START_BUTTON)
 #ifdef VERSION_EU
-                 || (gPlayer3Controller->buttonPressed & Z_TRIG)
+                 || (WORLD(gPlayer3Controller)->buttonPressed & Z_TRIG)
 #endif
                 )) {
                 level_set_transition(0, NULL);

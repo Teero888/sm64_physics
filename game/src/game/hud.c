@@ -426,8 +426,8 @@ void render_hud(void) {
 
         create_dl_identity_matrix();
         guOrtho(mtx, -16.0f, SCREEN_WIDTH + 16, 0, SCREEN_HEIGHT, -10.0f, 10.0f, 1.0f);
-        gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
-        gSPMatrix(gDisplayListHead++, VIRTUAL_TO_PHYSICAL(mtx),
+        gSPPerspNormalize(WORLD(gDisplayListHead)++, 0xFFFF);
+        gSPMatrix(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(mtx),
                   G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
 #else
         create_dl_ortho_matrix();

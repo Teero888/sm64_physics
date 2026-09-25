@@ -48,6 +48,11 @@ Found by the lockstep comparator (bullies and amps in Bowser in the Fire Sea,
 JP 1-key TAS). The disassembly of the JP build shows which instructions write
 v0; see the comment in the patch.
 
+EU, built with optimization, leaves other values in v0: a collision pass
+starts with a list head's address from clear_object_collision, and the
+hurtbox test's miss returns &gMarioObject. Both are nonzero. Found by the
+lockstep comparator (small breakable boxes, EU title demos).
+
 Files: `src/game/object_collision.c`
 
 ## 5. Keep Wiggler's first-frame health at 0 on JP and US
@@ -178,8 +183,9 @@ into the display list pool before drawing it, the only place the game's code
 reads a texture's pixels. The library's textures are stand-ins
 (tools/rom_stubs.py), so when drawing the glyph is read from the ROM
 (`host_texture_pixels`), and its 16-bit words are read big-endian as the N64
-does (a native build reads them byte-swapped). Nothing but the drawing reads
-the unpacked glyph.
+does (a native build reads them byte-swapped). EU unpacks its 1-bit menu
+font the same way (alloc_ia4_tex_from_i1), also from the ROM when drawing.
+Nothing but the drawing reads the unpacked glyphs.
 
 Files: `src/game/ingame_menu.c`
 

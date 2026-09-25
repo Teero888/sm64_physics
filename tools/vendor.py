@@ -2,6 +2,7 @@
 """Copy the game's code from an n64decomp/sm64 checkout into game/.
 
   vendor.py DECOMP_DIR PATCH_DIR OUT_DIR DEPFILE_DIR...
+  vendor.py add-version DECOMP_DIR OUT_DIR VERSION
 
 A one-time (and reviewable) import: the library owns its copy of the game from
 then on, and the decomp stays a reference. Copied are the decomp's own files
@@ -15,6 +16,13 @@ Mario's animation data) go to OUT_DIR/gen/<version>/. What it extracts from the
 ROM does not come along: OUT_DIR/rom_assets/<version>.tsv lists it (textures,
 skyboxes, demo inputs), for the build to stub and the game to load from the
 user's ROM.
+
+add-version brings one more version (built in DECOMP_DIR/build/VERSION) to a
+library that already owns its code: the decomp's files that version's build
+reads and game/ does not have yet are copied (none is overwritten), its
+generated files go to OUT_DIR/gen/VERSION/ and its ROM assets to
+OUT_DIR/rom_assets/VERSION.tsv. The code it adds still needs
+tools/state/rewrite.py and types.py, as any change to the game's code does.
 """
 import json
 import os
@@ -24,7 +32,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSIONS = ["jp", "us"]
+VERSIONS = ["jp", "us", "eu"]
 
 
 def write(path, text):
@@ -53,7 +61,111 @@ def tiled_stub(generated, where, keep=""):
     return "\n".join(lines) + "\n"
 
 
+def import_generated(decomp, game, generated, versions):
+    """Generated from the decomp's sources: copied. From the ROM: listed."""
+    assets = json.loads((decomp / "assets.json").read_text())
+    rom = {v: [] for v in versions}
+    for relative in sorted(generated):
+        _, version, rest = relative.split("/", 2)
+        if rest.startswith("sound/"):
+            continue  # the sound banks and sequences are the ROM's
+        if rest.endswith(".inc.c") and re.search(r"\.(rgba16|rgba32|ia16|ia8|ia4|ia1|i8|i4|ci8|ci4)\.inc\.c$", rest):
+            png = rest[:-len(".inc.c")] + ".png"
+            info = assets.get(png)
+            if info is None:
+                sys.exit(f"vendor.py: no ROM location for {png}")
+            rom[version].append(("texture", rest, info[-2] if len(info) > 3 else info[0], info[-1].get(version)))
+        elif re.match(r"bin/\w+_skybox\.c$", rest):
+            # Tiles of the sky image: kept with their names, without pixels.
+            name = re.match(r"bin/(\w+)_skybox\.c$", rest).group(1)
+            info = assets[f"textures/skyboxes/{name}.png"]
+            rom[version].append(("skybox", rest, info[0], info[-1][version]))
+            write(game / "gen" / version / rest, tiled_stub(decomp / relative, info[-1][version], "_ptrlist"))
+        elif rest in ("levels/ending/cake.inc.c", "levels/ending/cake_eu.inc.c"):
+            info = assets[rest[:-len(".inc.c")] + ".png"]
+            rom[version].append(("cake", rest, info[0], info[-1][version]))
+            write(game / "gen" / version / rest, tiled_stub(decomp / relative, info[-1][version]))
+        elif rest == "assets/demo_data.c":
+            for name in sorted(k for k in assets if k.startswith("assets/demos/")):
+                if version in assets[name][-1]:
+                    rom[version].append(("demo", name, assets[name][0], assets[name][-1][version]))
+            # The layout with the inputs zeroed: sm64_load_rom copies them in.
+            text = re.sub(r"^\{0x[0-9a-fx,]*\},?$", "{0},", (decomp / relative).read_text(), flags=re.M)
+            text += "\n#include <string.h>\n\n// Library: the demo inputs, from the ROM (platform/host.c).\n"
+            text += "void host_load_demo_inputs(const unsigned char *rom) {\n"
+            for kind, name, size, where in rom[version]:
+                if kind == "demo":
+                    field = Path(name).stem
+                    text += f"    memcpy(gDemoInputs.{field}, rom + 0x{where[0]:x}, sizeof(gDemoInputs.{field}));\n"
+            text += "}\n"
+            write(game / "gen" / version / rest, text)
+        else:
+            (game / "gen" / version / rest).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(decomp / relative, game / "gen" / version / rest)
+    return rom
+
+
+def write_rom_assets(out, rom):
+    (out / "game" / "rom_assets").mkdir(exist_ok=True)
+    for version, items in rom.items():
+        with open(out / "game" / "rom_assets" / f"{version}.tsv", "w") as f:
+            f.write("# kind\tpath\tsize\tROM location (MIO0 block offset and offset in it, or file offset)\n")
+            for kind, path, size, where in items:
+                f.write(f"{kind}\t{path}\t{size}\t{json.dumps(where)}\n")
+
+
+def dependencies(decomp, tracked, depfiles):
+    """The tracked files and the generated ones that the dependency files name."""
+    deps = set()
+    for depfile in depfiles:
+        text = depfile.read_text().replace("\\\n", " ")
+        for line in text.splitlines():
+            if ":" in line:
+                deps.update(os.path.normpath(p) for p in line.split(":", 1)[1].split())
+    repo, generated = set(), set()
+    for dep in deps:
+        # Patched copies (build/overlay/...) stand for the decomp's file.
+        match = re.search(r"/overlay/(.*)$", dep)
+        if match and match.group(1) in tracked:
+            repo.add(match.group(1))
+            continue
+        path = Path(dep) if os.path.isabs(dep) else decomp / dep
+        relative = os.path.relpath(path, decomp)
+        if relative.startswith(".."):
+            continue
+        if relative.startswith("build/"):
+            generated.add(relative)
+        elif relative in tracked:
+            repo.add(relative)
+    return repo, generated
+
+
+def add_version(decomp, out, version):
+    tracked = set(subprocess.run(["git", "ls-files"], cwd=decomp, check=True, capture_output=True,
+                                 text=True).stdout.split("\n"))
+    repo, generated = dependencies(decomp, tracked, (decomp / "build" / version).rglob("*.d"))
+    game = out / "game"
+    added = []
+    for relative in sorted(repo):
+        # The game's code only: libultra is the host's, and the library does
+        # not build the Shindou's, the iQue's or the crash screen.
+        if not re.match(r"(src|bin|actors|levels|text|include|data|assets)/", relative) or re.search(
+                r"/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|"
+                r"shindou_debug_prints)\.c$", relative):
+            continue
+        if not (game / relative).exists():
+            (game / relative).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(decomp / relative, game / relative)
+            added.append(relative)
+    rom = import_generated(decomp, game, generated, [version])
+    write_rom_assets(out, rom)
+    print(f"{len(added)} files added, {len(rom[version])} ROM assets listed")
+
+
 def main():
+    if len(sys.argv) == 5 and sys.argv[1] == "add-version":
+        add_version(Path(sys.argv[2]).resolve(), Path(sys.argv[3]), sys.argv[4])
+        return
     decomp, patches, out = Path(sys.argv[1]).resolve(), Path(sys.argv[2]), Path(sys.argv[3])
     tracked = set(subprocess.run(["git", "ls-files"], cwd=decomp, check=True, capture_output=True,
                                  text=True).stdout.split("\n"))
@@ -95,50 +207,8 @@ def main():
     for patch in sorted(Path(patches).glob("*.patch")):
         subprocess.run(["patch", "-s", "-p1", "-d", str(game), "-i", str(patch.resolve())], check=True)
 
-    # Generated from the decomp's sources: copied. From the ROM: listed.
-    assets = json.loads((decomp / "assets.json").read_text())
-    rom = {v: [] for v in VERSIONS}
-    for relative in sorted(generated):
-        _, version, rest = relative.split("/", 2)
-        if rest.endswith(".inc.c") and re.search(r"\.(rgba16|rgba32|ia16|ia8|ia4|ia1|i8|i4|ci8|ci4)\.inc\.c$", rest):
-            png = rest[:-len(".inc.c")] + ".png"
-            info = assets.get(png)
-            if info is None:
-                sys.exit(f"vendor.py: no ROM location for {png}")
-            rom[version].append(("texture", rest, info[-2] if len(info) > 3 else info[0], info[-1].get(version)))
-        elif re.match(r"bin/\w+_skybox\.c$", rest):
-            # Tiles of the sky image: kept with their names, without pixels.
-            name = re.match(r"bin/(\w+)_skybox\.c$", rest).group(1)
-            info = assets[f"textures/skyboxes/{name}.png"]
-            rom[version].append(("skybox", rest, info[0], info[-1][version]))
-            write(game / "gen" / version / rest, tiled_stub(decomp / relative, info[-1][version], "_ptrlist"))
-        elif rest == "levels/ending/cake.inc.c":
-            info = assets["levels/ending/cake.png"]
-            rom[version].append(("cake", rest, info[0], info[-1][version]))
-            write(game / "gen" / version / rest, tiled_stub(decomp / relative, info[-1][version]))
-        elif rest == "assets/demo_data.c":
-            for name in sorted(k for k in assets if k.startswith("assets/demos/")):
-                if version in assets[name][-1]:
-                    rom[version].append(("demo", name, assets[name][0], assets[name][-1][version]))
-            # The layout with the inputs zeroed: sm64_load_rom copies them in.
-            text = re.sub(r"^\{0x[0-9a-fx,]*\},?$", "{0},", (decomp / relative).read_text(), flags=re.M)
-            text += "\n#include <string.h>\n\n// Library: the demo inputs, from the ROM (platform/host.c).\n"
-            text += "void host_load_demo_inputs(const unsigned char *rom) {\n"
-            for kind, name, size, where in rom[version]:
-                if kind == "demo":
-                    field = Path(name).stem
-                    text += f"    memcpy(gDemoInputs.{field}, rom + 0x{where[0]:x}, sizeof(gDemoInputs.{field}));\n"
-            text += "}\n"
-            write(game / "gen" / version / rest, text)
-        else:
-            (game / "gen" / version / rest).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(decomp / relative, game / "gen" / version / rest)
-    (out / "game" / "rom_assets").mkdir(exist_ok=True)
-    for version in VERSIONS:
-        with open(out / "game" / "rom_assets" / f"{version}.tsv", "w") as f:
-            f.write("# kind\tpath\tsize\tROM location (MIO0 block offset and offset in it, or file offset)\n")
-            for kind, path, size, where in rom[version]:
-                f.write(f"{kind}\t{path}\t{size}\t{json.dumps(where)}\n")
+    rom = import_generated(decomp, game, generated, VERSIONS)
+    write_rom_assets(out, rom)
     print(f"{len(repo)} files, {sum(len(r) for r in rom.values())} ROM assets listed")
 
 

@@ -3,11 +3,11 @@ project(sm64_physics LANGUAGES C)
 
 # The game: game/ holds its code, imported from n64decomp/sm64 (tools/vendor.py)
 # and the library's own from then on. One library per game version.
-set(SM64_VERSION jp CACHE STRING "Game version: jp or us")
+set(SM64_VERSION jp CACHE STRING "Game version: jp, us or eu")
 # Shared: one copy of the game for a program and its plugins, as a world holds
 # addresses of the library's code.
 option(SM64_PHYSICS_SHARED "Build sm64_physics as a shared library" OFF)
-set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us)
+set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us eu)
 # A program with several versions adds this directory once per version, each
 # time with its own suffix for the targets (sm64_physics_us, ...).
 set(S "${SM64_TARGET_SUFFIX}")
@@ -40,8 +40,21 @@ list(APPEND SM64_SOURCES "${G}/levels/entry.c" "${G}/levels/scripts.c"
 foreach(ultra guMtxF2L guOrthoF guPerspectiveF guRotateF guScaleF guTranslateF guLookAtRef guNormalize alBnkfNew)
   list(APPEND SM64_SOURCES "${G}/lib/src/${ultra}.c")
 endforeach()
+# EU: its text in three languages, and its own audio port.
+if(SM64_VERSION STREQUAL "eu")
+  file(GLOB translations "${G}/bin/eu/*.c")
+  list(APPEND SM64_SOURCES ${translations})
+else()
+  list(FILTER SM64_SOURCES EXCLUDE REGEX "/port_eu\\.c$")
+endif()
 # Other versions' files and the iQue's.
-list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints|port_eu|sound_data)\\.c$")
+list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints|sound_data)\\.c$")
+# The RSP microcode the version's display lists are for.
+if(SM64_VERSION STREQUAL "eu")
+  set(SM64_MICROCODE F3D_NEW)
+else()
+  set(SM64_MICROCODE F3D_OLD)
+endif()
 
 # What the decomp extracts from the ROM is not part of the library: the
 # textures are stand-ins of their size that say where their pixels are
@@ -93,7 +106,7 @@ function(sm64_game_headers target)
                              "${GV}/include" "${SM64_ROM_STUBS}" "${G}/include" "${G}/src"
                              "${CMAKE_CURRENT_SOURCE_DIR}/platform" "${SM64_N64STACK_DIR}")
   target_compile_definitions(${target} PRIVATE
-    VERSION_${SM64_VERSION_UPPER}=1 F3D_OLD=1 _FINALROM=1 _LANGUAGE_C
+    VERSION_${SM64_VERSION_UPPER}=1 ${SM64_MICROCODE}=1 _FINALROM=1 _LANGUAGE_C
     # Required by the decomp for non-N64 builds. Every AVOID_UB site changes
     # behavior and has to be checked against the N64 (see docs/avoid_ub.md).
     NON_MATCHING AVOID_UB
@@ -191,12 +204,9 @@ target_link_libraries(sm64_physics${S} PUBLIC m)
 
 # The display lists' format (sm64_step_draw), for a renderer: the decomp's
 # gbi.h with the library's definitions.
-# The same for every version.
-if(NOT TARGET sm64_physics_gbi)
-  add_library(sm64_physics_gbi INTERFACE)
-  target_include_directories(sm64_physics_gbi INTERFACE "${G}/include")
-  target_compile_definitions(sm64_physics_gbi INTERFACE F3D_OLD=1 _LANGUAGE_C)
-endif()
+add_library(sm64_physics_gbi${S} INTERFACE)
+target_include_directories(sm64_physics_gbi${S} INTERFACE "${G}/include")
+target_compile_definitions(sm64_physics_gbi${S} INTERFACE ${SM64_MICROCODE}=1 _LANGUAGE_C)
 
 # The tools read the game's variables by symbol in their own executable: they
 # link the static library.

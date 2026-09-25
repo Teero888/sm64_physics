@@ -165,7 +165,7 @@ void seq_channel_layer_free(struct SequenceChannel *seqChannel, s32 layerIndex) 
 
     if (layer != NULL) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-        audio_list_push_back(&gLayerFreeList, &layer->listItem);
+        audio_list_push_back(&WORLD(gLayerFreeList), &layer->listItem);
 #else
         struct AudioListItem *item = &layer->listItem;
         if (item->prev == NULL) {
@@ -198,7 +198,7 @@ struct SequenceChannel *allocate_sequence_channel(void) {
     for (i = 0; i < ARRAY_COUNT(WORLD(gSequenceChannels)); i++) {
         if (WORLD(gSequenceChannels)[i].seqPlayer == NULL) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-            return &gSequenceChannels[i];
+            return &WORLD(gSequenceChannels)[i];
 #else
             return WORLD(gSequenceChannels) + i;
 #endif
@@ -276,8 +276,8 @@ void sequence_channel_enable(struct SequencePlayer *seqPlayer, u8 channelIndex, 
     s32 i;
     if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == FALSE) {
 #ifdef VERSION_EU
-        struct SequencePlayer *bgMusic = &gSequencePlayers[0];
-        struct SequencePlayer *miscMusic = &gSequencePlayers[1];
+        struct SequencePlayer *bgMusic = &WORLD(gSequencePlayers)[0];
+        struct SequencePlayer *miscMusic = &WORLD(gSequencePlayers)[1];
 
         if (seqPlayer == bgMusic) {
             stubbed_printf("GROUP 0:");
@@ -333,10 +333,10 @@ void sequence_player_disable(struct SequencePlayer *seqPlayer) {
     // later in that function. Thus, we signal that we want to load into the slot
     // of the bank that we no longer need.)
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    if (seqPlayer->defaultBank[0] == gBankLoadedPool.temporary.entries[0].id) {
-        gBankLoadedPool.temporary.nextSide = 1;
-    } else if (seqPlayer->defaultBank[0] == gBankLoadedPool.temporary.entries[1].id) {
-        gBankLoadedPool.temporary.nextSide = 0;
+    if (seqPlayer->defaultBank[0] == WORLD(gBankLoadedPool).temporary.entries[0].id) {
+        WORLD(gBankLoadedPool).temporary.nextSide = 1;
+    } else if (seqPlayer->defaultBank[0] == WORLD(gBankLoadedPool).temporary.entries[1].id) {
+        WORLD(gBankLoadedPool).temporary.nextSide = 0;
     }
 #else
     if (WORLD(gBankLoadedPool).temporary.entries[0].id == seqPlayer->defaultBank[0]) {
@@ -388,7 +388,7 @@ void init_layer_freelist(void) {
 
     for (i = 0; i < ARRAY_COUNT(WORLD(gSequenceLayers)); i++) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-        gSequenceLayers[i].listItem.u.value = &gSequenceLayers[i];
+        WORLD(gSequenceLayers)[i].listItem.u.value = &WORLD(gSequenceLayers)[i];
 #else
         WORLD(gSequenceLayers)[i].listItem.u.value = WORLD(gSequenceLayers) + i;
 #endif
@@ -861,8 +861,8 @@ void seq_channel_layer_process_script(struct SequenceChannelLayer *layer) {
                             tuning = 1.0f;
                         }
 
-                        temp_f2 = gNoteFrequencies[cmd] * tuning;
-                        temp_f12 = gNoteFrequencies[layer->portamentoTargetNote] * tuning;
+                        temp_f2 = WORLD(gNoteFrequencies)[cmd] * tuning;
+                        temp_f12 = WORLD(gNoteFrequencies)[layer->portamentoTargetNote] * tuning;
 
                         portamento = &layer->portamento;
                         switch (PORTAMENTO_MODE(layer->portamento)) {
@@ -895,7 +895,7 @@ void seq_channel_layer_process_script(struct SequenceChannelLayer *layer) {
 
                         if (PORTAMENTO_IS_SPECIAL(layer->portamento)) {
                             portamento->speed = US_FLOAT(32512.0) * FLOAT_CAST(seqPlayer->tempo)
-                                                / ((f32) layer->delay * (f32) gTempoInternalToExternal
+                                                / ((f32) layer->delay * (f32) WORLD(gTempoInternalToExternal)
                                                    * FLOAT_CAST(layer->portamentoTime));
                         } else {
                             portamento->speed = US_FLOAT(127.0) / FLOAT_CAST(layer->portamentoTime);
@@ -915,10 +915,10 @@ void seq_channel_layer_process_script(struct SequenceChannelLayer *layer) {
 #endif
                         sameSound = (sound == layer->sound);
                         layer->sound = sound;
-                        layer->freqScale = gNoteFrequencies[cmd] * sound->tuning;
+                        layer->freqScale = WORLD(gNoteFrequencies)[cmd] * sound->tuning;
                     } else {
                         layer->sound = NULL;
-                        layer->freqScale = gNoteFrequencies[cmd];
+                        layer->freqScale = WORLD(gNoteFrequencies)[cmd];
                     }
                 }
             }
@@ -1686,14 +1686,14 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
                         // bank set. Note that in the binary format (not in the JSON!)
                         // the banks are listed backwards, so we counts from the back.
                         // (gAlBankSets[offset] is number of banks)
-                        sp38 = ((u16 *) gAlBankSets)[seqPlayer->seqId];
-                        loBits = *(sp38 + gAlBankSets);
-                        cmd = gAlBankSets[(s32)sp38 + loBits - cmd];
+                        sp38 = ((u16 *) WORLD(gAlBankSets))[seqPlayer->seqId];
+                        loBits = *(sp38 + WORLD(gAlBankSets));
+                        cmd = WORLD(gAlBankSets)[(s32)sp38 + loBits - cmd];
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
                         if (get_bank_or_seq(1, 2, cmd) != NULL)
 #else
-                        if (get_bank_or_seq(&gBankLoadedPool, 2, cmd) != NULL)
+                        if (get_bank_or_seq(&WORLD(gBankLoadedPool), 2, cmd) != NULL)
 #endif
                         {
                             seqChannel->bankId = cmd;
@@ -1839,9 +1839,9 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
                         // the banks are listed backwards, so we counts from the back.
                         // (gAlBankSets[offset] is number of banks)
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-                        sp38 = ((u16 *) gAlBankSets)[seqPlayer->seqId];
-                        loBits = *(sp38 + gAlBankSets);
-                        cmd = gAlBankSets[(s32)sp38 + loBits - cmd];
+                        sp38 = ((u16 *) WORLD(gAlBankSets))[seqPlayer->seqId];
+                        loBits = *(sp38 + WORLD(gAlBankSets));
+                        cmd = WORLD(gAlBankSets)[(s32)sp38 + loBits - cmd];
 #else
                         sp5A = ((u16 *) WORLD(gAlBankSets))[seqPlayer->seqId];
                         loBits = *(sp5A + WORLD(gAlBankSets));
@@ -1948,7 +1948,7 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
                             sp38 = (u16)((seqData[0] << 8) + seqData[1]);
                             state->pc = seqPlayer->seqData + sp38;
 
-                            if (0 && sp38 >= gSeqFileHeader->seqArray[seqPlayer->seqId].len) {
+                            if (0 && sp38 >= WORLD(gSeqFileHeader)->seqArray[seqPlayer->seqId].len) {
                                 eu_stubbed_printf_3("Err :Sub %x ,address %x:Undefined SubTrack Function %x", seqChannel, state->pc, sp38);
                             }
 #else
@@ -2258,13 +2258,13 @@ void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
         if (seqPlayer->bankDmaRemaining == 0) {
             seqPlayer->bankDmaInProgress = FALSE;
             patch_audio_bank(
-                (struct AudioBank *) (gCtlEntries[seqPlayer->loadingBankId].instruments - 1),
-                gAlTbl->seqArray[seqPlayer->loadingBankId].offset,
-                gCtlEntries[seqPlayer->loadingBankId].numInstruments,
-                gCtlEntries[seqPlayer->loadingBankId].numDrums);
-            gCtlEntries[seqPlayer->loadingBankId].drums =
-                ((struct AudioBank *) (gCtlEntries[seqPlayer->loadingBankId].instruments - 1))->drums;
-            gBankLoadStatus[seqPlayer->loadingBankId] = SOUND_LOAD_STATUS_COMPLETE;
+                (struct AudioBank *) (WORLD(gCtlEntries)[seqPlayer->loadingBankId].instruments - 1),
+                WORLD(gAlTbl)->seqArray[seqPlayer->loadingBankId].offset,
+                WORLD(gCtlEntries)[seqPlayer->loadingBankId].numInstruments,
+                WORLD(gCtlEntries)[seqPlayer->loadingBankId].numDrums);
+            WORLD(gCtlEntries)[seqPlayer->loadingBankId].drums =
+                ((struct AudioBank *) (WORLD(gCtlEntries)[seqPlayer->loadingBankId].instruments - 1))->drums;
+            WORLD(gBankLoadStatus)[seqPlayer->loadingBankId] = SOUND_LOAD_STATUS_COMPLETE;
         } else {
             audio_dma_partial_copy_async(&seqPlayer->bankDmaCurrDevAddr, &seqPlayer->bankDmaCurrMemAddr,
                                          &seqPlayer->bankDmaRemaining, &seqPlayer->bankDmaMesgQueue,
@@ -2740,8 +2740,8 @@ void process_sequences(UNUSED s32 iterationsRemaining) {
     for (i = 0; i < SEQUENCE_PLAYERS; i++) {
         if (WORLD(gSequencePlayers)[i].enabled == TRUE) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-            sequence_player_process_sequence(&gSequencePlayers[i]);
-            sequence_player_process_sound(&gSequencePlayers[i]);
+            sequence_player_process_sequence(&WORLD(gSequencePlayers)[i]);
+            sequence_player_process_sound(&WORLD(gSequencePlayers)[i]);
 #else
             sequence_player_process_sequence(WORLD(gSequencePlayers) + i);
             sequence_player_process_sound(WORLD(gSequencePlayers) + i);
@@ -2833,7 +2833,7 @@ void init_sequence_players(void) {
         }
 
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-        gSequencePlayers[i].seqVariationEu[0] = -1;
+        WORLD(gSequencePlayers)[i].seqVariationEu[0] = -1;
 #else
         WORLD(gSequencePlayers)[i].seqVariation = -1;
 #endif

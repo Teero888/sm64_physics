@@ -166,7 +166,7 @@ f32 get_portamento_freq_scale(struct Portamento *p) {
     }
 
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    result = US_FLOAT(1.0) + p->extent * (gPitchBendFrequencyScale[v0 + 128] - US_FLOAT(1.0));
+    result = US_FLOAT(1.0) + p->extent * (WORLD(gPitchBendFrequencyScale)[v0 + 128] - US_FLOAT(1.0));
 #else
     result = US_FLOAT(1.0) + p->extent * (WORLD(gPitchBendFrequencyScale)[v0 + 127] - US_FLOAT(1.0));
 #endif
@@ -254,7 +254,7 @@ f32 get_vibrato_freq_scale(struct VibratoState *vib) {
     extent = (f32) vib->extent / US_FLOAT(4096.0);
 
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    result = US_FLOAT(1.0) + extent * (gPitchBendFrequencyScale[pitchChange + 128] - US_FLOAT(1.0));
+    result = US_FLOAT(1.0) + extent * (WORLD(gPitchBendFrequencyScale)[pitchChange + 128] - US_FLOAT(1.0));
 #else
     result = US_FLOAT(1.0) + extent * (WORLD(gPitchBendFrequencyScale)[pitchChange + 127] - US_FLOAT(1.0));
 #endif
@@ -304,7 +304,7 @@ void note_vibrato_init(struct Note *note) {
     vib->time = 0;
 
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    vib->curve = gWaveSamples[2];
+    vib->curve = WORLD(gWaveSamples)[2];
     vib->seqChannel = note->parentLayer->seqChannel;
     if ((vib->extentChangeTimer = vib->seqChannel->vibratoExtentChangeDelay) == 0) {
         vib->extent = FLOAT_CAST(vib->seqChannel->vibratoExtentTarget);
@@ -422,7 +422,7 @@ s32 adsr_update(struct AdsrState *adsr) {
                 default:
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
                     if (adsr->delay >= 4) {
-                        adsr->delay = adsr->delay * gAudioBufferParameters.updatesPerFrame
+                        adsr->delay = adsr->delay * WORLD(gAudioBufferParameters).updatesPerFrame
 #if defined(VERSION_SH) || defined(VERSION_CN)
                         / gAudioBufferParameters.presetUnk4
 #endif

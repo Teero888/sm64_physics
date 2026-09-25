@@ -155,12 +155,12 @@ void build_vol_rampings_table(s32 UNUSED unused, s32 len) {
             d = 1;
         }
 
-        gLeftVolRampings[0][i]  = kth_root(      d, k - 1);
-        gRightVolRampings[0][i] = kth_root(1.0 / d, k - 1) * 65536.0;
-        gLeftVolRampings[1][i]  = kth_root(      d, k);
-        gRightVolRampings[1][i] = kth_root(1.0 / d, k) * 65536.0;
-        gLeftVolRampings[2][i]  = kth_root(      d, k + 1);
-        gRightVolRampings[2][i] = kth_root(1.0 / d, k + 1) * 65536.0;
+        WORLD(gLeftVolRampings)[0][i]  = kth_root(      d, k - 1);
+        WORLD(gRightVolRampings)[0][i] = kth_root(1.0 / d, k - 1) * 65536.0;
+        WORLD(gLeftVolRampings)[1][i]  = kth_root(      d, k);
+        WORLD(gRightVolRampings)[1][i] = kth_root(1.0 / d, k) * 65536.0;
+        WORLD(gLeftVolRampings)[2][i]  = kth_root(      d, k + 1);
+        WORLD(gRightVolRampings)[2][i] = kth_root(1.0 / d, k + 1) * 65536.0;
     }
 }
 #endif
@@ -236,7 +236,7 @@ void discard_sequence(s32 seqId) {
     for (i = 0; i < SEQUENCE_PLAYERS; i++) {
         if (WORLD(gSequencePlayers)[i].enabled && WORLD(gSequencePlayers)[i].seqId == seqId) {
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-            sequence_player_disable(&gSequencePlayers[i]);
+            sequence_player_disable(&WORLD(gSequencePlayers)[i]);
 #else
             sequence_player_disable(WORLD(gSequencePlayers) + i);
 #endif
@@ -963,8 +963,8 @@ void fill_filter(s16 filter[8], s32 arg1, s32 arg2) {
 void decrease_reverb_gain(void) {
 #if defined(VERSION_EU)
     s32 i;
-    for (i = 0; i < gNumSynthesisReverbs; i++) {
-        gSynthesisReverbs[i].reverbGain -= gSynthesisReverbs[i].reverbGain / 8;
+    for (i = 0; i < WORLD(gNumSynthesisReverbs); i++) {
+        WORLD(gSynthesisReverbs)[i].reverbGain -= WORLD(gSynthesisReverbs)[i].reverbGain / 8;
     }
 #elif defined(VERSION_JP) || defined(VERSION_US)
     WORLD(gSynthesisReverb).reverbGain -= WORLD(gSynthesisReverb).reverbGain / 4;
@@ -999,40 +999,40 @@ s32 audio_shut_down_and_reset_step(void) {
     s32 num = gAudioBufferParameters.presetUnk4 == 2 ? 2 : 1;
 #endif
 
-    switch (gAudioResetStatus) {
+    switch (WORLD(gAudioResetStatus)) {
         case 5:
             for (i = 0; i < SEQUENCE_PLAYERS; i++) {
-                sequence_player_disable(&gSequencePlayers[i]);
+                sequence_player_disable(&WORLD(gSequencePlayers)[i]);
             }
 #if defined(VERSION_SH) || defined(VERSION_CN)
             gAudioResetFadeOutFramesLeft = 4 / num;
 #else
-            gAudioResetFadeOutFramesLeft = 4;
+            WORLD(gAudioResetFadeOutFramesLeft) = 4;
 #endif
-            gAudioResetStatus--;
+            WORLD(gAudioResetStatus)--;
             break;
         case 4:
-            if (gAudioResetFadeOutFramesLeft != 0) {
-                gAudioResetFadeOutFramesLeft--;
+            if (WORLD(gAudioResetFadeOutFramesLeft) != 0) {
+                WORLD(gAudioResetFadeOutFramesLeft)--;
                 decrease_reverb_gain();
             } else {
-                for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                    if (gNotes[i].noteSubEu.enabled && gNotes[i].adsr.state != ADSR_STATE_DISABLED) {
-                        gNotes[i].adsr.fadeOutVel = gAudioBufferParameters.updatesPerFrameInv;
-                        gNotes[i].adsr.action |= ADSR_ACTION_RELEASE;
+                for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                    if (WORLD(gNotes)[i].noteSubEu.enabled && WORLD(gNotes)[i].adsr.state != ADSR_STATE_DISABLED) {
+                        WORLD(gNotes)[i].adsr.fadeOutVel = WORLD(gAudioBufferParameters).updatesPerFrameInv;
+                        WORLD(gNotes)[i].adsr.action |= ADSR_ACTION_RELEASE;
                     }
                 }
 #if defined(VERSION_SH) || defined(VERSION_CN)
                 gAudioResetFadeOutFramesLeft = 16 / num;
 #else
-                gAudioResetFadeOutFramesLeft = 16;
+                WORLD(gAudioResetFadeOutFramesLeft) = 16;
 #endif
-                gAudioResetStatus--;
+                WORLD(gAudioResetStatus)--;
             }
             break;
         case 3:
-            if (gAudioResetFadeOutFramesLeft != 0) {
-                gAudioResetFadeOutFramesLeft--;
+            if (WORLD(gAudioResetFadeOutFramesLeft) != 0) {
+                WORLD(gAudioResetFadeOutFramesLeft)--;
 #if defined(VERSION_SH) || defined(VERSION_CN)
                 if (1) {
                 }
@@ -1041,25 +1041,25 @@ s32 audio_shut_down_and_reset_step(void) {
             } else {
                 for (i = 0; i < NUMAIBUFFERS; i++) {
                     for (j = 0; j < (s32) (AIBUFFER_LEN / sizeof(s16)); j++) {
-                        gAiBuffers[i][j] = 0;
+                        WORLD(gAiBuffers)[i][j] = 0;
                     }
                 }
 #if defined(VERSION_SH) || defined(VERSION_CN)
                 gAudioResetFadeOutFramesLeft = 4 / num;
 #else
-                gAudioResetFadeOutFramesLeft = 4;
+                WORLD(gAudioResetFadeOutFramesLeft) = 4;
 #endif
-                gAudioResetStatus--;
+                WORLD(gAudioResetStatus)--;
             }
             break;
         case 2:
 #if defined(VERSION_SH) || defined(VERSION_CN)
             clear_curr_ai_buffer();
 #endif
-            if (gAudioResetFadeOutFramesLeft != 0) {
-                gAudioResetFadeOutFramesLeft--;
+            if (WORLD(gAudioResetFadeOutFramesLeft) != 0) {
+                WORLD(gAudioResetFadeOutFramesLeft)--;
             } else {
-                gAudioResetStatus--;
+                WORLD(gAudioResetStatus)--;
 #if defined(VERSION_SH) || defined(VERSION_CN)
                 func_sh_802f23ec();
 #endif
@@ -1067,7 +1067,7 @@ s32 audio_shut_down_and_reset_step(void) {
             break;
         case 1:
             audio_reset_session();
-            gAudioResetStatus = 0;
+            WORLD(gAudioResetStatus) = 0;
 #if defined(VERSION_SH) || defined(VERSION_CN)
             for (i = 0; i < NUMAIBUFFERS; i++) {
                 gAiBufferLengths[i] = gAudioBufferParameters.maxAiBufferLength;
@@ -1081,7 +1081,7 @@ s32 audio_shut_down_and_reset_step(void) {
     if (gAudioResetFadeOutFramesLeft) {
     }
 #endif
-    if (gAudioResetStatus < 3) {
+    if (WORLD(gAudioResetStatus) < 3) {
         return 0;
     }
     return 1;
@@ -1112,7 +1112,7 @@ void wait_for_audio_frames(s32 frames) {
 void audio_reset_session(struct AudioSessionSettings *preset) {
 #else
 void audio_reset_session(void) {
-    struct AudioSessionSettingsEU *preset = &gAudioSessionPresets[gAudioResetPresetIdToLoad];
+    struct AudioSessionSettingsEU *preset = &WORLD(gAudioSessionPresets)[WORLD(gAudioResetPresetIdToLoad)];
     struct ReverbSettingsEU *reverbSettings;
 #endif
     s16 *mem;
@@ -1196,37 +1196,37 @@ void audio_reset_session(void) {
 
     WORLD(gSampleDmaNumListItems) = 0;
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    gAudioBufferParameters.frequency = preset->frequency;
-    gAudioBufferParameters.aiFrequency = osAiSetFrequency(gAudioBufferParameters.frequency);
-    gAudioBufferParameters.samplesPerFrameTarget = ALIGN16(gAudioBufferParameters.frequency / gRefreshRate);
-    gAudioBufferParameters.minAiBufferLength = gAudioBufferParameters.samplesPerFrameTarget - 0x10;
-    gAudioBufferParameters.maxAiBufferLength = gAudioBufferParameters.samplesPerFrameTarget + 0x10;
+    WORLD(gAudioBufferParameters).frequency = preset->frequency;
+    WORLD(gAudioBufferParameters).aiFrequency = osAiSetFrequency(WORLD(gAudioBufferParameters).frequency);
+    WORLD(gAudioBufferParameters).samplesPerFrameTarget = ALIGN16(WORLD(gAudioBufferParameters).frequency / WORLD(gRefreshRate));
+    WORLD(gAudioBufferParameters).minAiBufferLength = WORLD(gAudioBufferParameters).samplesPerFrameTarget - 0x10;
+    WORLD(gAudioBufferParameters).maxAiBufferLength = WORLD(gAudioBufferParameters).samplesPerFrameTarget + 0x10;
 #if defined(VERSION_SH) || defined(VERSION_CN)
     gAudioBufferParameters.updatesPerFrame = (gAudioBufferParameters.samplesPerFrameTarget + 0x10) / 192 + 1;
     gAudioBufferParameters.samplesPerUpdate = (gAudioBufferParameters.samplesPerFrameTarget / gAudioBufferParameters.updatesPerFrame) & -8;
 #else
-    gAudioBufferParameters.updatesPerFrame = (gAudioBufferParameters.samplesPerFrameTarget + 0x10) / 160 + 1;
-    gAudioBufferParameters.samplesPerUpdate = (gAudioBufferParameters.samplesPerFrameTarget / gAudioBufferParameters.updatesPerFrame) & 0xfff8;
+    WORLD(gAudioBufferParameters).updatesPerFrame = (WORLD(gAudioBufferParameters).samplesPerFrameTarget + 0x10) / 160 + 1;
+    WORLD(gAudioBufferParameters).samplesPerUpdate = (WORLD(gAudioBufferParameters).samplesPerFrameTarget / WORLD(gAudioBufferParameters).updatesPerFrame) & 0xfff8;
 #endif
-    gAudioBufferParameters.samplesPerUpdateMax = gAudioBufferParameters.samplesPerUpdate + 8;
-    gAudioBufferParameters.samplesPerUpdateMin = gAudioBufferParameters.samplesPerUpdate - 8;
-    gAudioBufferParameters.resampleRate = 32000.0f / FLOAT_CAST(gAudioBufferParameters.frequency);
+    WORLD(gAudioBufferParameters).samplesPerUpdateMax = WORLD(gAudioBufferParameters).samplesPerUpdate + 8;
+    WORLD(gAudioBufferParameters).samplesPerUpdateMin = WORLD(gAudioBufferParameters).samplesPerUpdate - 8;
+    WORLD(gAudioBufferParameters).resampleRate = 32000.0f / FLOAT_CAST(WORLD(gAudioBufferParameters).frequency);
 #if defined(VERSION_SH) || defined(VERSION_CN)
     gAudioBufferParameters.unkUpdatesPerFrameScaled = (1.0f / 256.0f) / gAudioBufferParameters.updatesPerFrame;
 #else
-    gAudioBufferParameters.unkUpdatesPerFrameScaled = (3.0f / 1280.0f) / gAudioBufferParameters.updatesPerFrame;
+    WORLD(gAudioBufferParameters).unkUpdatesPerFrameScaled = (3.0f / 1280.0f) / WORLD(gAudioBufferParameters).updatesPerFrame;
 #endif
-    gAudioBufferParameters.updatesPerFrameInv = 1.0f / gAudioBufferParameters.updatesPerFrame;
+    WORLD(gAudioBufferParameters).updatesPerFrameInv = 1.0f / WORLD(gAudioBufferParameters).updatesPerFrame;
 
-    gMaxSimultaneousNotes = preset->maxSimultaneousNotes;
-    gVolume = preset->volume;
-    gTempoInternalToExternal = (u32) (gAudioBufferParameters.updatesPerFrame * 2880000.0f / gTatumsPerBeat / D_EU_802298D0);
+    WORLD(gMaxSimultaneousNotes) = preset->maxSimultaneousNotes;
+    WORLD(gVolume) = preset->volume;
+    WORLD(gTempoInternalToExternal) = (u32) (WORLD(gAudioBufferParameters).updatesPerFrame * 2880000.0f / WORLD(gTatumsPerBeat) / WORLD(D_EU_802298D0));
 
-    gAudioBufferParameters.presetUnk4 = preset->unk1;
-    gAudioBufferParameters.samplesPerFrameTarget *= gAudioBufferParameters.presetUnk4;
-    gAudioBufferParameters.maxAiBufferLength *= gAudioBufferParameters.presetUnk4;
-    gAudioBufferParameters.minAiBufferLength *= gAudioBufferParameters.presetUnk4;
-    gAudioBufferParameters.updatesPerFrame *= gAudioBufferParameters.presetUnk4;
+    WORLD(gAudioBufferParameters).presetUnk4 = preset->unk1;
+    WORLD(gAudioBufferParameters).samplesPerFrameTarget *= WORLD(gAudioBufferParameters).presetUnk4;
+    WORLD(gAudioBufferParameters).maxAiBufferLength *= WORLD(gAudioBufferParameters).presetUnk4;
+    WORLD(gAudioBufferParameters).minAiBufferLength *= WORLD(gAudioBufferParameters).presetUnk4;
+    WORLD(gAudioBufferParameters).updatesPerFrame *= WORLD(gAudioBufferParameters).presetUnk4;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
     if (gAudioBufferParameters.presetUnk4 >= 2) {
@@ -1234,7 +1234,7 @@ void audio_reset_session(void) {
     }
     gMaxAudioCmds = gMaxSimultaneousNotes * 0x14 * gAudioBufferParameters.updatesPerFrame + preset->numReverbs * 0x20 + 0x1E0;
 #else
-    gMaxAudioCmds = gMaxSimultaneousNotes * 0x10 * gAudioBufferParameters.updatesPerFrame + preset->numReverbs * 0x20 + 0x300;
+    WORLD(gMaxAudioCmds) = WORLD(gMaxSimultaneousNotes) * 0x10 * WORLD(gAudioBufferParameters).updatesPerFrame + preset->numReverbs * 0x20 + 0x300;
 #endif
 #else
     reverbWindowSize = preset->reverbWindowSize;
@@ -1333,18 +1333,18 @@ void audio_reset_session(void) {
     init_note_free_list();
 
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
-    gNoteSubsEu = soundAlloc(&gNotesAndBuffersPool, (gAudioBufferParameters.updatesPerFrame * gMaxSimultaneousNotes) * sizeof(struct NoteSubEu));
+    WORLD(gNoteSubsEu) = soundAlloc(&WORLD(gNotesAndBuffersPool), (WORLD(gAudioBufferParameters).updatesPerFrame * WORLD(gMaxSimultaneousNotes)) * sizeof(struct NoteSubEu));
 
     for (j = 0; j != 2; j++) {
-        gAudioCmdBuffers[j] = soundAlloc(&gNotesAndBuffersPool, gMaxAudioCmds * sizeof(u64));
+        WORLD(gAudioCmdBuffers)[j] = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxAudioCmds) * sizeof(u64));
     }
 
     for (j = 0; j < 4; j++) {
-        gSynthesisReverbs[j].useReverb = 0;
+        WORLD(gSynthesisReverbs)[j].useReverb = 0;
     }
-    gNumSynthesisReverbs = preset->numReverbs;
-    for (j = 0; j < gNumSynthesisReverbs; j++) {
-        reverb = &gSynthesisReverbs[j];
+    WORLD(gNumSynthesisReverbs) = preset->numReverbs;
+    for (j = 0; j < WORLD(gNumSynthesisReverbs); j++) {
+        reverb = &WORLD(gSynthesisReverbs)[j];
         reverbSettings = &preset->reverbSettings[j];
 #if defined(VERSION_SH) || defined(VERSION_CN)
         reverb->downsampleRate = reverbSettings->downsampleRate;
@@ -1362,8 +1362,8 @@ void audio_reset_session(void) {
         reverb->unk08 = reverbSettings->unkA;
 #endif
         reverb->useReverb = 8;
-        reverb->ringBuffer.left = soundAlloc(&gNotesAndBuffersPool, reverb->windowSize * 2);
-        reverb->ringBuffer.right = soundAlloc(&gNotesAndBuffersPool, reverb->windowSize * 2);
+        reverb->ringBuffer.left = soundAlloc(&WORLD(gNotesAndBuffersPool), reverb->windowSize * 2);
+        reverb->ringBuffer.right = soundAlloc(&WORLD(gNotesAndBuffersPool), reverb->windowSize * 2);
         reverb->nextRingBufferPos = 0;
         reverb->unkC = 0;
         reverb->curFrame = 0;
@@ -1377,15 +1377,15 @@ void audio_reset_session(void) {
             reverb->resampleFlags = A_INIT;
 #endif
             reverb->resampleRate = 0x8000 / reverb->downsampleRate;
-            reverb->resampleStateLeft = soundAlloc(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            reverb->resampleStateRight = soundAlloc(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            reverb->unk24 = soundAlloc(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            reverb->unk28 = soundAlloc(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            for (i = 0; i < gAudioBufferParameters.updatesPerFrame; i++) {
-                mem = soundAlloc(&gNotesAndBuffersPool, DEFAULT_LEN_2CH);
+            reverb->resampleStateLeft = soundAlloc(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            reverb->resampleStateRight = soundAlloc(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            reverb->unk24 = soundAlloc(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            reverb->unk28 = soundAlloc(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            for (i = 0; i < WORLD(gAudioBufferParameters).updatesPerFrame; i++) {
+                mem = soundAlloc(&WORLD(gNotesAndBuffersPool), DEFAULT_LEN_2CH);
                 reverb->items[0][i].toDownsampleLeft = mem;
                 reverb->items[0][i].toDownsampleRight = mem + DEFAULT_LEN_1CH / sizeof(s16);
-                mem = soundAlloc(&gNotesAndBuffersPool, DEFAULT_LEN_2CH);
+                mem = soundAlloc(&WORLD(gNotesAndBuffersPool), DEFAULT_LEN_2CH);
                 reverb->items[1][i].toDownsampleLeft = mem;
                 reverb->items[1][i].toDownsampleRight = mem + DEFAULT_LEN_1CH / sizeof(s16);
             }
@@ -1443,7 +1443,7 @@ void audio_reset_session(void) {
     init_sample_dma_buffers(WORLD(gMaxSimultaneousNotes));
 
 #if defined(VERSION_EU)
-    build_vol_rampings_table(0, gAudioBufferParameters.samplesPerUpdate);
+    build_vol_rampings_table(0, WORLD(gAudioBufferParameters).samplesPerUpdate);
 #endif
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
