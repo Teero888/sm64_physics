@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
+#include <pthread.h>
 
 #include "sm64_physics.h"
 #include "rom.h"
@@ -29,15 +29,15 @@ struct block {
     unsigned char *data;
 };
 
-static mtx_t sLock;
-static once_flag sLockOnce = ONCE_FLAG_INIT;
+static pthread_mutex_t sLock;
+static pthread_once_t sLockOnce = PTHREAD_ONCE_INIT;
 static unsigned char *sRom;
 static size_t sRomSize;
 static struct block *sBlocks;
 static size_t sBlockCount;
 
 static void init_lock(void) {
-    mtx_init(&sLock, mtx_plain);
+    pthread_mutex_init(&sLock, NULL);
 }
 
 static uint32_t read_be32(const unsigned char *p) {
@@ -80,8 +80,8 @@ unsigned char *rom_normalize(const void *data, size_t size) {
 }
 
 void rom_keep(unsigned char *rom, size_t size) {
-    call_once(&sLockOnce, init_lock);
-    mtx_lock(&sLock);
+    pthread_once(&sLockOnce, init_lock);
+    pthread_mutex_lock(&sLock);
     free(sRom);
     for (size_t i = 0; i < sBlockCount; ++i) {
         free(sBlocks[i].data);
@@ -91,7 +91,7 @@ void rom_keep(unsigned char *rom, size_t size) {
     sBlockCount = 0;
     sRom = rom;
     sRomSize = size;
-    mtx_unlock(&sLock);
+    pthread_mutex_unlock(&sLock);
 }
 
 // MIO0: a header ("MIO0", decompressed size, offsets of the compressed and the
@@ -213,8 +213,8 @@ const void *sm64_texture(const void *address) {
     }
     const uint32_t block = read_le32(tag + 4);
     const uint32_t offset = read_le32(tag + 8) + (uint32_t) ((const unsigned char *) address - tag);
-    call_once(&sLockOnce, init_lock);
-    mtx_lock(&sLock);
+    pthread_once(&sLockOnce, init_lock);
+    pthread_mutex_lock(&sLock);
     const void *pixels = NULL;
     if (sRom && block == 0xffffffffu) {
         pixels = offset < sRomSize ? sRom + offset : NULL;
@@ -222,6 +222,6 @@ const void *sm64_texture(const void *address) {
         const struct block *b = block_at(block);
         pixels = b && offset < b->size ? b->data + offset : NULL;
     }
-    mtx_unlock(&sLock);
+    pthread_mutex_unlock(&sLock);
     return pixels;
 }

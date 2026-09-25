@@ -17,7 +17,9 @@ state's initial values, each thread's current world and settings;
 `platform/n64stack.c`: per thread, the stack model's pointer; the RSP's
 output buffer).
 
-The section is page aligned at both ends. Ranges of it, marked by symbols,
+The section is page aligned at both ends (64 KiB on ELF, 4 KiB on Windows,
+where a COFF object cannot say more than 8 KiB; `platform/os.c` protects and
+allocates memory on either). Ranges of it, marked by symbols,
 are what the N64 reloads from ROM: `sm64_overlay_*` (src/menu and
 src/goddard, reset by `FIXED_LOAD`) and `sm64_level_data_*` (every level's
 data, reset by `LOAD_MIO0` of segment 7).

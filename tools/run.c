@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
+#include <pthread.h>
 
 #include <ultra64.h>
 #include "types.h"
@@ -140,11 +140,27 @@ static void write_header(FILE *out) {
     }
 }
 
-static void write_record(FILE *out, uint32_t frame, uint32_t input) {
+// Where a record goes: a trace file, or a hash (FNV-1a) of it.
+typedef struct {
+    FILE *file;
+    uint64_t hash;
+} sink;
+
+static void put(sink *out, const void *data, size_t size) {
+    if (out->file) {
+        fwrite(data, 1, size, out->file);
+        return;
+    }
+    for (size_t i = 0; i < size; ++i) {
+        out->hash = (out->hash ^ ((const unsigned char *) data)[i]) * 0x100000001b3u;
+    }
+}
+
+static void write_record(sink *out, uint32_t frame, uint32_t input) {
     uint32_t zero = 0;
-    fwrite(&frame, 4, 1, out);
-    fwrite(&zero, 4, 1, out);
-    fwrite(&input, 4, 1, out);
+    put(out, &frame, 4);
+    put(out, &zero, 4);
+    put(out, &input, 4);
     for (unsigned f = 0; f < FIELD_COUNT; ++f) {
         unsigned char bytes[0x100];
         const field *fd = &fields[f];
@@ -156,26 +172,23 @@ static void write_record(FILE *out, uint32_t frame, uint32_t input) {
             case MARIO: mario_state_n64(bytes, address); break;
             case HUD: hud_display_n64(bytes, address); break;
         }
-        fwrite(bytes, 1, fd->size, out);
+        put(out, bytes, fd->size);
     }
+}
+
+// The current world's trace record, hashed into hash (FNV-1a).
+static uint64_t hash_record(uint64_t hash, uint32_t poll, uint32_t input) {
+    sink out = { NULL, hash };
+    write_record(&out, poll, input);
+    return out.hash;
 }
 
 // A hash of the world's state that does not depend on where its memory is:
 // its trace record (the oracle's fields).
 static uint64_t hash_state(void *buffer) {
     (void) buffer;
-    char *record = NULL;
-    size_t size = 0;
-    FILE *out = open_memstream(&record, &size);
     sm64_world_enter(sWorld);
-    write_record(out, 0, 0);
-    fclose(out);
-    uint64_t hash = 0xcbf29ce484222325u;
-    for (size_t i = 0; i < size; ++i) {
-        hash = (hash ^ (unsigned char) record[i]) * 0x100000001b3u;
-    }
-    free(record);
-    return hash;
+    return hash_record(0xcbf29ce484222325u, 0, 0);
 }
 
 // --check-state FRAME: save the state after FRAME, run to the end, load it
@@ -228,21 +241,13 @@ typedef struct {
 
 extern char sm64_state_start[]; // platform/state.ld
 
-static int run_world(void *arg) {
+static void *run_world(void *arg) {
     thread_run *run = arg;
     sm64_world *world = sm64_world_create();
     sm64_world_enter(world);
-    char *record = NULL;
-    size_t record_size = 0;
     uint64_t hash = 0xcbf29ce484222325u;
     for (uint32_t frame = 0; frame < run->count; ++frame) {
-        FILE *out = open_memstream(&record, &record_size);
-        write_record(out, frame + 1, run->inputs[frame]);
-        fclose(out);
-        for (size_t i = 0; i < record_size; ++i) {
-            hash = (hash ^ (unsigned char) record[i]) * 0x100000001b3u;
-        }
-        free(record);
+        hash = hash_record(hash, frame + 1, run->inputs[frame]);
         sm64_step(world, run->inputs[frame]);
     }
     run->trace_hash = hash;
@@ -259,18 +264,18 @@ static int run_world(void *arg) {
         }
     }
     sm64_world_destroy(world);
-    return 0;
+    return NULL;
 }
 
 static int check_threads(const uint32_t *inputs, uint32_t count, int threads) {
-    thrd_t ids[64];
+    pthread_t ids[64];
     thread_run runs[64];
     for (int t = 0; t < threads; ++t) {
         runs[t] = (thread_run) { inputs, count, 0, NULL };
-        thrd_create(&ids[t], run_world, &runs[t]);
+        pthread_create(&ids[t], NULL, run_world, &runs[t]);
     }
     for (int t = 0; t < threads; ++t) {
-        thrd_join(ids[t], NULL);
+        pthread_join(ids[t], NULL);
     }
     size_t pool_offset = 0, pool_size = 0;
     const char *pool = elf_symbol("sPoolMemory", &pool_size);
@@ -520,7 +525,8 @@ int main(int argc, char **argv) {
     uint32_t frame = 0;
     while ((limit < 0 || frame < limit) && fread(&input, 4, 1, polls) == 1) {
         if (trace) {
-            write_record(trace, frame + 1, input);
+            sink out = { trace, 0 };
+            write_record(&out, frame + 1, input);
         }
         if (draw) {
             const Gfx *list = sm64_step_draw(sWorld, input);

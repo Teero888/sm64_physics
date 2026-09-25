@@ -169,19 +169,31 @@ sm64_section_group(sm64_level_data${S} sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects${S} OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c
+add_library(sm64_shared_objects${S} OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c platform/os.c
             "${GV}/pointers/types.c")
 sm64_game_settings(sm64_shared_objects${S})
 sm64_section_group(sm64_main${S} sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)
+
+# The linker script: a COFF object (Windows) cannot hold a section aligned to
+# more than 8 KiB, and a page is all that protecting the template needs.
+set(SM64_STATE_LD "${CMAKE_CURRENT_SOURCE_DIR}/platform/state.ld")
+if(WIN32)
+  file(READ "${SM64_STATE_LD}" state_ld)
+  string(REPLACE "ALIGN(65536)" "ALIGN(4096)" state_ld "${state_ld}")
+  set(SM64_STATE_LD "${CMAKE_CURRENT_BINARY_DIR}/state.ld")
+  file(WRITE "${SM64_STATE_LD}" "${state_ld}")
+  # With a script, MinGW's linker would write an image, which is no object.
+  set(SM64_STATE_LD_FORMAT --oformat pe-x86-64)
+endif()
 
 # The library: include/sm64_physics.h is its whole interface.
 # The three groups' variables as one section, sm64_state (platform/state.ld).
 set(SM64_GAME_OBJECT "${CMAKE_CURRENT_BINARY_DIR}/sm64_game.o")
 add_custom_command(OUTPUT "${SM64_GAME_OBJECT}"
-  COMMAND ${CMAKE_LINKER} -r -T "${CMAKE_CURRENT_SOURCE_DIR}/platform/state.ld" -o "${SM64_GAME_OBJECT}"
+  COMMAND ${CMAKE_LINKER} -r ${SM64_STATE_LD_FORMAT} -T "${SM64_STATE_LD}" -o "${SM64_GAME_OBJECT}"
           "${sm64_main${S}_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data${S}_OBJECT}"
   DEPENDS "${sm64_main${S}_OBJECT}" "${SM64_OVERLAY_OBJECT}" "${sm64_level_data${S}_OBJECT}"
-          "${CMAKE_CURRENT_SOURCE_DIR}/platform/state.ld" VERBATIM)
+          "${SM64_STATE_LD}" VERBATIM)
 set_source_files_properties("${SM64_GAME_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
 # The addresses among the state's initial values, which move with every copy.
 set(SM64_STATE_POINTERS "${CMAKE_CURRENT_BINARY_DIR}/state_pointers.c")
@@ -200,7 +212,8 @@ set_source_files_properties("${SM64_STATE_POINTERS}" PROPERTIES COMPILE_OPTIONS 
 set_target_properties(sm64_physics${S} PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(sm64_physics${S} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_dependencies(sm64_physics${S} sm64_main${S}_objects sm64_overlay${S}_objects sm64_level_data${S}_objects)
-target_link_libraries(sm64_physics${S} PUBLIC m)
+find_package(Threads REQUIRED)
+target_link_libraries(sm64_physics${S} PUBLIC m Threads::Threads)
 
 # The display lists' format (sm64_step_draw), for a renderer: the decomp's
 # gbi.h with the library's definitions.

@@ -6,11 +6,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
-#include <threads.h>
+#include <pthread.h>
 
 #include "sm64_physics.h"
 #include "pointers.h"
+#include "os.h"
 #include "rom.h"
 
 // The game's state: every writable variable of the game and of the host's
@@ -66,7 +66,7 @@ static map_word *sInitialMap;
 // itself is never used once a world exists: it is made inaccessible, so code
 // that reaches the state without WORLD() faults instead of sharing it.
 static char *sInitial;
-static once_flag sInitOnce = ONCE_FLAG_INIT;
+static pthread_once_t sInitOnce = PTHREAD_ONCE_INIT;
 
 static size_t state_size(void) {
     return sm64_state_end - sm64_state_start;
@@ -150,7 +150,7 @@ void host_mark_address(void *p) {
 // memory, which code allocated what is there (an index into sCallers).
 
 static int sNoteAllocations = -1;
-static mtx_t sCallerLock;
+static pthread_mutex_t sCallerLock;
 static void **sCallers;
 static uint32_t sCallerCount, sCallerCapacity;
 static __thread uint32_t *tCurrentOwners __attribute__((tls_model("initial-exec")));
@@ -158,13 +158,13 @@ static __thread uint32_t *tCurrentOwners __attribute__((tls_model("initial-exec"
 static bool noting(void) {
     if (sNoteAllocations < 0) {
         sNoteAllocations = getenv("SM64_NOTE_ALLOCATIONS") != NULL;
-        mtx_init(&sCallerLock, mtx_plain);
+        pthread_mutex_init(&sCallerLock, NULL);
     }
     return sNoteAllocations > 0;
 }
 
 static uint32_t caller_index(void *caller) {
-    mtx_lock(&sCallerLock);
+    pthread_mutex_lock(&sCallerLock);
     uint32_t i = 0;
     while (i < sCallerCount && sCallers[i] != caller) {
         ++i;
@@ -176,7 +176,7 @@ static uint32_t caller_index(void *caller) {
         }
         sCallers[sCallerCount++] = caller;
     }
-    mtx_unlock(&sCallerLock);
+    pthread_mutex_unlock(&sCallerLock);
     return i + 1;
 }
 
@@ -235,11 +235,11 @@ static void init_process(void) {
         const struct host_variable *v = &sVariables[i];
         map_type(sInitialMap, (const char *) v->address - sm64_state_start, v->type, v->count);
     }
-    mprotect(sm64_state_start, state_size(), PROT_NONE);
+    os_protect_none(sm64_state_start, state_size());
 }
 
 static void init(void) {
-    call_once(&sInitOnce, init_process);
+    pthread_once(&sInitOnce, init_process);
 }
 
 // Copies the initial values of [start, end) of the section into the world at
@@ -321,11 +321,11 @@ bool sm64_load_rom(const void *data, size_t size) {
 static sm64_world *world_new(void) {
     sm64_world *world = malloc(sizeof(*world));
     // The section's alignment, so every variable keeps its own.
-    world->memory = aligned_alloc(65536, state_size());
+    world->memory = os_aligned_alloc(65536, state_size());
     world->map = malloc(map_size());
     world->owners = noting() ? calloc(state_size() / 4, sizeof(uint32_t)) : NULL;
     if (!world->memory || !world->map) {
-        free(world->memory);
+        os_aligned_free(world->memory);
         free(world->map);
         free(world);
         return NULL;
@@ -350,7 +350,7 @@ sm64_world *sm64_world_create(void) {
 
 void sm64_world_destroy(sm64_world *world) {
     if (world) {
-        free(world->memory);
+        os_aligned_free(world->memory);
         free(world->map);
         free(world->owners);
         free(world);

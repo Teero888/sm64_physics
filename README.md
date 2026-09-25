@@ -62,6 +62,16 @@ cmake --build build
 python3 oracle/sm64trace.py diff oracle/out/jp-1key.trace build/jp-1key.native.trace
 ```
 
+Windows builds use MinGW-w64, as frametee's do; `cmake/mingw-w64.cmake`
+cross-builds from Linux, and `sm64_run.exe` runs under Wine (its traces are
+the same as the Linux build's):
+
+```sh
+cmake -S . -B build-win -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build build-win
+WINEPATH=/usr/x86_64-w64-mingw32/bin wine build-win/sm64_run.exe oracle/out/jp-1key.polls --rom ... --trace ...
+```
+
 `-DSM64_PHYSICS_SHARED=ON` builds a shared library instead, as frametee does:
 one copy of the game for a program and its plugins, since a world holds
 addresses of the library's code. It exports the API (`include/sm64_physics.h`)
