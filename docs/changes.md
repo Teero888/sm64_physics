@@ -257,3 +257,25 @@ copies instead of arrays. The Shindou Edition's headers and bank sets are the
 loader's own arrays, filled from the ROM the same way.
 
 Files: `src/audio/load.c`, `src/audio/load_sh.c`
+
+## 21. Draw Mario alone
+
+With `sm64_set_draw_mario_only`, a drawing step keeps only the display lists
+appended while the render walk is inside Mario's object (his model, what he
+holds, his shadow), leaves out the frame's color clear, and skips the 2D drawn
+over the scene (HUD, text, dialogs, menus, screen transitions). A renderer
+draws it over another world's frame to show this world's Mario as a ghost. It
+is meant for a copy of the world: the skipped menu and transition code also
+updates state.
+
+Files: `src/game/rendering_graph_node.c`, `src/game/game_init.c`, `src/game/area.c`
+
+## 22. Draw the sky wide enough for a wide view
+
+The sky is a grid of three by three tiles of the panorama around the camera,
+enough for a 4:3 view. With `sm64_set_draw_widescreen`, a drawing step adds two
+columns on each side (the panorama wraps around every eight) and allocates
+their commands, so a renderer that widens the view (games/sm64's f3d/) has sky
+to its edges. Nothing changes otherwise.
+
+Files: `src/game/skybox.c`

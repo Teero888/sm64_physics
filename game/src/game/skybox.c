@@ -233,6 +233,34 @@ void draw_skybox_tile_grid(Gfx **dlist, s8 background, s8 player, s8 colorIndex)
             gSPDisplayList((*dlist)++, dl_draw_quad_verts_0123);
         }
     }
+
+    // Library: a view wider than 4:3 (sm64_set_draw_widescreen) sees past the
+    // grid's three columns, so two more on each side, where the image wraps
+    // around every SKYBOX_WIDTH (docs/changes.md 22).
+    if (gHostDrawWide) {
+        const s32 wrap = SKYBOX_WIDTH / SKYBOX_TILE_WIDTH;
+        const s32 firstCol = WORLD(sSkyBoxInfo)[player].upperLeftTile % SKYBOX_COLS;
+        const s32 firstRow = WORLD(sSkyBoxInfo)[player].upperLeftTile / SKYBOX_COLS;
+        static const s8 sideCols[] = { -2, -1, 3, 4 };
+        for (row = 0; row < 3; row++) {
+            for (col = 0; col < (s32) sizeof(sideCols); col++) {
+                const s32 column = firstCol + sideCols[col];
+                const s32 imageCol = (column % wrap + wrap) % wrap;
+                const s32 tileIndex = (firstRow + row) * SKYBOX_COLS + imageCol;
+                const u8 *const texture =
+                    (*(SkyboxTexture *) segmented_to_virtual(WORLD(sSkyboxTextures)[background]))[tileIndex];
+                Vtx *vertices = make_skybox_rect(tileIndex, colorIndex);
+                if (vertices != NULL) {
+                    for (s32 v = 0; v < 4; v++) {
+                        vertices[v].v.ob[0] += (column - imageCol) * SKYBOX_TILE_WIDTH;
+                    }
+                }
+                gLoadBlockTexture((*dlist)++, 32, 32, G_IM_FMT_RGBA, texture);
+                gSPVertex((*dlist)++, VIRTUAL_TO_PHYSICAL(vertices), 4, 0);
+                gSPDisplayList((*dlist)++, dl_draw_quad_verts_0123);
+            }
+        }
+    }
 }
 
 void *create_skybox_ortho_matrix(s8 player) {
@@ -265,6 +293,10 @@ void *create_skybox_ortho_matrix(s8 player) {
  */
 Gfx *init_skybox_display_list(s8 player, s8 background, s8 colorIndex) {
     s32 dlCommandCount = 5 + (3 * 3) * 7; // 5 for the start and end, plus 9 skybox tiles
+    // Library: and 12 more for a wide view (docs/changes.md 22).
+    if (gHostDrawWide) {
+        dlCommandCount += (3 * 4) * 7;
+    }
     void *skybox = alloc_display_list(dlCommandCount * sizeof(Gfx));
     Gfx *dlist = skybox;
 

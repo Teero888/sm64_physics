@@ -203,6 +203,10 @@ static void geo_append_display_list(void *displayList, s16 layer) {
     if (!SM64_DRAW) {
         return;
     }
+    // Library: Mario alone (docs/changes.md 21).
+    if (SM64_DRAW_MARIO_ONLY && !gHostDrawInsideMario) {
+        return;
+    }
 
 #ifdef F3DEX_GBI_2
     gSPLookAt(gDisplayListHead++, &lookAt);
@@ -1032,6 +1036,11 @@ static void geo_process_object(struct Object *node) {
         if (node->header.gfx.animInfo.curAnim != NULL) {
             geo_set_animation_globals(&node->header.gfx.animInfo, hasAnimation);
         }
+        // Library: whether this is Mario, for drawing him alone (docs/changes.md 21).
+        const int insideMario = gHostDrawInsideMario;
+        if (node == WORLD(gMarioObject)) {
+            gHostDrawInsideMario = 1;
+        }
         if (obj_is_in_view(&node->header.gfx, WORLD(gMatStack)[WORLD(gMatStackIndex)])) {
             geo_set_fixed_matrix();
             if (node->header.gfx.sharedChild != NULL) {
@@ -1046,6 +1055,7 @@ static void geo_process_object(struct Object *node) {
             }
         }
 
+        gHostDrawInsideMario = insideMario;
         WORLD(gMatStackIndex)--;
         WORLD(gCurrAnimType) = ANIM_TYPE_NONE;
         node->header.gfx.throwMatrix = NULL;

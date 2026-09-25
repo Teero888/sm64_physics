@@ -376,6 +376,12 @@ void render_game(void) {
     N64_STACK_FRAME(render_game);
     if (WORLD(gCurrentArea) != NULL && !WORLD(gWarpTransition).pauseRendering) {
         geo_process_root(WORLD(gCurrentArea)->unk04, WORLD(D_8032CE74), WORLD(D_8032CE78), WORLD(gFBSetColor));
+        // Library: Mario alone, without the 2D over the scene (docs/changes.md 21).
+        if (SM64_DRAW_MARIO_ONLY) {
+            WORLD(D_8032CE74) = NULL;
+            WORLD(D_8032CE78) = NULL;
+            return;
+        }
 
         gSPViewport(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(&WORLD(D_8032CF00)));
 

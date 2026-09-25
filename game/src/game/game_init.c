@@ -164,6 +164,10 @@ void select_framebuffer(void) {
  * Information about the color argument: https://jrra.zone/n64/doc/n64man/gdp/gDPSetFillColor.htm
  */
 void clear_framebuffer(s32 color) {
+    // Library: Mario alone leaves the frame to be drawn over (docs/changes.md 21).
+    if (SM64_DRAW_MARIO_ONLY) {
+        return;
+    }
     gDPPipeSync(WORLD(gDisplayListHead)++);
 
     gDPSetRenderMode(WORLD(gDisplayListHead)++, G_RM_OPA_SURF, G_RM_OPA_SURF2);

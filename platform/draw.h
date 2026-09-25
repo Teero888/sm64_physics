@@ -8,6 +8,16 @@
 extern __thread int gHostDraw __attribute__((tls_model("initial-exec")));
 #define SM64_DRAW gHostDraw
 
+// While drawing: draw Mario alone (sm64_set_draw_mario_only), and whether the
+// render walk is inside his object now.
+extern __thread int gHostDrawMarioOnly __attribute__((tls_model("initial-exec")));
+extern __thread int gHostDrawInsideMario __attribute__((tls_model("initial-exec")));
+#define SM64_DRAW_MARIO_ONLY (gHostDraw && gHostDrawMarioOnly)
+
+// While drawing: the view is wider than 4:3 (sm64_set_draw_widescreen).
+extern __thread int gHostDrawWideSetting __attribute__((tls_model("initial-exec")));
+#define gHostDrawWide (gHostDraw && gHostDrawWideSetting)
+
 // The display list of the last graphics task the game handed over while
 // drawing (exec_display_list): what the RSP runs.
 extern __thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));

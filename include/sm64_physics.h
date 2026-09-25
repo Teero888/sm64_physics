@@ -83,6 +83,18 @@ bool sm64_load_state(sm64_world *world, const void *buffer);
 // stepped, step a copy of the world before it (sm64_world_copy).
 const void *sm64_step_draw(sm64_world *world, uint32_t input);
 
+// A setting of the calling thread, as sm64_set_draw: whether sm64_step_draw
+// draws Mario alone (his model, what he holds and his shadow), with no level,
+// other objects, background, HUD or screen clear. For drawing another world's
+// Mario over this one's frame, as a ghost. The world's state after the step is
+// not what sm64_step leaves: step a copy.
+void sm64_set_draw_mario_only(bool enabled);
+
+// A setting of the calling thread, as sm64_set_draw: whether the frame is
+// shown wider than 4:3. The game draws its sky for a 4:3 view; with this, it
+// draws it wide enough for a view up to about 2.3 times as wide as tall.
+void sm64_set_draw_widescreen(bool enabled);
+
 // Where a display list applies the game's 3D camera, a G_NOOP carries it: its
 // first word is G_NOOP << 24 | SM64_CAMERA_TAG, its second the address of the
 // camera's matrix (float[4][4], row vectors: a point in the world times it is

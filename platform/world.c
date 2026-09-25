@@ -36,6 +36,9 @@ __thread ptrdiff_t gHostWorldOffset __attribute__((tls_model("initial-exec")));
 __thread bool gHostRunAudio __attribute__((tls_model("initial-exec")));
 __thread int gHostDraw __attribute__((tls_model("initial-exec")));
 __thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));
+__thread int gHostDrawMarioOnly __attribute__((tls_model("initial-exec")));
+__thread int gHostDrawInsideMario __attribute__((tls_model("initial-exec")));
+__thread int gHostDrawWideSetting __attribute__((tls_model("initial-exec")));
 
 void host_boot(void); // platform/host.c
 void host_step(uint32_t input);
@@ -452,4 +455,12 @@ void sm64_set_audio(bool enabled) {
 
 void sm64_set_draw(bool enabled) {
     gHostDraw = enabled;
+}
+
+void sm64_set_draw_mario_only(bool enabled) {
+    gHostDrawMarioOnly = enabled;
+}
+
+void sm64_set_draw_widescreen(bool enabled) {
+    gHostDrawWideSetting = enabled;
 }
