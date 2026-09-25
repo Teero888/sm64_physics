@@ -1,0 +1,19 @@
+# Core game state compared every frame. Pointers are native addresses and are
+# only comparable between emulator runs.
+gGlobalTimer
+gRandomSeed16 2
+gCurrLevelNum
+gCurrAreaIndex
+gCurrCourseNum
+gCurrActNum
+gAreaUpdateCounter
+gMarioStates
+gControllers
+gHudDisplay
+gDialogID
+gLakituState
+sStatusFlags
+sWarpDest
+gTimeStopState
+gSaveBuffer hash=64
+gObjectPool hash=0x260

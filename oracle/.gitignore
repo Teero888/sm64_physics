@@ -1,0 +1,5 @@
+build/
+movies/
+out/
+compile_commands.json
+__pycache__/

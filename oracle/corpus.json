@@ -1,0 +1,29 @@
+{
+  "comment": "TAS movies the oracle must sync. poll_offset shifts the movie against this emulator's boot: mupen64plus reaches the title screen a few dozen polls later than the Mupen64-rr the movies were made on, and every offset past that point gives the same run, only later. route is the gCurrLevelNum sequence; end_action is Mario's action on the last poll.",
+  "movies": [
+    {
+      "name": "jp-1key",
+      "url": "https://tasvideos.org/4490M?fileId=12639&handler=DownloadAdditional",
+      "rom": "jp",
+      "poll_offset": -16,
+      "route": [1, 16, 18, 16, 6, 19, 33, 6, 23, 6, 21, 34],
+      "end_action": "0c400201"
+    },
+    {
+      "name": "jp-alltrees",
+      "url": "https://tasvideos.org/7239M?handler=Download",
+      "rom": "jp",
+      "poll_offset": -16,
+      "route": [1, 16, 18, 16, 6, 8, 6, 19, 33, 6, 23, 6, 9, 6, 5, 6, 24, 6, 10, 6, 11, 6, 13, 6, 26],
+      "end_action": "0188088a"
+    },
+    {
+      "name": "us-0star",
+      "url": "https://tasvideos.org/2016M?handler=Download",
+      "rom": "us",
+      "poll_offset": -55,
+      "route": [1, 16, 6, 17, 30, 6, 19, 33, 6, 23, 6, 21, 34],
+      "end_action": "0c400201"
+    }
+  ]
+}
