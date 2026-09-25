@@ -8,4 +8,12 @@
 extern __thread int gHostDraw __attribute__((tls_model("initial-exec")));
 #define SM64_DRAW gHostDraw
 
+// The display list of the last graphics task the game handed over while
+// drawing (exec_display_list): what the RSP runs.
+extern __thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));
+
+// A texture's pixels: from the ROM for the library's stand-ins
+// (platform/rom.c), the address itself for any other.
+const void *host_texture_pixels(const void *address);
+
 #endif

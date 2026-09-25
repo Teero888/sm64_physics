@@ -267,7 +267,8 @@ static u8 *alloc_ia8_text_from_i1(u16 *in, s16 width, s16 height) {
         bitMask = 0x8000;
 
         while (bitMask != 0) {
-            if (in[inPos] & bitMask) {
+            // Library: the glyphs are big-endian words, as on the N64.
+            if ((((u8 *) &in[inPos])[0] << 8 | ((u8 *) &in[inPos])[1]) & bitMask) {
                 out[outPos] = 0xFF;
             } else {
                 out[outPos] = 0x00;
@@ -291,7 +292,9 @@ void render_generic_char(u8 c)
     void **fontLUT = segmented_to_virtual(main_font_lut);
     void *packedTexture = segmented_to_virtual(fontLUT[c]);
 #if defined(VERSION_JP) || defined(VERSION_SH)
-    void *unpackedTexture = alloc_ia8_text_from_i1(packedTexture, 8, 16);
+    // Library: the glyph's pixels are in the ROM (platform/draw.h).
+    void *unpackedTexture =
+        alloc_ia8_text_from_i1(SM64_DRAW ? (u16 *) host_texture_pixels(packedTexture) : packedTexture, 8, 16);
 #endif
 
 #ifndef VERSION_EU

@@ -63,50 +63,10 @@ static u8 sPoolMemory[DOUBLE_SIZE_ON_64_BIT(SEG_POOL_SIZE)] __attribute__((align
 
 void host_load_demo_inputs(const unsigned char *rom); // game/gen/<version>/assets/demo_data.c
 
-// Game code and checksums in the ROM header, big-endian (.z64) byte order.
-#ifdef VERSION_JP
-static const char sRomCode[4] = "NSMJ";
-static const u32 sRomCrc[2] = { 0x4eaa3d0e, 0x74757c24 };
-#else
-static const char sRomCode[4] = "NSME";
-static const u32 sRomCrc[2] = { 0x635a2bff, 0x8b022326 };
-#endif
-
-
-static u32 read_be32(const unsigned char *p) {
-    return (u32) p[0] << 24 | (u32) p[1] << 16 | (u32) p[2] << 8 | p[3];
-}
-
-bool host_load_rom(const void *data, size_t size) {
-    // .z64 is big-endian, .v64 swaps each 16-bit word, .n64 each 32-bit one.
-    const unsigned char *in = data;
-    if (size < 0x800000 || size % 4 != 0) {
-        return false;
-    }
-    int swap;
-    if (in[0] == 0x80 && in[1] == 0x37) {
-        swap = 0;
-    } else if (in[0] == 0x37 && in[1] == 0x80) {
-        swap = 1;
-    } else if (in[0] == 0x40 && in[3] == 0x80) {
-        swap = 3;
-    } else {
-        return false;
-    }
-    unsigned char *rom = malloc(size);
-    if (!rom) {
-        return false;
-    }
-    for (size_t i = 0; i < size; ++i) {
-        rom[i] = in[swap == 1 ? i ^ 1 : swap == 3 ? i ^ 3 : i];
-    }
-    const bool match = memcmp(rom + 0x3b, sRomCode, 4) == 0 && read_be32(rom + 0x10) == sRomCrc[0]
-                       && read_be32(rom + 0x14) == sRomCrc[1];
-    if (match) {
-        host_load_demo_inputs(rom);
-    }
-    free(rom);
-    return match;
+// The demo inputs, from a normalized ROM (platform/rom.c), into the current
+// world: sm64_load_rom calls it on the initial values.
+void host_load_rom(const unsigned char *rom) {
+    host_load_demo_inputs(rom);
 }
 
 // Power-on: what the console does before the first game frame (platform/world.c).

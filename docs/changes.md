@@ -162,3 +162,23 @@ animation. A shadow that every walk of the model reaches only needs the
 object's view test.
 
 Files: `include/types.h`, `src/engine/graph_node.c`, `src/game/rendering_graph_node.c`
+
+## 13. Hand the display list to the host when drawing
+
+The host runs no RSP: a graphics task the game hands over goes nowhere.
+When drawing, exec_display_list also keeps the task's display list for the
+host (`gHostDrawnList`, platform/draw.h), which `sm64_step_draw` returns.
+
+Files: `src/game/main.c`
+
+## 14. Unpack the JP dialog font from the ROM's pixels, big-endian
+
+The JP dialog font is 1 bit per pixel; render_generic_char unpacks each glyph
+into the display list pool before drawing it, the only place the game's code
+reads a texture's pixels. The library's textures are stand-ins
+(tools/rom_stubs.py), so when drawing the glyph is read from the ROM
+(`host_texture_pixels`), and its 16-bit words are read big-endian as the N64
+does (a native build reads them byte-swapped). Nothing but the drawing reads
+the unpacked glyph.
+
+Files: `src/game/ingame_menu.c`

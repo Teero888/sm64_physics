@@ -390,6 +390,37 @@ static sm64_world *move_world(sm64_world *world) {
     return copy;
 }
 
+// --draw: every frame's display list, walked; the textures it names that are
+// not from the ROM (sm64_texture) are counted: the game's own, such as the JP
+// dialog font's glyphs unpacked into the display list pool.
+struct drawn {
+    unsigned long lists, commands, textures, unresolved;
+};
+
+static void walk_list(const Gfx *list, struct drawn *drawn, int depth) {
+    for (unsigned long n = 0; depth < 32 && n < 1u << 20; ++n, ++list) {
+        ++drawn->commands;
+        const uintptr_t w0 = list->words.w0, w1 = list->words.w1;
+        switch ((uint8_t) (w0 >> 24)) {
+            case (uint8_t) G_DL:
+                if (((w0 >> 16) & 0xff) == G_DL_NOPUSH) {
+                    list = (const Gfx *) w1 - 1;
+                } else {
+                    walk_list((const Gfx *) w1, drawn, depth + 1);
+                }
+                break;
+            case (uint8_t) G_ENDDL:
+                return;
+            case (uint8_t) G_SETTIMG:
+                ++drawn->textures;
+                if (!sm64_texture((const void *) w1)) {
+                    ++drawn->unresolved;
+                }
+                break;
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     const char *polls_path = NULL, *trace_path = NULL;
     bool audio = false, draw = false;
@@ -485,12 +516,21 @@ int main(int argc, char **argv) {
         return threads > 0 ? check_threads(inputs, count, threads > 64 ? 64 : threads)
                            : check_state(inputs, count, (uint32_t) check_at);
     }
+    struct drawn drawn = { 0 };
     uint32_t frame = 0;
     while ((limit < 0 || frame < limit) && fread(&input, 4, 1, polls) == 1) {
         if (trace) {
             write_record(trace, frame + 1, input);
         }
-        sm64_step(sWorld, input);
+        if (draw) {
+            const Gfx *list = sm64_step_draw(sWorld, input);
+            if (list) {
+                ++drawn.lists;
+                walk_list(list, &drawn, 0);
+            }
+        } else {
+            sm64_step(sWorld, input);
+        }
         ++frame;
         if (move > 0 && frame % move == 0) {
             sWorld = move_world(sWorld);
@@ -501,5 +541,9 @@ int main(int argc, char **argv) {
         fclose(trace);
     }
     printf("%u frames\n", frame);
+    if (draw) {
+        printf("%lu display lists, %lu commands, %lu textures, %lu not from the ROM\n", drawn.lists, drawn.commands,
+               drawn.textures, drawn.unresolved);
+    }
     return 0;
 }

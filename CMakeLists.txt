@@ -41,8 +41,9 @@ endforeach()
 list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints|port_eu|sound_data)\\.c$")
 
 # What the decomp extracts from the ROM is not part of the library: the
-# textures are included by name only (game/rom_assets/<version>.tsv lists
-# them, the game loads them from the user's ROM), the sound banks are empty.
+# textures are stand-ins of their size that say where their pixels are
+# (game/rom_assets/<version>.tsv lists them, drawing reads them from the
+# user's ROM), the sound banks are empty.
 set(SM64_ROM_STUBS "${CMAKE_CURRENT_BINARY_DIR}/rom_stubs")
 execute_process(
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/rom_stubs.py"
@@ -152,7 +153,7 @@ sm64_section_group(sm64_level_data sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c
+add_library(sm64_shared_objects OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c
             "${GV}/pointers/types.c")
 sm64_game_settings(sm64_shared_objects)
 sm64_section_group(sm64_main sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)

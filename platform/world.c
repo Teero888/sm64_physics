@@ -11,6 +11,7 @@
 
 #include "sm64_physics.h"
 #include "pointers.h"
+#include "rom.h"
 
 // The game's state: every writable variable of the game and of the host's
 // stand-ins for the console, linked as one section (platform/state.ld), page
@@ -32,6 +33,7 @@ __thread ptrdiff_t gHostWorldOffset __attribute__((tls_model("initial-exec")));
 // whether the render walk draws (platform/draw.h).
 __thread bool gHostRunAudio __attribute__((tls_model("initial-exec")));
 __thread int gHostDraw __attribute__((tls_model("initial-exec")));
+__thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));
 
 void host_boot(void); // platform/host.c
 void host_step(uint32_t input);
@@ -296,17 +298,22 @@ void host_restore_level_data(void) {
 
 // --- The ROM -------------------------------------------------------------------
 
-bool host_load_rom(const void *rom, size_t size); // platform/host.c
+void host_load_rom(const unsigned char *rom); // platform/host.c
 
-bool sm64_load_rom(const void *rom, size_t size) {
+bool sm64_load_rom(const void *data, size_t size) {
     init();
+    unsigned char *rom = rom_normalize(data, size);
+    if (!rom) {
+        return false;
+    }
     // What it loads becomes part of the initial values: the worlds created
     // from then on start with it.
     const ptrdiff_t offset = gHostWorldOffset;
     gHostWorldOffset = sInitial - sm64_state_start;
-    const bool loaded = host_load_rom(rom, size);
+    host_load_rom(rom);
     gHostWorldOffset = offset;
-    return loaded;
+    rom_keep(rom, size);
+    return true;
 }
 
 // --- Worlds --------------------------------------------------------------------
@@ -391,6 +398,15 @@ void sm64_step(sm64_world *world, uint32_t input) {
     gHostWorldOffset = offset;
     tCurrentMap = map;
     tCurrentOwners = owners;
+}
+
+const void *sm64_step_draw(sm64_world *world, uint32_t input) {
+    const int draw = gHostDraw;
+    gHostDraw = 1;
+    gHostDrawnList = NULL;
+    sm64_step(world, input);
+    gHostDraw = draw;
+    return gHostDrawnList;
 }
 
 // A saved state: where its world's memory was, the memory, the pointer map.

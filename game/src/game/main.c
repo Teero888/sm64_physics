@@ -393,6 +393,10 @@ void dispatch_audio_sptask(struct SPTask *spTask) {
 
 void exec_display_list(struct SPTask *spTask) {
     if (spTask != NULL) {
+        // Library: what the RSP gets, for drawing (platform/draw.h).
+        if (SM64_DRAW) {
+            gHostDrawnList = spTask->task.t.data_ptr;
+        }
         osWritebackDCacheAll();
         spTask->state = SPTASK_STATE_NOT_STARTED;
         if (WORLD(sCurrentDisplaySPTask) == NULL) {

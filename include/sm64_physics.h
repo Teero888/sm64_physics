@@ -59,6 +59,22 @@ size_t sm64_state_size(void);
 void sm64_save_state(const sm64_world *world, void *buffer);
 bool sm64_load_state(sm64_world *world, const void *buffer);
 
+// --- Drawing ---------------------------------------------------------------------
+
+// One game frame, as sm64_step, with the game drawing: returns the display
+// list the frame hands to the RSP (Fast3D, in the host's layout of the decomp's
+// gbi.h: 64-bit words, addresses in the world's memory and the library's), or
+// NULL if the frame started none. Valid until the world changes. The world's
+// state after it is the same as after sm64_step. To draw a frame already
+// stepped, step a copy of the world before it (sm64_world_copy).
+const void *sm64_step_draw(sm64_world *world, uint32_t input);
+
+// The pixels of a texture a display list names, from the ROM (sm64_load_rom):
+// the library's textures are stand-ins of the right size that say where their
+// pixels are. NULL for an address that is not one of them (a texture the game
+// makes itself), or before the ROM is loaded. Valid until sm64_load_rom.
+const void *sm64_texture(const void *address);
+
 // --- Reading a world ------------------------------------------------------------
 
 // Mario as the game keeps him (gMarioStates[0] and a few globals). Returns
