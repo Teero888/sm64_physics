@@ -365,6 +365,17 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
     mtxf_lookat(cameraTransform, node->pos, node->focus, node->roll);
     mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], cameraTransform, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
     WORLD(gMatStackIndex)++;
+    if (SM64_DRAW) {
+        // Library: the camera, for a renderer drawing from another one
+        // (SM64_CAMERA_TAG, sm64_physics.h).
+        Mat4 *camera = alloc_display_list(sizeof(*camera));
+        if (camera != NULL) {
+            mtxf_copy(*camera, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
+            Gfx *tag = WORLD(gDisplayListHead)++;
+            tag->words.w0 = (uintptr_t) (u8) G_NOOP << 24 | 0x63616d;
+            tag->words.w1 = (uintptr_t) camera;
+        }
+    }
     geo_set_fixed_matrix();
     if (node->fnNode.node.children != 0) {
         WORLD(gCurGraphNodeCamera) = node;

@@ -182,3 +182,12 @@ does (a native build reads them byte-swapped). Nothing but the drawing reads
 the unpacked glyph.
 
 Files: `src/game/ingame_menu.c`
+
+## 15. Mark the 3D camera in the display list when drawing
+
+When drawing, geo_process_camera also puts a G_NOOP in the display list
+carrying the camera's matrix (SM64_CAMERA_TAG, include/sm64_physics.h), so a
+renderer can draw the scene from a camera of its own. The matrix is allocated
+from the display list pool like the game's own.
+
+Files: `src/game/rendering_graph_node.c`

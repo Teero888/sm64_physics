@@ -69,6 +69,14 @@ bool sm64_load_state(sm64_world *world, const void *buffer);
 // stepped, step a copy of the world before it (sm64_world_copy).
 const void *sm64_step_draw(sm64_world *world, uint32_t input);
 
+// Where a display list applies the game's 3D camera, a G_NOOP carries it: its
+// first word is G_NOOP << 24 | SM64_CAMERA_TAG, its second the address of the
+// camera's matrix (float[4][4], row vectors: a point in the world times it is
+// the point as the camera sees it). What follows until the projection is
+// loaded again is drawn through that camera, so a renderer can draw it from
+// another one.
+#define SM64_CAMERA_TAG 0x63616du
+
 // The pixels of a texture a display list names, from the ROM (sm64_load_rom):
 // the library's textures are stand-ins of the right size that say where their
 // pixels are. NULL for an address that is not one of them (a texture the game
