@@ -288,7 +288,7 @@ static uint8_t *read_all(const char *path, size_t *size) {
 int main(int argc, char **argv) {
   static oracle o;
   const char *rom_path = NULL, *movie_path = NULL, *symbols_path = NULL, *fields_path = NULL;
-  const char *trace_path = NULL, *polls_path = NULL;
+  const char *trace_path = NULL, *polls_path = NULL, *audio_path = NULL;
   const char *core_path = "libmupen64plus.so.2";
   const char *rsp_path = "/usr/lib/mupen64plus/mupen64plus-rsp-hle.so";
   int cpu = 2;
@@ -302,6 +302,7 @@ int main(int argc, char **argv) {
     OPTION("--fields", fields_path)
     OPTION("--trace", trace_path)
     OPTION("--polls", polls_path)
+    OPTION("--audio", audio_path)
     OPTION("--dump-dir", o.dump_dir)
     OPTION("--core", core_path)
     OPTION("--rsp", rsp_path)
@@ -334,13 +335,14 @@ int main(int argc, char **argv) {
   if (polls_path && !(o.polls = fopen(polls_path, "wb"))) die("cannot write %s", polls_path);
 
   // Plugins sit next to this executable.
-  char self[PATH_MAX], video_path[PATH_MAX + 32], input_path[PATH_MAX + 32];
+  char self[PATH_MAX], video_path[PATH_MAX + 32], input_path[PATH_MAX + 32], audio_plugin_path[PATH_MAX + 32];
   const ssize_t self_length = readlink("/proc/self/exe", self, sizeof(self) - 1);
   if (self_length <= 0) die("cannot locate the executable");
   self[self_length] = 0;
   *strrchr(self, '/') = 0;
   snprintf(video_path, sizeof(video_path), "%s/oracle_video.so", self);
   snprintf(input_path, sizeof(input_path), "%s/oracle_input.so", self);
+  snprintf(audio_plugin_path, sizeof(audio_plugin_path), "%s/oracle_audio.so", self);
 
   void *core = dlopen(core_path, RTLD_NOW | RTLD_GLOBAL);
   if (!core) die("cannot load %s: %s", core_path, dlerror());
@@ -378,6 +380,13 @@ int main(int argc, char **argv) {
   free(rom);
 
   void *video = attach(core, attach_plugin, M64PLUGIN_GFX, video_path);
+  // (The core wants the audio plugin between video and input.)
+  FILE *audio_out = NULL;
+  if (audio_path) {
+    if (!(audio_out = fopen(audio_path, "wb"))) die("cannot write %s", audio_path);
+    void *audio = attach(core, attach_plugin, M64PLUGIN_AUDIO, audio_plugin_path);
+    ((ptr_oracle_audio_bind)symbol(audio, "oracle_audio_bind"))(audio_out);
+  }
   void *input = attach(core, attach_plugin, M64PLUGIN_INPUT, input_path);
   void *rsp = attach(core, attach_plugin, M64PLUGIN_RSP, rsp_path);
   ((ptr_oracle_video_bind)symbol(video, "oracle_video_bind"))(on_vi, &o);
@@ -391,6 +400,10 @@ int main(int argc, char **argv) {
   detach_plugin(M64PLUGIN_GFX);
   detach_plugin(M64PLUGIN_INPUT);
   detach_plugin(M64PLUGIN_RSP);
+  if (audio_out) {
+    detach_plugin(M64PLUGIN_AUDIO);
+    fclose(audio_out);
+  }
   o.command(M64CMD_ROM_CLOSE, 0, NULL);
   core_shutdown();
   (void)rsp;

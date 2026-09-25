@@ -1,4 +1,4 @@
-// Hooks the oracle's two plugins export for the frontend. The frontend dlopens
+// Hooks the oracle's plugins export for the frontend. The frontend dlopens
 // each plugin, attaches it to the core like any other, and binds these.
 #pragma once
 #include <stddef.h>
@@ -15,3 +15,8 @@ typedef uint8_t *(*ptr_oracle_video_rdram)(size_t *size);
 // previous frame left behind.
 typedef uint32_t (*oracle_poll_fn)(void *user, int controller);
 typedef void (*ptr_oracle_input_bind)(oracle_poll_fn on_poll, void *user);
+
+// Audio plugin: plays nothing, records what the game hands the audio
+// interface into a file (--audio).
+#include <stdio.h>
+typedef void (*ptr_oracle_audio_bind)(FILE *out);

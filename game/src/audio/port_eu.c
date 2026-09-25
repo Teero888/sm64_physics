@@ -123,7 +123,7 @@ struct SPTask *create_next_audio_frame_task(void) {
     task->dram_stack_size = 0;
     task->output_buff = NULL;
     task->output_buff_size = NULL;
-    task->data_ptr = WORLD(gAudioCmdBuffers)[index];
+    task->data_ptr = (u64 *) WORLD(gAudioCmdBuffers)[index];
     task->data_size = writtenCmds * sizeof(u64);
     task->yield_data_ptr = NULL;
     task->yield_data_size = 0;

@@ -519,21 +519,33 @@ const char unusedErrorStr2[] = "specchg error\n";
  * Called from threads: thread5_game_loop
  */
 #if defined(VERSION_EU) || defined(VERSION_SH) || defined(VERSION_CN)
+#ifdef TARGET_N64
+#define HOST_WAIT_FOR_SOUND_THREAD(queue)
+#else
+// The host runs the sound thread's work until it replies (platform/host.c,
+// docs/changes.md 17).
+void host_wait_for_sound_thread(OSMesgQueue *queue);
+#define HOST_WAIT_FOR_SOUND_THREAD(queue) host_wait_for_sound_thread(queue)
+#endif
 void audio_reset_session_eu(s32 presetId) {
     OSMesg mesg;
 #if defined(VERSION_SH) || defined(VERSION_CN)
     osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_NOBLOCK);
     osSendMesg(WORLD(D_SH_80350F88), (OSMesg) presetId, OS_MESG_NOBLOCK);
+    HOST_WAIT_FOR_SOUND_THREAD(WORLD(D_SH_80350FA8));
     osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_BLOCK);
     if ((s32) mesg != presetId) {
+        HOST_WAIT_FOR_SOUND_THREAD(WORLD(D_SH_80350FA8));
         osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_BLOCK);
     }
 
 #else
     osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_NOBLOCK);
     osSendMesg(WORLD(OSMesgQueues)[2], (OSMesg) presetId, OS_MESG_NOBLOCK);
+    HOST_WAIT_FOR_SOUND_THREAD(WORLD(OSMesgQueues)[3]);
     osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_BLOCK);
     if ((s32) mesg != presetId) {
+        HOST_WAIT_FOR_SOUND_THREAD(WORLD(OSMesgQueues)[3]);
         osRecvMesg(WORLD(OSMesgQueues)[3], &mesg, OS_MESG_BLOCK);
     }
 #endif
@@ -792,7 +804,7 @@ struct SPTask *create_next_audio_frame_task(void) {
     task->dram_stack_size = 0;
     task->output_buff = NULL;
     task->output_buff_size = NULL;
-    task->data_ptr = WORLD(gAudioCmdBuffers)[index];
+    task->data_ptr = (u64 *) WORLD(gAudioCmdBuffers)[index];
     task->data_size = writtenCmds * sizeof(u64);
 
 // The audio task never yields, so having a yield buffer is pointless.

@@ -12,6 +12,8 @@
 #include "pointers.h"
 #include "os.h"
 #include "rom.h"
+#include "rsp_audio.h"
+#include "sound.h"
 
 // The game's state: every writable variable of the game and of the host's
 // stand-ins for the console, linked as one section (platform/state.ld), page
@@ -311,9 +313,11 @@ bool sm64_load_rom(const void *data, size_t size) {
     const ptrdiff_t offset = gHostWorldOffset;
     gHostWorldOffset = sInitial - sm64_state_start;
     host_load_rom(rom);
+    const bool sound = host_load_sound(rom, size);
     gHostWorldOffset = offset;
+    rsp_audio_load(rom, size);
     rom_keep(rom, size);
-    return true;
+    return sound;
 }
 
 // --- Worlds --------------------------------------------------------------------

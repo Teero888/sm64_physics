@@ -9,6 +9,7 @@
 #include "sm64_physics.h"
 #include "n64stack.h"
 #include "n64_frames.h"
+#include "rsp_audio.h"
 
 #include "audio/external.h"
 #include "engine/level_script.h"
@@ -121,17 +122,37 @@ extern volatile s32 gAudioFrameCount;
 // skips it; sm64_set_audio turns it on for sound output.
 // One iteration of thread4_sound's loop. The game waits for one in
 // sound_reset (docs/changes.md 2): without sound, the frame just counts.
+// With sound, the vertical interrupt it waits for plays the audio interface
+// on, and the RSP runs the task at once (its output goes to the audio
+// interface two frames later).
 void host_run_audio_frame(void) {
     if (gHostRunAudio) {
-        create_next_audio_frame_task();
+        host_ai_vi();
+        struct SPTask *task = create_next_audio_frame_task();
+        if (task != NULL) {
+            rsp_audio_run((const Acmd *) task->task.t.data_ptr, task->task.t.data_size / sizeof(u64));
+        }
     } else {
         WORLD(gAudioFrameCount)++;
     }
 }
 
+// EU and Shindou: the game thread blocks until the sound thread, woken by
+// vertical interrupts, answers its request to reset the sound session
+// (audio_reset_session_eu, docs/changes.md 17). With sound, the host runs the
+// sound thread's work until the answer is there (a reset takes a few audio
+// frames); without, the game goes on at once, as it always has.
+void host_wait_for_sound_thread(OSMesgQueue *queue) {
+    if (gHostRunAudio) {
+        for (int frame = 0; frame < 1000 && queue->validCount == 0; ++frame) {
+            host_run_audio_frame();
+        }
+    }
+}
+
 // One game frame of the current world (platform/world.c).
 void host_step(uint32_t input) {
-
+    WORLD(gHostAudioSamples) = 0;
     latch_input(input);
     // One iteration of thread5_game_loop.
     if (WORLD(gResetTimer) != 0) {

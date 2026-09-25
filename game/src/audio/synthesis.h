@@ -84,7 +84,7 @@ extern struct SynthesisReverb gSynthesisReverb;
 extern s16 D_SH_803479B4;
 #endif
 
-u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen);
+Acmd *synthesis_execute(Acmd *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen);
 #if defined(VERSION_JP) || defined(VERSION_US)
 void note_init_volume(struct Note *note);
 void note_set_vel_pan_reverb(struct Note *note, f32 velocity, f32 pan, u8 reverbVol);

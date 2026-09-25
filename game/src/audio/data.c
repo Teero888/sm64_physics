@@ -910,8 +910,8 @@ volatile s32 gCurrAudioFrameDmaCount;
 s32 gAudioTaskIndex;
 s32 gCurrAiBufferIndex;
 
-u64 *gAudioCmdBuffers[2];
-u64 *gAudioCmd;
+Acmd *gAudioCmdBuffers[2];
+Acmd *gAudioCmd;
 
 struct SPTask *gAudioTask;
 struct SPTask gAudioTasks[2];

@@ -63,7 +63,8 @@ endif()
 # What the decomp extracts from the ROM is not part of the library: the
 # textures are stand-ins of their size that say where their pixels are
 # (game/rom_assets/<version>.tsv lists them, drawing reads them from the
-# user's ROM), the sound banks are empty.
+# user's ROM), the sound banks are converted from the user's ROM when it is
+# loaded (platform/sound.c).
 set(SM64_ROM_STUBS "${CMAKE_CURRENT_BINARY_DIR}/rom_stubs")
 execute_process(
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/rom_stubs.py"
@@ -74,7 +75,6 @@ if(NOT stubs_result EQUAL 0)
 endif()
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${G}/rom_assets/${SM64_VERSION}.tsv"
              "${CMAKE_CURRENT_SOURCE_DIR}/tools/rom_stubs.py")
-list(APPEND SM64_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/platform/sound_data.c")
 
 # libultra's sinf and cosf, which the game called and whose results differ from
 # the host's libm, under other names (see platform/ultra_math.h). Built apart:
@@ -173,7 +173,7 @@ sm64_section_group(sm64_level_data${S} sm64lvl ${SM64_LEVEL_DATA_SOURCES})
 set(SM64_SHARED_SOURCES ${SM64_SOURCES})
 list(FILTER SM64_SHARED_SOURCES INCLUDE REGEX "/src/buffers/gfx_output_buffer\\.c$")
 list(REMOVE_ITEM SM64_SOURCES ${SM64_SHARED_SOURCES})
-add_library(sm64_shared_objects${S} OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c platform/os.c
+add_library(sm64_shared_objects${S} OBJECT ${SM64_SHARED_SOURCES} platform/world.c platform/n64stack.c platform/api.c platform/rom.c platform/os.c platform/sound.c platform/rsp_audio.c
             "${GV}/pointers/types.c")
 sm64_game_settings(sm64_shared_objects${S})
 sm64_section_group(sm64_main${S} sm64st ${SM64_SOURCES} platform/ultra.c platform/host.c)

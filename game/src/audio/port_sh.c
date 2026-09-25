@@ -34,6 +34,7 @@ struct SPTask *create_next_audio_frame_task(void) {
     s32 sp38;
     s32 sp34;
     s32 writtenCmdsCopy;
+    OSMesg mesg; // Library: a message is as wide as an address (docs/changes.md 19)
 
     WORLD(gAudioFrameCount)++;
     if (WORLD(gAudioFrameCount) % WORLD(gAudioBufferParameters).presetUnk4 != 0) {
@@ -63,7 +64,8 @@ struct SPTask *create_next_audio_frame_task(void) {
 
     decrease_sample_dma_ttls();
     func_sh_802f41e4(WORLD(gAudioResetStatus));
-    if (osRecvMesg(WORLD(D_SH_80350F88), (OSMesg *) &sp38, OS_MESG_NOBLOCK) != -1) {
+    if (osRecvMesg(WORLD(D_SH_80350F88), &mesg, OS_MESG_NOBLOCK) != -1) {
+        sp38 = (s32) (uintptr_t) mesg;
         if (WORLD(gAudioResetStatus) == 0) {
             WORLD(gAudioResetStatus) = 5;
         }
@@ -87,7 +89,7 @@ struct SPTask *create_next_audio_frame_task(void) {
     }
 
     WORLD(gAudioTask) = &WORLD(gAudioTasks)[WORLD(gAudioTaskIndex)];
-    WORLD(gAudioCmd) = (u64 *) WORLD(gAudioCmdBuffers)[WORLD(gAudioTaskIndex)];
+    WORLD(gAudioCmd) = (Acmd *) WORLD(gAudioCmdBuffers)[WORLD(gAudioTaskIndex)];
     index = WORLD(gCurrAiBufferIndex);
     currAiBuffer = WORLD(gAiBuffers)[index];
 
@@ -100,10 +102,11 @@ struct SPTask *create_next_audio_frame_task(void) {
         WORLD(gAiBufferLengths)[index] = WORLD(gAudioBufferParameters).maxAiBufferLength;
     }
 
-    if (osRecvMesg(WORLD(D_SH_80350F68), (OSMesg *) &sp34, 0) != -1) {
+    if (osRecvMesg(WORLD(D_SH_80350F68), &mesg, 0) != -1) {
         do {
+            sp34 = (s32) (uintptr_t) mesg;
             func_802ad7ec(sp34);
-        } while (osRecvMesg(WORLD(D_SH_80350F68), (OSMesg *) &sp34, 0) != -1);
+        } while (osRecvMesg(WORLD(D_SH_80350F68), &mesg, 0) != -1);
     }
 
     flags = 0;
@@ -128,7 +131,7 @@ struct SPTask *create_next_audio_frame_task(void) {
     task->dram_stack_size = 0;
     task->output_buff = NULL;
     task->output_buff_size = NULL;
-    task->data_ptr = WORLD(gAudioCmdBuffers)[index];
+    task->data_ptr = (u64 *) WORLD(gAudioCmdBuffers)[index];
     task->data_size = writtenCmds * sizeof(u64);
     task->yield_data_ptr = NULL;
     task->yield_data_size = 0;
@@ -423,11 +426,13 @@ void func_802ad7ec(u32 arg0) {
 
 u32 func_sh_802f6878(s32 *arg0) {
     u32 sp1C;
+    OSMesg mesg; // Library: a message is as wide as an address (docs/changes.md 19)
 
-    if (osRecvMesg(&WORLD(gUnkQueue1), (OSMesg *) &sp1C, 0) == -1) {
+    if (osRecvMesg(&WORLD(gUnkQueue1), &mesg, 0) == -1) {
         *arg0 = 0;
         return 0U;
     }
+    sp1C = (u32) (uintptr_t) mesg;
     *arg0 = (s32) (sp1C & 0xFFFFFF);
     return sp1C >> 0x18;
 }
@@ -439,12 +444,14 @@ u8 *func_sh_802f68e0(u32 index, u32 *a1) {
 s32 func_sh_802f6900(void) {
     s32 ret;
     s32 sp18;
+    OSMesg mesg; // Library: a message is as wide as an address (docs/changes.md 19)
 
-    ret = osRecvMesg(WORLD(D_SH_80350FA8), (OSMesg *) &sp18, 0);
+    ret = osRecvMesg(WORLD(D_SH_80350FA8), &mesg, 0);
 
     if (ret == -1) {
         return 0;
     }
+    sp18 = (s32) (uintptr_t) mesg;
     if (sp18 != WORLD(gAudioResetPresetIdToLoad)) {
         return 0;
     } else {

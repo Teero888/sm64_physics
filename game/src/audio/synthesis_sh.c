@@ -42,12 +42,12 @@ struct VolumeChange {
     u16 targetRight;
 };
 
-u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateIndex);
-u64 *synthesis_process_note(s32 noteIndex, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateIndex);
-u64 *load_wave_samples(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamplesToLoad);
-u64 *final_resample(u64 *cmd, struct NoteSynthesisState *synthesisState, s32 count, u16 pitch, u16 dmemIn, u32 flags);
-u64 *process_envelope(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamples, u16 inBuf, s32 headsetPanSettings, u32 flags);
-u64 *note_apply_headset_pan_effects(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *note, s32 bufLen, s32 flags, s32 leftRight);
+Acmd *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, Acmd *cmd, s32 updateIndex);
+Acmd *synthesis_process_note(s32 noteIndex, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s16 *aiBuf, s32 bufLen, Acmd *cmd, s32 updateIndex);
+Acmd *load_wave_samples(Acmd *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamplesToLoad);
+Acmd *final_resample(Acmd *cmd, struct NoteSynthesisState *synthesisState, s32 count, u16 pitch, u16 dmemIn, u32 flags);
+Acmd *process_envelope(Acmd *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamples, u16 inBuf, s32 headsetPanSettings, u32 flags);
+Acmd *note_apply_headset_pan_effects(Acmd *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *note, s32 bufLen, s32 flags, s32 leftRight);
 
 struct SynthesisReverb gSynthesisReverbs[4];
 u8 sAudioSynthesisPad[0x10];
@@ -113,7 +113,7 @@ void prepare_reverb_ring_buffer(s32 chunkLen, u32 updateIndex, s32 reverbIndex) 
     item->chunkLen = chunkLen;
 }
 
-u64 *synthesis_load_reverb_ring_buffer(u64 *cmd, u16 addr, u16 srcOffset, s32 len, s32 reverbIndex) {
+Acmd *synthesis_load_reverb_ring_buffer(Acmd *cmd, u16 addr, u16 srcOffset, s32 len, s32 reverbIndex) {
     aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.left[srcOffset]),
                 addr, len);
     aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.right[srcOffset]),
@@ -121,7 +121,7 @@ u64 *synthesis_load_reverb_ring_buffer(u64 *cmd, u16 addr, u16 srcOffset, s32 le
     return cmd;
 }
 
-u64 *synthesis_save_reverb_ring_buffer(u64 *cmd, u16 addr, u16 destOffset, s32 len, s32 reverbIndex) {
+Acmd *synthesis_save_reverb_ring_buffer(Acmd *cmd, u16 addr, u16 destOffset, s32 len, s32 reverbIndex) {
     aSaveBuffer(cmd++, addr,
                 VIRTUAL_TO_PHYSICAL2(&WORLD(gSynthesisReverbs)[reverbIndex].ringBuffer.left[destOffset]), len);
     aSaveBuffer(cmd++, addr + DEFAULT_LEN_1CH,
@@ -159,10 +159,10 @@ void synthesis_load_note_subs_eu(s32 updateIndex) {
 }
 
 // TODO: (Scrub C) pointless mask and whitespace
-u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
+Acmd *synthesis_execute(Acmd *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
     s32 i, j;
     u32 *aiBufPtr;
-    u64 *cmd = cmdBuf;
+    Acmd *cmd = cmdBuf;
     s32 chunkLen;
 
     for (i = WORLD(gAudioBufferParameters).updatesPerFrame; i > 0; i--) {
@@ -202,7 +202,7 @@ u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
     return cmd;
 }
 
-u64 *synthesis_resample_and_mix_reverb(u64 *cmd, s32 bufLen, s16 reverbIndex, s16 updateIndex) {
+Acmd *synthesis_resample_and_mix_reverb(Acmd *cmd, s32 bufLen, s16 reverbIndex, s16 updateIndex) {
     struct ReverbRingBufferItem *item;
     s16 startPad;
     s16 paddedLengthA;
@@ -243,7 +243,7 @@ u64 *synthesis_resample_and_mix_reverb(u64 *cmd, s32 bufLen, s16 reverbIndex, s1
     return cmd;
 }
 
-u64 *synthesis_load_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
+Acmd *synthesis_load_reverb_samples(Acmd *cmd, s16 reverbIndex, s16 updateIndex) {
     struct ReverbRingBufferItem *item;
     struct SynthesisReverb *reverb;
 
@@ -258,7 +258,7 @@ u64 *synthesis_load_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
     return cmd;
 }
 
-u64 *synthesis_save_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
+Acmd *synthesis_save_reverb_samples(Acmd *cmd, s16 reverbIndex, s16 updateIndex) {
     struct ReverbRingBufferItem *item;
 
     item = &WORLD(gSynthesisReverbs)[reverbIndex].items[WORLD(gSynthesisReverbs)[reverbIndex].curFrame][updateIndex];
@@ -283,7 +283,7 @@ u64 *synthesis_save_reverb_samples(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
     return cmd;
 }
 
-u64 *func_sh_802EDF24(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
+Acmd *func_sh_802EDF24(Acmd *cmd, s16 reverbIndex, s16 updateIndex) {
     struct ReverbRingBufferItem *item;
     struct SynthesisReverb *reverb;
 
@@ -298,7 +298,7 @@ u64 *func_sh_802EDF24(u64 *cmd, s16 reverbIndex, s16 updateIndex) {
     return cmd;
 }
 
-u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateIndex) {
+Acmd *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, Acmd *cmd, s32 updateIndex) {
     struct NoteSubEu *noteSubEu;
     u8 noteIndices[56];
     s32 temp;
@@ -381,7 +381,7 @@ u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateI
     return cmd;
 }
 
-u64 *synthesis_process_note(s32 noteIndex, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, UNUSED s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateIndex) {
+Acmd *synthesis_process_note(s32 noteIndex, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, UNUSED s16 *aiBuf, s32 bufLen, Acmd *cmd, s32 updateIndex) {
     UNUSED s32 pad0[3];
     struct AudioBankSample *audioBookSample; // sp164, sp138
     struct AdpcmLoop *loopInfo; // sp160, sp134
@@ -724,7 +724,7 @@ skip:
     return cmd;
 }
 
-u64 *load_wave_samples(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamplesToLoad) {
+Acmd *load_wave_samples(Acmd *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *synthesisState, s32 nSamplesToLoad) {
     s32 a3;
     s32 repeats;
     aLoadBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(noteSubEu->sound.samples),
@@ -744,7 +744,7 @@ u64 *load_wave_samples(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthes
     return cmd;
 }
 
-u64 *final_resample(u64 *cmd, struct NoteSynthesisState *synthesisState, s32 count, u16 pitch, u16 dmemIn, u32 flags) {
+Acmd *final_resample(Acmd *cmd, struct NoteSynthesisState *synthesisState, s32 count, u16 pitch, u16 dmemIn, u32 flags) {
     if (pitch == 0) {
         aClearBuffer(cmd++, DMEM_ADDR_TEMP, count);
     } else {
@@ -754,7 +754,7 @@ u64 *final_resample(u64 *cmd, struct NoteSynthesisState *synthesisState, s32 cou
     return cmd;
 }
 
-u64 *process_envelope(u64 *cmd, struct NoteSubEu *note, struct NoteSynthesisState *synthesisState, s32 nSamples, u16 inBuf, s32 headsetPanSettings, UNUSED u32 flags) {
+Acmd *process_envelope(Acmd *cmd, struct NoteSubEu *note, struct NoteSynthesisState *synthesisState, s32 nSamples, u16 inBuf, s32 headsetPanSettings, UNUSED u32 flags) {
     u16 sourceRight;
     u16 sourceLeft;
     u16 targetLeft;
@@ -846,7 +846,7 @@ u64 *process_envelope(u64 *cmd, struct NoteSubEu *note, struct NoteSynthesisStat
     return cmd;
 }
 
-u64 *note_apply_headset_pan_effects(u64 *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *note, s32 bufLen, s32 flags, s32 leftRight) {
+Acmd *note_apply_headset_pan_effects(Acmd *cmd, struct NoteSubEu *noteSubEu, struct NoteSynthesisState *note, s32 bufLen, s32 flags, s32 leftRight) {
     u16 dest;
     u16 pitch;
     u8 prevPanShift;

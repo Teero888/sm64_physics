@@ -110,9 +110,10 @@ s8 gAudioUpdatesPerFrame;
 extern u64 gAudioGlobalsStartMarker;
 extern u64 gAudioGlobalsEndMarker;
 
-extern u8 gSoundDataADSR[]; // ctl
-extern u8 gSoundDataRaw[];  // tbl
-extern u8 gMusicData[];     // sequences
+// Library: in the host's layout, from the user's ROM (platform/sound.h).
+extern u8 *gSoundDataADSR; // ctl
+extern u8 *gSoundDataRaw;  // tbl
+extern u8 *gMusicData;     // sequences
 
 ALSeqFile *get_audio_file_header(s32 arg0);
 
@@ -1542,17 +1543,19 @@ s32 func_sh_802f573c(s32 audioResetStatus) {
     u32 size;
     s32 unk;
     u8 *added;
+    OSMesg mesg; // Library: a message is as wide as an address (docs/changes.md 19)
 
     if (WORLD(D_SH_8034F68C) > 0) {
         if (audioResetStatus != 0) {
-            if (osRecvMesg(&WORLD(gUnkQueue2), (OSMesg *) &idx, OS_MESG_NOBLOCK)) {
+            if (osRecvMesg(&WORLD(gUnkQueue2), &mesg, OS_MESG_NOBLOCK)) {
             }
             WORLD(D_SH_8034F68C) = 0;
             return 0;
         }
-        if (osRecvMesg(&WORLD(gUnkQueue2), (OSMesg *) &idx, OS_MESG_NOBLOCK) == -1) {
+        if (osRecvMesg(&WORLD(gUnkQueue2), &mesg, OS_MESG_NOBLOCK) == -1) {
             return 0;
         }
+        idx = (u32) (uintptr_t) mesg;
         idx >>= 0x18;
         if (WORLD(D_SH_8034EC88)[idx].isFree == FALSE) {
             sample = WORLD(D_SH_8034EC88)[idx].sample;

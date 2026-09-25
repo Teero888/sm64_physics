@@ -55,6 +55,25 @@ the lockstep comparator skips the others.
 `docs/avoid_ub.md` lists where a native build of the decomp differs from the
 N64 and how each difference is handled.
 
+## Sound
+
+With `sm64_set_audio` on, a step also runs the sound thread, and the RSP's
+audio microcode runs its command lists (`platform/rsp_audio.c`, both
+microcodes: JP/US/EU's and the Shindou Edition's later one); `sm64_audio`
+returns what the game handed the audio interface during the step, stereo
+16-bit at the console's DAC rate (about 32 kHz). The sound banks and
+sequences are converted from the user's ROM (`platform/sound.c`). The game
+reads nothing back from the sound thread, so a step's state is the same
+with or without it.
+
+`sm64_oracle --audio OUT` records the emulator's sound the same way. Against
+it (mupen64plus's HLE of the microcode), JP, US and EU correlate at 0.998 or
+better in the first seconds of a movie, and the Shindou Edition matches sample
+for sample except where the game negates one side of a note panned hard to
+the other, which that HLE leaves out. After that the streams drift apart in
+time: on the console the game's waits for the sound thread cost vertical
+interrupts, which a step does not model.
+
 ## Building
 
 Needs CMake, a C compiler and Python 3. One library per game version

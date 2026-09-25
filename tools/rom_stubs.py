@@ -28,18 +28,18 @@ def stub(where, size):
 
 
 # The Shindou Edition's audio loader includes the headers of the ROM's sound
-# banks, sample banks, sequences and bank sets (src/audio/load_sh.c). Empty
-# stand-ins, as the other versions' sound data (platform/sound_data.c): the
-# sound thread finds nothing to load.
-SOUND_HEADERS = ("sound/ctl_header.inc.c", "sound/tbl_header.inc.c", "sound/sequences_header.inc.c",
-                 "sound/bank_sets.inc.c")
+# banks, sample banks, sequences and bank sets (src/audio/load_sh.c). Zeroed
+# arrays of the size the host's layout of them takes: the library fills them
+# from the user's ROM (platform/sound.c).
+SOUND_HEADERS = {"sound/ctl_header.inc.c": 1024, "sound/tbl_header.inc.c": 512,
+                 "sound/sequences_header.inc.c": 1024, "sound/bank_sets.inc.c": 256}
 
 
 def main():
     table, out = Path(sys.argv[1]), Path(sys.argv[2])
-    for name in SOUND_HEADERS:
+    for name, size in SOUND_HEADERS.items():
         path = out / name
-        text = "[255] = 0,\n"
+        text = f"[{size - 1}] = 0,\n"
         if not path.exists() or path.read_text() != text:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text)

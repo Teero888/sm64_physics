@@ -98,10 +98,11 @@ s8 gAudioUpdatesPerFrame;
 extern u64 gAudioGlobalsStartMarker;
 extern u64 gAudioGlobalsEndMarker;
 
-extern u8 gSoundDataADSR[]; // sound_data.ctl
-extern u8 gSoundDataRaw[];  // sound_data.tbl
-extern u8 gMusicData[];     // sequences.s
-extern u8 gBankSetsData[];  // bank_sets.s
+// Library: in the host's layout, from the user's ROM (platform/sound.h).
+extern u8 *gSoundDataADSR; // sound_data.ctl
+extern u8 *gSoundDataRaw;  // sound_data.tbl
+extern u8 *gMusicData;     // sequences.s
+extern u8 *gBankSetsData;  // bank_sets.s
 
 ALSeqFile *get_audio_file_header(s32 arg0);
 

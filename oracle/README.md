@@ -23,7 +23,7 @@ python3 corpus.py            # downloads, runs and checks every movie in corpus.
 
 | | |
 |---|---|
-| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`). `--poll-offset` shifts an .m64 against the emulator's boot. |
+| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`), and with `--audio OUT` the sound the game hands the audio interface (stereo 16-bit samples). `--poll-offset` shifts an .m64 against the emulator's boot. |
 | `corpus.py` | Runs `corpus.json` and checks each movie's level route and final action. |
 | `make_movie.py` | Movies for a version without a TAS: no input (the title demos) or seeded random input. |
 | `sm64trace.py` | `info`, `show`, `mario` (decoded Mario state) and `diff` (first differing poll and field) for traces. |

@@ -24,6 +24,7 @@ sites only affect sound and the title screen's Mario head and are not audited.
 | `paintings.c` ripple origin helpers | missing return is 0 | unreachable default cases | no effect |
 | `screen_transition.c`, `intro_geo.c`, `main.c`, `framebuffers.c`, `mtxf_to_mtx` | defined values | rendering or boot only | no effect |
 | `file_select.c` `NUM_BUTTONS` | EU only | | not JP |
+| `heap.c` `func_sh_802f23ec` `entry` (Shindou) | an entry of bank 0 before the loop sets it | uninitialized register: which banks the sound reset looks through for samples in a freed pool | sound only |
 
 ## Other differences of a native build
 

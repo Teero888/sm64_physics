@@ -1321,7 +1321,7 @@ void audio_reset_session(void) {
 
 #if defined(VERSION_JP) || defined(VERSION_US)
     for (j = 0; j < 2; j++) {
-        WORLD(gAudioCmdBuffers)[j] = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxAudioCmds) * sizeof(u64));
+        WORLD(gAudioCmdBuffers)[j] = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxAudioCmds) * sizeof(Acmd));
     }
 #endif
 
@@ -1336,7 +1336,7 @@ void audio_reset_session(void) {
     WORLD(gNoteSubsEu) = soundAlloc(&WORLD(gNotesAndBuffersPool), (WORLD(gAudioBufferParameters).updatesPerFrame * WORLD(gMaxSimultaneousNotes)) * sizeof(struct NoteSubEu));
 
     for (j = 0; j != 2; j++) {
-        WORLD(gAudioCmdBuffers)[j] = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxAudioCmds) * sizeof(u64));
+        WORLD(gAudioCmdBuffers)[j] = soundAlloc(&WORLD(gNotesAndBuffersPool), WORLD(gMaxAudioCmds) * sizeof(Acmd));
     }
 
     for (j = 0; j < 4; j++) {
@@ -1706,6 +1706,11 @@ void func_sh_802f23ec(void) {
     struct Instrument *inst;
     UNUSED s32 pad;
     struct UnkEntry *entry; //! @bug: not initialized but nevertheless used
+#ifdef AVOID_UB
+    // Library: an entry of bank 0, which matches every bank (docs/avoid_ub.md).
+    struct UnkEntry anyBank = { 0 };
+    entry = &anyBank;
+#endif
 
     seqCount = WORLD(gAlCtlHeader)->seqCount;
     for (idx = 0; idx < seqCount; idx++) {

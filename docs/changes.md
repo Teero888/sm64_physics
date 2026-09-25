@@ -210,3 +210,50 @@ the SDK's whole PR/os.h, which declares libultra with 32-bit addresses; they
 include what they use instead.
 
 Files: `src/game/rumble_init.c`, `src/game/rumble_init.h`, `src/audio/load_sh.c`
+
+## 17. Run the sound thread while EU and Shindou wait for its reset
+
+EU and the Shindou Edition reset the sound session by sending the sound thread
+a request and blocking until it answers (audio_reset_session_eu). Without
+threads the answer would never come: the host's blocking receive returns at
+once, and the game went on while the sound thread had not reset yet, which
+cut off the music it started next. With sound on, the host runs the sound
+thread's work until the answer is there, as the N64 would during the wait
+(docs/changes.md 2 does the same for wait_for_audio_frames). Without sound
+nothing changes.
+
+Files: `src/audio/external.c`
+
+## 18. Build the sound thread's command lists as host commands
+
+The sound thread writes its RSP command list through `u64 *` pointers, one
+64-bit word per command, as on the N64. The host's commands (Acmd, abi.h) are
+two pointer-sized words: each overwrote half of the one before. The list
+pointers are `Acmd *` and the buffers are allocated with sizeof(Acmd); the
+task's data size still counts the commands in u64 units, as the RSP reads it.
+Nothing but the RSP reads the list.
+
+Files: `src/audio/synthesis.c`, `src/audio/synthesis.h`, `src/audio/synthesis_sh.c`,
+`src/audio/data.c`, `src/audio/data.h`, `src/audio/heap.c`, `src/audio/external.c`,
+`src/audio/port_eu.c`, `src/audio/port_sh.c`
+
+## 19. Receive the Shindou sound thread's messages as messages
+
+The Shindou Edition's sound code receives messages into 32-bit integers
+through a cast (`osRecvMesg(q, (OSMesg *) &x, ...)`). An OSMesg is as wide
+as an address, 8 bytes on a 64-bit host, and the receive wrote past the
+integer. It receives into an OSMesg and takes the integer from it. Only the
+sound thread receives these.
+
+Files: `src/audio/port_sh.c`, `src/audio/load_sh.c`
+
+## 20. Read the sound data from the user's ROM
+
+The sound banks, sample banks, sequences and bank sets are not part of the
+library: the decomp builds them from the ROM, and the library converts them
+from the user's ROM when it is loaded (platform/sound.c), into the host's
+layout. The audio loader's names for them are pointers to the converted
+copies instead of arrays. The Shindou Edition's headers and bank sets are the
+loader's own arrays, filled from the ROM the same way.
+
+Files: `src/audio/load.c`, `src/audio/load_sh.c`

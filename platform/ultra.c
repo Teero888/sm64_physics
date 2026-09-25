@@ -10,6 +10,8 @@
 #include <macros.h>
 #include <string.h>
 
+#include "rsp_audio.h"
+
 // --- Messages ----------------------------------------------------------------
 
 void osCreateMesgQueue(OSMesgQueue *mq, OSMesg *msg, s32 count) {
@@ -223,14 +225,64 @@ void osViSwapBuffer(UNUSED void *vaddr) {
 void osViBlack(UNUSED u8 active) {
 }
 
+// The audio interface: it plays the buffer the sound thread handed it and
+// holds the next one (a third is refused), at the frequency its DAC divides
+// the video clock to. The sound thread sizes its buffers by what is left of
+// the one playing. With sound on, each vertical interrupt plays a sixtieth
+// (PAL: a fiftieth) of a second of them (host_ai_vi); what the thread hands
+// it during a step is the sound of that step (sm64_audio).
+#ifdef VERSION_EU
+#define VI_CLOCK 49656530 // osViClock, PAL
+#define VI_RATE 50
+#else
+#define VI_CLOCK 48681812 // NTSC
+#define VI_RATE 60
+#endif
+
+s32 gHostAiFrequency;
+static u32 sAiSamples[2]; // stereo samples left of the buffer playing and of the next
+static u32 sAiClock;      // what the last interrupts played beyond whole samples, in 1/VI_RATE
+s16 gHostAudio[HOST_AUDIO_MAX * 2];
+u32 gHostAudioSamples;
+
 s32 osAiSetFrequency(u32 frequency) {
-    return (s32) frequency;
+    const u32 dacRate = (u32) ((f32) VI_CLOCK / (f32) frequency + 0.5f);
+    if (dacRate < 132) { // AI_MIN_DAC_RATE
+        return -1;
+    }
+    WORLD(gHostAiFrequency) = VI_CLOCK / (s32) dacRate;
+    return WORLD(gHostAiFrequency);
 }
-s32 osAiSetNextBuffer(UNUSED void *buf, UNUSED u32 size) {
+
+s32 osAiSetNextBuffer(void *buf, u32 size) {
+    if (WORLD(sAiSamples)[1] != 0) {
+        return -1;
+    }
+    const u32 samples = size / 4;
+    WORLD(sAiSamples)[WORLD(sAiSamples)[0] != 0] = samples;
+    const u32 room = HOST_AUDIO_MAX - WORLD(gHostAudioSamples);
+    memcpy(WORLD(gHostAudio) + WORLD(gHostAudioSamples) * 2, buf, (samples < room ? samples : room) * 4);
+    WORLD(gHostAudioSamples) += samples < room ? samples : room;
     return 0;
 }
+
 u32 osAiGetLength(void) {
-    return 0;
+    return WORLD(sAiSamples)[0] * 4;
+}
+
+void host_ai_vi(void) {
+    WORLD(sAiClock) += (u32) WORLD(gHostAiFrequency);
+    u32 played = WORLD(sAiClock) / VI_RATE;
+    WORLD(sAiClock) %= VI_RATE;
+    while (played != 0 && WORLD(sAiSamples)[0] != 0) {
+        const u32 n = played < WORLD(sAiSamples)[0] ? played : WORLD(sAiSamples)[0];
+        WORLD(sAiSamples)[0] -= n;
+        played -= n;
+        if (WORLD(sAiSamples)[0] == 0) {
+            WORLD(sAiSamples)[0] = WORLD(sAiSamples)[1];
+            WORLD(sAiSamples)[1] = 0;
+        }
+    }
 }
 
 void osSpTaskLoad(UNUSED OSTask *task) {

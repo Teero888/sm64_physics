@@ -28,7 +28,7 @@ int sm64_boot_polls(void);
 // The user's ROM (.z64, .v64 or .n64 byte order) of the version this library
 // is built for: the library carries the game, but not what the decomp takes
 // from the ROM. Returns false if it is not that ROM. Worlds created before it
-// have no demo inputs on the title screen.
+// have no demo inputs on the title screen and no sound.
 bool sm64_load_rom(const void *rom, size_t size);
 
 // A console just powered on, before its first game frame.
@@ -52,6 +52,14 @@ void sm64_world_enter(const sm64_world *world);
 // does (off by default; the game state does not depend on it either).
 void sm64_set_audio(bool enabled);
 void sm64_set_draw(bool enabled);
+
+// The sound of the world's last step, with sm64_set_audio on: what the game
+// handed the audio interface during it, *count stereo samples (16-bit, left
+// then right) at *frequency Hz (the rate the console's DAC plays at, about
+// 32 kHz). A step's is about as long as the step, 1/30 s (PAL 1/25 s): a
+// little more or less as the game keeps the interface filled. Valid until the
+// world changes.
+const int16_t *sm64_audio(const sm64_world *world, size_t *count, int *frequency);
 
 // Makes dst the same console as src (both of this process). A world is
 // copied while no thread steps it; it keeps its own memory.

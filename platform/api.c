@@ -11,6 +11,7 @@
 #include "game/game_init.h"
 #include "game/level_update.h"
 #include "game/object_list_processor.h"
+#include "rsp_audio.h"
 
 extern char sm64_state_start[], sm64_state_end[]; // platform/state.ld
 extern struct CameraFOVStatus sFOVState;           // game/camera.c
@@ -68,6 +69,12 @@ bool sm64_mario(const sm64_world *world, struct sm64_mario_info *out) {
     out->global_timer = *(const u32 *) sm64_world_variable(world, &gGlobalTimer);
     // Mario exists once a level has spawned him.
     return *(struct Object *const *) sm64_world_variable(world, &gMarioObject) != NULL;
+}
+
+const int16_t *sm64_audio(const sm64_world *world, size_t *count, int *frequency) {
+    *count = *(const u32 *) sm64_world_variable(world, &gHostAudioSamples);
+    *frequency = *(const s32 *) sm64_world_variable(world, &gHostAiFrequency);
+    return sm64_world_variable(world, gHostAudio);
 }
 
 void sm64_camera(const sm64_world *world, struct sm64_camera_info *out) {

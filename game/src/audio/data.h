@@ -83,8 +83,8 @@ extern volatile s32 gCurrAudioFrameDmaCount;
 extern s32 gAudioTaskIndex;
 extern s32 gCurrAiBufferIndex;
 
-extern u64 *gAudioCmdBuffers[2];
-extern u64 *gAudioCmd;
+extern Acmd *gAudioCmdBuffers[2];
+extern Acmd *gAudioCmd;
 
 extern struct SPTask *gAudioTask;
 extern struct SPTask gAudioTasks[2];
