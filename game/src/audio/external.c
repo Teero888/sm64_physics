@@ -522,11 +522,11 @@ const char unusedErrorStr2[] = "specchg error\n";
 void audio_reset_session_eu(s32 presetId) {
     OSMesg mesg;
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    osRecvMesg(D_SH_80350FA8, &mesg, OS_MESG_NOBLOCK);
-    osSendMesg(D_SH_80350F88, (OSMesg) presetId, OS_MESG_NOBLOCK);
-    osRecvMesg(D_SH_80350FA8, &mesg, OS_MESG_BLOCK);
+    osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_NOBLOCK);
+    osSendMesg(WORLD(D_SH_80350F88), (OSMesg) presetId, OS_MESG_NOBLOCK);
+    osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_BLOCK);
     if ((s32) mesg != presetId) {
-        osRecvMesg(D_SH_80350FA8, &mesg, OS_MESG_BLOCK);
+        osRecvMesg(WORLD(D_SH_80350FA8), &mesg, OS_MESG_BLOCK);
     }
 
 #else
@@ -1837,7 +1837,7 @@ static void func_8031F96C(u8 player) {
                               FLOAT_CAST(WORLD(D_80360928)[player][i].target) / 127.0);
 #elif defined(VERSION_SH) || defined(VERSION_CN)
                 func_802ad728(0x01000000 | (player & 0xff) << 16 | (i & 0xff) << 8,
-                              FLOAT_CAST(D_80360928[player][i].target) / 127.0f);
+                              FLOAT_CAST(WORLD(D_80360928)[player][i].target) / 127.0f);
 #else
                 WORLD(gSequencePlayers)[player].channels[i]->volumeScale =
                     WORLD(D_80360928)[player][i].target / 127.0f;

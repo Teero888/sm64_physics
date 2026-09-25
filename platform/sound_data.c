@@ -5,7 +5,9 @@
 const unsigned char gSoundDataADSR[0x100];
 const unsigned char gSoundDataRaw[0x100];
 const unsigned char gMusicData[0x100];
+#ifndef VERSION_SH // src/audio/load_sh.c has its own
 const unsigned char gBankSetsData[0x100];
+#endif
 
 // Library: its variables' addresses (tools/state/types.py).
 #include "pointers/platform/sound_data.c.inc.c"

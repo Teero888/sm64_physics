@@ -1503,14 +1503,14 @@ void update_mario_health(struct MarioState *m) {
         if (((m->action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED) && (m->health < 0x300)) {
             play_sound(SOUND_MOVING_ALMOST_DROWNING, WORLD(gGlobalSoundSource));
 #if ENABLE_RUMBLE
-            if (gRumblePakTimer == 0) {
-                gRumblePakTimer = 36;
+            if (WORLD(gRumblePakTimer) == 0) {
+                WORLD(gRumblePakTimer) = 36;
                 if (is_rumble_finished_and_queue_empty()) {
                     queue_rumble_data(3, 30);
                 }
             }
         } else {
-            gRumblePakTimer = 0;
+            WORLD(gRumblePakTimer) = 0;
 #endif
         }
     }
@@ -1686,14 +1686,14 @@ UNUSED static void debug_update_mario_cap(u16 button, s32 flags, u16 capTimer, u
 
 #if ENABLE_RUMBLE
 void func_sh_8025574C(void) {
-    if (gMarioState->particleFlags & PARTICLE_HORIZONTAL_STAR) {
+    if (WORLD(gMarioState)->particleFlags & PARTICLE_HORIZONTAL_STAR) {
         queue_rumble_data(5, 80);
-    } else if (gMarioState->particleFlags & PARTICLE_VERTICAL_STAR) {
+    } else if (WORLD(gMarioState)->particleFlags & PARTICLE_VERTICAL_STAR) {
         queue_rumble_data(5, 80);
-    } else if (gMarioState->particleFlags & PARTICLE_TRIANGLE) {
+    } else if (WORLD(gMarioState)->particleFlags & PARTICLE_TRIANGLE) {
         queue_rumble_data(5, 80);
     }
-    if (gMarioState->heldObj && gMarioState->heldObj->behavior == segmented_to_virtual(bhvBobomb)) {
+    if (WORLD(gMarioState)->heldObj && WORLD(gMarioState)->heldObj->behavior == segmented_to_virtual(bhvBobomb)) {
         reset_rumble_timers();
     }
 }

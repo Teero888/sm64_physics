@@ -33,7 +33,7 @@ struct Object *debug_print_obj_collision(struct Object *a) {
 // frame shorter than 2^32 CPU cycles. Once one test has found an overlap,
 // every later miss in the pass counts as a hit.
 //
-// EU is built with optimization and differs: clear_object_collision walks its
+// EU and the Shindou Edition are built with optimization and differ: clear_object_collision walks its
 // list in v0 and leaves the list head's address there, so a pass starts with
 // v0 nonzero, and detect_object_hurtbox_overlap loads &gMarioObject into v0
 // before its test, so its miss returns that. Only whether v0 is zero matters
@@ -92,7 +92,7 @@ s32 detect_object_hurtbox_overlap(struct Object *a, struct Object *b) {
     f32 sp2C = a->oPosZ - b->oPosZ;
     f32 sp28 = a->hurtboxRadius + b->hurtboxRadius;
     f32 sp24 = sqrtf(sp34 * sp34 + sp2C * sp2C);
-#if defined(AVOID_UB) && defined(VERSION_EU)
+#if defined(AVOID_UB) && (defined(VERSION_EU) || defined(VERSION_SH))
     WORLD(sCollisionV0) = 1; // &gMarioObject
 #endif
 
@@ -199,7 +199,7 @@ void check_destructive_object_collision(void) {
 }
 
 void detect_object_collisions(void) {
-#if defined(AVOID_UB) && defined(VERSION_EU)
+#if defined(AVOID_UB) && (defined(VERSION_EU) || defined(VERSION_SH))
     WORLD(sCollisionV0) = 1; // the last list head clear_object_collision walked
 #elif defined(AVOID_UB)
     WORLD(sCollisionV0) = 0;

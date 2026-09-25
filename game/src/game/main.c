@@ -224,8 +224,8 @@ void handle_vblank(void) {
     stub_main_3();
     WORLD(gNumVblanks)++;
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    if (gResetTimer > 0 && gResetTimer < 100) {
-        gResetTimer++;
+    if (WORLD(gResetTimer) > 0 && WORLD(gResetTimer) < 100) {
+        WORLD(gResetTimer)++;
     }
 #else
     if (WORLD(gResetTimer) > 0) {

@@ -38,11 +38,13 @@ with libclang (with the build's flags, from `compile_commands.json`) and
 rewrites each use of a state variable inside a function body where the name
 is spelled, in the function or in the macro it comes from. Initializers of
 variables are data, not code, and stay as they are. It has to run for every
-version (JP and US), since each compiles different code:
+version (JP, US, EU, Shindou), since each compiles different code:
 
 ```sh
 python3 tools/state/rewrite.py build       # SM64_VERSION=jp
 python3 tools/state/rewrite.py build-us    # SM64_VERSION=us
+python3 tools/state/rewrite.py build-eu    # SM64_VERSION=eu
+python3 tools/state/rewrite.py build-sh    # SM64_VERSION=sh
 ```
 
 It is idempotent: on up-to-date sources it changes nothing.

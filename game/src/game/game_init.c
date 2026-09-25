@@ -105,7 +105,7 @@ void init_rdp(void) {
     gDPSetCycleType(WORLD(gDisplayListHead)++, G_CYC_FILL);
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    gDPSetAlphaDither(gDisplayListHead++, G_AD_PATTERN);
+    gDPSetAlphaDither(WORLD(gDisplayListHead)++, G_AD_PATTERN);
 #endif
     gDPPipeSync(WORLD(gDisplayListHead)++);
 }
@@ -597,7 +597,7 @@ void init_controllers(void) {
             // so if any of the ports didn't work, you can have controllers
             // plugged into any of them and it will work.
 #if ENABLE_RUMBLE
-            gControllers[cont].port = port;
+            WORLD(gControllers)[cont].port = port;
 #endif
             WORLD(gControllers)[cont].statusData = &WORLD(gControllerStatuses)[port];
             WORLD(gControllers)[cont++].controllerData = &WORLD(gControllerPads)[port];

@@ -400,7 +400,7 @@ void process_notes(void) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
             if (note != playbackState->parentLayer->note && playbackState->unkSH34 == 0) {
                 playbackState->adsr.action |= ADSR_ACTION_RELEASE;
-                playbackState->adsr.fadeOutVel = gAudioBufferParameters.updatesPerFrameInv;
+                playbackState->adsr.fadeOutVel = WORLD(gAudioBufferParameters).updatesPerFrameInv;
                 playbackState->priority = 1;
                 playbackState->unkSH34 = 2;
                 goto d;
@@ -531,7 +531,7 @@ void process_notes(void) {
             }
 
             reverbInfo.freqScale *= playbackState->vibratoFreqScale * playbackState->portamentoFreqScale;
-            reverbInfo.freqScale *= gAudioBufferParameters.resampleRate;
+            reverbInfo.freqScale *= WORLD(gAudioBufferParameters).resampleRate;
             reverbInfo.velocity *= scale;
             note_set_vel_pan_reverb(note, &reverbInfo);
 #else
@@ -648,18 +648,18 @@ struct Instrument *get_instrument_inner(s32 bankId, s32 instId) {
     struct Instrument *inst;
 
     if (IS_BANK_LOAD_COMPLETE(bankId) == FALSE) {
-        gAudioErrorFlags = bankId + 0x10000000;
+        WORLD(gAudioErrorFlags) = bankId + 0x10000000;
         return NULL;
     }
 
-    if (instId >= gCtlEntries[bankId].numInstruments) {
-        gAudioErrorFlags = ((bankId << 8) + instId) + 0x3000000;
+    if (instId >= WORLD(gCtlEntries)[bankId].numInstruments) {
+        WORLD(gAudioErrorFlags) = ((bankId << 8) + instId) + 0x3000000;
         return NULL;
     }
 
-    inst = gCtlEntries[bankId].instruments[instId];
+    inst = WORLD(gCtlEntries)[bankId].instruments[instId];
     if (inst == NULL) {
-        gAudioErrorFlags = ((bankId << 8) + instId) + 0x1000000;
+        WORLD(gAudioErrorFlags) = ((bankId << 8) + instId) + 0x1000000;
         return inst;
     }
 
@@ -670,12 +670,12 @@ struct Drum *get_drum(s32 bankId, s32 drumId) {
     struct Drum *drum;
 
     if (IS_BANK_LOAD_COMPLETE(bankId) == FALSE) {
-        gAudioErrorFlags = bankId + 0x10000000;
+        WORLD(gAudioErrorFlags) = bankId + 0x10000000;
         return NULL;
     }
 
-    if (drumId >= gCtlEntries[bankId].numDrums) {
-        gAudioErrorFlags = ((bankId << 8) + drumId) + 0x4000000;
+    if (drumId >= WORLD(gCtlEntries)[bankId].numDrums) {
+        WORLD(gAudioErrorFlags) = ((bankId << 8) + drumId) + 0x4000000;
         return NULL;
     }
 
@@ -685,9 +685,9 @@ struct Drum *get_drum(s32 bankId, s32 drumId) {
     }
 #endif
 
-    drum = gCtlEntries[bankId].drums[drumId];
+    drum = WORLD(gCtlEntries)[bankId].drums[drumId];
     if (drum == NULL) {
-        gAudioErrorFlags = ((bankId << 8) + drumId) + 0x5000000;
+        WORLD(gAudioErrorFlags) = ((bankId << 8) + drumId) + 0x5000000;
     }
     return drum;
 }
@@ -1462,7 +1462,7 @@ void note_init_all(void) {
         note->portamento.cur = 0.0f;
         note->portamento.speed = 0.0f;
 #if defined(VERSION_SH) || defined(VERSION_CN)
-        note->synthesisState.synthesisBuffers = sound_alloc_uninitialized(&gNotesAndBuffersPool, sizeof(struct NoteSynthesisBuffers));
+        note->synthesisState.synthesisBuffers = sound_alloc_uninitialized(&WORLD(gNotesAndBuffersPool), sizeof(struct NoteSynthesisBuffers));
 #elif defined(VERSION_EU)
         note->synthesisState.synthesisBuffers = soundAlloc(&WORLD(gNotesAndBuffersPool), sizeof(struct NoteSynthesisBuffers));
 #else

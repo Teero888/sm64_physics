@@ -48,7 +48,7 @@ Found by the lockstep comparator (bullies and amps in Bowser in the Fire Sea,
 JP 1-key TAS). The disassembly of the JP build shows which instructions write
 v0; see the comment in the patch.
 
-EU, built with optimization, leaves other values in v0: a collision pass
+EU and the Shindou Edition, built with optimization, leave other values in v0: a collision pass
 starts with a list head's address from clear_object_collision, and the
 hurtbox test's miss returns &gMarioObject. Both are nonzero. Found by the
 lockstep comparator (small breakable boxes, EU title demos).
@@ -197,3 +197,16 @@ renderer can draw the scene from a camera of its own. The matrix is allocated
 from the display list pool like the game's own.
 
 Files: `src/game/rendering_graph_node.c`
+
+## 16. Run the Shindou Edition's rumble thread at every vertical interrupt
+
+The Shindou Edition's rumble thread (thread6) waits for vertical interrupts,
+counts down gRumblePakTimer (which Mario's code reads) and, without a Rumble
+Pak, looks for one every 60 of them. The host runs no threads: its start and
+one iteration of its loop are functions of their own (rumble_thread_start,
+rumble_thread_vi), which the host runs where the N64 would, and the host
+counts gNumVblanks, two per frame. Its audio loader and rumble code include
+the SDK's whole PR/os.h, which declares libultra with 32-bit addresses; they
+include what they use instead.
+
+Files: `src/game/rumble_init.c`, `src/game/rumble_init.h`, `src/audio/load_sh.c`

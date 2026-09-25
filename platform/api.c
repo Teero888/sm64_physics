@@ -16,12 +16,22 @@ extern char sm64_state_start[], sm64_state_end[]; // platform/state.ld
 extern struct CameraFOVStatus sFOVState;           // game/camera.c
 
 const char *sm64_version(void) {
-#if defined(VERSION_JP)
+#if defined(VERSION_SH)
+    return "sh";
+#elif defined(VERSION_JP)
     return "jp";
 #elif defined(VERSION_EU)
     return "eu";
 #else
     return "us";
+#endif
+}
+
+int sm64_boot_polls(void) {
+#if defined(VERSION_SH)
+    return 7;
+#else
+    return 1;
 #endif
 }
 

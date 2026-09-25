@@ -25,7 +25,7 @@ This is the rewrite. Where it is headed:
 
 ## Status
 
-JP, US and EU. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
+JP, US, EU and the Shindou Edition. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
 all objects, the camera and its internal state, cutscene and menu state,
 controllers, areas and the save file every frame, these TASes are identical
 from power-on to their last frame:
@@ -40,12 +40,17 @@ from power-on to their last frame:
 | 120 stars (7310M) | US | 128863 |
 | no input: the title demos (`oracle/make_movie.py idle`) | EU | 20000 |
 | random input, seed 64 (`oracle/make_movie.py random`) | EU | 30000 |
+| no input: the title demos | Shindou | 20000 |
+| random input, seed 64 | Shindou | 30000 |
 
 The US 16, 70 and 120 star movies do not play out as published on this
 emulator (mupen64plus), which the TASes were not made on: the library follows
-the emulator there, desyncs included. EU has no TAS in the corpus yet; its
-made-up movies cover the title demos, the menus (languages included) and
-play on the castle grounds.
+the emulator there, desyncs included. EU and the Shindou Edition have no TAS in
+the corpus yet; their made-up movies cover the title demos, the menus
+(languages included) and play on the castle grounds. The Shindou Edition also
+reads the controller while looking for a Rumble Pak, at boot and every 60
+vertical interrupts without one: `sm64_boot_polls` counts the boot's, and
+the lockstep comparator skips the others.
 
 `docs/avoid_ub.md` lists where a native build of the decomp differs from the
 N64 and how each difference is handled.
@@ -53,7 +58,7 @@ N64 and how each difference is handled.
 ## Building
 
 Needs CMake, a C compiler and Python 3. One library per game version
-(`SM64_VERSION`, jp or us).
+(`SM64_VERSION`: jp, us, eu or sh).
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DSM64_VERSION=jp

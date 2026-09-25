@@ -18,6 +18,9 @@
 #include "game/memory.h"
 #include "game/save_file.h"
 #include "game/sound_init.h"
+#ifdef VERSION_SH
+#include "game/rumble_init.h"
+#endif
 #include "seq_ids.h"
 #include "segments.h"
 
@@ -82,7 +85,16 @@ void host_boot(void) {
 
     // thread5_game_loop, up to its loop
     setup_game_memory();
+#ifdef VERSION_SH
+    init_rumble_pak_scheduler_queue();
+#endif
     init_controllers();
+#ifdef VERSION_SH
+    // thread6 starts at once (its priority is above the game thread's) and
+    // then waits for vertical interrupts.
+    create_thread_6();
+    rumble_thread_start();
+#endif
     save_file_load_all();
     WORLD(sLevelAddress) = segmented_to_virtual(level_script_entry);
     play_music(SEQ_PLAYER_SFX, SEQUENCE_ARGS(0, SEQ_SOUND_PLAYER), 0);
@@ -126,6 +138,11 @@ void host_step(uint32_t input) {
         draw_reset_bars();
         return;
     }
+#ifdef VERSION_SH
+    if (WORLD(gControllerBits)) {
+        block_until_rumble_pak_free();
+    }
+#endif
     audio_game_loop_tick();
     select_gfx_pool();
     read_controller_inputs();
@@ -133,6 +150,14 @@ void host_step(uint32_t input) {
     gN64StackPointer = N64_GAME_LOOP_SP;
     WORLD(sLevelAddress) = level_script_execute(WORLD(sLevelAddress));
     display_and_vsync();
+#ifdef VERSION_SH
+    // The rumble thread runs once per vertical interrupt, two per game frame.
+    // (A lag frame would have more; the host has no timing to know of them.)
+    for (int vi = 0; vi < 2; ++vi) {
+        WORLD(gNumVblanks)++;
+        rumble_thread_vi();
+    }
+#endif
     // thread4_sound runs once per vertical interrupt, two per game frame.
     if (gHostRunAudio) {
         for (int vi = 0; vi < 2; ++vi) {

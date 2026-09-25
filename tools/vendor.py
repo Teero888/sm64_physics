@@ -148,10 +148,10 @@ def add_version(decomp, out, version):
     added = []
     for relative in sorted(repo):
         # The game's code only: libultra is the host's, and the library does
-        # not build the Shindou's, the iQue's or the crash screen.
+        # not build the iQue's, the crash screen or other versions' audio.
+        other_audio = "" if version == "sh" else "|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints"
         if not re.match(r"(src|bin|actors|levels|text|include|data|assets)/", relative) or re.search(
-                r"/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|"
-                r"shindou_debug_prints)\.c$", relative):
+                r"/(cn_common_syms_[12]|crash_screen%s)\.c$" % other_audio, relative):
             continue
         if not (game / relative).exists():
             (game / relative).parent.mkdir(parents=True, exist_ok=True)

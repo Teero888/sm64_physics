@@ -4,6 +4,9 @@
 // controller reads the input of the frame being stepped.
 #include <ultra64.h>
 #include <PR/os_pi.h>
+#ifdef VERSION_SH
+#include <PR/os_motor.h>
+#endif
 #include <macros.h>
 #include <string.h>
 
@@ -104,6 +107,45 @@ s32 osPiStartDma(OSIoMesg *mb, UNUSED s32 priority, s32 direction, uintptr_t dev
     }
     return 0;
 }
+
+#if defined(VERSION_SH)
+// The Shindou Edition's audio reads the ROM through a PI handle; the "ROM"
+// is the host's memory, as for osPiStartDma.
+static OSPiHandle sCartHandle;
+
+OSPiHandle *osCartRomInit(void) {
+    return &WORLD(sCartHandle);
+}
+
+OSPiHandle *osDriveRomInit(void) {
+    return &WORLD(sCartHandle);
+}
+
+s32 osEPiStartDma(UNUSED OSPiHandle *handle, OSIoMesg *mb, s32 direction) {
+    return osPiStartDma(mb, mb->hdr.pri, direction, mb->devAddr, mb->dramAddr, mb->size, mb->hdr.retQueue);
+}
+#endif
+
+#if defined(VERSION_SH)
+// The CPU's cycle counter, which only seeds the Shindou Edition's sound
+// randomness (gAudioRandom): the host has no cycles to count.
+u32 osGetCount(void) {
+    return 0;
+}
+
+// No Rumble Pak, as in TAS movies: osMotorInit finds none.
+s32 osMotorInit(UNUSED OSMesgQueue *mq, UNUSED OSPfs *pfs, UNUSED int channel) {
+    return PFS_ERR_NOPACK;
+}
+
+s32 osMotorStart(UNUSED OSPfs *pfs) {
+    return PFS_ERR_NOPACK;
+}
+
+s32 osMotorStop(UNUSED OSPfs *pfs) {
+    return PFS_ERR_NOPACK;
+}
+#endif
 
 // --- Controllers and EEPROM ----------------------------------------------------------
 

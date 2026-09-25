@@ -1215,7 +1215,7 @@ s32 init_level(void) {
         }
     }
 #if ENABLE_RUMBLE
-    if (gCurrDemoInput == NULL) {
+    if (WORLD(gCurrDemoInput) == NULL) {
         cancel_rumble();
     }
 #endif

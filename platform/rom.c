@@ -11,7 +11,10 @@
 #include "rom.h"
 
 // Game code and checksums in the ROM header, big-endian (.z64) byte order.
-#if defined(VERSION_JP)
+#if defined(VERSION_SH)
+static const char sRomCode[4] = "NSMJ"; // the Shindou Edition is JP's revision A
+static const uint32_t sRomCrc[2] = { 0xd6fba4a8, 0x6326aa2c };
+#elif defined(VERSION_JP)
 static const char sRomCode[4] = "NSMJ";
 static const uint32_t sRomCrc[2] = { 0x4eaa3d0e, 0x74757c24 };
 #elif defined(VERSION_EU)

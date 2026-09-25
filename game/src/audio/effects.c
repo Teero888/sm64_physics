@@ -424,7 +424,7 @@ s32 adsr_update(struct AdsrState *adsr) {
                     if (adsr->delay >= 4) {
                         adsr->delay = adsr->delay * WORLD(gAudioBufferParameters).updatesPerFrame
 #if defined(VERSION_SH) || defined(VERSION_CN)
-                        / gAudioBufferParameters.presetUnk4
+                        / WORLD(gAudioBufferParameters).presetUnk4
 #endif
                         / 4;
                     }

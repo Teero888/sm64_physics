@@ -27,8 +27,22 @@ def stub(where, size):
     return f"{tag(where)}, [{size - 1}] = 0,\n"
 
 
+# The Shindou Edition's audio loader includes the headers of the ROM's sound
+# banks, sample banks, sequences and bank sets (src/audio/load_sh.c). Empty
+# stand-ins, as the other versions' sound data (platform/sound_data.c): the
+# sound thread finds nothing to load.
+SOUND_HEADERS = ("sound/ctl_header.inc.c", "sound/tbl_header.inc.c", "sound/sequences_header.inc.c",
+                 "sound/bank_sets.inc.c")
+
+
 def main():
     table, out = Path(sys.argv[1]), Path(sys.argv[2])
+    for name in SOUND_HEADERS:
+        path = out / name
+        text = "[255] = 0,\n"
+        if not path.exists() or path.read_text() != text:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
     for line in table.read_text().splitlines():
         if line.startswith("#"):
             continue

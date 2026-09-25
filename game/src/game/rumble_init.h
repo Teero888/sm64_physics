@@ -48,6 +48,9 @@ void reset_rumble_timers_2(s32 a0);
 void func_sh_8024CA04(void);
 void cancel_rumble(void);
 void create_thread_6(void);
+// Library: the rumble thread's work, for the host (platform/host.c).
+void rumble_thread_start(void);
+void rumble_thread_vi(void);
 void rumble_thread_update_vi(void);
 
 #endif // ENABLE_RUMBLE

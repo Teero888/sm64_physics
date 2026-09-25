@@ -304,7 +304,7 @@ void intro_gen_face_texrect(Gfx **dlIter) {
 
     for (y = 0; y < 6; y++) {
         for (x = 0; x < 8; x++) {
-            if (sFaceVisible[y*8 + x] != 0) {
+            if (WORLD(sFaceVisible)[y*8 + x] != 0) {
                 gSPTextureRectangle((*dlIter)++, (x * 40) << 2, (y * 40) << 2, (x * 40 + 39) << 2, (y * 40 + 39) << 2, 0,
                                     0, 0, 4 << 10, 1 << 10);
             }
@@ -415,7 +415,7 @@ u16 *intro_sample_framebuffer(s32 imageW, s32 imageH, s32 sampleW, s32 sampleH) 
     s32 xOffset = 120;
     s32 yOffset = 80;
 
-    fb = sFramebuffers[sRenderingFramebuffer];
+    fb = WORLD(sFramebuffers)[WORLD(sRenderingFramebuffer)];
     image = alloc_display_list(imageW * imageH * sizeof(u16));
 
     if (image == NULL) {
@@ -469,29 +469,29 @@ Gfx *geo_intro_face_easter_egg(s32 state, struct GraphNode *node, UNUSED void *c
     genNode = (struct GraphNodeGenerated *) node;
 
     if (state != 1) {
-        sFramebuffers[0] = gFramebuffer0;
-        sFramebuffers[1] = gFramebuffer1;
-        sFramebuffers[2] = gFramebuffer2;
+        WORLD(sFramebuffers)[0] = gFramebuffer0;
+        WORLD(sFramebuffers)[1] = gFramebuffer1;
+        WORLD(sFramebuffers)[2] = gFramebuffer2;
 
         for (i = 0; i < 48; i++) {
-            sFaceVisible[i] = 0;
+            WORLD(sFaceVisible)[i] = 0;
         }
     } else if (state == 1) {
-        if (sFaceCounter == 0) {
-            if (gPlayer1Controller->buttonPressed & Z_TRIG) {
-                play_sound(SOUND_MENU_STAR_SOUND, gGlobalSoundSource);
-                sFaceVisible[0] ^= 1;
-                sFaceCounter++;
+        if (WORLD(sFaceCounter) == 0) {
+            if (WORLD(gPlayer1Controller)->buttonPressed & Z_TRIG) {
+                play_sound(SOUND_MENU_STAR_SOUND, WORLD(gGlobalSoundSource));
+                WORLD(sFaceVisible)[0] ^= 1;
+                WORLD(sFaceCounter)++;
             }
         } else {
-            sFaceVisible[sFaceToggleOrder[sFaceCounter++]] ^= 1;
-            if (sFaceCounter >= 40) {
-                sFaceCounter = 0;
+            WORLD(sFaceVisible)[WORLD(sFaceToggleOrder)[WORLD(sFaceCounter)++]] ^= 1;
+            if (WORLD(sFaceCounter) >= 40) {
+                WORLD(sFaceCounter) = 0;
             }
         }
 
         // Draw while the first or last face is visible.
-        if (sFaceVisible[0] == 1 || sFaceVisible[17] == 1) {
+        if (WORLD(sFaceVisible)[0] == 1 || WORLD(sFaceVisible)[17] == 1) {
             image = intro_sample_framebuffer(40, 40, 2, 2);
             if (image != NULL) {
                 genNode->fnNode.node.flags = (genNode->fnNode.node.flags & 0xFF) | (LAYER_OPAQUE << 8);
@@ -520,9 +520,9 @@ Gfx *geo_intro_rumble_pak_graphic(s32 state, struct GraphNode *node, UNUSED void
         genNode->fnNode.node.flags = (genNode->fnNode.node.flags & 0xFF) | (LAYER_OPAQUE << 8);
         introContext = genNode->parameter & 0xFF;
         if (introContext == 0) {
-            backgroundTileSix = introBackgroundIndexTable[6];
+            backgroundTileSix = WORLD(introBackgroundIndexTable)[6];
         } else if (introContext == 1) {
-            backgroundTileSix = gameOverBackgroundTable[6];
+            backgroundTileSix = WORLD(gameOverBackgroundTable)[6];
         }
         if (backgroundTileSix == INTRO_BACKGROUND_SUPER_MARIO) {
             dl = alloc_display_list(3 * sizeof(*dl));

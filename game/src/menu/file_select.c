@@ -1817,7 +1817,7 @@ void print_save_file_star_count(s8 fileIndex, s16 x, s16 y) {
 #ifdef VERSION_JP
     #define SOUNDMODE_X1 235
 #else
-    #define SOUNDMODE_X1 sSoundTextX
+    #define SOUNDMODE_X1 WORLD(sSoundTextX)
 #endif
     #define SAVEFILE_X1 92
     #define SAVEFILE_X2 209

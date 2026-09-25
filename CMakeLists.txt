@@ -3,11 +3,11 @@ project(sm64_physics LANGUAGES C)
 
 # The game: game/ holds its code, imported from n64decomp/sm64 (tools/vendor.py)
 # and the library's own from then on. One library per game version.
-set(SM64_VERSION jp CACHE STRING "Game version: jp, us or eu")
+set(SM64_VERSION jp CACHE STRING "Game version: jp, us, eu or sh")
 # Shared: one copy of the game for a program and its plugins, as a world holds
 # addresses of the library's code.
 option(SM64_PHYSICS_SHARED "Build sm64_physics as a shared library" OFF)
-set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us eu)
+set_property(CACHE SM64_VERSION PROPERTY STRINGS jp us eu sh)
 # A program with several versions adds this directory once per version, each
 # time with its own suffix for the targets (sm64_physics_us, ...).
 set(S "${SM64_TARGET_SUFFIX}")
@@ -47,10 +47,14 @@ if(SM64_VERSION STREQUAL "eu")
 else()
   list(FILTER SM64_SOURCES EXCLUDE REGEX "/port_eu\\.c$")
 endif()
-# Other versions' files and the iQue's.
-list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints|sound_data)\\.c$")
+# Shindou: its own audio.
+if(NOT SM64_VERSION STREQUAL "sh")
+  list(FILTER SM64_SOURCES EXCLUDE REGEX "/(audio_session_presets_sh|load_sh|port_sh|synthesis_sh|shindou_debug_prints)\\.c$")
+endif()
+# The iQue's files, and what the library does not build.
+list(FILTER SM64_SOURCES EXCLUDE REGEX "/(cn_common_syms_[12]|crash_screen|sound_data)\\.c$")
 # The RSP microcode the version's display lists are for.
-if(SM64_VERSION STREQUAL "eu")
+if(SM64_VERSION STREQUAL "eu" OR SM64_VERSION STREQUAL "sh")
   set(SM64_MICROCODE F3D_NEW)
 else()
   set(SM64_MICROCODE F3D_OLD)

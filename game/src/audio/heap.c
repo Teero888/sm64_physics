@@ -170,20 +170,20 @@ void reset_bank_and_seq_load_status(void) {
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
     for (i = 0; i < 64; i++) {
-        if (gBankLoadStatus[i] != SOUND_LOAD_STATUS_5) {
-            gBankLoadStatus[i] = SOUND_LOAD_STATUS_NOT_LOADED;
+        if (WORLD(gBankLoadStatus)[i] != SOUND_LOAD_STATUS_5) {
+            WORLD(gBankLoadStatus)[i] = SOUND_LOAD_STATUS_NOT_LOADED;
         }
     }
 
     for (i = 0; i < 64; i++) {
-        if (gUnkLoadStatus[i] != SOUND_LOAD_STATUS_5) {
-            gUnkLoadStatus[i] = SOUND_LOAD_STATUS_NOT_LOADED;
+        if (WORLD(gUnkLoadStatus)[i] != SOUND_LOAD_STATUS_5) {
+            WORLD(gUnkLoadStatus)[i] = SOUND_LOAD_STATUS_NOT_LOADED;
         }
     }
 
     for (i = 0; i < 256; i++) {
-        if (gSeqLoadStatus[i] != SOUND_LOAD_STATUS_5) {
-            gSeqLoadStatus[i] = SOUND_LOAD_STATUS_NOT_LOADED;
+        if (WORLD(gSeqLoadStatus)[i] != SOUND_LOAD_STATUS_5) {
+            WORLD(gSeqLoadStatus)[i] = SOUND_LOAD_STATUS_NOT_LOADED;
         }
     }
 #else
@@ -431,18 +431,18 @@ void *alloc_bank_or_seq(struct SoundMultiPool *arg0, s32 arg1, s32 size, s32 arg
 #if defined(VERSION_SH) || defined(VERSION_CN)
     switch (poolIdx) {
         case 0:
-            arg0 = &gSeqLoadedPool;
-            table = gSeqLoadStatus;
+            arg0 = &WORLD(gSeqLoadedPool);
+            table = WORLD(gSeqLoadStatus);
             break;
 
         case 1:
-            arg0 = &gBankLoadedPool;
-            table = gBankLoadStatus;
+            arg0 = &WORLD(gBankLoadedPool);
+            table = WORLD(gBankLoadStatus);
             break;
 
         case 2:
-            arg0 = &gUnusedLoadedPool;
-            table = gUnkLoadStatus;
+            arg0 = &WORLD(gUnusedLoadedPool);
+            table = WORLD(gUnkLoadStatus);
             break;
     }
 #endif
@@ -515,27 +515,27 @@ void *alloc_bank_or_seq(struct SoundMultiPool *arg0, s32 arg1, s32 size, s32 arg
 #if defined(VERSION_SH) || defined(VERSION_CN)
         if (poolIdx == 1) {
             if (firstVal == SOUND_LOAD_STATUS_4) {
-                for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                    if (gNotes[i].bankId == tp->entries[0].id && gNotes[i].noteSubEu.enabled) {
+                for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                    if (WORLD(gNotes)[i].bankId == tp->entries[0].id && WORLD(gNotes)[i].noteSubEu.enabled) {
                         break;
                     }
                 }
-                if (i == gMaxSimultaneousNotes) {
-                    if (gBankLoadStatus[tp->entries[0].id] != SOUND_LOAD_STATUS_5) {
-                        gBankLoadStatus[tp->entries[0].id] = SOUND_LOAD_STATUS_DISCARDABLE;
+                if (i == WORLD(gMaxSimultaneousNotes)) {
+                    if (WORLD(gBankLoadStatus)[tp->entries[0].id] != SOUND_LOAD_STATUS_5) {
+                        WORLD(gBankLoadStatus)[tp->entries[0].id] = SOUND_LOAD_STATUS_DISCARDABLE;
                     }
                     firstVal = SOUND_LOAD_STATUS_DISCARDABLE;
                 }
             }
             if (secondVal == SOUND_LOAD_STATUS_4) {
-                for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                    if (gNotes[i].bankId == tp->entries[1].id && gNotes[i].noteSubEu.enabled) {
+                for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                    if (WORLD(gNotes)[i].bankId == tp->entries[1].id && WORLD(gNotes)[i].noteSubEu.enabled) {
                         break;
                     }
                 }
-                if (i == gMaxSimultaneousNotes) {
-                    if (gBankLoadStatus[tp->entries[1].id] != SOUND_LOAD_STATUS_5) {
-                        gBankLoadStatus[tp->entries[1].id] = SOUND_LOAD_STATUS_DISCARDABLE;
+                if (i == WORLD(gMaxSimultaneousNotes)) {
+                    if (WORLD(gBankLoadStatus)[tp->entries[1].id] != SOUND_LOAD_STATUS_5) {
+                        WORLD(gBankLoadStatus)[tp->entries[1].id] = SOUND_LOAD_STATUS_DISCARDABLE;
                     }
                     secondVal = SOUND_LOAD_STATUS_DISCARDABLE;
                 }
@@ -572,7 +572,7 @@ void *alloc_bank_or_seq(struct SoundMultiPool *arg0, s32 arg1, s32 size, s32 arg
                 if (poolIdx == 0) {
                     if (firstVal == SOUND_LOAD_STATUS_COMPLETE) {
                         for (i = 0; i < SEQUENCE_PLAYERS; i++) {
-                            if (gSequencePlayers[i].enabled && gSequencePlayers[i].seqId == tp->entries[0].id) {
+                            if (WORLD(gSequencePlayers)[i].enabled && WORLD(gSequencePlayers)[i].seqId == tp->entries[0].id) {
                                 break;
                             }
                         }
@@ -583,7 +583,7 @@ void *alloc_bank_or_seq(struct SoundMultiPool *arg0, s32 arg1, s32 size, s32 arg
                     }
                     if (secondVal == SOUND_LOAD_STATUS_COMPLETE) {
                         for (i = 0; i < SEQUENCE_PLAYERS; i++) {
-                            if (gSequencePlayers[i].enabled && gSequencePlayers[i].seqId == tp->entries[1].id) {
+                            if (WORLD(gSequencePlayers)[i].enabled && WORLD(gSequencePlayers)[i].seqId == tp->entries[1].id) {
                                 break;
                             }
                         }
@@ -594,23 +594,23 @@ void *alloc_bank_or_seq(struct SoundMultiPool *arg0, s32 arg1, s32 size, s32 arg
                     }
                 } else if (poolIdx == 1) {
                     if (firstVal == SOUND_LOAD_STATUS_COMPLETE) {
-                        for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                            if (gNotes[i].bankId == tp->entries[0].id && gNotes[i].noteSubEu.enabled) {
+                        for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                            if (WORLD(gNotes)[i].bankId == tp->entries[0].id && WORLD(gNotes)[i].noteSubEu.enabled) {
                                 break;
                             }
                         }
-                        if (i == gMaxSimultaneousNotes) {
+                        if (i == WORLD(gMaxSimultaneousNotes)) {
                             tp->nextSide = 0;
                             goto out;
                         }
                     }
                     if (secondVal == SOUND_LOAD_STATUS_COMPLETE) {
-                        for (i = 0; i < gMaxSimultaneousNotes; i++) {
-                            if (gNotes[i].bankId == tp->entries[1].id && gNotes[i].noteSubEu.enabled) {
+                        for (i = 0; i < WORLD(gMaxSimultaneousNotes); i++) {
+                            if (WORLD(gNotes)[i].bankId == tp->entries[1].id && WORLD(gNotes)[i].noteSubEu.enabled) {
                                 break;
                             }
                         }
-                        if (i == gMaxSimultaneousNotes) {
+                        if (i == WORLD(gMaxSimultaneousNotes)) {
                             tp->nextSide = 1;
                             goto out;
                         }
@@ -806,13 +806,13 @@ void *get_bank_or_seq_inner(s32 poolIdx, s32 arg1, s32 bankId) {
 
     switch (poolIdx) {
         case 0:
-            loadedPool = &gSeqLoadedPool;
+            loadedPool = &WORLD(gSeqLoadedPool);
             break;
         case 1:
-            loadedPool = &gBankLoadedPool;
+            loadedPool = &WORLD(gBankLoadedPool);
             break;
         case 2:
-            loadedPool = &gUnusedLoadedPool;
+            loadedPool = &WORLD(gUnusedLoadedPool);
             break;
     }
 
@@ -929,7 +929,7 @@ extern s16 unk_sh_data_3[15 * 8];
 extern s16 unk_sh_data_4[15 * 8];
 void func_sh_802F0DE8(s16 filter[8], s32 arg1) {
     s32 i;
-    s16 *ptr = &unk_sh_data_3[8 * (arg1 - 1)];
+    s16 *ptr = &WORLD(unk_sh_data_3)[8 * (arg1 - 1)];
     for (i = 0; i < 8; i++) {
         filter[i] = ptr[i];
     }
@@ -937,7 +937,7 @@ void func_sh_802F0DE8(s16 filter[8], s32 arg1) {
 
 void func_sh_802F0E40(s16 filter[8], s32 arg1) { // Unused
     s32 i;
-    s16 *ptr = &unk_sh_data_4[8 * (arg1 - 1)];
+    s16 *ptr = &WORLD(unk_sh_data_4)[8 * (arg1 - 1)];
     for (i = 0; i < 8; i++) {
         filter[i] = ptr[i];
     }
@@ -952,7 +952,7 @@ void fill_filter(s16 filter[8], s32 arg1, s32 arg2) {
         fill_zero_filter(filter);
     }
     if (arg2 != 0) {
-        ptr = &unk_sh_data_4[8 * (arg2 - 1)];
+        ptr = &WORLD(unk_sh_data_4)[8 * (arg2 - 1)];
         for (i = 0; i < 8; i++) {
             filter[i] += ptr[i];
         }
@@ -970,10 +970,10 @@ void decrease_reverb_gain(void) {
     WORLD(gSynthesisReverb).reverbGain -= WORLD(gSynthesisReverb).reverbGain / 4;
 #else
     s32 i, j;
-    s32 v0 = gAudioBufferParameters.presetUnk4 == 2 ? 2 : 1;
-    for (i = 0; i < gNumSynthesisReverbs; i++) {
+    s32 v0 = WORLD(gAudioBufferParameters).presetUnk4 == 2 ? 2 : 1;
+    for (i = 0; i < WORLD(gNumSynthesisReverbs); i++) {
         for (j = 0; j < v0; j++) {
-            gSynthesisReverbs[i].reverbGain -= gSynthesisReverbs[i].reverbGain / 3;
+            WORLD(gSynthesisReverbs)[i].reverbGain -= WORLD(gSynthesisReverbs)[i].reverbGain / 3;
         }
     }
 #endif
@@ -981,11 +981,11 @@ void decrease_reverb_gain(void) {
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
 void clear_curr_ai_buffer(void) {
-    s32 currIndex = gCurrAiBufferIndex;
+    s32 currIndex = WORLD(gCurrAiBufferIndex);
     s32 i;
-    gAiBufferLengths[currIndex] = gAudioBufferParameters.minAiBufferLength;
+    WORLD(gAiBufferLengths)[currIndex] = WORLD(gAudioBufferParameters).minAiBufferLength;
     for (i = 0; i < (s32) (AIBUFFER_LEN / sizeof(s16)); i++) {
-        gAiBuffers[currIndex][i] = 0;
+        WORLD(gAiBuffers)[currIndex][i] = 0;
     }
 }
 #endif
@@ -996,7 +996,7 @@ s32 audio_shut_down_and_reset_step(void) {
     s32 i;
     s32 j;
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    s32 num = gAudioBufferParameters.presetUnk4 == 2 ? 2 : 1;
+    s32 num = WORLD(gAudioBufferParameters).presetUnk4 == 2 ? 2 : 1;
 #endif
 
     switch (WORLD(gAudioResetStatus)) {
@@ -1005,7 +1005,7 @@ s32 audio_shut_down_and_reset_step(void) {
                 sequence_player_disable(&WORLD(gSequencePlayers)[i]);
             }
 #if defined(VERSION_SH) || defined(VERSION_CN)
-            gAudioResetFadeOutFramesLeft = 4 / num;
+            WORLD(gAudioResetFadeOutFramesLeft) = 4 / num;
 #else
             WORLD(gAudioResetFadeOutFramesLeft) = 4;
 #endif
@@ -1023,7 +1023,7 @@ s32 audio_shut_down_and_reset_step(void) {
                     }
                 }
 #if defined(VERSION_SH) || defined(VERSION_CN)
-                gAudioResetFadeOutFramesLeft = 16 / num;
+                WORLD(gAudioResetFadeOutFramesLeft) = 16 / num;
 #else
                 WORLD(gAudioResetFadeOutFramesLeft) = 16;
 #endif
@@ -1045,7 +1045,7 @@ s32 audio_shut_down_and_reset_step(void) {
                     }
                 }
 #if defined(VERSION_SH) || defined(VERSION_CN)
-                gAudioResetFadeOutFramesLeft = 4 / num;
+                WORLD(gAudioResetFadeOutFramesLeft) = 4 / num;
 #else
                 WORLD(gAudioResetFadeOutFramesLeft) = 4;
 #endif
@@ -1070,15 +1070,15 @@ s32 audio_shut_down_and_reset_step(void) {
             WORLD(gAudioResetStatus) = 0;
 #if defined(VERSION_SH) || defined(VERSION_CN)
             for (i = 0; i < NUMAIBUFFERS; i++) {
-                gAiBufferLengths[i] = gAudioBufferParameters.maxAiBufferLength;
+                WORLD(gAiBufferLengths)[i] = WORLD(gAudioBufferParameters).maxAiBufferLength;
                 for (j = 0; j < (s32) (AIBUFFER_LEN / sizeof(s16)); j++) {
-                    gAiBuffers[i][j] = 0;
+                    WORLD(gAiBuffers)[i][j] = 0;
                 }
             }
 #endif
     }
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    if (gAudioResetFadeOutFramesLeft) {
+    if (WORLD(gAudioResetFadeOutFramesLeft)) {
     }
 #endif
     if (WORLD(gAudioResetStatus) < 3) {
@@ -1202,8 +1202,8 @@ void audio_reset_session(void) {
     WORLD(gAudioBufferParameters).minAiBufferLength = WORLD(gAudioBufferParameters).samplesPerFrameTarget - 0x10;
     WORLD(gAudioBufferParameters).maxAiBufferLength = WORLD(gAudioBufferParameters).samplesPerFrameTarget + 0x10;
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    gAudioBufferParameters.updatesPerFrame = (gAudioBufferParameters.samplesPerFrameTarget + 0x10) / 192 + 1;
-    gAudioBufferParameters.samplesPerUpdate = (gAudioBufferParameters.samplesPerFrameTarget / gAudioBufferParameters.updatesPerFrame) & -8;
+    WORLD(gAudioBufferParameters).updatesPerFrame = (WORLD(gAudioBufferParameters).samplesPerFrameTarget + 0x10) / 192 + 1;
+    WORLD(gAudioBufferParameters).samplesPerUpdate = (WORLD(gAudioBufferParameters).samplesPerFrameTarget / WORLD(gAudioBufferParameters).updatesPerFrame) & -8;
 #else
     WORLD(gAudioBufferParameters).updatesPerFrame = (WORLD(gAudioBufferParameters).samplesPerFrameTarget + 0x10) / 160 + 1;
     WORLD(gAudioBufferParameters).samplesPerUpdate = (WORLD(gAudioBufferParameters).samplesPerFrameTarget / WORLD(gAudioBufferParameters).updatesPerFrame) & 0xfff8;
@@ -1212,7 +1212,7 @@ void audio_reset_session(void) {
     WORLD(gAudioBufferParameters).samplesPerUpdateMin = WORLD(gAudioBufferParameters).samplesPerUpdate - 8;
     WORLD(gAudioBufferParameters).resampleRate = 32000.0f / FLOAT_CAST(WORLD(gAudioBufferParameters).frequency);
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    gAudioBufferParameters.unkUpdatesPerFrameScaled = (1.0f / 256.0f) / gAudioBufferParameters.updatesPerFrame;
+    WORLD(gAudioBufferParameters).unkUpdatesPerFrameScaled = (1.0f / 256.0f) / WORLD(gAudioBufferParameters).updatesPerFrame;
 #else
     WORLD(gAudioBufferParameters).unkUpdatesPerFrameScaled = (3.0f / 1280.0f) / WORLD(gAudioBufferParameters).updatesPerFrame;
 #endif
@@ -1229,10 +1229,10 @@ void audio_reset_session(void) {
     WORLD(gAudioBufferParameters).updatesPerFrame *= WORLD(gAudioBufferParameters).presetUnk4;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    if (gAudioBufferParameters.presetUnk4 >= 2) {
-        gAudioBufferParameters.maxAiBufferLength -= 0x10;
+    if (WORLD(gAudioBufferParameters).presetUnk4 >= 2) {
+        WORLD(gAudioBufferParameters).maxAiBufferLength -= 0x10;
     }
-    gMaxAudioCmds = gMaxSimultaneousNotes * 0x14 * gAudioBufferParameters.updatesPerFrame + preset->numReverbs * 0x20 + 0x1E0;
+    WORLD(gMaxAudioCmds) = WORLD(gMaxSimultaneousNotes) * 0x14 * WORLD(gAudioBufferParameters).updatesPerFrame + preset->numReverbs * 0x20 + 0x1E0;
 #else
     WORLD(gMaxAudioCmds) = WORLD(gMaxSimultaneousNotes) * 0x10 * WORLD(gAudioBufferParameters).updatesPerFrame + preset->numReverbs * 0x20 + 0x300;
 #endif
@@ -1301,7 +1301,7 @@ void audio_reset_session(void) {
     WORLD(sPersistentCommonPoolSplit).wantSeq = DOUBLE_SIZE_ON_64_BIT(preset->persistentSeqMem);
     WORLD(sPersistentCommonPoolSplit).wantBank = DOUBLE_SIZE_ON_64_BIT(preset->persistentBankMem);
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    sPersistentCommonPoolSplit.wantUnused = preset->unk18;
+    WORLD(sPersistentCommonPoolSplit).wantUnused = preset->unk18;
 #else
     WORLD(sPersistentCommonPoolSplit).wantUnused = 0;
 #endif
@@ -1309,7 +1309,7 @@ void audio_reset_session(void) {
     WORLD(sTemporaryCommonPoolSplit).wantSeq = DOUBLE_SIZE_ON_64_BIT(preset->temporarySeqMem);
     WORLD(sTemporaryCommonPoolSplit).wantBank = DOUBLE_SIZE_ON_64_BIT(preset->temporaryBankMem);
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    sTemporaryCommonPoolSplit.wantUnused = preset->unk24;
+    WORLD(sTemporaryCommonPoolSplit).wantUnused = preset->unk24;
 #else
     WORLD(sTemporaryCommonPoolSplit).wantUnused = 0;
 #endif
@@ -1392,15 +1392,15 @@ void audio_reset_session(void) {
         }
 #if defined(VERSION_SH) || defined(VERSION_CN)
         if (reverbSettings->unkC != 0) {
-            reverb->unk108 = sound_alloc_uninitialized(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            reverb->unk100 = sound_alloc_uninitialized(&gNotesAndBuffersPool, 8 * sizeof(s16));
+            reverb->unk108 = sound_alloc_uninitialized(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            reverb->unk100 = sound_alloc_uninitialized(&WORLD(gNotesAndBuffersPool), 8 * sizeof(s16));
             func_sh_802F0DE8(reverb->unk100, reverbSettings->unkC);
         } else {
             reverb->unk100 = NULL;
         }
         if (reverbSettings->unkE != 0) {
-            reverb->unk10C = sound_alloc_uninitialized(&gNotesAndBuffersPool, 16 * sizeof(s16));
-            reverb->unk104 = sound_alloc_uninitialized(&gNotesAndBuffersPool, 8 * sizeof(s16));
+            reverb->unk10C = sound_alloc_uninitialized(&WORLD(gNotesAndBuffersPool), 16 * sizeof(s16));
+            reverb->unk104 = sound_alloc_uninitialized(&WORLD(gNotesAndBuffersPool), 8 * sizeof(s16));
             func_sh_802F0DE8(reverb->unk104, reverbSettings->unkE);
         } else {
             reverb->unk104 = NULL;
@@ -1447,8 +1447,8 @@ void audio_reset_session(void) {
 #endif
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    D_SH_8034F68C = 0;
-    D_SH_803479B4 = 4096;
+    WORLD(D_SH_8034F68C) = 0;
+    WORLD(D_SH_803479B4) = 4096;
 #endif
 
     osWritebackDCacheAll();
@@ -1464,9 +1464,9 @@ void audio_reset_session(void) {
 void *unk_pool1_lookup(s32 poolIdx, s32 id) {
     s32 i;
 
-    for (i = 0; i < gUnkPool1.pool.numAllocatedEntries; i++) {
-        if (gUnkPool1.entries[i].poolIndex == poolIdx && gUnkPool1.entries[i].id == id) {
-            return gUnkPool1.entries[i].ptr;
+    for (i = 0; i < WORLD(gUnkPool1).pool.numAllocatedEntries; i++) {
+        if (WORLD(gUnkPool1).entries[i].poolIndex == poolIdx && WORLD(gUnkPool1).entries[i].id == id) {
+            return WORLD(gUnkPool1).entries[i].ptr;
         }
     }
     return NULL;
@@ -1476,15 +1476,15 @@ void *unk_pool1_alloc(s32 poolIndex, s32 arg1, u32 size) {
     void *ret;
     s32 pos;
 
-    pos = gUnkPool1.pool.numAllocatedEntries;
-    ret = sound_alloc_uninitialized(&gUnkPool1.pool, size);
-    gUnkPool1.entries[pos].ptr = ret;
+    pos = WORLD(gUnkPool1).pool.numAllocatedEntries;
+    ret = sound_alloc_uninitialized(&WORLD(gUnkPool1).pool, size);
+    WORLD(gUnkPool1).entries[pos].ptr = ret;
     if (ret == NULL) {
         return NULL;
     }
-    gUnkPool1.entries[pos].poolIndex = poolIndex;
-    gUnkPool1.entries[pos].id = arg1;
-    gUnkPool1.entries[pos].size = size;
+    WORLD(gUnkPool1).entries[pos].poolIndex = poolIndex;
+    WORLD(gUnkPool1).entries[pos].id = arg1;
+    WORLD(gUnkPool1).entries[pos].size = size;
 
 #ifdef AVOID_UB
     //! @bug UB: missing return. "ret" is in v0 at this point, but doing an
@@ -1532,22 +1532,22 @@ u8 *func_sh_802f1de0(u32 size, s32 bank, u8 *arg2, s8 medium) { // duplicated fu
 void unk_pools_init(u32 size1, u32 size2) {
     void *mem;
 
-    mem = sound_alloc_uninitialized(&gPersistentCommonPool, size1);
+    mem = sound_alloc_uninitialized(&WORLD(gPersistentCommonPool), size1);
     if (mem == NULL) {
-        gUnkPool2.pool.size = 0;
+        WORLD(gUnkPool2).pool.size = 0;
     } else {
-        sound_alloc_pool_init(&gUnkPool2.pool, mem, size1);
+        sound_alloc_pool_init(&WORLD(gUnkPool2).pool, mem, size1);
     }
-    mem = sound_alloc_uninitialized(&gTemporaryCommonPool, size2);
+    mem = sound_alloc_uninitialized(&WORLD(gTemporaryCommonPool), size2);
 
     if (mem == NULL) {
-        gUnkPool3.pool.size = 0;
+        WORLD(gUnkPool3).pool.size = 0;
     } else {
-        sound_alloc_pool_init(&gUnkPool3.pool, mem, size2);
+        sound_alloc_pool_init(&WORLD(gUnkPool3).pool, mem, size2);
     }
 
-    gUnkPool2.numEntries = 0;
-    gUnkPool3.numEntries = 0;
+    WORLD(gUnkPool2).numEntries = 0;
+    WORLD(gUnkPool3).numEntries = 0;
 }
 
 struct UnkEntry *func_sh_802f1ec4(u32 size) {
@@ -1560,7 +1560,7 @@ struct UnkEntry *func_sh_802f1ec4(u32 size) {
     s32 chosenIndex;
 
     struct UnkStructSH8034EC88 *unkStruct;
-    struct UnkPool *pool = &gUnkPool3;
+    struct UnkPool *pool = &WORLD(gUnkPool3);
 
     u8 *itemStart;
     u8 *itemEnd;
@@ -1580,8 +1580,8 @@ struct UnkEntry *func_sh_802f1ec4(u32 size) {
     temp_s2 = pool->pool.cur;
 
     chosenIndex = -1;
-    for (i = 0; i < D_SH_8034F68C; i++) {
-        unkStruct = &D_SH_8034EC88[i];
+    for (i = 0; i < WORLD(D_SH_8034F68C); i++) {
+        unkStruct = &WORLD(D_SH_8034EC88)[i];
         if (unkStruct->isFree == FALSE) {
             itemStart = unkStruct->ramAddr;
             itemEnd = unkStruct->ramAddr + unkStruct->sample->size - 1;
@@ -1639,14 +1639,14 @@ void func_sh_802f2158(struct UnkEntry *entry) {
     struct Drum *drum;
     struct Instrument *inst;
 
-    seqCount = gAlCtlHeader->seqCount;
+    seqCount = WORLD(gAlCtlHeader)->seqCount;
     for (idx = 0; idx < seqCount; idx++) {
-        bankId1 = gCtlEntries[idx].bankId1;
-        bankId2 = gCtlEntries[idx].bankId2;
+        bankId1 = WORLD(gCtlEntries)[idx].bankId1;
+        bankId2 = WORLD(gCtlEntries)[idx].bankId2;
         if ((bankId1 != 0xff && entry->bankId == bankId1) || (bankId2 != 0xff && entry->bankId == bankId2) || entry->bankId == 0) {
             if (get_bank_or_seq(1, 2, idx) != NULL) {
                 if (IS_BANK_LOAD_COMPLETE(idx) != FALSE) {
-                    for (instId = 0; instId < gCtlEntries[idx].numInstruments; instId++) {
+                    for (instId = 0; instId < WORLD(gCtlEntries)[idx].numInstruments; instId++) {
                         inst = get_instrument_inner(idx, instId);
                         if (inst != NULL) {
                             if (inst->normalRangeLo != 0) {
@@ -1658,7 +1658,7 @@ void func_sh_802f2158(struct UnkEntry *entry) {
                             func_sh_802F2320(entry, inst->normalNotesSound.sample);
                         }
                     }
-                    for (drumId = 0; drumId < gCtlEntries[idx].numDrums; drumId++) {
+                    for (drumId = 0; drumId < WORLD(gCtlEntries)[idx].numDrums; drumId++) {
                         drum = get_drum(idx, drumId);
                         if (drum != NULL) {
                             func_sh_802F2320(entry, drum->sound.sample);
@@ -1680,13 +1680,13 @@ void func_sh_802F2320(struct UnkEntry *entry, struct AudioBankSample *sample) {
 struct UnkEntry *unk_pool2_alloc(u32 size) {
     void *data;
     struct UnkEntry *ret;
-    s32 *numEntries = &gUnkPool2.numEntries;
+    s32 *numEntries = &WORLD(gUnkPool2).numEntries;
 
-    data = sound_alloc_uninitialized(&gUnkPool2.pool, size);
+    data = sound_alloc_uninitialized(&WORLD(gUnkPool2).pool, size);
     if (data == NULL) {
         return NULL;
     }
-    ret = &gUnkPool2.entries[*numEntries];
+    ret = &WORLD(gUnkPool2).entries[*numEntries];
     ret->used = TRUE;
     ret->srcAddr = data;
     ret->size = size;
@@ -1707,16 +1707,16 @@ void func_sh_802f23ec(void) {
     UNUSED s32 pad;
     struct UnkEntry *entry; //! @bug: not initialized but nevertheless used
 
-    seqCount = gAlCtlHeader->seqCount;
+    seqCount = WORLD(gAlCtlHeader)->seqCount;
     for (idx = 0; idx < seqCount; idx++) {
-        bankId1 = gCtlEntries[idx].bankId1;
-        bankId2 = gCtlEntries[idx].bankId2;
+        bankId1 = WORLD(gCtlEntries)[idx].bankId1;
+        bankId2 = WORLD(gCtlEntries)[idx].bankId2;
         if ((bankId1 != 0xffu && entry->bankId == bankId1) || (bankId2 != 0xff && entry->bankId == bankId2) || entry->bankId == 0) {
             if (get_bank_or_seq(1, 3, idx) != NULL) {
                 if (IS_BANK_LOAD_COMPLETE(idx) != FALSE) {
-                    for (i = 0; i < gUnkPool2.numEntries; i++) {
-                        entry = &gUnkPool2.entries[i];
-                        for (instId = 0; instId < gCtlEntries[idx].numInstruments; instId++) {
+                    for (i = 0; i < WORLD(gUnkPool2).numEntries; i++) {
+                        entry = &WORLD(gUnkPool2).entries[i];
+                        for (instId = 0; instId < WORLD(gCtlEntries)[idx].numInstruments; instId++) {
                             inst = get_instrument_inner(idx, instId);
                             if (inst != NULL) {
                                 if (inst->normalRangeLo != 0) {
@@ -1728,7 +1728,7 @@ void func_sh_802f23ec(void) {
                                 func_sh_802F2320(entry, inst->normalNotesSound.sample);
                             }
                         }
-                        for (drumId = 0; drumId < gCtlEntries[idx].numDrums; drumId++) {
+                        for (drumId = 0; drumId < WORLD(gCtlEntries)[idx].numDrums; drumId++) {
                             drum = get_drum(idx, drumId);
                             if (drum != NULL) {
                                 func_sh_802F2320(entry, drum->sound.sample);

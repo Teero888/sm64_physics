@@ -313,10 +313,11 @@ static void describe(char *out, size_t size, target t) {
 
 static int sReported;
 static uint32_t sPoll;
+static uint32_t sNativeFrames; // frames stepped natively
 
 static void report(const char *format, ...) {
     if (sReported++ == 0) {
-        printf("lockstep: first difference at poll %u (native frame %u)\n", sPoll, sPoll - 1);
+        printf("lockstep: first difference at poll %u (native frame %u)\n", sPoll, sNativeFrames);
     }
     if (sReported > MAX_REPORTED) {
         return;
@@ -595,7 +596,18 @@ void lockstep_rom(const uint8_t *rom, size_t size) {
 int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
     sRam = ram;
     sPoll = poll;
-    // The first poll is a controller read during boot, before the game loop.
+    // A game frame reads the controller once; other reads (the Shindou
+    // Edition's Rumble Pak queries, at boot and every 60 vertical interrupts
+    // without one) come between frames: the game has not moved on since the
+    // last poll compared.
+    static uint32_t sComparedTimer;
+    if (poll > 0) {
+        const uint32_t timer = n64_u32(n64_lookup("gGlobalTimer")->address);
+        if (timer == sComparedTimer) {
+            return 0;
+        }
+        sComparedTimer = timer;
+    }
     if (poll == 0) {
         load_table(&sKseg0, SM64_ORACLE_DIR "/symbols/" SM64_VERSION_NAME ".tsv");
         load_table(&sSegmented, SM64_ORACLE_DIR "/symbols/" SM64_VERSION_NAME "_segments.tsv");
@@ -633,6 +645,7 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         fprintf(stderr, "lockstep: %u polls identical\n", poll);
     }
     sm64_step(sWorld, input);
+    ++sNativeFrames;
     // SM64_LOCKSTEP_MOVE=N: every N frames the world moves to new memory
     // (sm64_world_copy), the old one overwritten and freed.
     static long move = -1;

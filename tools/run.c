@@ -480,9 +480,9 @@ int main(int argc, char **argv) {
         write_header(trace);
     }
     // The oracle records at each poll, before the frame that reads it runs:
-    // boot first, then record before every step. Its first poll is a
-    // controller read during boot, before the game loop; game frame N reads
-    // poll N + 1, and records carry the poll number to line up.
+    // boot first, then record before every step. Its first polls are
+    // controller reads during boot, before the game loop; game frame N reads
+    // poll N + sm64_boot_polls(), and records carry the poll number to line up.
     if (rom_path) {
         FILE *rom = fopen(rom_path, "rb");
         if (!rom) {
@@ -505,9 +505,11 @@ int main(int argc, char **argv) {
     sWorld = sm64_world_create();
     sm64_world_enter(sWorld);
     uint32_t input;
-    if (fread(&input, 4, 1, polls) != 1) {
-        fprintf(stderr, "sm64_run: %s is empty\n", polls_path);
-        return 1;
+    for (int boot = 0; boot < sm64_boot_polls(); ++boot) {
+        if (fread(&input, 4, 1, polls) != 1) {
+            fprintf(stderr, "sm64_run: %s is empty\n", polls_path);
+            return 1;
+        }
     }
     if (check_at >= 0 || threads > 0 || pointers > 0) {
         static uint32_t inputs[1 << 20];
@@ -526,7 +528,7 @@ int main(int argc, char **argv) {
     while ((limit < 0 || frame < limit) && fread(&input, 4, 1, polls) == 1) {
         if (trace) {
             sink out = { trace, 0 };
-            write_record(&out, frame + 1, input);
+            write_record(&out, frame + (uint32_t) sm64_boot_polls(), input);
         }
         if (draw) {
             const Gfx *list = sm64_step_draw(sWorld, input);

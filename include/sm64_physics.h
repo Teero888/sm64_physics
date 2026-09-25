@@ -16,8 +16,14 @@ extern "C" {
 // visibility; this header's, with default visibility, are its API.
 #pragma GCC visibility push(default)
 
-// The game version this library is built for: "jp", "us" or "eu".
+// The game version this library is built for: "jp", "us", "eu" or "sh".
 const char *sm64_version(void);
+
+// How many times the console reads the controller while it boots, before the
+// first game frame: 1, or 7 on the Shindou Edition (which looks for a Rumble
+// Pak). A movie from power-on (.m64) holds those reads first; game frame N
+// reads the one after them plus N.
+int sm64_boot_polls(void);
 
 // The user's ROM (.z64, .v64 or .n64 byte order) of the version this library
 // is built for: the library carries the game, but not what the decomp takes

@@ -311,7 +311,7 @@ void sequence_player_disable(struct SequencePlayer *seqPlayer) {
 
     if (IS_SEQ_LOAD_COMPLETE(seqPlayer->seqId)
 #if defined(VERSION_SH) || defined(VERSION_CN)
-        && gSeqLoadStatus[seqPlayer->seqId] != 5
+        && WORLD(gSeqLoadStatus)[seqPlayer->seqId] != 5
 #endif
     ) {
         WORLD(gSeqLoadStatus)[seqPlayer->seqId] = SOUND_LOAD_STATUS_DISCARDABLE;
@@ -319,11 +319,11 @@ void sequence_player_disable(struct SequencePlayer *seqPlayer) {
 
     if (IS_BANK_LOAD_COMPLETE(seqPlayer->defaultBank[0])
 #if defined(VERSION_SH) || defined(VERSION_CN)
-        && gBankLoadStatus[seqPlayer->defaultBank[0]] != 5
+        && WORLD(gBankLoadStatus)[seqPlayer->defaultBank[0]] != 5
 #endif
     ) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
-        gBankLoadStatus[seqPlayer->defaultBank[0]] = 4;
+        WORLD(gBankLoadStatus)[seqPlayer->defaultBank[0]] = 4;
 #else
         WORLD(gBankLoadStatus)[seqPlayer->defaultBank[0]] = SOUND_LOAD_STATUS_DISCARDABLE;
 #endif
@@ -1178,7 +1178,7 @@ s32 seq_channel_layer_process_script_part2(struct SequenceChannelLayer *layer) {
 
             case 0xce:
                 cmd = m64_read_u8(state) + 0x80;
-                layer->freqScaleMultiplier = unk_sh_data_1[cmd];
+                layer->freqScaleMultiplier = WORLD(unk_sh_data_1)[cmd];
                 // missing break :)
 
             default:
@@ -1272,8 +1272,8 @@ s32 seq_channel_layer_process_script_part4(struct SequenceChannelLayer *layer, s
                     tuning = 1.0f;
                 }
 
-                temp_f2 = gNoteFrequencies[cmd] * tuning;
-                temp_f12 = gNoteFrequencies[layer->portamentoTargetNote] * tuning;
+                temp_f2 = WORLD(gNoteFrequencies)[cmd] * tuning;
+                temp_f12 = WORLD(gNoteFrequencies)[layer->portamentoTargetNote] * tuning;
 
                 portamento = &layer->portamento;
                 switch (PORTAMENTO_MODE(layer->portamento)) {
@@ -1300,7 +1300,7 @@ s32 seq_channel_layer_process_script_part4(struct SequenceChannelLayer *layer, s
 
                 if (PORTAMENTO_IS_SPECIAL(layer->portamento)) {
                     portamento->speed = US_FLOAT(32512.0) * FLOAT_CAST(seqPlayer->tempo)
-                                        / ((f32) layer->delay * (f32) gTempoInternalToExternal
+                                        / ((f32) layer->delay * (f32) WORLD(gTempoInternalToExternal)
                                             * FLOAT_CAST(layer->portamentoTime));
                 } else {
                     portamento->speed = US_FLOAT(127.0) / FLOAT_CAST(layer->portamentoTime);
@@ -1314,10 +1314,10 @@ s32 seq_channel_layer_process_script_part4(struct SequenceChannelLayer *layer, s
                 sound = instrument_get_audio_bank_sound(instrument, cmd);
                 sameSound = (sound == layer->sound);
                 layer->sound = sound;
-                layer->freqScale = gNoteFrequencies[cmd] * sound->tuning;
+                layer->freqScale = WORLD(gNoteFrequencies)[cmd] * sound->tuning;
             } else {
                 layer->sound = NULL;
-                layer->freqScale = gNoteFrequencies[cmd];
+                layer->freqScale = WORLD(gNoteFrequencies)[cmd];
             }
         }
     }
@@ -1753,7 +1753,7 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 #if defined(VERSION_SH) || defined(VERSION_CN)
                     case 0xee:
                         cmd = m64_read_u8(state) + 0x80;
-                        seqChannel->freqScale = unk_sh_data_1[cmd];
+                        seqChannel->freqScale = WORLD(unk_sh_data_1)[cmd];
                         seqChannel->changes.as_bitfields.freqScale = TRUE;
                         break;
 #endif
@@ -2327,12 +2327,12 @@ void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
 
     // Remove possible SOUND_LOAD_STATUS_DISCARDABLE marks.
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    if (gSeqLoadStatus[seqPlayer->seqId] != 5)
+    if (WORLD(gSeqLoadStatus)[seqPlayer->seqId] != 5)
 #endif
         WORLD(gSeqLoadStatus)[seqPlayer->seqId] = SOUND_LOAD_STATUS_COMPLETE;
 
 #if defined(VERSION_SH) || defined(VERSION_CN)
-    if (gBankLoadStatus[seqPlayer->defaultBank[0]] != 5)
+    if (WORLD(gBankLoadStatus)[seqPlayer->defaultBank[0]] != 5)
 #endif
         WORLD(gBankLoadStatus)[seqPlayer->defaultBank[0]] = SOUND_LOAD_STATUS_COMPLETE;
 
@@ -2838,9 +2838,9 @@ void init_sequence_players(void) {
         WORLD(gSequencePlayers)[i].seqVariation = -1;
 #endif
 #if defined(VERSION_SH) || defined(VERSION_CN)
-        gSequencePlayers[i].muteBehavior = MUTE_BEHAVIOR_STOP_SCRIPT | MUTE_BEHAVIOR_STOP_NOTES | MUTE_BEHAVIOR_SOFTEN;
-        gSequencePlayers[i].enabled = FALSE;
-        gSequencePlayers[i].muted = FALSE;
+        WORLD(gSequencePlayers)[i].muteBehavior = MUTE_BEHAVIOR_STOP_SCRIPT | MUTE_BEHAVIOR_STOP_NOTES | MUTE_BEHAVIOR_SOFTEN;
+        WORLD(gSequencePlayers)[i].enabled = FALSE;
+        WORLD(gSequencePlayers)[i].muted = FALSE;
 #endif
         WORLD(gSequencePlayers)[i].bankDmaInProgress = FALSE;
         WORLD(gSequencePlayers)[i].seqDmaInProgress = FALSE;
