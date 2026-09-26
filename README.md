@@ -6,7 +6,7 @@ time, bit-identical to the console. Its code in `game/` started as
 library's own; the decomp stays a reference. `docs/changes.md` lists what
 changed from it.
 
-This is the rewrite. Where it is headed:
+What it is:
 
 - **The whole game, not a physics model.** Level scripts, objects, the camera,
   menus and dialogs run as the decomp wrote them, from power-on, so TAS inputs
@@ -22,38 +22,61 @@ This is the rewrite. Where it is headed:
   own (`sm64_world_create`); threads step different worlds at the same time.
 - **Verified against an emulator.** `oracle/` records the game's state at every
   frame of real TAS movies on mupen64plus; the library must reproduce it.
+- **Drawn apart from its state.** A renderer steps a copy of the world with
+  drawing on and draws the display list the game hands over (frametee's
+  `games/sm64/` does, with Vulkan).
 
 ## Status
 
-JP, US, EU and the Shindou Edition. In lockstep with the emulator (`sm64_lockstep`), comparing Mario,
-all objects, the camera and its internal state, cutscene and menu state,
-controllers, areas and the save file every frame, these TASes are identical
-from power-on to their last frame:
+JP, US, EU and the Shindou Edition. In lockstep with the emulator
+(`sm64_lockstep`), which compares Mario, all objects, the camera and its
+internal state, cutscene and menu state, controllers, areas and the save file
+at every controller poll:
 
-| Movie | Version | Frames |
-|---|---|---|
-| 1 key (TASVideos 4490M) | JP | 7431 |
-| all trees (7239M) | JP | 14609 |
-| 0 stars (2016M) | US | 8827 |
-| 16 stars (6943M) | US | 23303 |
-| 70 stars (2062M) | US | 74451 |
-| 120 stars (7310M) | US | 128863 |
-| no input: the title demos (`oracle/make_movie.py idle`) | EU | 20000 |
-| random input, seed 64 (`oracle/make_movie.py random`) | EU | 30000 |
-| no input: the title demos | Shindou | 20000 |
-| random input, seed 64 | Shindou | 30000 |
+| Movie | Version | Polls | Identical |
+|---|---|---|---|
+| 1 key (TASVideos 4490M) | JP | 7416 | to the end |
+| all trees (7239M) | JP | 14593 | to the end |
+| 0 stars (2016M) | US | 8772 | to the end |
+| 16 stars (6943M) | US | 23248 | to the end |
+| 70 stars (2062M) | US | 74396 | to poll 52043 |
+| 120 stars (7310M) | US | 128808 | to poll 77768 |
+| no input: the title demos (`oracle/make_movie.py idle`) | EU | 20000 | to the end |
+| random input, seed 64 (`oracle/make_movie.py random`) | EU | 30000 | to the end |
+| no input: the title demos | Shindou | 20000 | to the end |
+| random input, seed 64 | Shindou | 30000 | to the end |
 
-The US 16, 70 and 120 star movies do not play out as published on this
-emulator (mupen64plus), which the TASes were not made on: the library follows
-the emulator there, desyncs included. EU and the Shindou Edition have no TAS in
-the corpus yet; their made-up movies cover the title demos, the menus
-(languages included) and play on the castle grounds. The Shindou Edition also
-reads the controller while looking for a Rumble Pak, at boot and every 60
-vertical interrupts without one: `sm64_boot_polls` counts the boot's, and
-the lockstep comparator skips the others.
+The TASes are made on Mupen64-rr, which gives the console's first controller
+read after power-on no movie sample: movie sample N is read N + 1 (the
+oracle's default `--poll-offset -1`, `oracle/README.md`). So played, all of
+them run to their end on mupen64plus as on Mupen64-rr. The 70 stars movie
+first differs in a Wiggler body part's data, the 120 stars movie in Jolly
+Roger Bay's sliding box, whose first frame reads a stack variable the game
+never set; both are still open.
+
+EU and the Shindou Edition have no TAS in the corpus yet; their made-up movies
+cover the title demos, the menus (languages included) and play on the castle
+grounds. The Shindou Edition also reads the controller while looking for a
+Rumble Pak, at boot and every 60 vertical interrupts without one:
+`sm64_boot_polls` counts the boot's, and the lockstep comparator skips the
+others.
 
 `docs/avoid_ub.md` lists where a native build of the decomp differs from the
 N64 and how each difference is handled.
+
+## Drawing
+
+`sm64_step_draw` steps a world with drawing on and returns the display list
+the game hands the RSP. Settings of the calling thread change what it draws,
+never the world's state after the step:
+
+- `sm64_set_draw_mario_only`: Mario alone, for drawing another world's Mario
+  over this one's frame.
+- `sm64_set_draw_widescreen`: sky wide enough for a view wider than 4:3.
+- `sm64_set_draw_interpolation`: the frame between the world the step starts
+  from and the one it leaves, for more frames a second than the game's 30.
+
+`docs/changes.md` lists how each is done.
 
 ## Sound
 
@@ -103,7 +126,8 @@ and, with protected visibility, the game's own functions and variables for
 code that uses the game directly. The tools (`sm64_run`, `sm64_lockstep`) are
 only built with the static library. A program that wants several versions
 adds this directory once per version, with `SM64_VERSION` and
-`SM64_TARGET_SUFFIX` set (frametee: `sm64_physics_us`, `sm64_physics_jp`).
+`SM64_TARGET_SUFFIX` set (frametee: `sm64_physics_us`, `sm64_physics_jp`,
+`sm64_physics_eu`, `sm64_physics_sh`).
 
 ## Layout
 
@@ -113,13 +137,17 @@ adds this directory once per version, with `SM64_VERSION` and
 | `platform/ultra.c` | The SDK functions the game calls: message queues, DMA as copies, the controller, EEPROM. |
 | `platform/ultra_math.h` | libultra's `sinf`/`cosf` for the game, under other names. |
 | `game/` | The game's code. `game/gen/<version>/` holds what the decomp generates from its own sources (text, level headers); `game/rom_assets/<version>.tsv` lists what comes from the ROM. |
-| `platform/draw.h` | The runtime switch for the render walk's drawing. |
+| `platform/draw.h` | The runtime switch for the render walk's drawing, and its settings. |
+| `platform/api.c` | What `sm64_physics.h` reads from a world: Mario, the camera, any variable. |
+| `platform/rom.c` | The user's ROM, for what the library does not carry: the textures' pixels. |
+| `platform/sound.c`, `rsp_audio.c` | The sound banks and sequences converted from the ROM, and the audio microcode. |
 | `platform/world.c`, `world.h`, `state.ld` | Worlds: the game's state as one section, one copy per world (`docs/state.md`). |
 | `tools/state/` | The rewrite that routes every use of the state through the current world, and the initial values' pointer table. |
 | `tools/vendor.py` | The one-time import from the decomp, kept as a record. |
 | `tools/rom_stubs.py` | Names for the ROM's textures, without their pixels, for the build. |
 | `tools/n64stack/` | The N64 stack pointer model's table (`<version>.tsv`) and the tools that derive it from a decomp build. |
 | `tools/run.c` | Steps an oracle polls file and writes a trace in the oracle's format, laid out as on the N64. |
+| `tools/lockstep/` | `sm64_lockstep`: the oracle's emulator with the library beside it, compared at every poll. |
 | `oracle/` | The emulator reference. |
 
 ## Build flags
