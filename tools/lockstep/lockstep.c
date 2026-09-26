@@ -634,7 +634,16 @@ int lockstep_poll(const uint8_t *ram, uint32_t poll, uint32_t input) {
         }
         sOverlayFingerprinted = true;
     }
-    compare_all();
+    // SM64_LOCKSTEP_FROM=N: compare from poll N on only, which is faster to
+    // get to.
+    static long from = -1;
+    if (from < 0) {
+        const char *first = getenv("SM64_LOCKSTEP_FROM");
+        from = first ? atol(first) : 0;
+    }
+    if (poll >= (uint32_t) from) {
+        compare_all();
+    }
     if (sReported) {
         if (sReported > MAX_REPORTED) {
             printf("  ... %d more\n", sReported - MAX_REPORTED);

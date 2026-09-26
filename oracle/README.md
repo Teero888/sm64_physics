@@ -23,7 +23,7 @@ python3 corpus.py            # downloads, runs and checks every movie in corpus.
 
 | | |
 |---|---|
-| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`), and with `--audio OUT` the sound the game hands the audio interface (stereo 16-bit samples). `--poll-offset` (default -1, see Findings) says which movie sample a poll reads. |
+| `build/sm64_oracle` | Plays a movie and writes a trace (`--trace`), the polls file (`--polls`) and RDRAM dumps (`--dump-at N`), and with `--audio OUT` the sound the game hands the audio interface (stereo 16-bit samples). `--poll-offset` (default -1, see Findings) says which movie sample a poll reads. `--poke POLL:ADDRESS:VALUE` writes a word before the frame after POLL, to find when the game last wrote it. `--break ADDRESS` and `--watch ADDRESS[:SIZE]` (a physical address) log each call with its stack pointer and each store with its value, from `--debug-from POLL` on; they need `--cpu 1` and a core built with the debugger (mupen64plus-core 2.6.0: `CFLAGS="-I/usr/include/minizip -DFALSE=0 -DTRUE=1" make -C projects/unix all DEBUGGER=1 NO_ASM=1`, then `--core` it). |
 | `corpus.py` | Runs `corpus.json` and checks each movie's level route and final action. |
 | `make_movie.py` | Movies for a version without a TAS: no input (the title demos) or seeded random input. |
 | `sm64trace.py` | `info`, `show`, `mario` (decoded Mario state) and `diff` (first differing poll and field) for traces. |

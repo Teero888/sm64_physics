@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <m64p_common.h>
 #include <m64p_config.h>
+#include <m64p_debugger.h>
 #include <m64p_frontend.h>
 #include <m64p_types.h>
 #include <stdarg.h>
@@ -61,7 +62,50 @@ typedef struct oracle {
   uint32_t skip_at[64], skip_count[64];
   int skips;
   bool stopping, failed;
+  // --break, --watch: breakpoints armed at poll debug_from (the cached
+  // interpreter or the pure one: the dynarec does not check them).
+  m64p_breakpoint breakpoints[16];
+  int breakpoint_count;
+  uint32_t debug_from;
+  bool debug_armed;
+  // --poke POLL:ADDRESS:VALUE: a word written to RAM before the frame after
+  // POLL, to find when the game last wrote it.
+  uint32_t poke_at[16], poke_address[16], poke_value[16];
+  int poke_count;
 } oracle;
+
+static oracle *sDebugOracle;
+static ptr_DebugSetRunState sDebugSetRunState;
+static ptr_DebugStep sDebugStep;
+static ptr_DebugGetCPUDataPtr sDebugGetCPUDataPtr;
+static ptr_DebugBreakpointCommand sDebugBreakpointCommand;
+static ptr_DebugBreakpointTriggeredBy sDebugBreakpointTriggeredBy;
+static ptr_DebugMemRead32 sDebugMemRead32;
+
+static void debug_init(void) { sDebugSetRunState(M64P_DBG_RUNSTATE_RUNNING); }
+static void debug_vi(void) {}
+
+// A breakpoint hit: logs where, with the stack pointer and return address,
+// and for a write what the watched word holds now.
+static void debug_update(unsigned int pc) {
+  const int64_t *regs = sDebugGetCPUDataPtr(M64P_CPU_REG_REG);
+  uint32_t flags = 0, address = 0;
+  sDebugBreakpointTriggeredBy(&flags, &address);
+  if (flags & M64P_BKP_FLAG_WRITE) {
+    // Called before the store: the value is the store's source register.
+    // (Memory is read through KSEG0: a physical address would go through
+    // the TLB.)
+    const uint32_t op = sDebugMemRead32(pc);
+    fprintf(stderr, "watch: poll %u pc %08x op %08x stores %08x at %08x (was %08x) sp %08x ra %08x\n",
+            sDebugOracle->poll, pc, op, (uint32_t)regs[(op >> 16) & 31], address,
+            sDebugMemRead32((address & 0x1ffffffcu) | 0x80000000u), (uint32_t)regs[29], (uint32_t)regs[31]);
+  } else {
+    fprintf(stderr, "break: poll %u pc %08x sp %08x ra %08x a0 %08x\n", sDebugOracle->poll, pc, (uint32_t)regs[29],
+            (uint32_t)regs[31], (uint32_t)regs[4]);
+  }
+  sDebugSetRunState(M64P_DBG_RUNSTATE_RUNNING);
+  sDebugStep();
+}
 
 static void die(const char *format, ...) {
   va_list args;
@@ -147,6 +191,10 @@ static uint32_t on_poll(void *user, int controller) {
     fwrite(o->record, 1, o->record_size, o->trace);
   }
   if (o->polls) fwrite(&input, 4, 1, o->polls);
+  if (o->breakpoint_count && !o->debug_armed && o->poll >= o->debug_from) {
+    for (int b = 0; b < o->breakpoint_count; ++b) sDebugBreakpointCommand(M64P_BKP_CMD_ADD_STRUCT, 0, &o->breakpoints[b]);
+    o->debug_armed = true;
+  }
 #ifdef SM64_LOCKSTEP
   if (lockstep_poll(ram, o->poll, input)) {
     o->failed = true;
@@ -155,6 +203,8 @@ static uint32_t on_poll(void *user, int controller) {
 #endif
   for (int d = 0; d < o->dump_count; ++d)
     if (o->dump_at[d] == o->poll) write_dump(o, ram, ram_size);
+  for (int p = 0; p < o->poke_count; ++p)
+    if (o->poke_at[p] == o->poll) memcpy((uint8_t *)ram + (o->poke_address[p] & 0x7ffffc), &o->poke_value[p], 4);
   ++o->poll;
   if (o->max_polls && o->poll >= o->max_polls) stop(o);
   if (!o->movie.per_vi && at + 1 >= (long long)o->movie.count) stop(o);
@@ -320,6 +370,24 @@ int main(int argc, char **argv) {
       ++i;
       continue;
     }
+    if ((strcmp(arg, "--break") == 0 || strcmp(arg, "--watch") == 0) && value && o.breakpoint_count < 16) {
+      m64p_breakpoint *b = &o.breakpoints[o.breakpoint_count++];
+      unsigned size = 1;
+      b->address = (uint32_t)strtoul(value, NULL, 0);
+      if (strchr(value, ':')) size = (unsigned)strtoul(strchr(value, ':') + 1, NULL, 0);
+      b->endaddr = b->address + size - 1;
+      b->flags = M64P_BKP_FLAG_ENABLED | (arg[2] == 'b' ? M64P_BKP_FLAG_EXEC : M64P_BKP_FLAG_WRITE);
+      ++i;
+      continue;
+    }
+    if (strcmp(arg, "--poke") == 0 && value && o.poke_count < 16) {
+      if (sscanf(value, "%u:%x:%x", &o.poke_at[o.poke_count], &o.poke_address[o.poke_count],
+                 &o.poke_value[o.poke_count]) == 3)
+        ++o.poke_count;
+      ++i;
+      continue;
+    }
+    if (strcmp(arg, "--debug-from") == 0 && value) { o.debug_from = (uint32_t)atoi(value); ++i; continue; }
     if (strcmp(arg, "--max-polls") == 0 && value) { o.max_polls = (uint32_t)atoi(value); ++i; continue; }
     if (strcmp(arg, "--dump-at") == 0 && value && o.dump_count < MAX_DUMPS) {
       o.dump_at[o.dump_count++] = (uint32_t)strtoul(value, NULL, 0);
@@ -376,6 +444,18 @@ int main(int argc, char **argv) {
   set_parameter(section, "OnScreenDisplay", M64TYPE_BOOL, &off);
   set_parameter(section, "SaveSRAMPath", M64TYPE_STRING, home);
   set_parameter(section, "SaveStatePath", M64TYPE_STRING, home);
+  if (o.breakpoint_count) {
+    set_parameter(section, "EnableDebugger", M64TYPE_BOOL, &on);
+    sDebugOracle = &o;
+    sDebugSetRunState = (ptr_DebugSetRunState)symbol(core, "DebugSetRunState");
+    sDebugStep = (ptr_DebugStep)symbol(core, "DebugStep");
+    sDebugGetCPUDataPtr = (ptr_DebugGetCPUDataPtr)symbol(core, "DebugGetCPUDataPtr");
+    sDebugBreakpointCommand = (ptr_DebugBreakpointCommand)symbol(core, "DebugBreakpointCommand");
+    sDebugBreakpointTriggeredBy = (ptr_DebugBreakpointTriggeredBy)symbol(core, "DebugBreakpointTriggeredBy");
+    sDebugMemRead32 = (ptr_DebugMemRead32)symbol(core, "DebugMemRead32");
+    if (((ptr_DebugSetCallbacks)symbol(core, "DebugSetCallbacks"))(debug_init, debug_update, debug_vi) != M64ERR_SUCCESS)
+      die("the core has no debugger");
+  }
 
   size_t rom_size = 0;
   uint8_t *rom = read_all(rom_path, &rom_size);
