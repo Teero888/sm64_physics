@@ -9,7 +9,7 @@ sites only affect sound and the title screen's Mario head and are not audited.
 | Site | What AVOID_UB does | N64 | Status |
 |---|---|---|---|
 | `object_collision.c` `detect_object_hitbox_overlap`, `detect_object_hurtbox_overlap` | missing return is 0 | returns v0: the previous result of either in the collision pass | **docs/changes.md 4** |
-| `wiggler.inc.c` init | sets health to 4 | JP/US read 0 (fields are zeroed at spawn); only EU sets 4 | **docs/changes.md 5** |
+| `wiggler.inc.c` init | sets health to 4 | only EU sets 4; JP, US and the Shindou Edition walk one frame with the health of 2048 every object spawns with, and read the target speed 2047 floats past `sWigglerSpeeds`, in the audio data that follows | **docs/changes.md 5, 25** |
 | `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode (`0x6e78`, `0x6eb0` in the JP 1-key TAS, depending on the call path) | **docs/changes.md 7**, from the N64 stack pointer model (`platform/n64stack.h`) |
 | `camera_lakitu.inc.c` intro dialog | target pitch/yaw start at 0 | uninitialized registers, read while Lakitu hovers during his dialog | matches the emulator in the JP 1-key TAS (new file, full intro) |
 | `mario_actions_airborne.c` wall kick | returns `set_mario_animation`'s result | same value is in v0 | faithful |

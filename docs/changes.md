@@ -58,10 +58,10 @@ Files: `src/game/object_collision.c`
 ## 5. Keep Wiggler's first-frame health at 0 on JP and US
 
 AVOID_UB sets Wiggler's health to 4 in his init, as EU does, because his
-first frame of acceleration reads it before anything sets it. That read is
-not undefined: every object field is zeroed when the object spawns (natively
-as on the N64), so JP and US read 0 and accelerate accordingly. Only EU sets
-it. Found auditing AVOID_UB (docs/avoid_ub.md).
+first frame of acceleration reads it before anything sets it. Only EU sets
+it: on JP, US and the Shindou Edition his health is still the 2048 every
+object spawns with, and the speed read with it is out of bounds (25). Found
+auditing AVOID_UB (docs/avoid_ub.md).
 
 Files: `src/game/behaviors/wiggler.inc.c`
 
@@ -305,3 +305,17 @@ further than 1000 units, nor anything when the level or area changed. The
 values the game keeps are not touched; a step that does not draw is the same.
 
 Files: `src/game/rendering_graph_node.c`, `src/game/level_geo.c`
+
+## 25. Read Wiggler's first walking speed where the N64 does
+
+On JP, US and the Shindou Edition, Wiggler's first frame of walking reads his
+target speed as `sWigglerSpeeds[health - 1]` with the health of 2048 he
+spawned with (5): the float 2047 entries past the array. On the N64 that is
+the audio data after it, the same on every console: `gVolRampingLhs144[80]`
+(113762.27) on JP and US, `gStereoPanVolume[91]` on the Shindou Edition. So
+he starts walking at 1 unit a frame. Natively the read landed in whatever the
+library's layout put there, a tiny number, and he stood still for a frame:
+the 70-star TAS differed from Wiggler's fight on. The speed is now read from
+those tables.
+
+Files: `src/game/behaviors/wiggler.inc.c`, `src/game/obj_behaviors_2.c`

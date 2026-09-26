@@ -55,6 +55,26 @@ static u8 sWigglerAttackHandlers[] = {
 static f32 sWigglerSpeeds[] = { 2.0f, 40.0f, 30.0f, 16.0f };
 
 /**
+ * Library: the target speed for a health, as the N64 reads it
+ * (docs/changes.md 25). On his first frame of walking Wiggler's health is
+ * still the 2048 every object spawns with (only EU's init sets 4), and the
+ * N64 reads the float 2047 entries past sWigglerSpeeds: in the audio data
+ * that follows in its memory.
+ */
+static f32 wiggler_speed(s32 health) {
+#if defined(VERSION_JP) || defined(VERSION_US)
+    if (health == 2048) {
+        return WORLD(gVolRampingLhs144)[80]; // 113762.27
+    }
+#elif defined(VERSION_SH)
+    if (health == 2048) {
+        return WORLD(gStereoPanVolume)[91];
+    }
+#endif
+    return WORLD(sWigglerSpeeds)[health - 1];
+}
+
+/**
  * Update function for bhvWigglerBody.
  * Set object position and angle based on wiggler segment data and avoid falling
  * through the floor.
@@ -150,8 +170,8 @@ void wiggler_init_segments(void) {
         cur_obj_unhide();
     }
 
-// Not undefined on JP and US: object fields are zeroed when the object is
-// spawned, so Wiggler's first frame of acceleration reads a health of 0.
+// Only EU sets it: on JP, US and the Shindou Edition Wiggler's first frame
+// of acceleration reads the health of 2048 he spawned with (wiggler_speed).
 #if defined(VERSION_EU)
     o->oHealth = 4; // This fixes Wiggler reading UB on his first frame of his acceleration, as his health is not set.
 #endif
@@ -234,7 +254,8 @@ static void wiggler_act_walk(void) {
         //  to 4 until after this runs the first time. It indexes out of bounds
         //  and uses the value 113762.3 for one frame on US. This is fixed up
         //  in wiggler_init_segments if AVOID_UB is defined.
-        obj_forward_vel_approach(WORLD(sWigglerSpeeds)[o->oHealth - 1], 1.0f);
+        // Library: the value the N64 reads (docs/changes.md 25).
+        obj_forward_vel_approach(wiggler_speed(o->oHealth), 1.0f);
 
         if (o->oWigglerWalkAwayFromWallTimer != 0) {
             o->oWigglerWalkAwayFromWallTimer--;
