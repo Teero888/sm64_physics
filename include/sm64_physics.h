@@ -95,6 +95,15 @@ void sm64_set_draw_mario_only(bool enabled);
 // draws it wide enough for a view up to about 2.3 times as wide as tall.
 void sm64_set_draw_widescreen(bool enabled);
 
+// A setting of the calling thread, as sm64_set_draw: draws sm64_step_draw's
+// frames between two game frames, for showing more frames a second than the
+// game's 30. Objects and the camera are where they were in `from`, moved
+// `alpha` (0 to 1) of the way to where the step puts them; one that appeared,
+// left or jumped far is where the step puts it. `from` is the world the step
+// starts from, or a copy of it, and must outlive the setting. NULL: the step's
+// own frame. The world's state after the step is the same either way.
+void sm64_set_draw_interpolation(const sm64_world *from, float alpha);
+
 // Where a display list applies the game's 3D camera, a G_NOOP carries it: its
 // first word is G_NOOP << 24 | SM64_CAMERA_TAG, its second the address of the
 // camera's matrix (float[4][4], row vectors: a point in the world times it is

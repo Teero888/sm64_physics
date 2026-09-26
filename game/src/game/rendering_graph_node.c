@@ -19,6 +19,10 @@
 #include "shadow.h"
 #include "sm64.h"
 
+// Library: drawing between two frames (docs/changes.md 24): what moved further
+// than this in a frame jumped (a warp, a respawn, a camera cut).
+#define INTERPOLATION_MAX_DISTANCE 1000.0f
+
 /**
  * This file contains the code that processes the scene graph for rendering.
  * The scene graph is responsible for drawing everything except the HUD / text boxes.
@@ -358,15 +362,29 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
     if (node->fnNode.func != NULL) {
         node->fnNode.func(GEO_CONTEXT_RENDER, &node->fnNode.node, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
     }
+    // Library: drawn between two frames, where the camera was between them
+    // (docs/changes.md 24). A cut is drawn where the camera went.
+    f32 *pos = node->pos;
+    f32 *focus = node->focus;
+    s16 roll = node->roll;
+    s16 rollScreen = node->rollScreen;
+    Vec3f betweenPos, betweenFocus;
+    if (host_draw_between_vec3f(betweenPos, node->pos, INTERPOLATION_MAX_DISTANCE)
+        && host_draw_between_vec3f(betweenFocus, node->focus, INTERPOLATION_MAX_DISTANCE)) {
+        pos = betweenPos;
+        focus = betweenFocus;
+        roll = host_draw_between_angle(&node->roll);
+        rollScreen = host_draw_between_angle(&node->rollScreen);
+    }
     if (SM64_DRAW) {
         Mtx *rollMtx = alloc_display_list(sizeof(*rollMtx));
 
-        mtxf_rotate_xy(rollMtx, node->rollScreen);
+        mtxf_rotate_xy(rollMtx, rollScreen);
 
         gSPMatrix(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(rollMtx), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     }
 
-    mtxf_lookat(cameraTransform, node->pos, node->focus, node->roll);
+    mtxf_lookat(cameraTransform, pos, focus, roll);
     mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], cameraTransform, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
     WORLD(gMatStackIndex)++;
     if (SM64_DRAW) {
@@ -1003,6 +1021,64 @@ static s32 geo_process_object_state(struct Object *node, s32 hasAnimation) {
 }
 
 /**
+ * Library: an object drawn between two frames (sm64_set_draw_interpolation,
+ * docs/changes.md 24): where it was between them, into pos, angle and scale.
+ * FALSE for one that appeared, left or jumped far in the frame: drawn where
+ * the frame put it.
+ */
+static s32 object_between_frames(struct Object *node, Vec3f pos, Vec3s angle, Vec3f scale) {
+    const struct Object *from = host_draw_from(node);
+    if (from == NULL || from->header.gfx.areaIndex != node->header.gfx.areaIndex) {
+        return FALSE;
+    }
+    // A pool object: the same one in both frames. (Not a pool object: Mario's
+    // mirror image, which only has the graph node.)
+    if ((u8 *) node >= (u8 *) WORLD(gObjectPool) && (u8 *) node < (u8 *) (WORLD(gObjectPool) + OBJECT_POOL_CAPACITY)
+        && (!(from->activeFlags & ACTIVE_FLAG_ACTIVE) || from->behavior != node->behavior)) {
+        return FALSE;
+    }
+    if (!host_draw_between_vec3f(pos, node->header.gfx.pos, INTERPOLATION_MAX_DISTANCE)
+        || !host_draw_between_vec3f(scale, node->header.gfx.scale, INTERPOLATION_MAX_DISTANCE)) {
+        return FALSE;
+    }
+    for (s32 i = 0; i < 3; i++) {
+        angle[i] = host_draw_between_angle(&node->header.gfx.angle[i]);
+    }
+    return TRUE;
+}
+
+/**
+ * Library: an object's throw matrix between two frames: moved with the
+ * object, and turned between its two orientations when it is the object's
+ * own transform, which the game keeps from frame to frame.
+ */
+static void throw_matrix_between_frames(struct Object *node, Mat4 out, const Vec3f pos) {
+    mtxf_copy(out, *node->header.gfx.throwMatrix);
+    if (node->header.gfx.throwMatrix == &node->transform) {
+        const struct Object *from = host_draw_from(node);
+        f32 difference = 0.0f;
+        for (s32 i = 0; i < 3; i++) {
+            for (s32 j = 0; j < 3; j++) {
+                const f32 d = node->transform[i][j] - from->transform[i][j];
+                difference = MAX(difference, d < 0.0f ? -d : d);
+            }
+        }
+        // Not a matrix left from another use.
+        if (difference < 0.25f) {
+            for (s32 i = 0; i < 3; i++) {
+                Vec3f row;
+                if (host_draw_between_vec3f(row, node->transform[i], 1.0f)) {
+                    vec3f_copy(out[i], row);
+                }
+            }
+        }
+    }
+    for (s32 i = 0; i < 3; i++) {
+        out[3][i] += pos[i] - node->header.gfx.pos[i];
+    }
+}
+
+/**
  * Process an object node.
  */
 static void geo_process_object(struct Object *node) {
@@ -1014,19 +1090,31 @@ static void geo_process_object(struct Object *node) {
         if (!SM64_DRAW && geo_process_object_state(node, hasAnimation)) {
             return;
         }
+        // Library: drawn between two frames (docs/changes.md 24).
+        Vec3f betweenPos, betweenScale;
+        Vec3s betweenAngle;
+        const s32 between = object_between_frames(node, betweenPos, betweenAngle, betweenScale);
+        f32 *pos = between ? betweenPos : node->header.gfx.pos;
+        s16 *angle = between ? betweenAngle : node->header.gfx.angle;
+        f32 *scale = between ? betweenScale : node->header.gfx.scale;
         if (node->header.gfx.throwMatrix != NULL) {
-            mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], *node->header.gfx.throwMatrix,
-                     WORLD(gMatStack)[WORLD(gMatStackIndex)]);
+            if (between) {
+                throw_matrix_between_frames(node, mtxf, pos);
+                mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], mtxf, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
+            } else {
+                mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], *node->header.gfx.throwMatrix,
+                         WORLD(gMatStack)[WORLD(gMatStackIndex)]);
+            }
         } else if (node->header.gfx.node.flags & GRAPH_RENDER_BILLBOARD) {
             mtxf_billboard(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], WORLD(gMatStack)[WORLD(gMatStackIndex)],
-                           node->header.gfx.pos, WORLD(gCurGraphNodeCamera)->roll);
+                           pos, WORLD(gCurGraphNodeCamera)->roll);
         } else {
-            mtxf_rotate_zxy_and_translate(mtxf, node->header.gfx.pos, node->header.gfx.angle);
+            mtxf_rotate_zxy_and_translate(mtxf, pos, angle);
             mtxf_mul(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], mtxf, WORLD(gMatStack)[WORLD(gMatStackIndex)]);
         }
 
         mtxf_scale_vec3f(WORLD(gMatStack)[WORLD(gMatStackIndex) + 1], WORLD(gMatStack)[WORLD(gMatStackIndex) + 1],
-                         node->header.gfx.scale);
+                         scale);
         node->header.gfx.throwMatrix = &WORLD(gMatStack)[++WORLD(gMatStackIndex)];
         node->header.gfx.cameraToObject[0] = WORLD(gMatStack)[WORLD(gMatStackIndex)][3][0];
         node->header.gfx.cameraToObject[1] = WORLD(gMatStack)[WORLD(gMatStackIndex)][3][1];
@@ -1295,11 +1383,19 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
         gSPViewport(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(viewport));
         gSPMatrix(WORLD(gDisplayListHead)++, VIRTUAL_TO_PHYSICAL(WORLD(gMatStackFixed)[WORLD(gMatStackIndex)]),
                   G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        // Library: drawn between two frames of the same area only
+        // (sm64_set_draw_interpolation, docs/changes.md 24).
+        gHostDrawBetween = 1;
+        const s16 *fromLevel = host_draw_from(&WORLD(gCurrLevelNum));
+        const s16 *fromArea = host_draw_from(&WORLD(gCurrAreaIndex));
+        gHostDrawBetween = fromLevel != NULL && *fromLevel == WORLD(gCurrLevelNum)
+                           && *fromArea == WORLD(gCurrAreaIndex);
         WORLD(gCurGraphNodeRoot) = node;
         if (node->node.children != NULL) {
             geo_process_node_and_siblings(node->node.children);
         }
         WORLD(gCurGraphNodeRoot) = NULL;
+        gHostDrawBetween = 0;
         if (WORLD(gShowDebugText)) {
             print_text_fmt_int(180, 36, "MEM %d",
                                WORLD(gDisplayListHeap)->totalSpace - WORLD(gDisplayListHeap)->usedSpace);

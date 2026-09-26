@@ -39,6 +39,9 @@ __thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));
 __thread int gHostDrawMarioOnly __attribute__((tls_model("initial-exec")));
 __thread int gHostDrawInsideMario __attribute__((tls_model("initial-exec")));
 __thread int gHostDrawWideSetting __attribute__((tls_model("initial-exec")));
+static __thread const struct sm64_world *tDrawFrom __attribute__((tls_model("initial-exec")));
+static __thread float tDrawAlpha __attribute__((tls_model("initial-exec")));
+__thread int gHostDrawBetween __attribute__((tls_model("initial-exec")));
 
 void host_boot(void); // platform/host.c
 void host_step(uint32_t input);
@@ -463,4 +466,43 @@ void sm64_set_draw_mario_only(bool enabled) {
 
 void sm64_set_draw_widescreen(bool enabled) {
     gHostDrawWideSetting = enabled;
+}
+
+void sm64_set_draw_interpolation(const sm64_world *from, float alpha) {
+    tDrawFrom = from;
+    tDrawAlpha = alpha < 0.0f ? 0.0f : alpha > 1.0f ? 1.0f : alpha;
+}
+
+const void *host_draw_from(const void *variable) {
+    const size_t offset = (const char *) variable - (sm64_state_start + gHostWorldOffset);
+    if (!gHostDraw || !gHostDrawBetween || !tDrawFrom || offset >= state_size()) {
+        return NULL;
+    }
+    return tDrawFrom->memory + offset;
+}
+
+int host_draw_between_vec3f(float out[3], const float *variable, float max_distance) {
+    const float *from = host_draw_from(variable);
+    if (from == NULL) {
+        return 0;
+    }
+    float distance = 0.0f;
+    for (int i = 0; i < 3; i++) {
+        distance += (variable[i] - from[i]) * (variable[i] - from[i]);
+    }
+    if (!(distance <= max_distance * max_distance)) {
+        return 0;
+    }
+    for (int i = 0; i < 3; i++) {
+        out[i] = from[i] + (variable[i] - from[i]) * tDrawAlpha;
+    }
+    return 1;
+}
+
+short host_draw_between_angle(const short *variable) {
+    const short *from = host_draw_from(variable);
+    if (from == NULL) {
+        return *variable;
+    }
+    return (short) (*from + (int) ((short) (*variable - *from) * tDrawAlpha));
 }

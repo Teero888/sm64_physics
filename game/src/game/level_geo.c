@@ -70,9 +70,18 @@ Gfx *geo_skybox_main(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) 
         struct GraphNodePerspective *camFrustum =
             (struct GraphNodePerspective *) camNode->fnNode.node.parent;
 
-        gfx = create_skybox_facing_camera(0, backgroundNode->background, camFrustum->fov, WORLD(gLakituState).pos[0],
-                            WORLD(gLakituState).pos[1], WORLD(gLakituState).pos[2], WORLD(gLakituState).focus[0],
-                            WORLD(gLakituState).focus[1], WORLD(gLakituState).focus[2]);
+        // Library: drawn between two frames, where the camera was between
+        // them, as the camera node (docs/changes.md 24).
+        Vec3f pos, focus;
+        vec3f_copy(pos, WORLD(gLakituState).pos);
+        vec3f_copy(focus, WORLD(gLakituState).focus);
+        if (!host_draw_between_vec3f(pos, WORLD(gLakituState).pos, 1000.0f)
+            || !host_draw_between_vec3f(focus, WORLD(gLakituState).focus, 1000.0f)) {
+            vec3f_copy(pos, WORLD(gLakituState).pos);
+            vec3f_copy(focus, WORLD(gLakituState).focus);
+        }
+        gfx = create_skybox_facing_camera(0, backgroundNode->background, camFrustum->fov, pos[0], pos[1], pos[2],
+                                          focus[0], focus[1], focus[2]);
     }
 
     return gfx;

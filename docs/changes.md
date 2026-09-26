@@ -291,3 +291,17 @@ entered Wet-Dry World with the water of an earlier jump. Without drawing, a
 rippling painting's ripple is updated where drawing would.
 
 Files: `src/game/paintings.c`
+
+## 24. Draw between two frames
+
+With `sm64_set_draw_interpolation`, a drawing step draws its frame between
+the world it started from and the one it leaves, for a renderer that shows
+more than the game's 30 frames a second. Objects (their position, angle and
+scale, and a throw matrix moved with them), the camera and the sky's camera
+are where they were between the two frames. The values come from the other
+world at the same place in its memory: a pool object is interpolated only if
+it was the same object there (active, same behavior), and nothing that moved
+further than 1000 units, nor anything when the level or area changed. The
+values the game keeps are not touched; a step that does not draw is the same.
+
+Files: `src/game/rendering_graph_node.c`, `src/game/level_geo.c`
