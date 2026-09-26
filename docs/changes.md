@@ -279,3 +279,15 @@ their commands, so a renderer that widens the view (games/sm64's f3d/) has sky
 to its edges. Nothing changes otherwise.
 
 Files: `src/game/skybox.c`
+
+## 23. Update a rippling painting's ripple without drawing
+
+Drawing a rippling painting ends with painting_update_ripple_state, which
+decays the ripple and returns the painting to idle once it is small; only an
+idle painting ripples again or records the height Mario jumps in at, which
+sets Wet-Dry World's water level. A step without drawing skipped it with the
+drawing, so a painting that had rippled once never stopped: the 70-star TAS
+entered Wet-Dry World with the water of an earlier jump. Without drawing, a
+rippling painting's ripple is updated where drawing would.
+
+Files: `src/game/paintings.c`

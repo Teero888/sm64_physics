@@ -1247,6 +1247,12 @@ Gfx *geo_painting_draw(s32 callContext, struct GraphNode *node, UNUSED void *con
 
             // Draw before updating
             paintingDlist = display_painting(painting);
+        } else if (painting->state != PAINTING_IDLE) {
+            // Library: the ripple's update is part of drawing a rippling
+            // painting, and runs whether or not the frame is drawn: it ends
+            // the ripple, and only an idle painting ripples again or records
+            // Mario's entry (docs/changes.md 23).
+            painting_update_ripple_state(painting);
         }
 
         // Update the painting
