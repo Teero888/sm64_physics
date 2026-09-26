@@ -11,6 +11,7 @@
  * moves.
  */
 void bhv_pyramid_elevator_init(void) {
+    N64_STACK_FRAME(bhv_pyramid_elevator_init);
     s32 i;
 
     for (i = 0; i < 10; i++) {

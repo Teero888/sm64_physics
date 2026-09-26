@@ -28,6 +28,7 @@ static struct FerrisWheelProperties sFerrisWheelProperties[] = {
  * behavior script.
  */
 void bhv_ferris_wheel_axle_init(void) {
+    N64_STACK_FRAME(bhv_ferris_wheel_axle_init);
     struct Object *platform;
     s32 i;
 

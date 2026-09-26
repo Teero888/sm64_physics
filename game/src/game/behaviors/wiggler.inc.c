@@ -82,6 +82,7 @@ static f32 wiggler_speed(s32 health) {
  * attack.
  */
 void bhv_wiggler_body_part_update(void) {
+    N64_STACK_FRAME(bhv_wiggler_body_part_update);
     f32 dx;
     f32 dy;
     f32 dz;
@@ -135,6 +136,7 @@ void bhv_wiggler_body_part_update(void) {
  * Initialize the segment data and spawn the body part objects.
  */
 void wiggler_init_segments(void) {
+    N64_STACK_FRAME(wiggler_init_segments);
     s32 i;
     struct ChainSegment *segments = mem_pool_alloc(WORLD(gObjectMemoryPool), 4 * sizeof(struct ChainSegment));
 
@@ -232,6 +234,7 @@ void wiggler_init_segments(void) {
  * If attacked by mario, enter either the jumped on or knockback action.
  */
 static void wiggler_act_walk(void) {
+    N64_STACK_FRAME(wiggler_act_walk);
     s16 yawTurnSpeed;
 
     o->oWigglerWalkAnimSpeed = 0.06f * o->oForwardVel;
@@ -308,6 +311,7 @@ static void wiggler_act_walk(void) {
  * action.
  */
 static void wiggler_act_jumped_on(void) {
+    N64_STACK_FRAME(wiggler_act_jumped_on);
     // Text to show on first, second, and third attack.
     s32 attackText[3] = { DIALOG_152, DIALOG_168, DIALOG_151 };
 
@@ -353,6 +357,7 @@ static void wiggler_act_jumped_on(void) {
  * Decelerate to a stop and then enter the walk action.
  */
 static void wiggler_act_knockback(void) {
+    N64_STACK_FRAME(wiggler_act_knockback);
     if (o->oVelY > 0.0f) {
         o->oFaceAnglePitch -= o->oVelY * 30.0f;
     } else {
@@ -371,6 +376,7 @@ static void wiggler_act_knockback(void) {
  * Shrink, then spawn the star and enter the fall through floor action.
  */
 static void wiggler_act_shrink(void) {
+    N64_STACK_FRAME(wiggler_act_shrink);
     if (o->oTimer >= 20) {
         if (o->oTimer == 20) {
             cur_obj_play_sound_2(SOUND_OBJ_ENEMY_DEFEAT_SHRINK);
@@ -419,6 +425,7 @@ void wiggler_jumped_on_attack_handler(void) {
  * Update function for bhvWigglerHead.
  */
 void bhv_wiggler_update(void) {
+    N64_STACK_FRAME(bhv_wiggler_update);
     // PARTIAL_UPDATE
 
     if (o->oAction == WIGGLER_ACT_UNINITIALIZED) {

@@ -470,6 +470,7 @@ Gfx *envfx_update_snow(s32 snowMode, Vec3s marioPos, Vec3s camFrom, Vec3s camTo)
  * and returns a display list drawing them.
  */
 Gfx *envfx_update_particles(s32 mode, Vec3s marioPos, Vec3s camTo, Vec3s camFrom) {
+    N64_STACK_FRAME(envfx_update_particles);
     Gfx *gfx;
 
     if (get_dialog_id() != DIALOG_NONE) {

@@ -14,6 +14,7 @@
  * spawn spawned birds if Mario comes within 2000 units of it.
  */
 static void bird_act_inactive(void) {
+    N64_STACK_FRAME(bird_act_inactive);
     // Start flying if the object is a spawned bird or if it's a spawner bird
     // and Mario is within 2000 units.
     if (o->oBhvParams2ndByte == BIRD_BP_SPAWNED || o->oDistanceToMario < 2000.0f) {
@@ -108,6 +109,7 @@ static void bird_act_fly(void) {
  * Update function for bhvBird.
  */
 void bhv_bird_update(void) {
+    N64_STACK_FRAME(bhv_bird_update);
     switch (o->oAction) {
         case BIRD_ACT_INACTIVE:
             bird_act_inactive();

@@ -11,6 +11,7 @@ void bhv_butterfly_init(void) {
 }
 
 void butterfly_step(s32 speed) {
+    N64_STACK_FRAME(butterfly_step);
     struct FloorGeometry *sp24;
     s16 yaw = o->oMoveAngleYaw;
     s16 pitch = o->oMoveAnglePitch;
@@ -64,6 +65,7 @@ void butterfly_act_rest(void) {
 }
 
 void butterfly_act_follow_mario(void) {
+    N64_STACK_FRAME(butterfly_act_follow_mario);
     butterfly_calculate_angle();
 
     butterfly_step(7);
@@ -74,6 +76,7 @@ void butterfly_act_follow_mario(void) {
 }
 
 void butterfly_act_return_home(void) {
+    N64_STACK_FRAME(butterfly_act_return_home);
     f32 homeDistX = o->oHomeX - o->oPosX;
     f32 homeDistY = o->oHomeY - o->oPosY;
     f32 homeDistZ = o->oHomeZ - o->oPosZ;
@@ -96,6 +99,7 @@ void butterfly_act_return_home(void) {
 }
 
 void bhv_butterfly_loop(void) {
+    N64_STACK_FRAME(bhv_butterfly_loop);
     switch (o->oAction) {
         case BUTTERFLY_ACT_RESTING:
             butterfly_act_rest();

@@ -10,6 +10,7 @@ sites only affect sound and the title screen's Mario head and are not audited.
 |---|---|---|---|
 | `object_collision.c` `detect_object_hitbox_overlap`, `detect_object_hurtbox_overlap` | missing return is 0 | returns v0: the previous result of either in the collision pass | **docs/changes.md 4** |
 | `wiggler.inc.c` init | sets health to 4 | only EU sets 4; JP, US and the Shindou Edition walk one frame with the health of 2048 every object spawns with, and read the target speed 2047 floats past `sWigglerSpeeds`, in the audio data that follows | **docs/changes.md 5, 25** |
+| `jrb_ship.inc.c` `bhv_jrb_sliding_box_loop` `sp1E` | uninitialized | read on the box's first frame without being set, as its pitch: on JP and US the low half of the `z3` that the last `find_floor_from_list` at the same stack depth left in the slot (-5003, `0xec75`, in the US 120-star TAS). EU and the Shindou Edition keep `z3` in a register; what they leave there is not modelled | **docs/changes.md 26**, from the N64 stack model |
 | `camera.c` `nop_update_water_camera` | missing return is 0 | returns v0: the low half of `set_camera_mode`'s stack pointer, left by `vec3f_copy` returning `&dest`. Stored into `sAreaYaw` when entering the water surface mode (`0x6e78`, `0x6eb0` in the JP 1-key TAS, depending on the call path) | **docs/changes.md 7**, from the N64 stack pointer model (`platform/n64stack.h`) |
 | `camera_lakitu.inc.c` intro dialog | target pitch/yaw start at 0 | uninitialized registers, read while Lakitu hovers during his dialog | matches the emulator in the JP 1-key TAS (new file, full intro) |
 | `mario_actions_airborne.c` wall kick | returns `set_mario_animation`'s result | same value is in v0 | faithful |
@@ -37,13 +38,20 @@ sites only affect sound and the title screen's Mario head and are not audited.
 | Float to unsigned conversions | IDO's code: negative values become 0xFFFFFFFF, 2^31 and up take a second conversion | x86 wraps | `platform/ido.h`; **docs/changes.md 9** for `sins`/`coss` with float angles |
 | Object fields used as two s16 | `asS16[i][0]` is the upper half of the slot | the lower half | each side reads its own layout; only the comparator cares |
 
-## The N64 stack pointer model
+## The N64 stack model
 
-Where the original leaks a stack address into game state (only
-`set_camera_mode`, docs/changes.md 7), the value depends on how deep the call path
-is. `platform/n64stack.h` keeps the N64 game thread's stack pointer: every
-function from which the N64 can call `set_camera_mode`, and that function
-itself, moves it by its N64 frame size on entry and back on return.
+Where the original leaks a stack address into game state (`set_camera_mode`,
+docs/changes.md 7), the value depends on how deep the call path is. Where it
+reads a local it never set (`bhv_jrb_sliding_box_loop`, docs/changes.md 26),
+the value is whatever an earlier function left at that address.
+`platform/n64stack.h` keeps the N64 game thread's stack pointer: every
+function from which the N64 can call one of the model's targets
+(`set_camera_mode`, `find_floor_from_list`, `bhv_jrb_sliding_box_loop`), and
+the targets themselves, move it by their N64 frame size on entry and back on
+return. It also keeps the words of the stack that the original reads back
+without setting, stored by their N64 address where the original stores them
+(`host_n64stack_store`, part of each world's state), and only those: a write
+to the same address by any other function is not modelled.
 
 `tools/n64stack/callgraph.py` finds those functions in the matching build:
 every function, static ones included, with its frame size, from the procedure

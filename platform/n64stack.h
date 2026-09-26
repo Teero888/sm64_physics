@@ -1,5 +1,6 @@
-// A model of the N64 game thread's stack pointer, for the places where the
-// original lets a stack address leak into game state (docs/avoid_ub.md).
+// A model of the N64 game thread's stack, for the places where the original
+// lets a stack address leak into game state or reads a stack slot it never
+// set (docs/avoid_ub.md).
 //
 // The functions on the N64's call paths to those places open with
 // N64_STACK_FRAME(name); (tools/n64stack/frames.py puts it there): entering
@@ -23,6 +24,13 @@ static inline __attribute__((always_inline)) uint32_t n64stack_enter(uint32_t fr
 static inline __attribute__((always_inline)) void n64stack_leave(const uint32_t *frame) {
     gN64StackPointer += *frame;
 }
+
+// What the model keeps of the stack's contents: words the original leaves on
+// the stack and reads back without setting (docs/changes.md 26), by their N64
+// address. Part of a world's state (platform/host.c); a word nothing stored
+// reads 0.
+void host_n64stack_store(uint32_t address, uint32_t value);
+uint32_t host_n64stack_load(uint32_t address);
 
 #define N64_STACK_FRAME(function)                                                                      \
     const uint32_t n64stack_frame __attribute__((cleanup(n64stack_leave), unused)) =                    \

@@ -163,6 +163,7 @@ void print_debug_top_down_normal(const char *str, s32 number) {
 }
 
 void print_mapinfo(void) {
+    N64_STACK_FRAME(print_mapinfo);
     // EU mostly stubbed this function out.
     struct Surface *pfloor;
     UNUSED f32 bgY;   // unused in EU
@@ -445,6 +446,7 @@ void try_print_debug_mario_object_info(void) {
  * stageinfo)
  */
 void try_print_debug_mario_level_info(void) {
+    N64_STACK_FRAME(try_print_debug_mario_level_info);
     switch (WORLD(sDebugPage)) {
         case DEBUG_PAGE_OBJECTINFO:
             break; // no info list is printed for obj info.
@@ -471,6 +473,7 @@ void try_print_debug_mario_level_info(void) {
  * [5][7] (b7 in the string array) to 1 to enable debug spawn.
  */
 void try_do_mario_debug_object_spawn(void) {
+    N64_STACK_FRAME(try_do_mario_debug_object_spawn);
     UNUSED u8 filler[4];
 
     if (WORLD(sDebugPage) == DEBUG_PAGE_STAGEINFO && WORLD(gDebugInfo)[DEBUG_PAGE_ENEMYINFO][7] == 1) {

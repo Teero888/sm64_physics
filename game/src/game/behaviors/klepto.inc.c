@@ -320,6 +320,7 @@ void obj_set_speed_to_zero(void) {
 }
 
 void bhv_klepto_update(void) {
+    N64_STACK_FRAME(bhv_klepto_update);
     UNUSED u8 filler[4];
 
     cur_obj_update_floor_and_walls();

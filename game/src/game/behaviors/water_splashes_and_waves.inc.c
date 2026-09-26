@@ -47,6 +47,7 @@ const struct WaterDropletParams gShallowWaterWaveDropletParams = {
 
 
 void bhv_water_splash_spawn_droplets(void) {
+    N64_STACK_FRAME(bhv_water_splash_spawn_droplets);
     s32 i;
     if (o->oTimer == 0) {
         o->oPosY = find_water_level(o->oPosX, o->oPosZ);
@@ -60,6 +61,7 @@ void bhv_water_splash_spawn_droplets(void) {
 }
 
 void bhv_water_droplet_loop(void) {
+    N64_STACK_FRAME(bhv_water_droplet_loop);
     UNUSED u8 filler[4];
     f32 waterLevel = find_water_level(o->oPosX, o->oPosZ);
 
@@ -109,6 +111,7 @@ void bhv_bubble_splash_init(void) {
 }
 
 void bhv_shallow_water_splash_init(void) {
+    N64_STACK_FRAME(bhv_shallow_water_splash_init);
     // Have a 1 in 256 chance to spawn the fish particle easter egg.
     if ((random_u16() & 0xFF) <= 0) { // Strange
         struct Object *fishObj = spawn_water_droplet(o, &WORLD(sWaterDropletFishParams));

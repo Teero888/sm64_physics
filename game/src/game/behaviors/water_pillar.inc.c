@@ -1,6 +1,7 @@
 // water_pillar.inc.c
 
 void water_level_pillar_undrained(void) {
+    N64_STACK_FRAME(water_level_pillar_undrained);
     struct Object *otherWaterPillar;
 
     switch (o->oAction) {
@@ -74,6 +75,7 @@ void bhv_water_level_pillar_init(void) {
 }
 
 void bhv_water_level_pillar_loop(void) {
+    N64_STACK_FRAME(bhv_water_level_pillar_loop);
     if (o->oWaterLevelPillarDrained) {
         water_level_pillar_drained();
     } else {

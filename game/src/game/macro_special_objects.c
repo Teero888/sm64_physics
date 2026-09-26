@@ -42,6 +42,7 @@ s16 convert_rotation(s16 inRotation) {
  * The object will not spawn if 'behavior' is NULL.
  */
 void spawn_macro_abs_yrot_2params(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 ry, s16 params) {
+    N64_STACK_FRAME(spawn_macro_abs_yrot_2params);
     if (behavior != NULL) {
         struct Object *newObj = spawn_object_abs_with_rot(
             &WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
@@ -55,6 +56,7 @@ void spawn_macro_abs_yrot_2params(s32 model, const BehaviorScript *behavior, s16
  * The object will not spawn if 'behavior' is NULL.
  */
 void spawn_macro_abs_yrot_param1(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 ry, s16 param) {
+    N64_STACK_FRAME(spawn_macro_abs_yrot_param1);
     if (behavior != NULL) {
         struct Object *newObj = spawn_object_abs_with_rot(
             &WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, convert_rotation(ry), 0);
@@ -68,6 +70,7 @@ void spawn_macro_abs_yrot_param1(s32 model, const BehaviorScript *behavior, s16 
  */
 void spawn_macro_abs_special(s32 model, const BehaviorScript *behavior, s16 x, s16 y, s16 z, s16 unkA, s16 unkB,
                              s16 unkC) {
+    N64_STACK_FRAME(spawn_macro_abs_special);
     struct Object *newObj =
         spawn_object_abs_with_rot(&WORLD(gMacroObjectDefaultParent), 0, model, behavior, x, y, z, 0, 0, 0);
 
@@ -84,6 +87,7 @@ void spawn_macro_abs_special(s32 model, const BehaviorScript *behavior, s16 x, s
 #define MACRO_OBJ_PARAMS 4
 
 UNUSED static void spawn_macro_coin_unknown(const BehaviorScript *behavior, s16 objInfo[]) {
+    N64_STACK_FRAME(spawn_macro_coin_unknown);
     struct Object *coin;
     s16 model = bhvYellowCoin == behavior ? MODEL_YELLOW_COIN : MODEL_NONE;
 
@@ -101,6 +105,7 @@ struct LoadedPreset {
 };
 
 void spawn_macro_objects(s16 areaIndex, s16 *macroObjList) {
+    N64_STACK_FRAME(spawn_macro_objects);
     UNUSED u8 filler[4];
     s32 presetID;
 
@@ -168,6 +173,7 @@ void spawn_macro_objects(s16 areaIndex, s16 *macroObjList) {
 }
 
 void spawn_macro_objects_hardcoded(s16 areaIndex, s16 *macroObjList) {
+    N64_STACK_FRAME(spawn_macro_objects_hardcoded);
     UNUSED u8 filler1[8];
 
     // This version of macroObjList has the preset and Y-Rotation separated,
@@ -234,6 +240,7 @@ void spawn_macro_objects_hardcoded(s16 areaIndex, s16 *macroObjList) {
 }
 
 void spawn_special_objects(s16 areaIndex, TerrainData **specialObjList) {
+    N64_STACK_FRAME(spawn_special_objects);
     s32 numOfSpecialObjects;
     s32 i;
     s32 offset;

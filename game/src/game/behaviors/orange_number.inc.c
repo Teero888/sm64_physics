@@ -6,6 +6,7 @@ void bhv_orange_number_init(void) {
 }
 
 void bhv_orange_number_loop(void) {
+    N64_STACK_FRAME(bhv_orange_number_loop);
     o->oPosY += o->oVelY;
     o->oVelY -= 2.0f;
 

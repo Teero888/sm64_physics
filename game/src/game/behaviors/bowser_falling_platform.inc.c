@@ -57,6 +57,7 @@ void falling_bowser_plat_act_check(void) {
 }
 
 void falling_bowser_plat_act_fall(void) {
+    N64_STACK_FRAME(falling_bowser_plat_act_fall);
     Vec3f pos;
     s16 angle;
     f32 val;

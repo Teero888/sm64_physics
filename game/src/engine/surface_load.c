@@ -598,6 +598,7 @@ u32 get_area_terrain_size(TerrainData *data) {
  * boxes (water, gas, JRB fog).
  */
 void load_area_terrain(s16 index, TerrainData *data, RoomData *surfaceRooms, s16 *macroObjects) {
+    N64_STACK_FRAME(load_area_terrain);
     TerrainData terrainLoadType;
     TerrainData *vertexData;
     UNUSED u8 filler[4];

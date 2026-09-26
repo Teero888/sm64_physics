@@ -24,6 +24,7 @@ void grand_star_zero_velocity(void) {
 }
 
 void bhv_grand_star_loop(void) {
+    N64_STACK_FRAME(bhv_grand_star_loop);
     UNUSED u8 filler[4];
     Vec3f sp28;
 

@@ -13,6 +13,7 @@ struct ObjectHitbox sKoopaShellHitbox = {
 };
 
 void koopa_shell_spawn_water_drop(void) {
+    N64_STACK_FRAME(koopa_shell_spawn_water_drop);
     UNUSED u8 filler[4];
 
     spawn_object(o, MODEL_WAVE_TRAIL, bhvObjectWaveTrail);
@@ -26,6 +27,7 @@ void koopa_shell_spawn_water_drop(void) {
 }
 
 void bhv_koopa_shell_flame_loop(void) {
+    N64_STACK_FRAME(bhv_koopa_shell_flame_loop);
     if (o->oTimer == 0) {
         o->oMoveAngleYaw = random_u16();
         o->oVelY = random_float() * 30.0f;
@@ -47,6 +49,7 @@ void bhv_koopa_shell_flame_loop(void) {
 }
 
 void bhv_koopa_shell_flame_spawn(void) {
+    N64_STACK_FRAME(bhv_koopa_shell_flame_spawn);
     s32 i;
     for (i = 0; i < 2; i++) {
         spawn_object(o, MODEL_RED_FLAME, bhvKoopaShellFlame);
@@ -54,11 +57,13 @@ void bhv_koopa_shell_flame_spawn(void) {
 }
 
 void koopa_shell_spawn_sparkles(f32 a) {
+    N64_STACK_FRAME(koopa_shell_spawn_sparkles);
     struct Object *sp1C = spawn_object(o, MODEL_NONE, bhvSparkleSpawn);
     sp1C->oPosY += a;
 }
 
 void bhv_koopa_shell_loop(void) {
+    N64_STACK_FRAME(bhv_koopa_shell_loop);
     struct Surface *sp34;
 
     obj_set_hitbox(o, &WORLD(sKoopaShellHitbox));

@@ -1,6 +1,7 @@
 // flame_mario.inc.c
 
 void bhv_black_smoke_upward_loop(void) {
+    N64_STACK_FRAME(bhv_black_smoke_upward_loop);
     spawn_object_with_scale(o, MODEL_BURN_SMOKE, bhvBlackSmokeBowser, o->header.gfx.scale[0]);
 }
 
@@ -31,6 +32,7 @@ void bhv_black_smoke_mario_loop(void) {
 }
 
 void bhv_flame_mario_loop(void) {
+    N64_STACK_FRAME(bhv_flame_mario_loop);
     cur_obj_scale(2.0f);
 
     if (o->oTimer != 0) {

@@ -39,8 +39,8 @@ at every controller poll:
 | all trees (7239M) | JP | 14593 | to the end |
 | 0 stars (2016M) | US | 8772 | to the end |
 | 16 stars (6943M) | US | 23248 | to the end |
-| 70 stars (2062M) | US | 74396 | to poll 52043 |
-| 120 stars (7310M) | US | 128808 | to poll 77768 |
+| 70 stars (2062M) | US | 74396 | to the end |
+| 120 stars (7310M) | US | 128808 | to the end |
 | no input: the title demos (`oracle/make_movie.py idle`) | EU | 20000 | to the end |
 | random input, seed 64 (`oracle/make_movie.py random`) | EU | 30000 | to the end |
 | no input: the title demos | Shindou | 20000 | to the end |
@@ -49,10 +49,11 @@ at every controller poll:
 The TASes are made on Mupen64-rr, which gives the console's first controller
 read after power-on no movie sample: movie sample N is read N + 1 (the
 oracle's default `--poll-offset -1`, `oracle/README.md`). So played, all of
-them run to their end on mupen64plus as on Mupen64-rr. The 70 stars movie
-first differs in a Wiggler body part's data, the 120 stars movie in Jolly
-Roger Bay's sliding box, whose first frame reads a stack variable the game
-never set; both are still open.
+them run to their end on mupen64plus as on Mupen64-rr. Where the game reads
+memory it never set, the library reads what the N64 has there: past the end
+of an array (Wiggler's speeds, docs/changes.md 25) or a stack slot another
+function left behind (Jolly Roger Bay's sliding box, 26, from the N64 stack
+model in docs/avoid_ub.md).
 
 EU and the Shindou Edition have no TAS in the corpus yet; their made-up movies
 cover the title demos, the menus (languages included) and play on the castle
@@ -145,7 +146,7 @@ adds this directory once per version, with `SM64_VERSION` and
 | `tools/state/` | The rewrite that routes every use of the state through the current world, and the initial values' pointer table. |
 | `tools/vendor.py` | The one-time import from the decomp, kept as a record. |
 | `tools/rom_stubs.py` | Names for the ROM's textures, without their pixels, for the build. |
-| `tools/n64stack/` | The N64 stack pointer model's table (`<version>.tsv`) and the tools that derive it from a decomp build. |
+| `tools/n64stack/` | The N64 stack model's table (`<version>.tsv`) and the tools that derive it from a decomp build. |
 | `tools/run.c` | Steps an oracle polls file and writes a trace in the oracle's format, laid out as on the N64. |
 | `tools/lockstep/` | `sm64_lockstep`: the oracle's emulator with the library beside it, compared at every poll. |
 | `oracle/` | The emulator reference. |

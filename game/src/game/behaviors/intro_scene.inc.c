@@ -3,6 +3,7 @@
 void spawn_child_obj_relative(struct Object *parent, s16 xOffset, s16 yOffset, s16 zOffset,
                               s16 pitchOffset, s16 yawOffset, s16 rollOffset,
                               s16 forwardVel, s32 model, const BehaviorScript *behavior) {
+    N64_STACK_FRAME(spawn_child_obj_relative);
     struct Object *obj = spawn_object(parent, model, behavior);
 
     obj->header.gfx.animInfo.animFrame = random_float() * 6.0f;
@@ -25,6 +26,7 @@ void spawn_child_obj_relative(struct Object *parent, s16 xOffset, s16 yOffset, s
 }
 
 void bhv_intro_scene_loop(void) {
+    N64_STACK_FRAME(bhv_intro_scene_loop);
     UNUSED struct Object *obj;
 
     if (WORLD(gCutsceneObjSpawn) != 0) {

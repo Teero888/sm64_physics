@@ -120,6 +120,7 @@ void cap_scale_vertically(void) {
 }
 
 void wing_vanish_cap_act_0(void) {
+    N64_STACK_FRAME(wing_vanish_cap_act_0);
     s16 collisionFlags;
 
     o->oFaceAngleYaw += o->oForwardVel * 128.0f;
@@ -139,6 +140,7 @@ void wing_vanish_cap_act_0(void) {
 }
 
 void bhv_wing_vanish_cap_loop(void) {
+    N64_STACK_FRAME(bhv_wing_vanish_cap_loop);
     switch (o->oAction) {
         case 0:
             wing_vanish_cap_act_0();
@@ -166,6 +168,7 @@ void bhv_metal_cap_init(void) {
 }
 
 void metal_cap_act_0(void) {
+    N64_STACK_FRAME(metal_cap_act_0);
     s16 collisionFlags;
 
     o->oFaceAngleYaw += o->oForwardVel * 128.0f;
@@ -177,6 +180,7 @@ void metal_cap_act_0(void) {
 }
 
 void bhv_metal_cap_loop(void) {
+    N64_STACK_FRAME(bhv_metal_cap_loop);
     switch (o->oAction) {
         case 0:
             metal_cap_act_0();
@@ -228,6 +232,7 @@ void normal_cap_set_save_flags(void) {
 }
 
 void normal_cap_act_0(void) {
+    N64_STACK_FRAME(normal_cap_act_0);
     s16 collisionFlags;
 
     o->oFaceAngleYaw += o->oForwardVel * 128.0f;
@@ -250,6 +255,7 @@ void normal_cap_act_0(void) {
 }
 
 void bhv_normal_cap_loop(void) {
+    N64_STACK_FRAME(bhv_normal_cap_loop);
     switch (o->oAction) {
         case 0:
             normal_cap_act_0();

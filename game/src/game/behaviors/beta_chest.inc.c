@@ -12,6 +12,7 @@
  * Init function for bhvBetaChestBottom.
  */
 void bhv_beta_chest_bottom_init(void) {
+    N64_STACK_FRAME(bhv_beta_chest_bottom_init);
     // Set the object's model
     cur_obj_set_model(MODEL_TREASURE_CHEST_BASE);
 
@@ -43,6 +44,7 @@ void bhv_beta_chest_bottom_loop(void) {
  * namely opening the chest and spawning an air bubble.
  */
 void bhv_beta_chest_lid_loop(void) {
+    N64_STACK_FRAME(bhv_beta_chest_lid_loop);
     switch (o->oAction) {
         case BETA_CHEST_ACT_IDLE_CLOSED:
             if (dist_between_objects(o->parentObj, WORLD(gMarioObject)) < 300.0f) {

@@ -16,6 +16,7 @@ struct ObjectHitbox sMrBlizzardHitbox = {
 // Mr. Blizzard particle spawner.
 void mr_blizzard_spawn_white_particles(s8 count, s8 offsetY, s8 forwardVelBase, s8 velYBase,
                                        s8 sizeBase) {
+    N64_STACK_FRAME(mr_blizzard_spawn_white_particles);
     static struct SpawnParticlesInfo D_80331A00 = {
         /* bhvParam:        */ 0,
         /* count:           */ 6,
@@ -66,6 +67,7 @@ void bhv_mr_blizzard_init(void) {
  * Handler for spawning Mr. Blizzard's snowball.
  */
 static void mr_blizzard_act_spawn_snowball(void) {
+    N64_STACK_FRAME(mr_blizzard_act_spawn_snowball);
     // If Mr. Blizzard is not holding a snowball, and the animation reaches 5 frames
     // spawn the Mr. Blizzard snowball.
     if (o->oMrBlizzardHeldObj == NULL && cur_obj_init_anim_check_frame(0, 5)) {
@@ -89,6 +91,7 @@ static void mr_blizzard_act_spawn_snowball(void) {
  * Handler for Mario entering or exiting Mr. Blizzard's range.
  */
 static void mr_blizzard_act_hide_unhide(void) {
+    N64_STACK_FRAME(mr_blizzard_act_hide_unhide);
     if (o->oDistanceToMario < 1000.0f) {
         // If Mario is in range, move to rising action, make Mr. Blizzard visible,
         // make Mr. Blizzard tangible, and initialize GraphYVel.
@@ -110,6 +113,7 @@ static void mr_blizzard_act_hide_unhide(void) {
  * Handler for Mr. Blizzard popping up out of the ground.
  */
 static void mr_blizzard_act_rise_from_ground(void) {
+    N64_STACK_FRAME(mr_blizzard_act_rise_from_ground);
     // If the timer is not 0, decrement by 1 until it reaches 0.
     if (o->oMrBlizzardTimer != 0) {
         o->oMrBlizzardTimer--;
@@ -198,6 +202,7 @@ static void mr_blizzard_act_rotate(void) {
  * Handler for Mr. Blizzard's death.
  */
 static void mr_blizzard_act_death(void) {
+    N64_STACK_FRAME(mr_blizzard_act_death);
     if (clamp_f32(&o->oMrBlizzardDizziness, -0x4000, 0x4000)) {
         if (o->oMrBlizzardChangeInDizziness != 0.0f) {
             cur_obj_play_sound_2(SOUND_OBJ_SNOW_SAND1);
@@ -338,6 +343,7 @@ static void mr_blizzard_act_jump(void) {
  * Mr. Blizzard update function.
  */
 void bhv_mr_blizzard_update(void) {
+    N64_STACK_FRAME(bhv_mr_blizzard_update);
     cur_obj_update_floor_and_walls();
 
     // Behavior loop
@@ -431,6 +437,7 @@ struct ObjectHitbox sMrBlizzardSnowballHitbox = {
  * Snowball collision function.
  */
 static void mr_blizzard_snowball_act_2(void) {
+    N64_STACK_FRAME(mr_blizzard_snowball_act_2);
     // Set snowball to interact with walls, floors, and Mario.
     cur_obj_update_floor_and_walls();
     obj_check_attacks(&WORLD(sMrBlizzardSnowballHitbox), -1);
@@ -449,6 +456,7 @@ static void mr_blizzard_snowball_act_2(void) {
  * Snowball behavior loop.
  */
 void bhv_mr_blizzard_snowball(void) {
+    N64_STACK_FRAME(bhv_mr_blizzard_snowball);
     switch (o->oAction) {
         case 0:
             mr_blizzard_snowball_act_0();

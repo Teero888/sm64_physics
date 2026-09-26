@@ -24,6 +24,7 @@ static struct TripletButterflyActivationData sTripletButterflyActivationData[] =
 };
 
 static void triplet_butterfly_act_init(void) {
+    N64_STACK_FRAME(triplet_butterfly_act_init);
     s32 butterflySpawnType = o->oBhvParams2ndByte & TRIPLET_BUTTERFLY_BP_SPAWN_TYPE_MASK;
     s32 i;
 
@@ -87,6 +88,7 @@ static void triplet_butterfly_act_wander(void) {
 }
 
 static void triplet_butterfly_act_activate(void) {
+    N64_STACK_FRAME(triplet_butterfly_act_activate);
     if (o->oTimer > 20) {
         if (o->oTripletButterflyModel == 0) {
             spawn_object_relative_with_scale(0, 0, -40, 0, 1.5f, o, MODEL_SMOKE, bhvWhitePuffSmoke2);
@@ -117,6 +119,7 @@ static void triplet_butterfly_act_activate(void) {
 }
 
 static void triplet_butterfly_act_explode(void) {
+    N64_STACK_FRAME(triplet_butterfly_act_explode);
     obj_check_attacks(&WORLD(sTripletButterflyExplodeHitbox), -1);
 
     if (o->oAction == -1 || (o->oMoveFlags & OBJ_MOVE_HIT_WALL) || o->oTimer >= 158) {
@@ -143,6 +146,7 @@ static void triplet_butterfly_act_explode(void) {
 }
 
 void bhv_triplet_butterfly_update(void) {
+    N64_STACK_FRAME(bhv_triplet_butterfly_update);
     cur_obj_update_floor_and_walls();
 
     switch (o->oAction) {

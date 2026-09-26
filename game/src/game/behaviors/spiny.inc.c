@@ -59,6 +59,7 @@ static s32 spiny_check_active(void) {
  * Walk around randomly, and dick around with oFlags, oMoveFlags, and oInteractType.
  */
 static void spiny_act_walk(void) {
+    N64_STACK_FRAME(spiny_act_walk);
     if (spiny_check_active()) {
         cur_obj_update_floor_and_walls();
 
@@ -147,6 +148,7 @@ static void spiny_act_held_by_lakitu(void) {
  * Spin around. After landing, enter the walk action.
  */
 static void spiny_act_thrown_by_lakitu(void) {
+    N64_STACK_FRAME(spiny_act_thrown_by_lakitu);
     if (spiny_check_active()) {
         cur_obj_update_floor_and_walls();
 
@@ -179,6 +181,7 @@ static void spiny_act_thrown_by_lakitu(void) {
  * Update function for bhvSpiny.
  */
 void bhv_spiny_update(void) {
+    N64_STACK_FRAME(bhv_spiny_update);
     // PARTIAL_UPDATE
 
     switch (o->oAction) {

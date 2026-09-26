@@ -88,6 +88,7 @@ static struct BowserPuzzlePiece sBowserPuzzlePieces[] = {
 void bhv_lll_bowser_puzzle_spawn_piece(s16 model, const BehaviorScript *behavior,
                                        f32 xOffset, f32 zOffset,
                                        s8 initialAction, s8 *actionList) {
+    N64_STACK_FRAME(bhv_lll_bowser_puzzle_spawn_piece);
     struct Object *puzzlePiece = spawn_object(o, model, behavior);
     puzzlePiece->oPosX += xOffset;
     puzzlePiece->oPosY += 50.0f;
@@ -101,6 +102,7 @@ void bhv_lll_bowser_puzzle_spawn_piece(s16 model, const BehaviorScript *behavior
  * Spawn the 14 puzzle pieces.
  */
 void bhv_lll_bowser_puzzle_spawn_pieces(f32 pieceWidth) {
+    N64_STACK_FRAME(bhv_lll_bowser_puzzle_spawn_pieces);
     s32 i;
 
     // Spawn all 14 puzzle pieces.
@@ -120,6 +122,7 @@ void bhv_lll_bowser_puzzle_spawn_pieces(f32 pieceWidth) {
  * Does the initial spawn of the puzzle pieces and then waits to spawn 5 coins.
  */
 void bhv_lll_bowser_puzzle_loop(void) {
+    N64_STACK_FRAME(bhv_lll_bowser_puzzle_loop);
     s32 i;
 
     switch (o->oAction) {

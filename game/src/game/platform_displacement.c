@@ -20,6 +20,7 @@ struct Object *gMarioPlatform = NULL;
  * within 4 units of the floor. Set his referenced platform object accordingly.
  */
 void update_mario_platform(void) {
+    N64_STACK_FRAME(update_mario_platform);
     struct Surface *floor;
     UNUSED u8 filler[4];
     f32 marioX;

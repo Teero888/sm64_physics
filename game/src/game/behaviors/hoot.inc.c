@@ -12,6 +12,7 @@ void bhv_hoot_init(void) {
 }
 
 f32 hoot_find_next_floor(struct FloorGeometry **floorGeo, f32 arg1) {
+    N64_STACK_FRAME(hoot_find_next_floor);
     f32 sp24 = arg1 * sins(o->oMoveAngleYaw) + o->oPosX;
     UNUSED f32 sp20 = o->oPosY;
     f32 sp1c = arg1 * coss(o->oMoveAngleYaw) + o->oPosZ;
@@ -21,6 +22,7 @@ f32 hoot_find_next_floor(struct FloorGeometry **floorGeo, f32 arg1) {
 }
 
 void hoot_floor_bounce(void) {
+    N64_STACK_FRAME(hoot_floor_bounce);
     struct FloorGeometry *floorGeo;
     f32 floorY;
 
@@ -45,6 +47,7 @@ void hoot_floor_bounce(void) {
 }
 
 void hoot_free_step(s16 fastOscY, s32 speed) {
+    N64_STACK_FRAME(hoot_free_step);
     struct FloorGeometry *floorGeo;
     s16 yaw = o->oMoveAngleYaw;
     s16 pitch = o->oMoveAnglePitch;
@@ -114,6 +117,7 @@ void hoot_carry_step(s32 speed, UNUSED f32 xPrev, UNUSED f32 zPrev) {
 }
 
 void hoot_surface_collision(f32 xPrev, UNUSED f32 yPrev, f32 zPrev) {
+    N64_STACK_FRAME(hoot_surface_collision);
     struct FloorGeometry *floorGeo;
     struct WallCollisionData hitbox;
     f32 floorY;
@@ -172,6 +176,7 @@ void hoot_act_ascent(f32 xPrev, f32 zPrev) {
 }
 
 void hoot_action_loop(void) {
+    N64_STACK_FRAME(hoot_action_loop);
     f32 xPrev = o->oPosX;
     f32 yPrev = o->oPosY;
     f32 zPrev = o->oPosZ;
@@ -226,6 +231,7 @@ void hoot_turn_to_home(void) {
 }
 
 void hoot_awake_loop(void) {
+    N64_STACK_FRAME(hoot_awake_loop);
     if (o->oInteractStatus == TRUE) { //! Note: Not a flag, treated as a TRUE/FALSE statement
         hoot_action_loop();
         cur_obj_init_animation(1);
@@ -244,6 +250,7 @@ void hoot_awake_loop(void) {
 }
 
 void bhv_hoot_loop(void) {
+    N64_STACK_FRAME(bhv_hoot_loop);
     switch (o->oHootAvailability) {
         case HOOT_AVAIL_ASLEEP_IN_TREE:
             if (is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 50)) {

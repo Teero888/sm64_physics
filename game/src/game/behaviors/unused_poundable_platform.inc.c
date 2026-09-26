@@ -14,6 +14,7 @@
  */
 
 void bhv_unused_poundable_platform(void) {
+    N64_STACK_FRAME(bhv_unused_poundable_platform);
     cur_obj_scale(1.02f);
 
     if (o->oAction == 0) {

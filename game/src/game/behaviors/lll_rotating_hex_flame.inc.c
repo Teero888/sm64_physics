@@ -14,6 +14,7 @@ void bhv_lll_rotating_hex_flame_loop(void) {
 }
 
 void fire_bar_spawn_flames(s16 a0) {
+    N64_STACK_FRAME(fire_bar_spawn_flames);
     struct Object *sp2C;
     UNUSED u8 filler[4];
     s32 i;
@@ -41,6 +42,7 @@ void fire_bar_act_0(void) {
 }
 
 void fire_bar_act_1(void) {
+    N64_STACK_FRAME(fire_bar_act_1);
     fire_bar_spawn_flames(0);
     fire_bar_spawn_flames(-0x8000);
     o->oAngleVelYaw = 0;

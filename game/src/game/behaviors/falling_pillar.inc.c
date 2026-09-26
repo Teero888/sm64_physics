@@ -31,6 +31,7 @@ void bhv_falling_pillar_init(void) {
  * Spawns 4 hitboxes with Y coordinates offset.
  */
 void bhv_falling_pillar_spawn_hitboxes(void) {
+    N64_STACK_FRAME(bhv_falling_pillar_spawn_hitboxes);
     s32 i;
 
     for (i = 0; i < 4; i++) {
@@ -56,6 +57,7 @@ s16 bhv_falling_pillar_calculate_angle_in_front_of_mario(void) {
  * Falling pillar main logic loop.
  */
 void bhv_falling_pillar_loop(void) {
+    N64_STACK_FRAME(bhv_falling_pillar_loop);
     s16 angleInFrontOfMario;
 
     switch (o->oAction) {

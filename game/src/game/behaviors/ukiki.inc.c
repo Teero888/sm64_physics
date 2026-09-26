@@ -117,6 +117,7 @@ void idle_ukiki_taunt(void) {
  * standing around.
  */
 void ukiki_act_idle(void) {
+    N64_STACK_FRAME(ukiki_act_idle);
     idle_ukiki_taunt();
 
     if (is_cap_ukiki_and_mario_has_normal_cap_on_head()) {

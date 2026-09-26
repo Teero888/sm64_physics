@@ -16,6 +16,7 @@ static struct ObjectHitbox sTreasureChestBottomHitbox = {
 };
 
 void bhv_treasure_chest_top_loop(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_top_loop);
     struct Object *sp34 = o->parentObj->parentObj;
 
     switch (o->oAction) {
@@ -61,6 +62,7 @@ void bhv_treasure_chest_top_loop(void) {
 }
 
 void bhv_treasure_chest_bottom_init(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_bottom_init);
     spawn_object_relative(0, 0, 102, -77, o, MODEL_TREASURE_CHEST_LID, bhvTreasureChestTop);
     obj_set_hitbox(o, &WORLD(sTreasureChestBottomHitbox));
 }
@@ -104,12 +106,14 @@ void bhv_treasure_chest_bottom_loop(void) {
 }
 
 void spawn_treasure_chest(s8 sp3B, s32 x, s32 y, s32 z, s16 yaw) {
+    N64_STACK_FRAME(spawn_treasure_chest);
     struct Object *sp34 = spawn_object_abs_with_rot(o, 0, MODEL_TREASURE_CHEST_BASE,
                                                     bhvTreasureChestBottom, x, y, z, 0, yaw, 0);
     sp34->oBhvParams2ndByte = sp3B;
 }
 
 void bhv_treasure_chest_ship_init(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_ship_init);
     spawn_treasure_chest(1, 400, -350, -2700, 0);
     spawn_treasure_chest(2, 650, -350, -940, -0x6001);
     spawn_treasure_chest(3, -550, -350, -770, 0x5FFF);
@@ -146,6 +150,7 @@ void bhv_treasure_chest_ship_loop(void) {
 }
 
 void bhv_treasure_chest_jrb_init(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_jrb_init);
     spawn_treasure_chest(1, -1700, -2812, -1150, 0x7FFF);
     spawn_treasure_chest(2, -1150, -2812, -1550, 0x7FFF);
     spawn_treasure_chest(3, -2400, -2812, -1800, 0x7FFF);
@@ -155,6 +160,7 @@ void bhv_treasure_chest_jrb_init(void) {
 }
 
 void bhv_treasure_chest_jrb_loop(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_jrb_loop);
     switch (o->oAction) {
         case 0:
             if (o->oTreasureChestUnkF4 == 5) {
@@ -177,6 +183,7 @@ void bhv_treasure_chest_jrb_loop(void) {
 }
 
 void bhv_treasure_chest_ddd_init(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_ddd_init);
     spawn_treasure_chest(1, -4500, -5119, 1300, -0x6001);
     spawn_treasure_chest(2, -1800, -5119, 1050, 0x1FFF);
     spawn_treasure_chest(3, -4500, -5119, -1100, 9102);
@@ -187,6 +194,7 @@ void bhv_treasure_chest_ddd_init(void) {
 }
 
 void bhv_treasure_chest_ddd_loop(void) {
+    N64_STACK_FRAME(bhv_treasure_chest_ddd_loop);
     switch (o->oAction) {
         case 0:
             if (o->oTreasureChestUnkF4 == 5) {

@@ -24,6 +24,7 @@ s32 update_angle_from_move_flags(s32 *angle) {
 }
 
 void bhv_scuttlebug_loop(void) {
+    N64_STACK_FRAME(bhv_scuttlebug_loop);
     UNUSED u8 filler[4];
     f32 sp18;
 
@@ -143,6 +144,7 @@ void bhv_scuttlebug_loop(void) {
 }
 
 void bhv_scuttlebug_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_scuttlebug_spawn_loop);
     if (o->oAction == 0) {
         if (o->oTimer > 30 && 500.0f < o->oDistanceToMario && o->oDistanceToMario < 1500.0f) {
             struct Object *scuttlebug;

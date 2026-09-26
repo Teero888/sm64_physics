@@ -583,6 +583,7 @@ void exit_score_file_to_score_menu(struct Object *scoreFileButton, s8 scoreButto
  * Also check if the save file exists to render a different Mario button.
  */
 void render_score_menu_buttons(struct Object *scoreButton) {
+    N64_STACK_FRAME(render_score_menu_buttons);
     // File A
     if (save_file_exists(SAVE_FILE_A) == TRUE) {
         WORLD(sMainMenuButtons)[MENU_BUTTON_SCORE_FILE_A] =
@@ -706,6 +707,7 @@ void check_score_menu_clicked_buttons(struct Object *scoreButton) {
  * Also check if the save file exists to render a different Mario button.
  */
 void render_copy_menu_buttons(struct Object *copyButton) {
+    N64_STACK_FRAME(render_copy_menu_buttons);
     // File A
     if (save_file_exists(SAVE_FILE_A) == TRUE) {
         WORLD(sMainMenuButtons)[MENU_BUTTON_COPY_FILE_A] =
@@ -895,6 +897,7 @@ void check_copy_menu_clicked_buttons(struct Object *copyButton) {
  * Also check if the save file exists to render a different Mario button.
  */
 void render_erase_menu_buttons(struct Object *eraseButton) {
+    N64_STACK_FRAME(render_erase_menu_buttons);
     // File A
     if (save_file_exists(SAVE_FILE_A) == TRUE) {
         WORLD(sMainMenuButtons)[MENU_BUTTON_ERASE_FILE_A] =
@@ -1058,6 +1061,7 @@ void check_erase_menu_clicked_buttons(struct Object *eraseButton) {
  * Render buttons for the sound mode menu.
  */
 void render_sound_mode_menu_buttons(struct Object *soundModeButton) {
+    N64_STACK_FRAME(render_sound_mode_menu_buttons);
     // Stereo option button
     WORLD(sMainMenuButtons)[MENU_BUTTON_STEREO] = spawn_object_rel_with_rot(
         soundModeButton, MODEL_MAIN_MENU_GENERIC_BUTTON, bhvMenuButton, 533, SOUND_BUTTON_Y, -100, 0, -0x8000, 0);
@@ -1209,6 +1213,7 @@ void return_to_main_menu(s16 prevMenuButtonID, struct Object *sourceButton) {
  * Loads score menu from the previous menu using "CHECK SCORE" as source button.
  */
 void load_score_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceButton) {
+    N64_STACK_FRAME(load_score_menu_from_submenu);
     s32 buttonID;
     // If the source button is in default state and the previous menu in full screen,
     // play zoom out sound and shrink previous menu
@@ -1249,6 +1254,7 @@ void load_score_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceBut
  * Loads copy menu from the previous menu using "COPY FILE" as source button.
  */
 void load_copy_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceButton) {
+    N64_STACK_FRAME(load_copy_menu_from_submenu);
     s32 buttonID;
     // If the source button is in default state and the previous menu in full screen,
     // play zoom out sound and shrink previous menu
@@ -1289,6 +1295,7 @@ void load_copy_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceButt
  * Loads erase menu from the previous menu using "ERASE FILE" as source button.
  */
 void load_erase_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceButton) {
+    N64_STACK_FRAME(load_erase_menu_from_submenu);
     s32 buttonID;
     // If the source button is in default state and the previous menu in full screen,
     // play zoom out sound and shrink previous menu
@@ -1333,6 +1340,7 @@ void load_erase_menu_from_submenu(s16 prevMenuButtonID, struct Object *sourceBut
  * Unlike buttons on submenus, these are never hidden or recreated.
  */
 void bhv_menu_button_manager_init(void) {
+    N64_STACK_FRAME(bhv_menu_button_manager_init);
     // File A
     if (save_file_exists(SAVE_FILE_A) == TRUE) {
         WORLD(sMainMenuButtons)[MENU_BUTTON_PLAY_FILE_A] =
@@ -1405,6 +1413,7 @@ void bhv_menu_button_manager_init(void) {
  * Also play a sound and/or render buttons depending of the button ID selected.
  */
 void check_main_menu_clicked_buttons(void) {
+    N64_STACK_FRAME(check_main_menu_clicked_buttons);
 #ifdef VERSION_EU
     if (WORLD(sMainMenuTimer) >= 5) {
 #endif
@@ -1513,6 +1522,7 @@ void check_main_menu_clicked_buttons(void) {
  * is loaded, and that checks what buttonID is clicked in the main menu.
  */
 void bhv_menu_button_manager_loop(void) {
+    N64_STACK_FRAME(bhv_menu_button_manager_loop);
     switch (WORLD(sSelectedButtonID)) {
         case MENU_BUTTON_NONE:
             check_main_menu_clicked_buttons();

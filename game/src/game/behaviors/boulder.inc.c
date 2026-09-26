@@ -11,6 +11,7 @@ void bhv_big_boulder_init(void) {
 }
 
 void boulder_act_1(void) {
+    N64_STACK_FRAME(boulder_act_1);
     s16 collisionFlags = object_step_without_floor_orient();
 
     if ((collisionFlags & OBJ_COL_FLAGS_LANDED) == OBJ_COL_FLAG_GROUNDED && o->oVelY > 10.0f) {
@@ -28,6 +29,7 @@ void boulder_act_1(void) {
 }
 
 void bhv_big_boulder_loop(void) {
+    N64_STACK_FRAME(bhv_big_boulder_loop);
     cur_obj_scale(1.5f);
 
     o->oGraphYOffset = 270.0f;
@@ -49,6 +51,7 @@ void bhv_big_boulder_loop(void) {
 }
 
 void bhv_big_boulder_generator_loop(void) {
+    N64_STACK_FRAME(bhv_big_boulder_generator_loop);
     struct Object *sp1C;
 
     if (o->oTimer >= 256) {

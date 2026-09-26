@@ -22,6 +22,7 @@
  * bhvBetaBooKey, hence the "alpha" moniker.
  */
 void bhv_alpha_boo_key_loop(void) {
+    N64_STACK_FRAME(bhv_alpha_boo_key_loop);
     // Rotate the key
     o->oFaceAngleRoll += 0x200;
     o->oFaceAngleYaw += 0x200;
@@ -51,6 +52,7 @@ void bhv_alpha_boo_key_loop(void) {
  * Continue to make the key fall, and handle collection.
  */
 static void beta_boo_key_dropped_loop(void) {
+    N64_STACK_FRAME(beta_boo_key_dropped_loop);
     // Apply standard physics to the key
     cur_obj_update_floor_and_walls();
     cur_obj_move_standard(78);

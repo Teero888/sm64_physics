@@ -25,6 +25,7 @@ static struct ObjectHitbox sMovingBlueCoinHitbox = {
 };
 
 s32 coin_step(s16 *collisionFlagsPtr) {
+    N64_STACK_FRAME(coin_step);
     *collisionFlagsPtr = object_step();
 
     obj_check_floor_death(*collisionFlagsPtr, WORLD(sObjFloor));
@@ -39,6 +40,7 @@ s32 coin_step(s16 *collisionFlagsPtr) {
 }
 
 void moving_coin_flicker(void) {
+    N64_STACK_FRAME(moving_coin_flicker);
     s16 collisionFlags;
 
     coin_step(&collisionFlags);
@@ -46,6 +48,7 @@ void moving_coin_flicker(void) {
 }
 
 void coin_collected(void) {
+    N64_STACK_FRAME(coin_collected);
     spawn_object(o, MODEL_SPARKLES, bhvGoldenCoinSparkles);
     o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
 }
@@ -59,6 +62,7 @@ void bhv_moving_yellow_coin_init(void) {
 }
 
 void bhv_moving_yellow_coin_loop(void) {
+    N64_STACK_FRAME(bhv_moving_yellow_coin_loop);
     s16 collisionFlags;
 
     switch (o->oAction) {
@@ -104,6 +108,7 @@ void bhv_moving_blue_coin_init(void) {
 }
 
 void bhv_moving_blue_coin_loop(void) {
+    N64_STACK_FRAME(bhv_moving_blue_coin_loop);
     s16 collisionFlags;
 
     switch (o->oAction) {
@@ -148,6 +153,7 @@ void bhv_blue_coin_sliding_jumping_init(void) {
 }
 
 void blue_coin_sliding_away_from_mario(void) {
+    N64_STACK_FRAME(blue_coin_sliding_away_from_mario);
     s16 collisionFlags;
 
     o->oForwardVel = 15.0;
@@ -167,6 +173,7 @@ void blue_coin_sliding_away_from_mario(void) {
 }
 
 void blue_coin_sliding_slow_down(void) {
+    N64_STACK_FRAME(blue_coin_sliding_slow_down);
     s16 collisionFlags;
 
     coin_step(&collisionFlags);
@@ -181,6 +188,7 @@ void blue_coin_sliding_slow_down(void) {
 }
 
 void bhv_blue_coin_sliding_loop(void) {
+    N64_STACK_FRAME(bhv_blue_coin_sliding_loop);
     s16 collisionFlags;
 
     switch (o->oAction) {
@@ -228,6 +236,7 @@ void bhv_blue_coin_sliding_loop(void) {
 }
 
 void bhv_blue_coin_jumping_loop(void) {
+    N64_STACK_FRAME(bhv_blue_coin_jumping_loop);
     s16 collisionFlags;
 
     switch (o->oAction) {

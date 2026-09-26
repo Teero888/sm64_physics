@@ -201,6 +201,7 @@ f32 get_water_level_below_shadow(struct Shadow *s) {
  *                          be dimmed based on its distance to the floor
  */
 s8 init_shadow(struct Shadow *s, f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 overwriteSolidity) {
+    N64_STACK_FRAME(init_shadow);
     f32 waterLevel;
     f32 floorSteepness;
     struct FloorGeometry *floorGeometry;
@@ -358,6 +359,7 @@ void get_vertex_coords(s8 index, s8 shadowVertexType, s8 *xCoord, s8 *zCoord) {
  */
 void calculate_vertex_xyz(s8 index, struct Shadow s, f32 *xPosVtx, f32 *yPosVtx, f32 *zPosVtx,
                           s8 shadowVertexType) {
+    N64_STACK_FRAME(calculate_vertex_xyz);
     f32 tiltedScale = cosf(s.floorTilt * M_PI / 180.0) * s.shadowScale;
     f32 downwardAngle = s.floorDownwardAngle * M_PI / 180.0;
     f32 halfScale;
@@ -423,6 +425,7 @@ s16 floor_local_tilt(struct Shadow s, f32 vtxX, f32 vtxY, f32 vtxZ) {
  * Make a particular vertex from a shadow, calculating its position and solidity.
  */
 void make_shadow_vertex(Vtx *vertices, s8 index, struct Shadow s, s8 shadowVertexType) {
+    N64_STACK_FRAME(make_shadow_vertex);
     f32 xPosVtx, yPosVtx, zPosVtx;
     f32 relX, relY, relZ;
 
@@ -591,6 +594,7 @@ void correct_lava_shadow_height(struct Shadow *s) {
  * appropriate animations and other states.
  */
 Gfx *create_shadow_player(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 solidity, s32 isLuigi) {
+    N64_STACK_FRAME(create_shadow_player);
     Vtx *verts;
     Gfx *displayList;
     struct Shadow shadow;
@@ -644,6 +648,7 @@ Gfx *create_shadow_player(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 soli
  * Create a circular shadow composed of 9 vertices.
  */
 Gfx *create_shadow_circle_9_verts(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 solidity) {
+    N64_STACK_FRAME(create_shadow_circle_9_verts);
     Vtx *verts;
     Gfx *displayList;
     struct Shadow shadow;
@@ -670,6 +675,7 @@ Gfx *create_shadow_circle_9_verts(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale,
  * Create a circular shadow composed of 4 vertices.
  */
 Gfx *create_shadow_circle_4_verts(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 solidity) {
+    N64_STACK_FRAME(create_shadow_circle_4_verts);
     Vtx *verts;
     Gfx *displayList;
     struct Shadow shadow;
@@ -699,6 +705,7 @@ Gfx *create_shadow_circle_4_verts(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale,
  */
 Gfx *create_shadow_circle_assuming_flat_ground(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale,
                                                u8 solidity) {
+    N64_STACK_FRAME(create_shadow_circle_assuming_flat_ground);
     Vtx *verts;
     Gfx *displayList;
     struct FloorGeometry *dummy; // only for calling find_floor_height_and_data
@@ -761,6 +768,7 @@ Gfx *create_shadow_rectangle(f32 halfWidth, f32 halfLength, f32 relY, u8 solidit
  * value is 200. Return 0 if a shadow should be drawn, 1 if not.
  */
 s32 get_shadow_height_solidity(f32 xPos, f32 yPos, f32 zPos, f32 *shadowHeight, u8 *solidity) {
+    N64_STACK_FRAME(get_shadow_height_solidity);
     struct FloorGeometry *dummy;
     f32 waterLevel;
     *shadowHeight = find_floor_height_and_data(xPos, yPos, zPos, &dummy);
@@ -785,6 +793,7 @@ s32 get_shadow_height_solidity(f32 xPos, f32 yPos, f32 zPos, f32 *shadowHeight, 
  * Create a square shadow composed of 4 vertices.
  */
 Gfx *create_shadow_square(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 solidity, s8 shadowType) {
+    N64_STACK_FRAME(create_shadow_square);
     f32 shadowHeight;
     f32 distFromShadow;
     f32 shadowRadius;
@@ -817,6 +826,7 @@ Gfx *create_shadow_square(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 soli
  */
 Gfx *create_shadow_hardcoded_rectangle(f32 xPos, f32 yPos, f32 zPos, UNUSED s16 shadowScale,
                                        u8 solidity, s8 shadowType) {
+    N64_STACK_FRAME(create_shadow_hardcoded_rectangle);
     f32 shadowHeight;
     f32 distFromShadow;
     f32 halfWidth;
@@ -851,6 +861,7 @@ Gfx *create_shadow_hardcoded_rectangle(f32 xPos, f32 yPos, f32 zPos, UNUSED s16 
  */
 Gfx *create_shadow_below_xyz(f32 xPos, f32 yPos, f32 zPos, s16 shadowScale, u8 shadowSolidity,
                              s8 shadowType) {
+    N64_STACK_FRAME(create_shadow_below_xyz);
     Gfx *displayList = NULL;
     struct Surface *pfloor;
     find_floor(xPos, yPos, zPos, &pfloor);

@@ -40,6 +40,7 @@ static u8 sPokeyBodyPartAttackHandlers[] = {
  * top.
  */
 void bhv_pokey_body_part_update(void) {
+    N64_STACK_FRAME(bhv_pokey_body_part_update);
     // PARTIAL_UPDATE
 
     s16 offsetAngle;
@@ -147,6 +148,7 @@ void bhv_pokey_body_part_update(void) {
  * action.
  */
 static void pokey_act_uninitialized(void) {
+    N64_STACK_FRAME(pokey_act_uninitialized);
     struct Object *bodyPart;
     s32 i;
     s16 partModel;
@@ -180,6 +182,7 @@ static void pokey_act_uninitialized(void) {
  * if mario gets too close, then shy away from him.
  */
 static void pokey_act_wander(void) {
+    N64_STACK_FRAME(pokey_act_wander);
     s32 targetAngleOffset;
 
     if (o->oPokeyNumAliveBodyParts == 0) {
@@ -288,6 +291,7 @@ static void pokey_act_unload_parts(void) {
  * Update function for pokey.
  */
 void bhv_pokey_update(void) {
+    N64_STACK_FRAME(bhv_pokey_update);
     // PARTIAL_UPDATE
 
     o->oDeathSound = SOUND_OBJ_POKEY_DEATH;

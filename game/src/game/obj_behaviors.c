@@ -393,6 +393,7 @@ void obj_update_pos_vel_xz(void) {
  * if underwater.
  */
 void obj_splash(s32 waterY, s32 objY) {
+    N64_STACK_FRAME(obj_splash);
     u32 globalTimer = WORLD(gGlobalTimer);
 
     // Spawns waves if near surface of water and plays a noise if entering.
@@ -415,6 +416,7 @@ void obj_splash(s32 waterY, s32 objY) {
  * Returns flags for certain interactions.
  */
 s16 object_step(void) {
+    N64_STACK_FRAME(object_step);
     f32 objX = o->oPosX;
     f32 objY = o->oPosY;
     f32 objZ = o->oPosZ;
@@ -466,6 +468,7 @@ s16 object_step(void) {
  * Used for boulders, falling pillars, and the rolling snowman body.
  */
 s16 object_step_without_floor_orient(void) {
+    N64_STACK_FRAME(object_step_without_floor_orient);
     s16 collisionFlags = 0;
     WORLD(sOrientObjWithFloor) = FALSE;
     collisionFlags = object_step();
@@ -615,6 +618,7 @@ s8 obj_find_wall_displacement(Vec3f dist, f32 x, f32 y, f32 z, f32 radius) {
  * with a random forward velocity, y velocity, and direction.
  */
 void obj_spawn_yellow_coins(struct Object *obj, s8 nCoins) {
+    N64_STACK_FRAME(obj_spawn_yellow_coins);
     struct Object *coin;
     s8 count;
 
@@ -727,6 +731,7 @@ void obj_check_floor_death(s16 collisionFlags, struct Surface *floor) {
  * audio, and eventually despawning it. Returns TRUE when the obj is dead.
  */
 s8 obj_lava_death(void) {
+    N64_STACK_FRAME(obj_lava_death);
     struct Object *deathSmoke;
 
     if (o->oTimer > 30) {
@@ -753,6 +758,7 @@ s8 obj_lava_death(void) {
  * Spawns an orange number object relatively, such as those that count up for secrets.
  */
 void spawn_orange_number(s8 bhvParam, s16 relX, s16 relY, s16 relZ) {
+    N64_STACK_FRAME(spawn_orange_number);
     struct Object *orangeNumber;
 
     if (bhvParam >= 10) {

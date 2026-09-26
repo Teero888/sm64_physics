@@ -14,6 +14,7 @@ void bhv_lll_wood_piece_loop(void) {
 }
 
 void bhv_lll_floating_wood_bridge_loop(void) {
+    N64_STACK_FRAME(bhv_lll_floating_wood_bridge_loop);
     struct Object *sp3C;
     s32 i;
 

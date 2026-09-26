@@ -72,6 +72,7 @@ void flying_bookend_act_1(void) {
 }
 
 void flying_bookend_act_2(void) {
+    N64_STACK_FRAME(flying_bookend_act_2);
     cur_obj_init_animation_with_sound(1);
     cur_obj_update_floor_and_walls();
 
@@ -102,6 +103,7 @@ void flying_bookend_act_3(void) {
 }
 
 void bhv_flying_bookend_loop(void) {
+    N64_STACK_FRAME(bhv_flying_bookend_loop);
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         o->oDeathSound = SOUND_OBJ_POUNDING1;
         cur_obj_scale(o->header.gfx.scale[0]);
@@ -133,6 +135,7 @@ void bhv_flying_bookend_loop(void) {
 }
 
 void bhv_bookend_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_bookend_spawn_loop);
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         if (o->oTimer > 40 && obj_is_near_to_and_facing_mario(600.0f, 0x2000)) {
             struct Object *sp1C = spawn_object(o, MODEL_BOOKEND, bhvFlyingBookend);
@@ -148,6 +151,7 @@ void bhv_bookend_spawn_loop(void) {
 }
 
 void bookshelf_manager_act_0(void) {
+    N64_STACK_FRAME(bookshelf_manager_act_0);
     s32 i;
 
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
@@ -216,6 +220,7 @@ void bookshelf_manager_act_4(void) {
 }
 
 void bhv_haunted_bookshelf_manager_loop(void) {
+    N64_STACK_FRAME(bhv_haunted_bookshelf_manager_loop);
     switch (o->oAction) {
         case 0:
             bookshelf_manager_act_0();
@@ -236,6 +241,7 @@ void bhv_haunted_bookshelf_manager_loop(void) {
 }
 
 void bhv_book_switch_loop(void) {
+    N64_STACK_FRAME(bhv_book_switch_loop);
     o->header.gfx.scale[0] = 2.0f;
     o->header.gfx.scale[1] = 0.9f;
 

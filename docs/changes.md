@@ -319,3 +319,24 @@ the 70-star TAS differed from Wiggler's fight on. The speed is now read from
 those tables.
 
 Files: `src/game/behaviors/wiggler.inc.c`, `src/game/obj_behaviors_2.c`
+
+## 26. Read the sliding box's first pitch from the N64 stack
+
+Jolly Roger Bay's sliding box (`bhv_jrb_sliding_box_loop`) sets its pitch
+from `sp1E`, which its first frame never sets: the N64 reads what its stack
+slot holds. Watching the slot on the emulator (the oracle's `--break` and
+`--watch`) shows who left it there: on JP and US the slot is where
+`find_floor_from_list` keeps `z3` (the third vertex's z, as a word at 28 in
+its frame) when it runs at the same depth, as it does for the objects updated
+before the box; the box reads its low half. The US 120-star TAS gets -5003
+(`0xec75`); natively it was what the compiler left, and the box's pitch, its
+position and then the run differed.
+
+The stack model (docs/avoid_ub.md) now also covers the paths to
+`find_floor_from_list` and the box, and keeps the stack words the original
+reads back: `find_floor_from_list` stores `z3` at its N64 address, and the
+box reads its slot there. EU and the Shindou Edition keep `z3` in a register,
+and the box's slot is at 46 of a larger frame; they are not modelled.
+
+Files: `src/engine/surface_collision.c`, `src/game/behaviors/jrb_ship.inc.c`,
+the functions on the model's paths (`N64_STACK_FRAME`), `platform/host.c`

@@ -1,6 +1,7 @@
 // bowser_bomb.inc.c
 
 void bhv_bowser_bomb_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_bomb_loop);
     if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         o->oInteractStatus &= ~INT_STATUS_INTERACTED;
         spawn_object(o, MODEL_EXPLOSION, bhvExplosion);
@@ -18,6 +19,7 @@ void bhv_bowser_bomb_loop(void) {
 }
 
 void bhv_bowser_bomb_explosion_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_bomb_explosion_loop);
     cur_obj_scale((f32) o->oTimer / 14.0f * 9.0 + 1.0);
 
     if ((o->oTimer % 4 == 0) && (o->oTimer < 20)) {

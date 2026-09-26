@@ -14,6 +14,7 @@
  * snow or jet stream bubbles.
  */
 Gfx *geo_envfx_main(s32 callContext, struct GraphNode *node, Mat4 mtxf) {
+    N64_STACK_FRAME(geo_envfx_main);
     Vec3s marioPos;
     Vec3s camFrom;
     Vec3s camTo;

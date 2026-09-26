@@ -81,6 +81,7 @@ static s32 boo_should_be_active(void) {
 }
 
 void bhv_courtyard_boo_triplet_init(void) {
+    N64_STACK_FRAME(bhv_courtyard_boo_triplet_init);
     s32 i;
 
     if (WORLD(gHudDisplay).stars < SPAWN_CASTLE_BOO_STAR_REQUIREMENT) {
@@ -250,6 +251,7 @@ static s32 big_boo_update_during_nonlethal_hit(f32 a0) {
 // called every frame once mario lethally hits the boo until the boo is deleted,
 // returns whether death is complete
 static s32 boo_update_during_death(void) {
+    N64_STACK_FRAME(boo_update_during_death);
     if (o->oTimer == 0) {
         o->oForwardVel = 40.0f;
         o->oMoveAngleYaw = WORLD(gMarioObject)->oMoveAngleYaw;
@@ -398,6 +400,7 @@ static void boo_act_5(void) {
 }
 
 static void boo_act_1(void) {
+    N64_STACK_FRAME(boo_act_1);
     s32 attackStatus;
 
     if (o->oTimer == 0) {
@@ -433,6 +436,7 @@ static void boo_act_2(void) {
 }
 
 static void boo_act_3(void) {
+    N64_STACK_FRAME(boo_act_3);
     if (boo_update_during_death()) {
         if (o->oBhvParams2ndByte != BOO_BP_GHOST_HUNT) {
             obj_mark_for_deletion(o);
@@ -445,6 +449,7 @@ static void boo_act_3(void) {
 
 // Called when a Go on a Ghost Hunt boo dies
 static void boo_act_4(void) {
+    N64_STACK_FRAME(boo_act_4);
     s32 dialogID;
 
     // If there are no remaining "minion" boos, show the dialog of the Big Boo
@@ -528,6 +533,7 @@ static void big_boo_act_0(void) {
 }
 
 static void big_boo_act_1(void) {
+    N64_STACK_FRAME(big_boo_act_1);
     s32 attackStatus;
     s16 turnSpeed;
     f32 velMultiplier;
@@ -573,14 +579,17 @@ static void big_boo_act_2(void) {
 }
 
 static void big_boo_spawn_ghost_hunt_star(void) {
+    N64_STACK_FRAME(big_boo_spawn_ghost_hunt_star);
     spawn_default_star(980.0f, 1100.0f, 250.0f);
 }
 
 static void big_boo_spawn_balcony_star(void) {
+    N64_STACK_FRAME(big_boo_spawn_balcony_star);
     spawn_default_star(700.0f, 3200.0f, 1900.0f);
 }
 
 static void big_boo_spawn_merry_go_round_star(void) {
+    N64_STACK_FRAME(big_boo_spawn_merry_go_round_star);
     struct Object *merryGoRound;
 
     spawn_default_star(-1600.0f, -2100.0f, 205.0f);
@@ -593,6 +602,7 @@ static void big_boo_spawn_merry_go_round_star(void) {
 }
 
 static void big_boo_act_3(void) {
+    N64_STACK_FRAME(big_boo_act_3);
     if (o->oTimer == 0) {
         o->oHealth--;
     }
@@ -626,6 +636,7 @@ static void big_boo_act_3(void) {
 }
 
 static void big_boo_act_4(void) {
+    N64_STACK_FRAME(big_boo_act_4);
 #ifndef VERSION_JP
     boo_stop();
 #endif
@@ -712,12 +723,14 @@ static void boo_with_cage_act_2(void) {
 }
 
 static void boo_with_cage_act_3(void) {
+    N64_STACK_FRAME(boo_with_cage_act_3);
     if (boo_update_during_death()) {
         obj_mark_for_deletion(o);
     }
 }
 
 void bhv_boo_with_cage_init(void) {
+    N64_STACK_FRAME(bhv_boo_with_cage_init);
     if (WORLD(gHudDisplay).stars < SPAWN_CASTLE_BOO_STAR_REQUIREMENT) {
         obj_mark_for_deletion(o);
     } else {
@@ -747,6 +760,7 @@ void bhv_boo_with_cage_loop(void) {
 }
 
 void bhv_merry_go_round_boo_manager_loop(void) {
+    N64_STACK_FRAME(bhv_merry_go_round_boo_manager_loop);
     switch (o->oAction) {
         case 0:
             if (o->oDistanceToMario < 1000.0f) {

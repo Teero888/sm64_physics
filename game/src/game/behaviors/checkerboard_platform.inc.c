@@ -12,6 +12,7 @@ struct Struct8032F754 D_8032F754[] = {
 };
 
 void bhv_checkerboard_elevator_group_init(void) {
+    N64_STACK_FRAME(bhv_checkerboard_elevator_group_init);
     s32 sp3C;
     s32 sp38;
     s32 sp34;

@@ -1,6 +1,7 @@
 // flame.inc.c
 
 void bhv_small_piranha_flame_loop(void) {
+    N64_STACK_FRAME(bhv_small_piranha_flame_loop);
     if ((u16)(o->oBhvParams >> 16) == 0) {
         if (o->oTimer > 0) {
             obj_mark_for_deletion(o);

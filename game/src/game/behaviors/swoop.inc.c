@@ -98,6 +98,7 @@ static void swoop_act_move(void) {
  * Update function for swoop.
  */
 void bhv_swoop_update(void) {
+    N64_STACK_FRAME(bhv_swoop_update);
     // No partial update (only appears in roomed levels)
 
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {

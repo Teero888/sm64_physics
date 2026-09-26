@@ -5,6 +5,7 @@ void bhv_seaweed_init(void) {
 }
 
 void bhv_seaweed_bundle_init(void) {
+    N64_STACK_FRAME(bhv_seaweed_bundle_init);
     struct Object *seaweed;
 
     seaweed = spawn_object(o, MODEL_SEAWEED, bhvSeaweed);

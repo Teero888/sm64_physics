@@ -72,6 +72,7 @@ void tweester_act_idle(void) {
  * After Mario is twirling, then return home.
  */
 void tweester_act_chase(void) {
+    N64_STACK_FRAME(tweester_act_chase);
     f32 activationRadius = o->oBhvParams2ndByte * 100;
 
     o->oAngleToHome = cur_obj_angle_to_home();

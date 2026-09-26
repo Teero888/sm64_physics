@@ -23,12 +23,14 @@ void bhv_breakable_box_small_init(void) {
 }
 
 void small_breakable_box_spawn_dust(void) {
+    N64_STACK_FRAME(small_breakable_box_spawn_dust);
     struct Object *sp24 = spawn_object(o, MODEL_SMOKE, bhvSmoke);
     sp24->oPosX += (s32)(random_float() * 80.0f) - 40;
     sp24->oPosZ += (s32)(random_float() * 80.0f) - 40;
 }
 
 void small_breakable_box_act_move(void) {
+    N64_STACK_FRAME(small_breakable_box_act_move);
     s16 collisionFlags = object_step();
 
     obj_attack_collided_from_other_object(o);
@@ -56,6 +58,7 @@ void small_breakable_box_act_move(void) {
 }
 
 void breakable_box_small_released_loop(void) {
+    N64_STACK_FRAME(breakable_box_small_released_loop);
     o->oBreakableBoxSmallFramesSinceReleased++;
 
     // Begin flashing
@@ -75,6 +78,7 @@ void breakable_box_small_released_loop(void) {
 }
 
 void breakable_box_small_idle_loop(void) {
+    N64_STACK_FRAME(breakable_box_small_idle_loop);
     switch (o->oAction) {
         case 0:
             small_breakable_box_act_move();
@@ -96,6 +100,7 @@ void breakable_box_small_idle_loop(void) {
 }
 
 void breakable_box_small_get_dropped(void) {
+    N64_STACK_FRAME(breakable_box_small_get_dropped);
     cur_obj_become_tangible();
     cur_obj_enable_rendering();
     cur_obj_get_dropped();
@@ -120,6 +125,7 @@ void breakable_box_small_get_thrown(void) {
 }
 
 void bhv_breakable_box_small_loop(void) {
+    N64_STACK_FRAME(bhv_breakable_box_small_loop);
     switch (o->oHeldState) {
         case 0:
             breakable_box_small_idle_loop();

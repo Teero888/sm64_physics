@@ -97,6 +97,7 @@ void haunted_chair_act_0(void) {
 }
 
 void haunted_chair_act_1(void) {
+    N64_STACK_FRAME(haunted_chair_act_1);
     cur_obj_update_floor_and_walls();
 
     if (o->oTimer < 70) {
@@ -136,6 +137,7 @@ void haunted_chair_act_1(void) {
 }
 
 void bhv_haunted_chair_loop(void) {
+    N64_STACK_FRAME(bhv_haunted_chair_loop);
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         switch (o->oAction) {
             case 0:

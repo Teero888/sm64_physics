@@ -86,6 +86,7 @@ void bhv_door_loop(void) {
 }
 
 void bhv_door_init(void) {
+    N64_STACK_FRAME(bhv_door_init);
     f32 x;
     f32 z;
     struct Surface *floor;

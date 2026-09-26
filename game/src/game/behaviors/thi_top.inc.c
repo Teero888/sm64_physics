@@ -27,6 +27,7 @@ void bhv_thi_huge_island_top_loop(void) {
 }
 
 void bhv_thi_tiny_island_top_loop(void) {
+    N64_STACK_FRAME(bhv_thi_tiny_island_top_loop);
     if (!(WORLD(gTHIWaterDrained) & 1)) {
         if (o->oAction == 0) {
             if (o->oDistanceToMario < 500.0f) {

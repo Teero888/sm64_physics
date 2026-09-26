@@ -72,6 +72,7 @@ s32 intro_lakitu_set_pos_and_focus(struct Object *obj, struct CutsceneSplinePoin
 #endif
 
 void bhv_intro_lakitu_loop(void) {
+    N64_STACK_FRAME(bhv_intro_lakitu_loop);
     Vec3f sp64, sp58, sp4C;
     UNUSED u8 filler[16];
 

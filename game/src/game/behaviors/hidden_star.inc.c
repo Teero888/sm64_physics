@@ -1,6 +1,7 @@
 // hidden_star.inc.c
 
 void bhv_hidden_star_init(void) {
+    N64_STACK_FRAME(bhv_hidden_star_init);
     s16 count = count_objects_with_behavior(bhvHiddenStarTrigger);
 
     if (count == 0) {
@@ -14,6 +15,7 @@ void bhv_hidden_star_init(void) {
 }
 
 void bhv_hidden_star_loop(void) {
+    N64_STACK_FRAME(bhv_hidden_star_loop);
     switch (o->oAction) {
         case 0:
             if (o->oHiddenStarTriggerCounter == 5) {
@@ -32,6 +34,7 @@ void bhv_hidden_star_loop(void) {
 }
 
 void bhv_hidden_star_trigger_loop(void) {
+    N64_STACK_FRAME(bhv_hidden_star_trigger_loop);
     if (obj_check_if_collided_with_object(o, WORLD(gMarioObject)) == TRUE) {
         struct Object *hiddenStar = cur_obj_nearest_object_with_behavior(bhvHiddenStar);
 
@@ -55,6 +58,7 @@ void bhv_hidden_star_trigger_loop(void) {
 }
 
 void bhv_bowser_course_red_coin_star_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_course_red_coin_star_loop);
     WORLD(gRedCoinsCollected) = o->oHiddenStarTriggerCounter;
 
     switch (o->oAction) {

@@ -138,6 +138,7 @@ void unagi_act_3(void) {
 }
 
 void bhv_unagi_loop(void) {
+    N64_STACK_FRAME(bhv_unagi_loop);
     s32 i;
 
     if (o->oUnagiUnk1B2 == 0) {
@@ -171,6 +172,7 @@ void bhv_unagi_loop(void) {
 }
 
 void bhv_unagi_subobject_loop(void) {
+    N64_STACK_FRAME(bhv_unagi_subobject_loop);
     if (o->parentObj->oUnagiUnk1B2 == 0) {
         obj_mark_for_deletion(o);
     } else {

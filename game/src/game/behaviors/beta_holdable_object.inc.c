@@ -21,6 +21,7 @@ void bhv_beta_holdable_object_init(void) {
  * Drop the object.
  */
 static void beta_holdable_object_drop(void) {
+    N64_STACK_FRAME(beta_holdable_object_drop);
     // Re-enable rendering
     cur_obj_enable_rendering();
 
@@ -57,6 +58,7 @@ static void beta_holdable_object_throw(void) {
  * otherwise, handle holding logic.
  */
 void bhv_beta_holdable_object_loop(void) {
+    N64_STACK_FRAME(bhv_beta_holdable_object_loop);
     switch (o->oHeldState) {
         case HELD_FREE:
             // Apply standard physics

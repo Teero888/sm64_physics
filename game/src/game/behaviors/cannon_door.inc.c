@@ -1,6 +1,7 @@
 // cannon.inc.c
 
 void bhv_cannon_closed_init(void) {
+    N64_STACK_FRAME(bhv_cannon_closed_init);
     if (save_file_is_cannon_unlocked() == TRUE) {
         // If the cannon is open, spawn a cannon and despawn the object.
         struct Object *cannon = spawn_object(o, MODEL_CANNON_BASE, bhvCannon);
@@ -16,6 +17,7 @@ void bhv_cannon_closed_init(void) {
 }
 
 void cannon_door_act_opening(void) {
+    N64_STACK_FRAME(cannon_door_act_opening);
     if (o->oTimer == 0) {
         cur_obj_play_sound_2(SOUND_GENERAL_CANNON_UP);
     }
@@ -37,6 +39,7 @@ void cannon_door_act_opening(void) {
 }
 
 void bhv_cannon_closed_loop(void) {
+    N64_STACK_FRAME(bhv_cannon_closed_loop);
     switch (o->oAction) {
         case CANNON_TRAP_DOOR_ACT_CLOSED:
             o->oVelX = 0.0f;

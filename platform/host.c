@@ -55,6 +55,28 @@ void host_reload_level_data(void) {
     host_restore_level_data();
 }
 
+// The words of the N64 game thread's stack that the stack model keeps
+// (platform/n64stack.h): its 8 KiB below thread5_game_loop's frame.
+#define N64_STACK_SIZE 0x2000
+static u32 sN64Stack[N64_STACK_SIZE / 4];
+
+static u32 *n64stack_word(uint32_t address) {
+    const uint32_t offset = address - (N64_GAME_LOOP_SP - N64_STACK_SIZE);
+    return offset < N64_STACK_SIZE ? &WORLD(sN64Stack)[offset / 4] : NULL;
+}
+
+void host_n64stack_store(uint32_t address, uint32_t value) {
+    u32 *word = n64stack_word(address);
+    if (word != NULL) {
+        *word = value;
+    }
+}
+
+uint32_t host_n64stack_load(uint32_t address) {
+    const u32 *word = n64stack_word(address);
+    return word != NULL ? *word : 0;
+}
+
 static struct LevelCommand *sLevelAddress;
 // The N64 pool runs from the end of the framebuffers to the end of RDRAM;
 // pointers are twice as wide here.

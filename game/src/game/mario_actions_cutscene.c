@@ -281,6 +281,7 @@ void handle_save_menu(struct MarioState *m) {
  * and yaw plus relative yaw.
  */
 struct Object *spawn_obj_at_mario_rel_yaw(struct MarioState *m, s32 model, const BehaviorScript *behavior, s16 relYaw) {
+    N64_STACK_FRAME(spawn_obj_at_mario_rel_yaw);
     struct Object *o = spawn_object(m->marioObj, model, behavior);
 
     o->oFaceAngleYaw = m->faceAngle[1] + relYaw;
@@ -534,6 +535,7 @@ s32 act_reading_sign(struct MarioState *m) {
 }
 
 s32 act_debug_free_move(struct MarioState *m) {
+    N64_STACK_FRAME(act_debug_free_move);
     struct Surface *surf;
     f32 floorHeight;
     Vec3f pos;
@@ -588,6 +590,7 @@ s32 act_debug_free_move(struct MarioState *m) {
 }
 
 void general_star_dance_handler(struct MarioState *m, s32 isInWater) {
+    N64_STACK_FRAME(general_star_dance_handler);
     s32 dialogID;
     if (m->actionState == 0) {
         switch (++m->actionTimer) {
@@ -638,6 +641,7 @@ void general_star_dance_handler(struct MarioState *m, s32 isInWater) {
 }
 
 s32 act_star_dance(struct MarioState *m) {
+    N64_STACK_FRAME(act_star_dance);
     m->faceAngle[1] = m->area->camera->yaw;
     set_mario_animation(m, m->actionState == 2 ? MARIO_ANIM_RETURN_FROM_STAR_DANCE
                                                : MARIO_ANIM_STAR_DANCE);
@@ -650,6 +654,7 @@ s32 act_star_dance(struct MarioState *m) {
 }
 
 s32 act_star_dance_water(struct MarioState *m) {
+    N64_STACK_FRAME(act_star_dance_water);
     m->faceAngle[1] = m->area->camera->yaw;
     set_mario_animation(m, m->actionState == 2 ? MARIO_ANIM_RETURN_FROM_WATER_STAR_DANCE
                                                : MARIO_ANIM_WATER_STAR_DANCE);
@@ -663,6 +668,7 @@ s32 act_star_dance_water(struct MarioState *m) {
 }
 
 s32 act_fall_after_star_grab(struct MarioState *m) {
+    N64_STACK_FRAME(act_fall_after_star_grab);
     if (m->pos[1] < m->waterLevel - 130) {
         play_sound(SOUND_ACTION_UNKNOWN430, m->marioObj->header.gfx.cameraToObject);
         m->particleFlags |= PARTICLE_WATER_SPLASH;
@@ -729,6 +735,7 @@ s32 act_death_on_stomach(struct MarioState *m) {
 }
 
 s32 act_quicksand_death(struct MarioState *m) {
+    N64_STACK_FRAME(act_quicksand_death);
     if (m->actionState == 0) {
         set_mario_animation(m, MARIO_ANIM_DYING_IN_QUICKSAND);
         set_anim_to_frame(m, 60);
@@ -762,6 +769,7 @@ s32 act_eaten_by_bubba(struct MarioState *m) {
 // set animation and forwardVel; when perform_air_step returns AIR_STEP_LANDED,
 // set the new action
 s32 launch_mario_until_land(struct MarioState *m, s32 endAction, s32 animation, f32 forwardVel) {
+    N64_STACK_FRAME(launch_mario_until_land);
     s32 airStepLanded;
     mario_set_forward_vel(m, forwardVel);
     set_mario_animation(m, animation);
@@ -773,6 +781,7 @@ s32 launch_mario_until_land(struct MarioState *m, s32 endAction, s32 animation, 
 }
 
 s32 act_unlocking_key_door(struct MarioState *m) {
+    N64_STACK_FRAME(act_unlocking_key_door);
     m->faceAngle[1] = m->usedObj->oMoveAngleYaw;
 
     m->pos[0] = m->usedObj->oPosX + coss(m->faceAngle[1]) * 75.0f;
@@ -815,6 +824,7 @@ s32 act_unlocking_key_door(struct MarioState *m) {
 }
 
 s32 act_unlocking_star_door(struct MarioState *m) {
+    N64_STACK_FRAME(act_unlocking_star_door);
     switch (m->actionState) {
         case 0:
             m->faceAngle[1] = m->usedObj->oMoveAngleYaw;
@@ -969,6 +979,7 @@ s32 act_warp_door_spawn(struct MarioState *m) {
 }
 
 s32 act_emerge_from_pipe(struct MarioState *m) {
+    N64_STACK_FRAME(act_emerge_from_pipe);
     struct Object *marioObj = m->marioObj;
 
     if (m->actionTimer++ < 11) {
@@ -1049,6 +1060,7 @@ s32 act_spawn_spin_landing(struct MarioState *m) {
  * particle flag that generates sparkles.
  */
 s32 act_exit_airborne(struct MarioState *m) {
+    N64_STACK_FRAME(act_exit_airborne);
     if (15 < m->actionTimer++
         && launch_mario_until_land(m, ACT_EXIT_LAND_SAVE_DIALOG, MARIO_ANIM_GENERAL_FALL, -32.0f)) {
         // heal Mario
@@ -1061,6 +1073,7 @@ s32 act_exit_airborne(struct MarioState *m) {
 }
 
 s32 act_falling_exit_airborne(struct MarioState *m) {
+    N64_STACK_FRAME(act_falling_exit_airborne);
     if (launch_mario_until_land(m, ACT_EXIT_LAND_SAVE_DIALOG, MARIO_ANIM_GENERAL_FALL, 0.0f)) {
         // heal Mario
         m->healCounter = 31;
@@ -1072,6 +1085,7 @@ s32 act_falling_exit_airborne(struct MarioState *m) {
 }
 
 s32 act_exit_land_save_dialog(struct MarioState *m) {
+    N64_STACK_FRAME(act_exit_land_save_dialog);
     s32 animFrame;
     stationary_ground_step(m);
     play_mario_landing_sound_once(m, SOUND_ACTION_TERRAIN_LANDING);
@@ -1155,6 +1169,7 @@ s32 act_exit_land_save_dialog(struct MarioState *m) {
 }
 
 s32 act_death_exit(struct MarioState *m) {
+    N64_STACK_FRAME(act_death_exit);
     if (15 < m->actionTimer++
         && launch_mario_until_land(m, ACT_DEATH_EXIT_LAND, MARIO_ANIM_GENERAL_FALL, -32.0f)) {
 #ifdef VERSION_JP
@@ -1175,6 +1190,7 @@ s32 act_death_exit(struct MarioState *m) {
 }
 
 s32 act_unused_death_exit(struct MarioState *m) {
+    N64_STACK_FRAME(act_unused_death_exit);
     if (launch_mario_until_land(m, ACT_FREEFALL_LAND_STOP, MARIO_ANIM_GENERAL_FALL, 0.0f)) {
 #ifdef VERSION_JP
         play_sound(SOUND_MARIO_OOOF, m->marioObj->header.gfx.cameraToObject);
@@ -1191,6 +1207,7 @@ s32 act_unused_death_exit(struct MarioState *m) {
 }
 
 s32 act_falling_death_exit(struct MarioState *m) {
+    N64_STACK_FRAME(act_falling_death_exit);
     if (launch_mario_until_land(m, ACT_DEATH_EXIT_LAND, MARIO_ANIM_GENERAL_FALL, 0.0f)) {
 #ifdef VERSION_JP
         play_sound(SOUND_MARIO_OOOF, m->marioObj->header.gfx.cameraToObject);
@@ -1211,6 +1228,7 @@ s32 act_falling_death_exit(struct MarioState *m) {
 
 // waits 11 frames before actually executing, also has reduced fvel
 s32 act_special_exit_airborne(struct MarioState *m) {
+    N64_STACK_FRAME(act_special_exit_airborne);
     struct Object *marioObj = m->marioObj;
 
     play_sound_if_no_flag(m, SOUND_MARIO_YAHOO, MARIO_MARIO_SOUND_PLAYED);
@@ -1236,6 +1254,7 @@ s32 act_special_exit_airborne(struct MarioState *m) {
 }
 
 s32 act_special_death_exit(struct MarioState *m) {
+    N64_STACK_FRAME(act_special_death_exit);
     struct Object *marioObj = m->marioObj;
 
     if (m->actionTimer++ < 11) {
@@ -1279,6 +1298,7 @@ s32 act_spawn_no_spin_landing(struct MarioState *m) {
 }
 
 s32 act_bbh_enter_spin(struct MarioState *m) {
+    N64_STACK_FRAME(act_bbh_enter_spin);
     f32 floorDist;
     f32 scale;
     f32 cageDX;
@@ -1363,6 +1383,7 @@ s32 act_bbh_enter_spin(struct MarioState *m) {
 }
 
 s32 act_bbh_enter_jump(struct MarioState *m) {
+    N64_STACK_FRAME(act_bbh_enter_jump);
     f32 cageDX;
     f32 cageDZ;
     f32 cageDist;
@@ -1458,6 +1479,7 @@ s32 act_teleport_fade_in(struct MarioState *m) {
 }
 
 s32 act_shocked(struct MarioState *m) {
+    N64_STACK_FRAME(act_shocked);
     play_sound_if_no_flag(m, SOUND_MARIO_WAAAOOOW, MARIO_ACTION_SOUND_PLAYED);
     play_sound(SOUND_MOVING_SHOCKED, m->marioObj->header.gfx.cameraToObject);
     set_camera_shake_from_hit(SHAKE_SHOCK);
@@ -1485,6 +1507,7 @@ s32 act_shocked(struct MarioState *m) {
 }
 
 s32 act_squished(struct MarioState *m) {
+    N64_STACK_FRAME(act_squished);
     UNUSED u8 filler[4];
     f32 squishAmount;
     f32 spaceUnderCeil;
@@ -1587,6 +1610,7 @@ s32 act_squished(struct MarioState *m) {
 }
 
 s32 act_putting_on_cap(struct MarioState *m) {
+    N64_STACK_FRAME(act_putting_on_cap);
     s32 animFrame = set_mario_animation(m, MARIO_ANIM_PUT_CAP_ON);
 
     if (animFrame == 0) {
@@ -1676,6 +1700,7 @@ static void intro_cutscene_hide_hud_and_mario(struct MarioState *m) {
 #endif
 
 static void intro_cutscene_peach_lakitu_scene(struct MarioState *m) {
+    N64_STACK_FRAME(intro_cutscene_peach_lakitu_scene);
     if ((s16) m->statusForCamera->cameraEvent != CAM_EVENT_START_INTRO) {
         if (m->actionTimer++ == TIMER_SPAWN_PIPE) {
             WORLD(sIntroWarpPipeObj) =
@@ -1708,6 +1733,7 @@ static void intro_cutscene_raise_pipe(struct MarioState *m) {
 #undef TIMER_RAISE_PIPE
 
 static void intro_cutscene_jump_out_of_pipe(struct MarioState *m) {
+    N64_STACK_FRAME(intro_cutscene_jump_out_of_pipe);
     if (m->actionTimer == 25) {
         WORLD(gHudDisplay).flags = HUD_DISPLAY_DEFAULT;
     }
@@ -1784,6 +1810,7 @@ enum {
 };
 
 static s32 act_intro_cutscene(struct MarioState *m) {
+    N64_STACK_FRAME(act_intro_cutscene);
     switch (m->actionArg) {
         case INTRO_CUTSCENE_HIDE_HUD_AND_MARIO:
             intro_cutscene_hide_hud_and_mario(m);
@@ -1812,6 +1839,7 @@ static s32 act_intro_cutscene(struct MarioState *m) {
 
 // jumbo star cutscene: Mario lands after grabbing the jumbo star
 static void jumbo_star_cutscene_falling(struct MarioState *m) {
+    N64_STACK_FRAME(jumbo_star_cutscene_falling);
     if (m->actionState == 0) {
         m->input |= INPUT_A_DOWN;
         m->flags |= (MARIO_WING_CAP | MARIO_CAP_ON_HEAD);
@@ -1944,6 +1972,7 @@ static s32 jumbo_star_cutscene_flying(struct MarioState *m) {
 enum { JUMBO_STAR_CUTSCENE_FALLING, JUMBO_STAR_CUTSCENE_TAKING_OFF, JUMBO_STAR_CUTSCENE_FLYING };
 
 static s32 act_jumbo_star_cutscene(struct MarioState *m) {
+    N64_STACK_FRAME(act_jumbo_star_cutscene);
     switch (m->actionArg) {
         case JUMBO_STAR_CUTSCENE_FALLING:
             jumbo_star_cutscene_falling(m);
@@ -1959,6 +1988,7 @@ static s32 act_jumbo_star_cutscene(struct MarioState *m) {
 }
 
 void generate_yellow_sparkles(s16 x, s16 y, s16 z, f32 radius) {
+    N64_STACK_FRAME(generate_yellow_sparkles);
     static s32 sSparkleGenTheta = 0;
     static s32 sSparkleGenPhi = 0;
 
@@ -1984,6 +2014,7 @@ void generate_yellow_sparkles(s16 x, s16 y, s16 z, f32 radius) {
 // not sure what this does, returns the height of the floor.
 // (animation related?)
 static f32 end_obj_set_visual_pos(struct Object *o) {
+    N64_STACK_FRAME(end_obj_set_visual_pos);
     struct Surface *surf;
     Vec3s sp24;
     f32 sp20;
@@ -2001,6 +2032,7 @@ static f32 end_obj_set_visual_pos(struct Object *o) {
 
 // make Mario fall and soften wing cap gravity
 static void end_peach_cutscene_mario_falling(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_mario_falling);
     if (m->actionTimer == 1) {
         m->statusForCamera->cameraEvent = CAM_EVENT_START_ENDING;
     }
@@ -2019,6 +2051,7 @@ static void end_peach_cutscene_mario_falling(struct MarioState *m) {
 
 // set Mario on the ground, wait and spawn the jumbo star outside the castle.
 static void end_peach_cutscene_mario_landing(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_mario_landing);
     set_mario_animation(m, MARIO_ANIM_GENERAL_LAND);
     stop_and_set_height_to_floor(m);
 
@@ -2035,6 +2068,7 @@ static void end_peach_cutscene_mario_landing(struct MarioState *m) {
 
 // raise hand animation, lower hand animation, do some special effects
 static void end_peach_cutscene_summon_jumbo_star(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_summon_jumbo_star);
     set_mario_animation(m, m->actionState == 0 ? MARIO_ANIM_CREDITS_RAISE_HAND
                                                : MARIO_ANIM_CREDITS_LOWER_HAND);
 
@@ -2066,6 +2100,7 @@ static void end_peach_cutscene_summon_jumbo_star(struct MarioState *m) {
 
 // free peach from the stained glass window
 static void end_peach_cutscene_spawn_peach(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_spawn_peach);
     if (m->actionTimer == 1) {
         play_transition(WARP_TRANSITION_FADE_INTO_COLOR, 14, 255, 255, 255);
     }
@@ -2123,6 +2158,7 @@ static void end_peach_cutscene_spawn_peach(struct MarioState *m) {
 
 // descend peach
 static void end_peach_cutscene_descend_peach(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_descend_peach);
     generate_yellow_sparkles(0, WORLD(sEndPeachObj)->oPosY, -1300, 150.0f);
 
     if (WORLD(sEndPeachObj)->oPosY >= 1300.0f) {
@@ -2151,6 +2187,7 @@ static void end_peach_cutscene_descend_peach(struct MarioState *m) {
 
 // Mario runs to peach
 static void end_peach_cutscene_run_to_peach(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_run_to_peach);
     struct Surface *surf;
 
     if (m->actionTimer == 22) {
@@ -2433,6 +2470,7 @@ static void end_peach_cutscene_star_dance(struct MarioState *m) {
 // "let's bake a delicious cake..."
 // "...for Mario..."
 static void end_peach_cutscene_dialog_3(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_dialog_3);
     set_mario_animation(m, MARIO_ANIM_FIRST_PERSON);
 
     WORLD(sEndPeachObj)->oPosY = end_obj_set_visual_pos(WORLD(sEndPeachObj));
@@ -2470,6 +2508,7 @@ static void end_peach_cutscene_dialog_3(struct MarioState *m) {
 
 // "Mario!"
 static void end_peach_cutscene_run_to_castle(struct MarioState *m) {
+    N64_STACK_FRAME(end_peach_cutscene_run_to_castle);
     set_mario_animation(m, m->actionState == 0 ? MARIO_ANIM_CREDITS_START_WALK_LOOK_UP
                                                : MARIO_ANIM_CREDITS_LOOK_BACK_THEN_RUN);
 
@@ -2515,6 +2554,7 @@ enum {
 };
 
 static s32 act_end_peach_cutscene(struct MarioState *m) {
+    N64_STACK_FRAME(act_end_peach_cutscene);
     switch (m->actionArg) {
         case END_PEACH_CUTSCENE_MARIO_FALLING:
             end_peach_cutscene_mario_falling(m);
@@ -2641,6 +2681,7 @@ static s32 act_credits_cutscene(struct MarioState *m) {
 }
 
 static s32 act_end_waving_cutscene(struct MarioState *m) {
+    N64_STACK_FRAME(act_end_waving_cutscene);
     if (m->actionState == 0) {
         m->statusForCamera->cameraEvent = CAM_EVENT_START_END_WAVING;
 

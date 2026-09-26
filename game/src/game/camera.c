@@ -746,6 +746,7 @@ static UNUSED void set_pos_to_mario(Vec3f foc, Vec3f pos, f32 yOff, f32 focYOff,
  * Set the camera's y coordinate to goalHeight, respecting floors and ceilings in the way
  */
 void set_camera_height(struct Camera *c, f32 goalHeight) {
+    N64_STACK_FRAME(set_camera_height);
     struct Surface *surface;
     f32 marioFloorHeight;
     f32 marioCeilHeight;
@@ -805,6 +806,7 @@ void set_camera_height(struct Camera *c, f32 goalHeight) {
  * Pitch the camera down when the camera is facing down a slope
  */
 s16 look_down_slopes(s16 camYaw) {
+    N64_STACK_FRAME(look_down_slopes);
     struct Surface *floor;
     f32 floorDY;
     // Default pitch
@@ -900,6 +902,7 @@ s16 find_in_bounds_yaw_wdw_bob_thi(Vec3f pos, Vec3f origin, s16 yaw) {
  * Rotates the camera around the area's center point.
  */
 s32 update_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
+    N64_STACK_FRAME(update_radial_camera);
     f32 cenDistX = WORLD(sMarioCamState)->pos[0] - c->areaCenX;
     f32 cenDistZ = WORLD(sMarioCamState)->pos[2] - c->areaCenZ;
     s16 camYaw = atan2s(cenDistZ, cenDistX) + WORLD(sModeOffsetYaw);
@@ -923,6 +926,7 @@ s32 update_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
  * Update the camera during 8 directional mode
  */
 s32 update_8_directions_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
+    N64_STACK_FRAME(update_8_directions_camera);
     UNUSED f32 cenDistX = WORLD(sMarioCamState)->pos[0] - c->areaCenX;
     UNUSED f32 cenDistZ = WORLD(sMarioCamState)->pos[2] - c->areaCenZ;
     s16 camYaw = WORLD(s8DirModeBaseYaw) + WORLD(s8DirModeYawOffset);
@@ -1140,6 +1144,7 @@ void update_yaw_and_dist_from_c_up(UNUSED struct Camera *c) {
  * Handles input and updates for the radial camera mode
  */
 void mode_radial_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_radial_camera);
     Vec3f pos;
     UNUSED u8 filler1[8];
     s16 oldAreaYaw = WORLD(sAreaYaw);
@@ -1170,6 +1175,7 @@ void mode_radial_camera(struct Camera *c) {
  * A mode that only has 8 camera angles, 45 degrees apart
  */
 void mode_8_directions_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_8_directions_camera);
     Vec3f pos;
     UNUSED u8 filler[8];
     s16 oldAreaYaw = WORLD(sAreaYaw);
@@ -1198,6 +1204,7 @@ void mode_8_directions_camera(struct Camera *c) {
  * sModeOffsetYaw is calculated in radial_camera_move, which calls offset_yaw_outward_radial
  */
 s32 update_outward_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
+    N64_STACK_FRAME(update_outward_radial_camera);
     f32 xDistFocToMario = WORLD(sMarioCamState)->pos[0] - c->areaCenX;
     f32 zDistFocToMario = WORLD(sMarioCamState)->pos[2] - c->areaCenZ;
     s16 camYaw = atan2s(zDistFocToMario, xDistFocToMario) + WORLD(sModeOffsetYaw) + DEGREES(180);
@@ -1219,6 +1226,7 @@ s32 update_outward_radial_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
  * Input and updates for the outward radial mode.
  */
 void mode_outward_radial_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_outward_radial_camera);
     Vec3f pos;
     s16 oldAreaYaw = WORLD(sAreaYaw);
 
@@ -1529,6 +1537,7 @@ s32 update_fixed_camera(struct Camera *c, Vec3f focus, UNUSED Vec3f pos) {
  * Updates the camera during a boss fight
  */
 s32 update_boss_fight_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
+    N64_STACK_FRAME(update_boss_fight_camera);
     struct Object *o;
     UNUSED u8 filler2[12];
     f32 focusDistance;
@@ -1709,6 +1718,7 @@ UNUSED static void stub_camera_1(UNUSED s32 unused) {
 }
 
 void mode_boss_fight_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_boss_fight_camera);
     c->nextYaw = update_boss_fight_camera(c, c->focus, c->pos);
 }
 
@@ -1895,6 +1905,7 @@ s32 update_behind_mario_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
  * "Behind Mario" mode: used when Mario is flying, on the water's surface, or shot from a cannon
  */
 s32 mode_behind_mario(struct Camera *c) {
+    N64_STACK_FRAME(mode_behind_mario);
     struct MarioState *marioState = &WORLD(gMarioStates)[0];
     struct Surface *floor;
     Vec3f newPos;
@@ -1948,6 +1959,7 @@ s32 mode_behind_mario(struct Camera *c) {
  * In slide mode, keep the camera 800 units from Mario
  */
 s16 update_slide_camera(struct Camera *c) {
+    N64_STACK_FRAME(update_slide_camera);
     struct Surface *floor;
     f32 floorHeight;
     Vec3f pos;
@@ -2024,6 +2036,7 @@ s16 update_slide_camera(struct Camera *c) {
 }
 
 void mode_behind_mario_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_behind_mario_camera);
     c->nextYaw = mode_behind_mario(c);
 }
 
@@ -2043,6 +2056,7 @@ s32 nop_update_water_camera(UNUSED struct Camera *c, UNUSED Vec3f focus, UNUSED 
  * Exactly the same as BEHIND_MARIO
  */
 void mode_water_surface_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_water_surface_camera);
     c->nextYaw = mode_behind_mario(c);
 }
 
@@ -2062,6 +2076,7 @@ s32 update_mario_camera(UNUSED struct Camera *c, Vec3f focus, Vec3f pos) {
  * The camera moves behind Mario, and can rotate all the way around
  */
 s16 update_default_camera(struct Camera *c) {
+    N64_STACK_FRAME(update_default_camera);
     Vec3f tempPos;
     Vec3f cPos;
     UNUSED u8 filler1[12];
@@ -2389,6 +2404,7 @@ s16 update_default_camera(struct Camera *c) {
  * Used by close and free roam modes
  */
 void mode_default_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_default_camera);
     set_fov_function(CAM_FOV_DEFAULT);
     c->nextYaw = update_default_camera(c);
     pan_ahead_of_player(c);
@@ -2398,6 +2414,7 @@ void mode_default_camera(struct Camera *c) {
  * The mode used by close and free roam
  */
 void mode_lakitu_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_lakitu_camera);
     WORLD(gCameraZoomDist) = 800.f;
     mode_default_camera(c);
 }
@@ -2406,6 +2423,7 @@ void mode_lakitu_camera(struct Camera *c) {
  * When no other mode is active and the current R button mode is Mario
  */
 void mode_mario_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_mario_camera);
     WORLD(gCameraZoomDist) = 350.f;
     mode_default_camera(c);
 }
@@ -2414,6 +2432,7 @@ void mode_mario_camera(struct Camera *c) {
  * Rotates the camera around the spiral staircase.
  */
 s32 update_spiral_stairs_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
+    N64_STACK_FRAME(update_spiral_stairs_camera);
     UNUSED s16 unused;
     /// The returned yaw
     s16 camYaw;
@@ -2489,6 +2508,7 @@ s32 update_spiral_stairs_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
  * The mode used in the spiral staircase in the castle
  */
 void mode_spiral_stairs_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_spiral_stairs_camera);
     c->nextYaw = update_spiral_stairs_camera(c, c->focus, c->pos);
 }
 
@@ -2500,6 +2520,7 @@ s32 update_slide_or_0f_camera(UNUSED struct Camera *c, Vec3f focus, Vec3f pos) {
 }
 
 static UNUSED void unused_mode_0f_camera(struct Camera *c) {
+    N64_STACK_FRAME(unused_mode_0f_camera);
     if (WORLD(gPlayer1Controller)->buttonPressed & U_CBUTTONS) {
         WORLD(gCameraMovementFlags) |= CAM_MOVE_C_UP_MODE;
     }
@@ -2511,6 +2532,7 @@ static UNUSED void unused_mode_0f_camera(struct Camera *c) {
  * In this mode, the camera is always at the back of Mario, because Mario generally only moves forward.
  */
 void mode_slide_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_slide_camera);
     if (WORLD(sMarioGeometry).currFloorType == SURFACE_CLOSE_CAMERA ||
         WORLD(sMarioGeometry).currFloorType == SURFACE_NO_CAM_COL_SLIPPERY) {
         mode_lakitu_camera(c);
@@ -2549,6 +2571,7 @@ s32 set_mode_c_up(struct Camera *c) {
  * direction.
  */
 s32 exit_c_up(struct Camera *c) {
+    N64_STACK_FRAME(exit_c_up);
     struct Surface *surface;
     Vec3f checkFoc;
     Vec3f curPos;
@@ -2730,6 +2753,7 @@ void move_into_c_up(struct Camera *c) {
  * The main update function for C-Up mode
  */
 s32 mode_c_up_camera(struct Camera *c) {
+    N64_STACK_FRAME(mode_c_up_camera);
     UNUSED u8 filler[12];
 
     // Play a sound when entering C-Up mode
@@ -2912,6 +2936,7 @@ void set_camera_mode(struct Camera *c, s16 mode, s16 frames) {
  * Updates Lakitu's position/focus and applies camera shakes.
  */
 void update_lakitu(struct Camera *c) {
+    N64_STACK_FRAME(update_lakitu);
     struct Surface *floor = NULL;
     Vec3f newPos;
     Vec3f newFoc;
@@ -3287,6 +3312,7 @@ void reset_camera(struct Camera *c) {
 }
 
 void init_camera(struct Camera *c) {
+    N64_STACK_FRAME(init_camera);
     struct Surface *floor = 0;
     Vec3f marioOffset;
     s32 i;
@@ -5407,6 +5433,7 @@ void determine_pushing_or_pulling_door(s16 *rotation) {
  */
 s16 next_lakitu_state(Vec3f newPos, Vec3f newFoc, Vec3f curPos, Vec3f curFoc,
                       Vec3f oldPos, Vec3f oldFoc, s16 yaw) {
+    N64_STACK_FRAME(next_lakitu_state);
     s16 yawVelocity;
     s16 pitchVelocity;
     f32 distVelocity;
@@ -5836,6 +5863,7 @@ BAD_RETURN(s32) cam_castle_lobby_entrance(UNUSED struct Camera *c) {
  * Make the camera look up the stairs from the 2nd to 3rd floor of the castle
  */
 BAD_RETURN(s32) cam_castle_look_upstairs(struct Camera *c) {
+    N64_STACK_FRAME(cam_castle_look_upstairs);
     struct Surface *floor;
     f32 floorHeight = find_floor(c->pos[0], c->pos[1], c->pos[2], &floor);
 
@@ -5850,6 +5878,7 @@ BAD_RETURN(s32) cam_castle_look_upstairs(struct Camera *c) {
  * Make the camera look down the stairs towards the basement star door
  */
 BAD_RETURN(s32) cam_castle_basement_look_downstairs(struct Camera *c) {
+    N64_STACK_FRAME(cam_castle_basement_look_downstairs);
     struct Surface *floor;
     f32 floorHeight = find_floor(c->pos[0], c->pos[1], c->pos[2], &floor);
 
@@ -6697,6 +6726,7 @@ s16 camera_course_processing(struct Camera *c) {
  * @param lastGood unused, passed as the last position the camera was in
  */
 void resolve_geometry_collisions(Vec3f pos, UNUSED Vec3f lastGood) {
+    N64_STACK_FRAME(resolve_geometry_collisions);
     f32 ceilY, floorY;
     struct Surface *surf;
 
@@ -6838,6 +6868,7 @@ s32 rotate_camera_around_walls(struct Camera *c, Vec3f cPos, s16 *avoidYaw, s16 
  * Note: Also finds the water level, but waterHeight is unused
  */
 void find_mario_floor_and_ceil(struct PlayerGeometry *pg) {
+    N64_STACK_FRAME(find_mario_floor_and_ceil);
     struct Surface *surf;
     s16 tempCheckingSurfaceCollisionsForCamera = WORLD(gCheckingSurfaceCollisionsForCamera);
     WORLD(gCheckingSurfaceCollisionsForCamera) = TRUE;
@@ -8252,6 +8283,7 @@ BAD_RETURN(s32) cutscene_star_spawn_focus_star(struct Camera *c) {
  * Use boss fight mode's update function to move the focus back.
  */
 BAD_RETURN(s32) cutscene_star_spawn_update_boss_fight(struct Camera *c) {
+    N64_STACK_FRAME(cutscene_star_spawn_update_boss_fight);
     Vec3f pos, focus;
 
     update_boss_fight_camera(c, focus, pos);
@@ -9163,6 +9195,7 @@ BAD_RETURN(s32) cutscene_exit_succ_start(UNUSED struct Camera *c) {
  * Set the camera pos depending on which level Mario exited.
  */
 BAD_RETURN(s32) cutscene_non_painting_set_cam_pos(struct Camera *c) {
+    N64_STACK_FRAME(cutscene_non_painting_set_cam_pos);
     UNUSED u8 filler1[4];
     struct Surface *floor;
     UNUSED u8 filler2[12];
@@ -10106,6 +10139,7 @@ BAD_RETURN(s32) cutscene_enter_painting(struct Camera *c) {
  * cvar2 is the camera's focus relative to Mario
  */
 BAD_RETURN(s32) cutscene_exit_painting_start(struct Camera *c) {
+    N64_STACK_FRAME(cutscene_exit_painting_start);
     struct Surface *floor;
     f32 floorHeight;
 
@@ -10154,6 +10188,7 @@ BAD_RETURN(s32) cutscene_exit_painting_move_to_mario(struct Camera *c) {
  * Move the camera down to the floor Mario lands on.
  */
 BAD_RETURN(s32) cutscene_exit_painting_move_to_floor(struct Camera *c) {
+    N64_STACK_FRAME(cutscene_exit_painting_move_to_floor);
     struct Surface *floor;
     Vec3f floorHeight;
 

@@ -935,6 +935,7 @@ s32 act_steep_jump(struct MarioState *m) {
 }
 
 s32 act_ground_pound(struct MarioState *m) {
+    N64_STACK_FRAME(act_ground_pound);
     u32 stepResult;
     f32 yOffset;
 
@@ -1003,6 +1004,7 @@ s32 act_ground_pound(struct MarioState *m) {
 }
 
 s32 act_burning_jump(struct MarioState *m) {
+    N64_STACK_FRAME(act_burning_jump);
     play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, m->actionArg == 0 ? 0 : -1);
     mario_set_forward_vel(m, m->forwardVel);
 
@@ -1028,6 +1030,7 @@ s32 act_burning_jump(struct MarioState *m) {
 }
 
 s32 act_burning_fall(struct MarioState *m) {
+    N64_STACK_FRAME(act_burning_fall);
     mario_set_forward_vel(m, m->forwardVel);
 
     if (perform_air_step(m, 0) == AIR_STEP_LANDED) {
@@ -1288,6 +1291,7 @@ s32 act_soft_bonk(struct MarioState *m) {
 }
 
 s32 act_getting_blown(struct MarioState *m) {
+    N64_STACK_FRAME(act_getting_blown);
     if (m->actionState == 0) {
         if (m->forwardVel > -60.0f) {
             m->forwardVel -= 6.0f;
@@ -1663,6 +1667,7 @@ s32 act_slide_kick(struct MarioState *m) {
 }
 
 s32 act_jump_kick(struct MarioState *m) {
+    N64_STACK_FRAME(act_jump_kick);
     s32 animFrame;
 
     if (m->actionState == 0) {
@@ -2004,6 +2009,7 @@ s32 act_top_of_pole_jump(struct MarioState *m) {
 }
 
 s32 act_vertical_wind(struct MarioState *m) {
+    N64_STACK_FRAME(act_vertical_wind);
     s16 intendedDYaw = m->intendedYaw - m->faceAngle[1];
     f32 intendedMag = m->intendedMag / 32.0f;
 
@@ -2042,6 +2048,7 @@ s32 act_vertical_wind(struct MarioState *m) {
 }
 
 s32 act_special_triple_jump(struct MarioState *m) {
+    N64_STACK_FRAME(act_special_triple_jump);
     if (m->input & INPUT_B_PRESSED) {
         return set_mario_action(m, ACT_DIVE, 0);
     }

@@ -11,6 +11,7 @@
  * in the enclosure nor in the room around it.
  */
 static void handle_merry_go_round_music(void) {
+    N64_STACK_FRAME(handle_merry_go_round_music);
     // If the music should play, play it and check whether it still should.
     // Otherwise, don't play it and check whether it should.
     if (o->oMerryGoRoundMusicShouldPlay == FALSE) {
@@ -67,6 +68,7 @@ static void handle_merry_go_round_music(void) {
  * Merry-go-round update function.
  */
 void bhv_merry_go_round_loop(void) {
+    N64_STACK_FRAME(bhv_merry_go_round_loop);
     // Surprisingly, the merry-go-round is what's responsible
     // for playing the howling wind sound in BBH.
     if (!o->oMerryGoRoundMarioIsOutside) {

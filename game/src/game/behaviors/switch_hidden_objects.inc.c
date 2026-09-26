@@ -33,6 +33,7 @@ void breakable_box_init(void) {
 }
 
 void hidden_breakable_box_actions(void) {
+    N64_STACK_FRAME(hidden_breakable_box_actions);
     struct Object *purpleSwitch;
 
     obj_set_hitbox(o, &WORLD(sBreakableBoxHitbox));
@@ -108,6 +109,7 @@ void hidden_wdw_platform_actions(void) {
 }
 
 void bhv_hidden_object_loop(void) {
+    N64_STACK_FRAME(bhv_hidden_object_loop);
     if (o->oBhvParams2ndByte == HIDDEN_OBJECT_BP_BREAKABLE_BOX) {
         hidden_breakable_box_actions();
     } else {

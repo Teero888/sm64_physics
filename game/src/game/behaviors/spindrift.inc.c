@@ -13,6 +13,7 @@ struct ObjectHitbox sSpindriftHitbox = {
 };
 
 void bhv_spindrift_loop(void) {
+    N64_STACK_FRAME(bhv_spindrift_loop);
     o->activeFlags |= ACTIVE_FLAG_UNK10;
 
     if (cur_obj_set_hitbox_and_die_if_attacked(&WORLD(sSpindriftHitbox), SOUND_OBJ_DYING_ENEMY1, 0)) {

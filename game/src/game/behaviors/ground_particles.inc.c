@@ -1,6 +1,7 @@
 // ground_particles.inc.c
 
 void bhv_pound_white_puffs_init(void) {
+    N64_STACK_FRAME(bhv_pound_white_puffs_init);
     clear_particle_flags(ACTIVE_PARTICLE_MIST_CIRCLE);
     spawn_mist_from_global();
 }
@@ -21,6 +22,7 @@ static struct SpawnParticlesInfo sGlobalMistParticles = {
 };
 
 void spawn_mist_from_global(void) {
+    N64_STACK_FRAME(spawn_mist_from_global);
     cur_obj_spawn_particles(&WORLD(sGlobalMistParticles));
 }
 
@@ -40,6 +42,7 @@ static struct SpawnParticlesInfo sSandParticles = {
 };
 
 void bhv_ground_sand_init(void) {
+    N64_STACK_FRAME(bhv_ground_sand_init);
     clear_particle_flags(ACTIVE_PARTICLE_DIRT);
     cur_obj_spawn_particles(&WORLD(sSandParticles));
 }
@@ -47,6 +50,7 @@ void bhv_ground_sand_init(void) {
 static s16 sSmokeMovementParams[] = { 2, -8, 1, 4 };
 
 void spawn_smoke_with_velocity(void) {
+    N64_STACK_FRAME(spawn_smoke_with_velocity);
     struct Object *smoke = spawn_object_with_scale(o, MODEL_SMOKE, bhvWhitePuffSmoke2, 1.0f);
 
     smoke->oForwardVel = WORLD(sSmokeMovementParams)[0];
@@ -77,6 +81,7 @@ static struct SpawnParticlesInfo sSnowParticles = {
 };
 
 void bhv_ground_snow_init(void) {
+    N64_STACK_FRAME(bhv_ground_snow_init);
     clear_particle_flags(ACTIVE_PARTICLE_SNOW);
     cur_obj_spawn_particles(&WORLD(sSnowParticles));
 }

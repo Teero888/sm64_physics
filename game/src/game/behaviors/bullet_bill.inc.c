@@ -27,6 +27,7 @@ void bullet_bill_act_1(void) {
 }
 
 void bullet_bill_act_2(void) {
+    N64_STACK_FRAME(bullet_bill_act_2);
     if (o->oTimer < 40) {
         o->oForwardVel = 3.0f;
     } else if (o->oTimer < 50) {

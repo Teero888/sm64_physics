@@ -1,6 +1,7 @@
 // break_particles.inc.c
 
 void spawn_triangle_break_particles(s16 numTris, s16 triModel, f32 triSize, s16 triAnimState) {
+    N64_STACK_FRAME(spawn_triangle_break_particles);
     struct Object *triangle;
     s32 i;
 

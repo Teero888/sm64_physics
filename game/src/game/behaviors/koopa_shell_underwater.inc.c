@@ -17,6 +17,7 @@ void set_koopa_shell_underwater_hitbox(void) {
 }
 
 void bhv_koopa_shell_underwater_loop(void) {
+    N64_STACK_FRAME(bhv_koopa_shell_underwater_loop);
     switch (o->oHeldState) {
         case HELD_FREE:
             set_koopa_shell_underwater_hitbox();

@@ -18,6 +18,7 @@ static s8 sCloudPartHeights[] = { 11, 8, 12, 8, 9, 9 };
  * Spawn the visual parts of the cloud, including fwoosh's face.
  */
 static void cloud_act_spawn_parts(void) {
+    N64_STACK_FRAME(cloud_act_spawn_parts);
     struct Object *cloudPart;
     s32 i;
 
@@ -58,6 +59,7 @@ static void cloud_act_fwoosh_hidden(void) {
  * long enough, blow wind at him.
  */
 static void cloud_fwoosh_update(void) {
+    N64_STACK_FRAME(cloud_fwoosh_update);
     if (o->oDistanceToMario > 2500.0f) {
         o->oAction = CLOUD_ACT_UNLOAD;
     } else {
@@ -103,6 +105,7 @@ static void cloud_fwoosh_update(void) {
  * unloads, and when fwoosh blows wind.
  */
 static void cloud_act_main(void) {
+    N64_STACK_FRAME(cloud_act_main);
     s16 localOffsetPhase = 0x800 * WORLD(gGlobalTimer);
     f32 localOffset;
 
@@ -151,6 +154,7 @@ static void cloud_act_unload(void) {
  * Update function for bhvCloud.
  */
 void bhv_cloud_update(void) {
+    N64_STACK_FRAME(bhv_cloud_update);
     switch (o->oAction) {
         case CLOUD_ACT_SPAWN_PARTS:
             cloud_act_spawn_parts();

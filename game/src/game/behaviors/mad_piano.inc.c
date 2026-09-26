@@ -28,6 +28,7 @@ static void mad_piano_act_wait(void) {
 }
 
 static void mad_piano_act_attack(void) {
+    N64_STACK_FRAME(mad_piano_act_attack);
     cur_obj_update_floor_and_walls();
     cur_obj_init_animation_with_sound(1);
     cur_obj_play_sound_at_anim_range(0, 0, SOUND_OBJ_MAD_PIANO_CHOMPING);
@@ -60,6 +61,7 @@ static void mad_piano_act_attack(void) {
 }
 
 void bhv_mad_piano_update(void) {
+    N64_STACK_FRAME(bhv_mad_piano_update);
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         o->oFaceAngleYaw = o->oMoveAngleYaw - 0x4000;
 

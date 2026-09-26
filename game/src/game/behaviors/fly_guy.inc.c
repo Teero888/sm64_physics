@@ -132,6 +132,7 @@ static void fly_guy_act_lunge(void) {
  * Turn toward mario, then shoot fire. Then enter the idle action.
  */
 static void fly_guy_act_shoot_fire(void) {
+    N64_STACK_FRAME(fly_guy_act_shoot_fire);
     o->oForwardVel = 0.0f;
 
     if (obj_face_yaw_approach(o->oAngleToMario, 0x800)) {
@@ -177,6 +178,7 @@ static void fly_guy_act_shoot_fire(void) {
  * Update function for fly guy.
  */
 void bhv_fly_guy_update(void) {
+    N64_STACK_FRAME(bhv_fly_guy_update);
     // PARTIAL_UPDATE (appears in non-roomed levels)
 
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {

@@ -346,6 +346,7 @@ u32 does_mario_have_normal_cap_on_head(struct MarioState *m) {
 }
 
 void mario_blow_off_cap(struct MarioState *m, f32 capSpeed) {
+    N64_STACK_FRAME(mario_blow_off_cap);
     struct Object *capObject;
 
     if (does_mario_have_normal_cap_on_head(m)) {
@@ -614,6 +615,7 @@ u32 determine_knockback_action(struct MarioState *m, UNUSED s32 arg) {
 }
 
 void push_mario_out_of_object(struct MarioState *m, struct Object *o, f32 padding) {
+    N64_STACK_FRAME(push_mario_out_of_object);
     f32 minDistance = o->hitboxRadius + m->marioObj->hitboxRadius + padding;
 
     f32 offsetX = m->pos[0] - o->oPosX;
@@ -743,6 +745,7 @@ void reset_mario_pitch(struct MarioState *m) {
 }
 
 u32 interact_coin(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_coin);
     m->numCoins += o->oDamageOrCoinValue;
     m->healCounter += 4 * o->oDamageOrCoinValue;
 
@@ -1079,6 +1082,7 @@ u32 interact_cannon_base(struct MarioState *m, UNUSED u32 interactType, struct O
 }
 
 u32 interact_igloo_barrier(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_igloo_barrier);
     //! Sets used object without changing action (LOTS of interesting glitches,
     // but unfortunately the igloo barrier is the only object with this interaction
     // type)
@@ -1741,6 +1745,7 @@ u32 check_read_sign(struct MarioState *m, struct Object *o) {
 }
 
 u32 check_npc_talk(struct MarioState *m, struct Object *o) {
+    N64_STACK_FRAME(check_npc_talk);
     if ((m->input & READ_MASK) && mario_can_talk(m, 1)) {
         s16 facingDYaw = mario_obj_angle_to_object(m, o) - m->faceAngle[1];
         if (facingDYaw >= -0x4000 && facingDYaw <= 0x4000) {
@@ -1759,6 +1764,7 @@ u32 check_npc_talk(struct MarioState *m, struct Object *o) {
 }
 
 u32 interact_text(struct MarioState *m, UNUSED u32 interactType, struct Object *o) {
+    N64_STACK_FRAME(interact_text);
     u32 interact = FALSE;
 
     if (o->oInteractionSubtype & INT_SUBTYPE_SIGN) {
@@ -1866,6 +1872,7 @@ void pss_begin_slide(UNUSED struct MarioState *m) {
 }
 
 void pss_end_slide(struct MarioState *m) {
+    N64_STACK_FRAME(pss_end_slide);
     //! This flag isn't set on death or level entry, allowing double star spawn
     if (WORLD(sPSSSlideStarted)) {
         u16 slideTime = level_control_timer(TIMER_CONTROL_STOP);

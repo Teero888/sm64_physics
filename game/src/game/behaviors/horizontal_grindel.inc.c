@@ -5,6 +5,7 @@ void bhv_horizontal_grindel_init(void) {
 }
 
 void bhv_horizontal_grindel_update(void) {
+    N64_STACK_FRAME(bhv_horizontal_grindel_update);
     if (o->oMoveFlags & OBJ_MOVE_MASK_ON_GROUND) {
         if (!o->oHorizontalGrindelOnGround) {
             cur_obj_play_sound_2(SOUND_OBJ_THWOMP);

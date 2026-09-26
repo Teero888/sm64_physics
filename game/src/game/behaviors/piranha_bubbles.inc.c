@@ -28,6 +28,7 @@ void bhv_piranha_plant_waking_bubbles_loop(void) {
  * and the cycle can repeat.
  */
 void bhv_piranha_plant_bubble_loop(void) {
+    N64_STACK_FRAME(bhv_piranha_plant_bubble_loop);
     struct Object *parent = o->parentObj; // the Piranha Plant
     f32 scale = 0;
     s32 i;

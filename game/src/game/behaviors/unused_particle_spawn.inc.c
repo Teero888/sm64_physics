@@ -7,6 +7,7 @@
  */
 
 void bhv_unused_particle_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_unused_particle_spawn_loop);
     s32 i;
     cur_obj_update_floor_and_walls();
     cur_obj_move_standard(78);

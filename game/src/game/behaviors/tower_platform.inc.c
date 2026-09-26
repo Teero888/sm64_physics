@@ -74,6 +74,7 @@ void bhv_wf_sliding_tower_platform_loop(void) {
 }
 
 void spawn_and_init_wf_platforms(s16 a, const BehaviorScript *bhv) {
+    N64_STACK_FRAME(spawn_and_init_wf_platforms);
     s16 yaw;
     struct Object *platform = spawn_object(o, a, bhv);
 
@@ -90,6 +91,7 @@ void spawn_and_init_wf_platforms(s16 a, const BehaviorScript *bhv) {
 }
 
 void spawn_wf_platform_group(void) {
+    N64_STACK_FRAME(spawn_wf_platform_group);
     UNUSED s32 unused = 8;
 
     o->oPlatformSpawnerUnkF4 = 0;
@@ -110,6 +112,7 @@ void spawn_wf_platform_group(void) {
 }
 
 void bhv_tower_platform_group_loop(void) {
+    N64_STACK_FRAME(bhv_tower_platform_group_loop);
     f32 marioY = WORLD(gMarioObject)->oPosY;
 
     o->oDistanceToMario = dist_between_objects(o, WORLD(gMarioObject));

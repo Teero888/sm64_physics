@@ -674,6 +674,7 @@ s32 mario_floor_is_steep(struct MarioState *m) {
  * Finds the floor height relative from Mario given polar displacement.
  */
 f32 find_floor_height_relative_polar(struct MarioState *m, s16 angleFromMario, f32 distFromMario) {
+    N64_STACK_FRAME(find_floor_height_relative_polar);
     struct Surface *floor;
     f32 floorY;
 
@@ -689,6 +690,7 @@ f32 find_floor_height_relative_polar(struct MarioState *m, s16 angleFromMario, f
  * Returns the slope of the floor based off points around Mario.
  */
 s16 find_floor_slope(struct MarioState *m, s16 yawOffset) {
+    N64_STACK_FRAME(find_floor_slope);
     struct Surface *floor;
     f32 forwardFloorY, backwardFloorY;
     f32 forwardYDelta, backwardYDelta;
@@ -1317,6 +1319,7 @@ void update_mario_joystick_inputs(struct MarioState *m) {
  * Resolves wall collisions, and updates a variety of inputs.
  */
 void update_mario_geometry_inputs(struct MarioState *m) {
+    N64_STACK_FRAME(update_mario_geometry_inputs);
     f32 gasLevel;
     f32 ceilToFloorDist;
 
@@ -1376,6 +1379,7 @@ void update_mario_geometry_inputs(struct MarioState *m) {
  * Handles Mario's input flags as well as a couple timers.
  */
 void update_mario_inputs(struct MarioState *m) {
+    N64_STACK_FRAME(update_mario_inputs);
     m->particleFlags = 0;
     m->input = 0;
     m->collidedObjInteractTypes = m->marioObj->collidedObjInteractTypes;
@@ -1793,6 +1797,7 @@ s32 execute_mario_action(UNUSED struct Object *o) {
  **************************************************/
 
 void init_mario(void) {
+    N64_STACK_FRAME(init_mario);
     Vec3s capPos;
     struct Object *capObject;
 

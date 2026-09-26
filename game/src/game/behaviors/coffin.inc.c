@@ -27,6 +27,7 @@ struct LateralPosition coffinRelativePos[] = {
  * Loads the coffins when in the room, they unload themselves.
  */
 void bhv_coffin_spawner_loop(void) {
+    N64_STACK_FRAME(bhv_coffin_spawner_loop);
     struct Object *coffin;
     s32 i;
     s16 relativeZ;
@@ -63,6 +64,7 @@ void bhv_coffin_spawner_loop(void) {
  * Also controls laying the coffin down after it has stood up.
  */
 void coffin_act_idle(void) {
+    N64_STACK_FRAME(coffin_act_idle);
     if (o->oBhvParams2ndByte != COFFIN_BP_STATIC) {
         // Lay down if standing
         if (o->oFaceAnglePitch != 0) {
@@ -138,6 +140,7 @@ void coffin_act_stand_up(void) {
  * that action.
  */
 void bhv_coffin_loop(void) {
+    N64_STACK_FRAME(bhv_coffin_loop);
     // Gotta save those 6 object slots
     if (o->parentObj->oAction == COFFIN_SPAWNER_ACT_COFFINS_UNLOADED) {
         obj_mark_for_deletion(o);

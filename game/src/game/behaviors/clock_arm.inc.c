@@ -4,6 +4,7 @@
  * Main loop of the hour and minute hands of the Tick Tock Clock painting.
  */
 void bhv_rotating_clock_arm_loop(void) {
+    N64_STACK_FRAME(bhv_rotating_clock_arm_loop);
     struct Surface *marioSurface;
     u16 rollAngle = o->oFaceAngleRoll;
 

@@ -1,6 +1,7 @@
 // bouncing_fireball.inc.c
 
 void bhv_bouncing_fireball_flame_loop(void) {
+    N64_STACK_FRAME(bhv_bouncing_fireball_flame_loop);
     o->activeFlags |= ACTIVE_FLAG_UNK10;
 
     cur_obj_update_floor_and_walls();
@@ -41,6 +42,7 @@ void bhv_bouncing_fireball_flame_loop(void) {
 }
 
 void bhv_bouncing_fireball_loop(void) {
+    N64_STACK_FRAME(bhv_bouncing_fireball_loop);
     struct Object *sp2C;
     f32 sp28;
 

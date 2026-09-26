@@ -67,6 +67,7 @@ static u8 sGoombaAttackHandlers[][6] = {
  * Update function for goomba triplet spawner.
  */
 void bhv_goomba_triplet_spawner_update(void) {
+    N64_STACK_FRAME(bhv_goomba_triplet_spawner_update);
     UNUSED u8 filler1[4];
     s16 goombaFlag;
     UNUSED u8 filler2[2];
@@ -216,6 +217,7 @@ static void goomba_act_walk(void) {
  * attacks a huge goomba with an attack that doesn't kill it.
  */
 static void goomba_act_attacked_mario(void) {
+    N64_STACK_FRAME(goomba_act_attacked_mario);
     if (o->oGoombaSize == GOOMBA_SIZE_TINY) {
         mark_goomba_as_dead();
         o->oNumLootCoins = 0;
@@ -263,6 +265,7 @@ void huge_goomba_weakly_attacked(void) {
  * Update function for goomba.
  */
 void bhv_goomba_update(void) {
+    N64_STACK_FRAME(bhv_goomba_update);
     // PARTIAL_UPDATE
 
     f32 animSpeed;

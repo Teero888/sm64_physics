@@ -23,6 +23,7 @@ static s32 eyerok_check_mario_relative_z(s32 arg0) {
 }
 
 static void eyerok_spawn_hand(s16 side, s32 model, const BehaviorScript *behavior) {
+    N64_STACK_FRAME(eyerok_spawn_hand);
     struct Object *hand = spawn_object_relative_with_scale(side, -500 * side, 0, 300, 1.5f,
                                                            o, model, behavior);
     if (hand != NULL) {
@@ -31,6 +32,7 @@ static void eyerok_spawn_hand(s16 side, s32 model, const BehaviorScript *behavio
 }
 
 static void eyerok_boss_act_sleep(void) {
+    N64_STACK_FRAME(eyerok_boss_act_sleep);
     if (o->oTimer == 0) {
         eyerok_spawn_hand(-1, MODEL_EYEROK_LEFT_HAND, bhvEyerokHand);
         eyerok_spawn_hand(1, MODEL_EYEROK_RIGHT_HAND, bhvEyerokHand);
@@ -117,6 +119,7 @@ static void eyerok_boss_act_fight(void) {
 }
 
 static void eyerok_boss_act_die(void) {
+    N64_STACK_FRAME(eyerok_boss_act_die);
     if (o->oTimer == 60) {
         if (cur_obj_update_dialog_with_cutscene(MARIO_DIALOG_LOOK_UP, DIALOG_FLAG_NONE, CUTSCENE_DIALOG, DIALOG_118)) {
             spawn_default_star(0.0f, -900.0f, -3700.0f);
@@ -130,6 +133,7 @@ static void eyerok_boss_act_die(void) {
 }
 
 void bhv_eyerok_boss_loop(void) {
+    N64_STACK_FRAME(bhv_eyerok_boss_loop);
     switch (o->oAction) {
         case EYEROK_BOSS_ACT_SLEEP:
             eyerok_boss_act_sleep();
@@ -175,6 +179,7 @@ static s32 eyerok_hand_check_attacked(void) {
 }
 
 static void eyerok_hand_pound_ground(void) {
+    N64_STACK_FRAME(eyerok_hand_pound_ground);
     cur_obj_play_sound_2(SOUND_OBJ_POUNDING_LOUD);
     set_camera_shake_from_point(SHAKE_POS_SMALL, o->oPosX, o->oPosY, o->oPosZ);
     spawn_mist_from_global();
@@ -336,6 +341,7 @@ static void eyerok_hand_act_become_active(void) {
 }
 
 static void eyerok_hand_act_die(void) {
+    N64_STACK_FRAME(eyerok_hand_act_die);
     if (cur_obj_init_anim_and_check_if_end(1)) {
         o->parentObj->oEyerokBossUnk1AC = 0;
         obj_explode_and_spawn_coins(150.0f, 1);
@@ -387,6 +393,7 @@ static void eyerok_hand_act_target_mario(void) {
 }
 
 static void eyerok_hand_act_smash(void) {
+    N64_STACK_FRAME(eyerok_hand_act_smash);
     if (o->oTimer > 20) {
         if (o->oMoveFlags & OBJ_MOVE_MASK_ON_GROUND) {
             if (o->oGravity < -4.0f) {
@@ -454,6 +461,7 @@ static void eyerok_hand_act_begin_double_pound(void) {
 }
 
 static void eyerok_hand_act_double_pound(void) {
+    N64_STACK_FRAME(eyerok_hand_act_double_pound);
     if (o->parentObj->oEyerokBossNumHands != 2) {
         o->parentObj->oEyerokBossActiveHand = o->oBhvParams2ndByte;
     }
@@ -480,6 +488,7 @@ static void eyerok_hand_act_double_pound(void) {
 }
 
 void bhv_eyerok_hand_loop(void) {
+    N64_STACK_FRAME(bhv_eyerok_hand_loop);
     o->header.gfx.scale[0] = 1.5f;
 
     if (o->oAction == EYEROK_HAND_ACT_SLEEP) {

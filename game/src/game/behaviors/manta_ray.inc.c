@@ -34,6 +34,7 @@ static struct ObjectHitbox sMantaRayHitbox = {
  * Initializes the manta ray when spawned.
  */
 void bhv_manta_ray_init(void) {
+    N64_STACK_FRAME(bhv_manta_ray_init);
     struct Object *ringManager = spawn_object(o, MODEL_NONE, bhvMantaRayRingManager);
     o->parentObj = ringManager;
     obj_set_hitbox(o, &WORLD(sMantaRayHitbox));
@@ -78,6 +79,7 @@ static void manta_ray_move(void) {
 }
 
 static void manta_ray_act_spawn_ring(void) {
+    N64_STACK_FRAME(manta_ray_act_spawn_ring);
     struct Object *ringManager = o->parentObj;
 
     if (o->oTimer == 300) {
@@ -106,6 +108,7 @@ static void manta_ray_act_spawn_ring(void) {
  * Behavior that occurs every frame.
  */
 void bhv_manta_ray_loop(void) {
+    N64_STACK_FRAME(bhv_manta_ray_loop);
     switch (o->oAction) {
         case MANTA_ACT_SPAWN_RINGS:
             manta_ray_move();

@@ -148,6 +148,7 @@ static BAD_RETURN(u32) obj_perform_position_op(s32 op) {
 }
 
 static void platform_on_track_update_pos_or_spawn_ball(s32 ballIndex, f32 x, f32 y, f32 z) {
+    N64_STACK_FRAME(platform_on_track_update_pos_or_spawn_ball);
     struct Object *trackBall;
     struct Waypoint *initialPrevWaypoint;
     struct Waypoint *nextWaypoint;
@@ -616,6 +617,7 @@ static s32 obj_resolve_collisions_and_turn(s16 targetYaw, s16 turnSpeed) {
 }
 
 static void obj_die_if_health_non_positive(void) {
+    N64_STACK_FRAME(obj_die_if_health_non_positive);
     if (o->oHealth <= 0) {
         if (o->oDeathSound == 0) {
             spawn_mist_particles_with_sound(SOUND_OBJ_DEFAULT_DEATH);
@@ -643,6 +645,7 @@ static void obj_die_if_health_non_positive(void) {
 }
 
 UNUSED static void obj_unused_die(void) {
+    N64_STACK_FRAME(obj_unused_die);
     o->oHealth = 0;
     obj_die_if_health_non_positive();
 }
@@ -673,6 +676,7 @@ static void obj_set_squished_action(void) {
 }
 
 static s32 obj_die_if_above_lava_and_health_non_positive(void) {
+    N64_STACK_FRAME(obj_die_if_above_lava_and_health_non_positive);
     if (o->oMoveFlags & OBJ_MOVE_UNDERWATER_ON_GROUND) {
         if (o->oGravity + o->oBuoyancy > 0.0f
             || find_water_level(o->oPosX, o->oPosZ) - o->oPosY < 150.0f) {
@@ -695,6 +699,7 @@ static s32 obj_die_if_above_lava_and_health_non_positive(void) {
 
 static s32 obj_handle_attacks(struct ObjectHitbox *hitbox, s32 attackedMarioAction,
                               u8 *attackHandlers) {
+    N64_STACK_FRAME(obj_handle_attacks);
     s32 attackType;
 
     obj_set_hitbox(o, hitbox);
@@ -759,6 +764,7 @@ static s32 obj_handle_attacks(struct ObjectHitbox *hitbox, s32 attackedMarioActi
 }
 
 static void obj_act_knockback(UNUSED f32 baseScale) {
+    N64_STACK_FRAME(obj_act_knockback);
     cur_obj_update_floor_and_walls();
 
     if (o->header.gfx.animInfo.curAnim != NULL) {
@@ -776,6 +782,7 @@ static void obj_act_knockback(UNUSED f32 baseScale) {
 }
 
 static void obj_act_squished(f32 baseScale) {
+    N64_STACK_FRAME(obj_act_squished);
     f32 targetScaleY = baseScale * 0.3f;
 
     cur_obj_update_floor_and_walls();
@@ -797,6 +804,7 @@ static void obj_act_squished(f32 baseScale) {
 }
 
 static s32 obj_update_standard_actions(f32 scale) {
+    N64_STACK_FRAME(obj_update_standard_actions);
     if (o->oAction < 100) {
         return TRUE;
     } else {
@@ -818,6 +826,7 @@ static s32 obj_update_standard_actions(f32 scale) {
 }
 
 static s32 obj_check_attacks(struct ObjectHitbox *hitbox, s32 attackedMarioAction) {
+    N64_STACK_FRAME(obj_check_attacks);
     s32 attackType;
 
     obj_set_hitbox(o, hitbox);
@@ -844,6 +853,7 @@ static s32 obj_check_attacks(struct ObjectHitbox *hitbox, s32 attackedMarioActio
 }
 
 static s32 obj_move_for_one_second(s32 endAction) {
+    N64_STACK_FRAME(obj_move_for_one_second);
     cur_obj_update_floor_and_walls();
     cur_obj_extend_animation_if_at_end();
 
@@ -938,6 +948,7 @@ static void treat_far_home_as_mario(f32 threshold) {
  */
 void obj_spit_fire(s16 relativePosX, s16 relativePosY, s16 relativePosZ, f32 scale, s32 model,
                    f32 startSpeed, f32 endSpeed, s16 movePitch) {
+    N64_STACK_FRAME(obj_spit_fire);
     struct Object *obj = spawn_object_relative_with_scale(1, relativePosX, relativePosY, relativePosZ,
                                                            scale, o, model, bhvSmallPiranhaFlame);
 

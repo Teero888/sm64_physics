@@ -8,6 +8,7 @@
 // a removed object associated with this flame.
 
 void bhv_beta_moving_flames_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_beta_moving_flames_spawn_loop);
     o->oDistanceToMario = lateral_dist_between_objects(o, WORLD(gMarioObject));
     o->oPosY -= 100.0f;
 

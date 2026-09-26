@@ -297,6 +297,7 @@ struct Object *allocate_object(struct ObjectNode *objList) {
  * If the object is close to being on the floor, move it to be exactly on the floor.
  */
 static void snap_object_to_floor(struct Object *obj) {
+    N64_STACK_FRAME(snap_object_to_floor);
     struct Surface *surface;
 
     obj->oFloorHeight = find_floor(obj->oPosX, obj->oPosY, obj->oPosZ, &surface);
@@ -311,6 +312,7 @@ static void snap_object_to_floor(struct Object *obj) {
  * Spawn an object at the origin with the behavior script at virtual address bhvScript.
  */
 struct Object *create_object(const BehaviorScript *bhvScript) {
+    N64_STACK_FRAME(create_object);
     s32 objListIndex;
     struct Object *obj;
     struct ObjectNode *objList;

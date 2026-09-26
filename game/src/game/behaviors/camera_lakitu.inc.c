@@ -11,6 +11,7 @@
  * Spawn cloud if not the intro lakitu.
  */
 void bhv_camera_lakitu_init(void) {
+    N64_STACK_FRAME(bhv_camera_lakitu_init);
     if (o->oBhvParams2ndByte != CAMERA_LAKITU_BP_FOLLOW_CAMERA) {
         // Despawn unless this is the very beginning of the game
         if (WORLD(gNeverEnteredCastle) != TRUE) {
@@ -40,6 +41,7 @@ static void camera_lakitu_intro_act_trigger_cutscene(void) {
  * Warp up into the air and spawn cloud, then enter the TODO action.
  */
 static void camera_lakitu_intro_act_spawn_cloud(void) {
+    N64_STACK_FRAME(camera_lakitu_intro_act_spawn_cloud);
     if (set_mario_npc_dialog(MARIO_DIALOG_LOOK_UP) == MARIO_DIALOG_STATUS_SPEAK) {
         o->oAction = CAMERA_LAKITU_INTRO_ACT_UNK2;
 
@@ -137,6 +139,7 @@ static void camera_lakitu_intro_act_show_dialog(void) {
  * Update function for camera lakitu.
  */
 void bhv_camera_lakitu_update(void) {
+    N64_STACK_FRAME(bhv_camera_lakitu_update);
     if (!(o->activeFlags & ACTIVE_FLAG_IN_DIFFERENT_ROOM)) {
         obj_update_blinking(&o->oCameraLakituBlinkTimer, 20, 40, 4);
 

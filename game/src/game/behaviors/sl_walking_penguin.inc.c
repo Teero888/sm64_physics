@@ -35,6 +35,7 @@ static s32 sl_walking_penguin_turn(void) {
 }
 
 void bhv_sl_walking_penguin_loop(void) {
+    N64_STACK_FRAME(bhv_sl_walking_penguin_loop);
     f32 adjustedXPos, adjustedZPos;
     f32 perpendicularOffset = 100.0f;
 

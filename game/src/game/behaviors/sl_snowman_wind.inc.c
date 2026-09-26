@@ -1,6 +1,7 @@
 // sl_snowman_wind.inc.c
 
 void bhv_sl_snowman_wind_loop(void) {
+    N64_STACK_FRAME(bhv_sl_snowman_wind_loop);
     UNUSED s32 unused = 0;
     s16 marioAngleFromWindSource;
     Vec3f tempPos;

@@ -26,6 +26,7 @@ void bhv_openable_cage_door_loop(void) {
 }
 
 void bhv_openable_grill_loop(void) {
+    N64_STACK_FRAME(bhv_openable_grill_loop);
     struct Object *obj;
     s32 grillIdx;
 

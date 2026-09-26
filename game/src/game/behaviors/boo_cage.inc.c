@@ -26,6 +26,7 @@ static struct ObjectHitbox sBooCageHitbox = {
  * Update function for bhvBooCage.
  */
 void bhv_boo_cage_loop(void) {
+    N64_STACK_FRAME(bhv_boo_cage_loop);
     UNUSED u8 filler[4];
 
     obj_set_hitbox(o, &WORLD(sBooCageHitbox));

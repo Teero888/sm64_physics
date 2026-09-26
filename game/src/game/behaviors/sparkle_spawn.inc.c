@@ -8,6 +8,7 @@
  */
 
 void bhv_sparkle_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_sparkle_spawn_loop);
     struct Object *sparkle = try_to_spawn_object(0, 1.0f, o, MODEL_SPARKLES_ANIMATION, bhvSparkle);
     if (sparkle != NULL) {
         obj_translate_xyz_random(sparkle, 90.0f);

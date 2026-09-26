@@ -25,6 +25,7 @@ void bhv_punch_tiny_triangle_loop(void) {
 }
 
 void bhv_punch_tiny_triangle_init(void) {
+    N64_STACK_FRAME(bhv_punch_tiny_triangle_init);
     s32 i;
     UNUSED u8 filler[4];
 
@@ -51,6 +52,7 @@ void bhv_wall_tiny_star_particle_loop(void) {
 }
 
 void bhv_tiny_star_particles_init(void) {
+    N64_STACK_FRAME(bhv_tiny_star_particles_init);
     s32 i;
     UNUSED u8 filler[4];
 
@@ -77,6 +79,7 @@ void bhv_pound_tiny_star_particle_loop(void) {
 }
 
 void bhv_pound_tiny_star_particle_init(void) {
+    N64_STACK_FRAME(bhv_pound_tiny_star_particle_init);
     s32 sp24;
     s32 sp20 = 8;
 

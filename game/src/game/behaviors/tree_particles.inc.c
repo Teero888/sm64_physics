@@ -1,6 +1,7 @@
 // tree_particles.inc.c
 
 void bhv_tree_snow_or_leaf_loop(void) {
+    N64_STACK_FRAME(bhv_tree_snow_or_leaf_loop);
     cur_obj_update_floor_height();
 
     if (o->oTimer == 0) {
@@ -44,6 +45,7 @@ void bhv_tree_snow_or_leaf_loop(void) {
 }
 
 void bhv_snow_leaf_particle_spawn_init(void) {
+    N64_STACK_FRAME(bhv_snow_leaf_particle_spawn_init);
     struct Object *obj; // Either snow or leaf
     UNUSED u8 filler1[4];
     s32 isSnow;

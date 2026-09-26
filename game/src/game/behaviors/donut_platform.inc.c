@@ -15,6 +15,7 @@ static Vec3s sDonutPlatformPositions[] = {
 };
 
 void bhv_donut_platform_spawner_update(void) {
+    N64_STACK_FRAME(bhv_donut_platform_spawner_update);
     s32 i;
     s32 platformFlag;
 
@@ -38,6 +39,7 @@ void bhv_donut_platform_spawner_update(void) {
 }
 
 void bhv_donut_platform_update(void) {
+    N64_STACK_FRAME(bhv_donut_platform_update);
     if (o->oTimer != 0 && ((o->oMoveFlags & OBJ_MOVE_MASK_ON_GROUND) || o->oDistanceToMario > 2500.0f)) {
         o->parentObj->oDonutPlatformSpawnerSpawnedPlatforms =
             o->parentObj->oDonutPlatformSpawnerSpawnedPlatforms

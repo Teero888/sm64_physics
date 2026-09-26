@@ -13,6 +13,7 @@ struct ObjectHitbox sYellowCoinHitbox = {
 };
 
 s32 bhv_coin_sparkles_init(void) {
+    N64_STACK_FRAME(bhv_coin_sparkles_init);
     if (o->oInteractStatus & INT_STATUS_INTERACTED
         && !(o->oInteractStatus & INT_STATUS_TOUCHED_BOB_OMB)) {
         spawn_object(o, MODEL_SPARKLES, bhvGoldenCoinSparkles);
@@ -26,6 +27,7 @@ s32 bhv_coin_sparkles_init(void) {
 }
 
 void bhv_yellow_coin_init(void) {
+    N64_STACK_FRAME(bhv_yellow_coin_init);
     cur_obj_set_behavior(bhvYellowCoin);
     obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
     bhv_init_room();
@@ -41,11 +43,13 @@ void bhv_yellow_coin_init(void) {
 }
 
 void bhv_yellow_coin_loop(void) {
+    N64_STACK_FRAME(bhv_yellow_coin_loop);
     bhv_coin_sparkles_init();
     o->oAnimState++;
 }
 
 void bhv_temp_coin_loop(void) {
+    N64_STACK_FRAME(bhv_temp_coin_loop);
     o->oAnimState++;
 
     if (cur_obj_wait_then_blink(200, 20)) {
@@ -66,6 +70,7 @@ void bhv_spawned_coin_init(void) {
 }
 
 void bhv_spawned_coin_loop(void) {
+    N64_STACK_FRAME(bhv_spawned_coin_loop);
     struct Surface *floor;
 
     cur_obj_update_floor_and_walls();
@@ -123,6 +128,7 @@ void bhv_spawned_coin_loop(void) {
 }
 
 void bhv_coin_formation_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_coin_formation_spawn_loop);
     if (o->oTimer == 0) {
         cur_obj_set_behavior(bhvYellowCoin);
         obj_set_hitbox(o, &WORLD(sYellowCoinHitbox));
@@ -168,6 +174,7 @@ s16 sCoinArrowPositions[][2] = {
 };
 
 void spawn_coin_in_formation(s32 coinIndex, s32 coinFormationFlags) {
+    N64_STACK_FRAME(spawn_coin_in_formation);
     struct Object *coinSpawner;
     Vec3i pos;
     s32 setSpawner = TRUE;
@@ -224,6 +231,7 @@ void bhv_coin_formation_init(void) {
 }
 
 void bhv_coin_formation_loop(void) {
+    N64_STACK_FRAME(bhv_coin_formation_loop);
     s32 coinIndex;
 
     switch (o->oAction) {
@@ -253,6 +261,7 @@ void bhv_coin_formation_loop(void) {
 }
 
 void coin_inside_boo_act_1(void) {
+    N64_STACK_FRAME(coin_inside_boo_act_1);
     cur_obj_update_floor_and_walls();
     cur_obj_if_hit_wall_bounce_away();
 
@@ -317,6 +326,7 @@ void bhv_coin_sparkles_loop(void) {
 }
 
 void bhv_golden_coin_sparkles_loop(void) {
+    N64_STACK_FRAME(bhv_golden_coin_sparkles_loop);
     struct Object *sparkles;
     UNUSED u8 filler[4];
     f32 sp24 = 30.0f;

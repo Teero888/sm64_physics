@@ -61,6 +61,7 @@ void exclamation_box_act_0(void) {
 }
 
 void exclamation_box_act_1(void) {
+    N64_STACK_FRAME(exclamation_box_act_1);
     cur_obj_become_intangible();
 
     if (o->oTimer == 0) {
@@ -125,6 +126,7 @@ void exclamation_box_act_3(void) {
 }
 
 void exclamation_box_spawn_contents(struct ExclamationBoxContents *contents, u8 targetContentsID) {
+    N64_STACK_FRAME(exclamation_box_spawn_contents);
     struct Object *contentsObj = NULL;
 
     while (contents->id != EXCLAMATION_BOX_BP_END) {
@@ -144,6 +146,7 @@ void exclamation_box_spawn_contents(struct ExclamationBoxContents *contents, u8 
 }
 
 void exclamation_box_act_4(void) {
+    N64_STACK_FRAME(exclamation_box_act_4);
     exclamation_box_spawn_contents(WORLD(sExclamationBoxContents), o->oBhvParams2ndByte);
     spawn_mist_particles_variable(0, 0, 46.0f);
     spawn_triangle_break_particles(20, MODEL_CARTOON_STAR, 0.3f, o->oAnimState);

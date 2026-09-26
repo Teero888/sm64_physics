@@ -13,6 +13,7 @@ struct ObjectHitbox sClamShellHitbox = {
 };
 
 void clam_act_0(void) {
+    N64_STACK_FRAME(clam_act_0);
     if (cur_obj_init_anim_check_frame(0, 25)) {
         cur_obj_play_sound_2(SOUND_GENERAL_CLAM_SHELL3);
         spawn_mist_from_global();
@@ -30,6 +31,7 @@ void clam_act_0(void) {
 }
 
 void clam_act_1(void) {
+    N64_STACK_FRAME(clam_act_1);
     s16 val06;
 
     if (o->oTimer > 150) {
@@ -47,6 +49,7 @@ void clam_act_1(void) {
 }
 
 void bhv_clam_loop(void) {
+    N64_STACK_FRAME(bhv_clam_loop);
     o->header.gfx.scale[1] = 1.5f;
 
     switch (o->oAction) {

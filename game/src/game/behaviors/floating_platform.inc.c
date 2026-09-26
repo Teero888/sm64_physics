@@ -1,6 +1,7 @@
 // floating_platform.inc.c
 
 f32 floating_platform_find_home_y(void) {
+    N64_STACK_FRAME(floating_platform_find_home_y);
     struct Surface *sp24;
     f32 sp20 = find_water_level(o->oPosX, o->oPosZ);
     f32 sp1C = find_floor(o->oPosX, o->oPosY, o->oPosZ, &sp24);
@@ -58,6 +59,7 @@ void floating_platform_act_0(void) {
 }
 
 void bhv_floating_platform_loop(void) {
+    N64_STACK_FRAME(bhv_floating_platform_loop);
     o->oHomeY = floating_platform_find_home_y();
 
     if (o->oFloatingPlatformUnkF4 == 0) {

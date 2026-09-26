@@ -1,6 +1,7 @@
 // drawbridge.inc.c
 
 void bhv_lll_drawbridge_spawner_loop(void) {
+    N64_STACK_FRAME(bhv_lll_drawbridge_spawner_loop);
     struct Object *drawbridge1, *drawbridge2;
 
     drawbridge1 = spawn_object(o, MODEL_LLL_DRAWBRIDGE_PART, bhvLLLDrawbridge);

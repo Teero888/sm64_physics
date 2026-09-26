@@ -1,6 +1,7 @@
 // breakable_wall.inc.c
 
 void bhv_wf_breakable_wall_loop(void) {
+    N64_STACK_FRAME(bhv_wf_breakable_wall_loop);
     if (WORLD(gMarioStates)[0].action == ACT_SHOT_FROM_CANNON) {
         cur_obj_become_tangible();
 

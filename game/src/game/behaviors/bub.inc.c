@@ -5,6 +5,7 @@
 // to do nothing, which indicates this behavior set is incomplete.
 
 void bub_spawner_act_0(void) {
+    N64_STACK_FRAME(bub_spawner_act_0);
     s32 i;
     s32 sp18 = o->oBirdChirpChirpUnkF4;
     if (o->oDistanceToMario < 1500.0f) {
@@ -102,6 +103,7 @@ void bub_act_1(void) {
 }
 
 void bub_act_2(void) {
+    N64_STACK_FRAME(bub_act_2);
     f32 dy;
 
     if (o->oTimer < 20) {

@@ -57,6 +57,7 @@ void bhv_controllable_platform_sub_loop(void) {
 }
 
 void bhv_controllable_platform_init(void) {
+    N64_STACK_FRAME(bhv_controllable_platform_init);
     struct Object *sp34;
 
     sp34 = spawn_object_rel_with_rot(o, MODEL_HMC_METAL_ARROW_PLATFORM, bhvControllablePlatformSub, 0,
@@ -155,6 +156,7 @@ void controllable_platform_tilt_from_mario(void) {
 }
 
 void bhv_controllable_platform_loop(void) {
+    N64_STACK_FRAME(bhv_controllable_platform_loop);
     s8 sp54[3];
     Vec3f sp48;
     Vec3f sp3C;

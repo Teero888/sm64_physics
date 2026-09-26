@@ -253,6 +253,7 @@ void copy_mario_state_to_object(void) {
  * Spawn a particle at gCurrentObject's location.
  */
 void spawn_particle(u32 activeParticleFlag, s16 model, const BehaviorScript *behavior) {
+    N64_STACK_FRAME(spawn_particle);
     if (!(WORLD(gCurrentObject)->oActiveParticleFlags & activeParticleFlag)) {
         struct Object *particle;
         WORLD(gCurrentObject)->oActiveParticleFlags |= activeParticleFlag;
@@ -455,6 +456,7 @@ void unload_objects_from_area(UNUSED s32 unused, s32 areaIndex) {
  * Spawn objects given a list of SpawnInfos. Called when loading an area.
  */
 void spawn_objects_from_info(UNUSED s32 unused, struct SpawnInfo *spawnInfo) {
+    N64_STACK_FRAME(spawn_objects_from_info);
     WORLD(gObjectLists) = WORLD(gObjectListArray);
     WORLD(gTimeStopState) = 0;
 

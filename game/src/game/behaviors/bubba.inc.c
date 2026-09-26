@@ -96,6 +96,7 @@ void bubba_act_1(void) {
 }
 
 void bhv_bubba_loop(void) {
+    N64_STACK_FRAME(bhv_bubba_loop);
     UNUSED u8 filler[4];
 
     o->oInteractionSubtype &= ~INT_SUBTYPE_EATS_MARIO;

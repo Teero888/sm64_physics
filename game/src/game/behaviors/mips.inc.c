@@ -84,6 +84,7 @@ s16 bhv_mips_find_furthest_waypoint_to_mario(void) {
  * Wait until Mario comes close, then resume following our path.
  */
 void bhv_mips_act_wait_for_nearby_mario(void) {
+    N64_STACK_FRAME(bhv_mips_act_wait_for_nearby_mario);
     UNUSED s16 collisionFlags = 0;
 
     o->oForwardVel = 0.0f;
@@ -107,6 +108,7 @@ void bhv_mips_act_wait_for_nearby_mario(void) {
  * Continue to follow our path around the basement area.
  */
 void bhv_mips_act_follow_path(void) {
+    N64_STACK_FRAME(bhv_mips_act_follow_path);
     s16 collisionFlags = 0;
     s32 followStatus;
 
@@ -161,6 +163,7 @@ void bhv_mips_act_wait_for_animation_done(void) {
  * Handles MIPS falling down after being thrown.
  */
 void bhv_mips_act_fall_down(void) {
+    N64_STACK_FRAME(bhv_mips_act_fall_down);
     s16 collisionFlags = 0;
 
     collisionFlags = object_step();
@@ -182,6 +185,7 @@ void bhv_mips_act_fall_down(void) {
  * Idle loop, after you catch MIPS and put him down.
  */
 void bhv_mips_act_idle(void) {
+    N64_STACK_FRAME(bhv_mips_act_idle);
     UNUSED s16 collisionFlags = 0;
 
     o->oForwardVel = 0.0f;
@@ -198,6 +202,7 @@ void bhv_mips_act_idle(void) {
  * Handles all the actions MIPS does when he is not held.
  */
 void bhv_mips_free(void) {
+    N64_STACK_FRAME(bhv_mips_free);
     switch (o->oAction) {
         case MIPS_ACT_WAIT_FOR_NEARBY_MARIO:
             bhv_mips_act_wait_for_nearby_mario();
@@ -257,6 +262,7 @@ void bhv_mips_held(void) {
  * Handles MIPS being dropped by Mario.
  */
 void bhv_mips_dropped(void) {
+    N64_STACK_FRAME(bhv_mips_dropped);
     cur_obj_get_dropped();
     o->header.gfx.node.flags &= ~GRAPH_RENDER_INVISIBLE;
     cur_obj_init_animation(0);
@@ -285,6 +291,7 @@ void bhv_mips_thrown(void) {
  * MIPS' main loop.
  */
 void bhv_mips_loop(void) {
+    N64_STACK_FRAME(bhv_mips_loop);
     // Determine what to do based on MIPS' held status.
     switch (o->oHeldState) {
         case HELD_FREE:

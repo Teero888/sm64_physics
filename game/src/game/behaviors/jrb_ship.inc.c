@@ -41,6 +41,7 @@ void bhv_ship_part_3_loop(void) {
 }
 
 void bhv_jrb_sliding_box_loop(void) {
+    N64_STACK_FRAME(bhv_jrb_sliding_box_loop);
     Mat4 sp60;
     Vec3f sp54;
     Vec3f sp48;
@@ -49,7 +50,14 @@ void bhv_jrb_sliding_box_loop(void) {
     struct Surface *sp38;
     UNUSED Vec3f sp2C;
     Vec3f sp20;
+#if defined(VERSION_JP) || defined(VERSION_US)
+    // Library: sp1E is read without being set on the box's first frame; the
+    // N64 reads what its stack slot holds, the low half of the word at 28
+    // (docs/changes.md 26).
+    s16 sp1E = (s16) host_n64stack_load(gN64StackPointer + 28);
+#else
     s16 sp1E;
+#endif
 
     if (o->oJRBSlidingBoxUnkF4 == NULL) {
         sp3C = cur_obj_nearest_object_with_behavior(bhvInSunkenShip3);

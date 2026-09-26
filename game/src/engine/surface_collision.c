@@ -361,6 +361,7 @@ f32 find_ceil(f32 posX, f32 posY, f32 posZ, struct Surface **pceil) {
  * Find the height of the highest floor below an object.
  */
 f32 unused_obj_find_floor_height(struct Object *obj) {
+    N64_STACK_FRAME(unused_obj_find_floor_height);
     struct Surface *floor;
     f32 floorHeight = find_floor(obj->oPosX, obj->oPosY, obj->oPosZ, &floor);
     return floorHeight;
@@ -379,6 +380,7 @@ UNUSED static u8 unused8038BE50[0x40];
  * sFloorGeo.
  */
 f32 find_floor_height_and_data(f32 xPos, f32 yPos, f32 zPos, struct FloorGeometry **floorGeo) {
+    N64_STACK_FRAME(find_floor_height_and_data);
     struct Surface *floor;
     f32 floorHeight = find_floor(xPos, yPos, zPos, &floor);
 
@@ -399,6 +401,7 @@ f32 find_floor_height_and_data(f32 xPos, f32 yPos, f32 zPos, struct FloorGeometr
  * Iterate through the list of floors and find the first floor under a given point.
  */
 static struct Surface *find_floor_from_list(struct SurfaceNode *surfaceNode, s32 x, s32 y, s32 z, f32 *pheight) {
+    N64_STACK_FRAME(find_floor_from_list);
     register struct Surface *surf;
     register s32 x1, z1, x2, z2, x3, z3;
     f32 nx, ny, nz;
@@ -424,6 +427,11 @@ static struct Surface *find_floor_from_list(struct SurfaceNode *surfaceNode, s32
         // To slightly save on computation time, set this later.
         x3 = surf->vertex3[0];
         z3 = surf->vertex3[2];
+#if defined(VERSION_JP) || defined(VERSION_US)
+        // Library: the N64 keeps z3 on the stack, where
+        // bhv_jrb_sliding_box_loop can find it (docs/changes.md 26).
+        host_n64stack_store(gN64StackPointer + 28, z3);
+#endif
 
         if ((z2 - z) * (x3 - x2) - (x2 - x) * (z3 - z2) < 0) {
             continue;
@@ -474,6 +482,7 @@ static struct Surface *find_floor_from_list(struct SurfaceNode *surfaceNode, s32
  * Find the height of the highest floor below a point.
  */
 f32 find_floor_height(f32 x, f32 y, f32 z) {
+    N64_STACK_FRAME(find_floor_height);
     struct Surface *floor;
 
     f32 floorHeight = find_floor(x, y, z, &floor);
@@ -486,6 +495,7 @@ f32 find_floor_height(f32 x, f32 y, f32 z) {
  * and dynamic floors were checked separately.
  */
 f32 unused_find_dynamic_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfloor) {
+    N64_STACK_FRAME(unused_find_dynamic_floor);
     struct SurfaceNode *surfaceList;
     struct Surface *floor;
     f32 floorHeight = FLOOR_LOWER_LIMIT;
@@ -511,6 +521,7 @@ f32 unused_find_dynamic_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfl
  * Find the highest floor under a given position and return the height.
  */
 f32 find_floor(f32 xPos, f32 yPos, f32 zPos, struct Surface **pfloor) {
+    N64_STACK_FRAME(find_floor);
     s16 cellZ, cellX;
 
     struct Surface *floor, *dynamicFloor;
@@ -740,6 +751,7 @@ void debug_surface_list_info(f32 xPos, f32 zPos) {
  */
 s32 unused_resolve_floor_or_ceil_collisions(s32 checkCeil, f32 *px, f32 *py, f32 *pz, f32 radius,
                                             struct Surface **psurface, f32 *surfaceHeight) {
+    N64_STACK_FRAME(unused_resolve_floor_or_ceil_collisions);
     f32 nx, ny, nz, oo;
     f32 x = *px;
     f32 y = *py;

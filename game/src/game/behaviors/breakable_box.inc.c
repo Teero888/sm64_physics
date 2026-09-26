@@ -1,6 +1,7 @@
 // breakable_box.inc.c
 
 void bhv_breakable_box_loop(void) {
+    N64_STACK_FRAME(bhv_breakable_box_loop);
     obj_set_hitbox(o, &WORLD(sBreakableBoxHitbox));
     cur_obj_set_model(MODEL_BREAKABLE_BOX_SMALL);
 

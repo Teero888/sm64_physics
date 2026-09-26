@@ -28,6 +28,7 @@ static struct ObjectHitbox sChainChompHitbox = {
  * Update function for chain chomp part / pivot.
  */
 void bhv_chain_chomp_chain_part_update(void) {
+    N64_STACK_FRAME(bhv_chain_chomp_chain_part_update);
     if (o->parentObj->oAction == CHAIN_CHOMP_ACT_UNLOAD_CHAIN) {
         obj_mark_for_deletion(o);
     } else if (o->oBhvParams2ndByte != CHAIN_CHOMP_CHAIN_PART_BP_PIVOT) {
@@ -47,6 +48,7 @@ void bhv_chain_chomp_chain_part_update(void) {
  * When mario gets close enough, allocate chain segments and spawn their objects.
  */
 static void chain_chomp_act_uninitialized(void) {
+    N64_STACK_FRAME(chain_chomp_act_uninitialized);
     struct ChainSegment *segments;
     s32 i;
 
@@ -352,6 +354,7 @@ static void chain_chomp_released_end_cutscene(void) {
  * released.
  */
 static void chain_chomp_act_move(void) {
+    N64_STACK_FRAME(chain_chomp_act_move);
     f32 maxDistToPivot;
 
     // Unload chain if mario is far enough
@@ -464,6 +467,7 @@ static void chain_chomp_act_unload_chain(void) {
  * Update function for chain chomp.
  */
 void bhv_chain_chomp_update(void) {
+    N64_STACK_FRAME(bhv_chain_chomp_update);
     switch (o->oAction) {
         case CHAIN_CHOMP_ACT_UNINITIALIZED:
             chain_chomp_act_uninitialized();
@@ -481,6 +485,7 @@ void bhv_chain_chomp_update(void) {
  * Update function for wooden post.
  */
 void bhv_wooden_post_update(void) {
+    N64_STACK_FRAME(bhv_wooden_post_update);
     // When ground pounded by mario, drop by -45 + -20
     if (!o->oWoodenPostMarioPounding) {
         if ((o->oWoodenPostMarioPounding = cur_obj_is_mario_ground_pounding_platform())) {
@@ -532,6 +537,7 @@ void bhv_chain_chomp_gate_init(void) {
  * Update function for chain chomp gate
  */
 void bhv_chain_chomp_gate_update(void) {
+    N64_STACK_FRAME(bhv_chain_chomp_gate_update);
     if (o->parentObj->oChainChompHitGate) {
         spawn_mist_particles_with_sound(SOUND_GENERAL_WALL_EXPLOSION);
         set_camera_shake_from_point(SHAKE_POS_SMALL, o->oPosX, o->oPosY, o->oPosZ);

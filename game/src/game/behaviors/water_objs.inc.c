@@ -8,6 +8,7 @@ void bhv_water_air_bubble_init(void) {
 // Fields 0xF4 & 0xF8 seem to be angles for bubble and cannon
 
 void bhv_water_air_bubble_loop(void) {
+    N64_STACK_FRAME(bhv_water_air_bubble_loop);
     s32 i;
 
     o->header.gfx.scale[0] = sins(o->oWaterObjUnkF4) * 0.5 + 4.0;
@@ -64,6 +65,7 @@ void bhv_bubble_maybe_loop(void) {
 }
 
 void bhv_small_water_wave_loop(void) {
+    N64_STACK_FRAME(bhv_small_water_wave_loop);
     f32 sp1C = find_water_level(o->oPosX, o->oPosZ);
 
     o->header.gfx.scale[0] = sins(o->oWaterObjUnkF4) * 0.2 + 1.0;
@@ -99,6 +101,7 @@ void bhv_particle_init(void) {
 }
 
 void bhv_particle_loop() {
+    N64_STACK_FRAME(bhv_particle_loop);
     f32 sp24 = find_water_level(o->oPosX, o->oPosZ);
     o->oPosY += 5.0f;
     obj_translate_xz_random(o, 4.0f);
@@ -116,12 +119,14 @@ void bhv_small_bubbles_loop(void) {
 }
 
 void bhv_fish_group_loop(void) {
+    N64_STACK_FRAME(bhv_fish_group_loop);
     if ((WORLD(gMarioCurrentRoom) == 15 || WORLD(gMarioCurrentRoom) == 7) && (WORLD(gGlobalTimer) & 1)) {
         spawn_object(o, MODEL_WHITE_PARTICLE_SMALL, bhvSmallParticleBubbles);
     }
 }
 
 void bhv_water_waves_init(void) {
+    N64_STACK_FRAME(bhv_water_waves_init);
     s32 i;
     for (i = 0; i < 3; i++) {
         spawn_object(o, MODEL_WHITE_PARTICLE_SMALL, bhvSmallParticle);

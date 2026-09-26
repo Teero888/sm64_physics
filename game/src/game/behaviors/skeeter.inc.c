@@ -25,6 +25,7 @@ struct Struct80331C38 D_80331C38[] = {
 };
 
 static void skeeter_spawn_waves(void) {
+    N64_STACK_FRAME(skeeter_spawn_waves);
     s32 i;
 
     for (i = 0; i < 4; i++) {
@@ -34,6 +35,7 @@ static void skeeter_spawn_waves(void) {
 }
 
 static void skeeter_act_idle(void) {
+    N64_STACK_FRAME(skeeter_act_idle);
     if (o->oMoveFlags & OBJ_MOVE_MASK_ON_GROUND) {
         cur_obj_init_animation_with_sound(3);
         o->oForwardVel = 0.0f;
@@ -63,6 +65,7 @@ static void skeeter_act_idle(void) {
 }
 
 static void skeeter_act_lunge(void) {
+    N64_STACK_FRAME(skeeter_act_lunge);
     if (!(o->oMoveFlags & OBJ_MOVE_AT_WATER_SURFACE)) {
         o->oAction = SKEETER_ACT_IDLE;
     } else {
@@ -137,6 +140,7 @@ static void skeeter_act_walk(void) {
 }
 
 void bhv_skeeter_update(void) {
+    N64_STACK_FRAME(bhv_skeeter_update);
     o->oDeathSound = SOUND_OBJ_SNUFIT_SKEETER_DEATH;
     treat_far_home_as_mario(1000.0f);
 

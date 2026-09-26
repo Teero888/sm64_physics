@@ -154,6 +154,7 @@ static s32 bhv_cmd_set_model(void) {
 // Command 0x1C: Spawns a child object with the specified model and behavior.
 // Usage: SPAWN_CHILD(modelID, behavior)
 static s32 bhv_cmd_spawn_child(void) {
+    N64_STACK_FRAME(bhv_cmd_spawn_child);
     u32 model = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
 
@@ -167,6 +168,7 @@ static s32 bhv_cmd_spawn_child(void) {
 // Command 0x2C: Spawns a new object with the specified model and behavior.
 // Usage: SPAWN_OBJ(modelID, behavior)
 static s32 bhv_cmd_spawn_obj(void) {
+    N64_STACK_FRAME(bhv_cmd_spawn_obj);
     u32 model = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
 
@@ -182,6 +184,7 @@ static s32 bhv_cmd_spawn_obj(void) {
 // Command 0x29: Spawns a child object with the specified model and behavior, plus a behavior param.
 // Usage: SPAWN_CHILD_WITH_PARAM(bhvParam, modelID, behavior)
 static s32 bhv_cmd_spawn_child_with_param(void) {
+    N64_STACK_FRAME(bhv_cmd_spawn_child_with_param);
     u32 bhvParam = BHV_CMD_GET_2ND_S16(0);
     u32 modelID = BHV_CMD_GET_U32(1);
     const BehaviorScript *behavior = BHV_CMD_GET_VPTR(2);
@@ -546,6 +549,7 @@ static s32 bhv_cmd_animate(void) {
 // Command 0x1E: Finds the floor triangle directly under the object and moves the object down to it.
 // Usage: DROP_TO_FLOOR()
 static s32 bhv_cmd_drop_to_floor(void) {
+    N64_STACK_FRAME(bhv_cmd_drop_to_floor);
     f32 x = WORLD(gCurrentObject)->oPosX;
     f32 y = WORLD(gCurrentObject)->oPosY;
     f32 z = WORLD(gCurrentObject)->oPosZ;
@@ -666,6 +670,7 @@ static s32 bhv_cmd_nop_4(void) {
 // Has some special behavior for certain objects.
 // Usage: BEGIN(objList)
 static s32 bhv_cmd_begin(void) {
+    N64_STACK_FRAME(bhv_cmd_begin);
     // These objects were likely very early objects, which is why this code is here
     // instead of in the respective behavior scripts.
 
@@ -817,6 +822,7 @@ static s32 bhv_cmd_parent_bit_clear(void) {
 // Command 0x37: Spawns a water droplet with the given parameters.
 // Usage: SPAWN_WATER_DROPLET(dropletParams)
 static s32 bhv_cmd_spawn_water_droplet(void) {
+    N64_STACK_FRAME(bhv_cmd_spawn_water_droplet);
     struct WaterDropletParams *dropletParams = BHV_CMD_GET_VPTR(1);
 
     spawn_water_droplet(WORLD(gCurrentObject), dropletParams);

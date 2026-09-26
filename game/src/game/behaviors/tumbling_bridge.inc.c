@@ -21,6 +21,7 @@ struct TumblingBridgeData sTumblingBridgeData[] = {
 };
 
 void bhv_tumbling_bridge_platform_loop(void) {
+    N64_STACK_FRAME(bhv_tumbling_bridge_platform_loop);
     switch (o->oAction) {
         case 0:
             if (WORLD(gMarioObject)->platform == o) {
@@ -62,6 +63,7 @@ void bhv_tumbling_bridge_platform_loop(void) {
 }
 
 void tumbling_bridge_act_1(void) {
+    N64_STACK_FRAME(tumbling_bridge_act_1);
     struct Object *platformObj;
     s32 i;
     s32 bridgeID = o->oBhvParams2ndByte;

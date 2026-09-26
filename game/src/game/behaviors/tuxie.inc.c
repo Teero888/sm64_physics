@@ -46,6 +46,7 @@ void tuxies_mother_act_2(void) {
 }
 
 void tuxies_mother_act_1(void) {
+    N64_STACK_FRAME(tuxies_mother_act_1);
     switch (o->oSubAction) {
         case 0:
             cur_obj_init_animation_with_sound(3);

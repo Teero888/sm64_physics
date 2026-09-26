@@ -12,6 +12,7 @@ void bhv_piranha_particle_loop(void) {
 }
 
 void mr_i_piranha_particle_act_0(void) {
+    N64_STACK_FRAME(mr_i_piranha_particle_act_0);
     cur_obj_scale(3.0f);
     o->oForwardVel = 20.0f;
     cur_obj_update_floor_and_walls();
@@ -26,6 +27,7 @@ void mr_i_piranha_particle_act_0(void) {
 }
 
 void mr_i_piranha_particle_act_1(void) {
+    N64_STACK_FRAME(mr_i_piranha_particle_act_1);
     s32 i;
     obj_mark_for_deletion(o);
     for (i = 0; i < 10; i++) {
@@ -44,6 +46,7 @@ void bhv_mr_i_particle_loop(void) {
 }
 
 void spawn_mr_i_particle(void) {
+    N64_STACK_FRAME(spawn_mr_i_particle);
     struct Object *particle;
     f32 sp18 = o->header.gfx.scale[1];
 
@@ -82,6 +85,7 @@ void bhv_mr_i_body_loop(void) {
 }
 
 void mr_i_act_3(void) {
+    N64_STACK_FRAME(mr_i_act_3);
     s16 sp36;
     s16 sp34;
     f32 sp30;
@@ -155,6 +159,7 @@ void mr_i_act_3(void) {
 }
 
 void mr_i_act_2(void) {
+    N64_STACK_FRAME(mr_i_act_2);
     s16 sp1E = o->oMoveAngleYaw;
     s16 sp1C;
 
@@ -229,6 +234,7 @@ void mr_i_act_2(void) {
 }
 
 void mr_i_act_1(void) {
+    N64_STACK_FRAME(mr_i_act_1);
     s16 sp1E = obj_angle_to_object(o, WORLD(gMarioObject));
     s16 sp1C = abs_angle_diff(o->oMoveAngleYaw, sp1E);
     s16 sp1A = abs_angle_diff(o->oMoveAngleYaw, WORLD(gMarioObject)->oFaceAngleYaw);

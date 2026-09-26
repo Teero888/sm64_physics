@@ -156,6 +156,7 @@ void whomp_land(void) {
 }
 
 void king_whomp_on_ground(void) {
+    N64_STACK_FRAME(king_whomp_on_ground);
     if (o->oSubAction == 0) {
         if (cur_obj_is_mario_ground_pounding_platform()) {
             Vec3f pos;
@@ -190,6 +191,7 @@ void king_whomp_on_ground(void) {
 }
 
 void whomp_on_ground(void) {
+    N64_STACK_FRAME(whomp_on_ground);
     if (o->oSubAction == 0) {
         if (WORLD(gMarioObject)->platform == o) {
             if (cur_obj_is_mario_ground_pounding_platform()) {
@@ -207,6 +209,7 @@ void whomp_on_ground(void) {
 }
 
 void whomp_on_ground_general(void) {
+    N64_STACK_FRAME(whomp_on_ground_general);
     if (o->oSubAction != 10) {
         o->oForwardVel = 0.0f;
         o->oAngleVelPitch = 0;
@@ -236,6 +239,7 @@ void whomp_on_ground_general(void) {
 }
 
 void whomp_die(void) {
+    N64_STACK_FRAME(whomp_die);
     if (o->oBhvParams2ndByte != WHOMP_BP_SMALL) {
         if (cur_obj_update_dialog_with_cutscene(MARIO_DIALOG_LOOK_UP,
             DIALOG_FLAG_TEXT_DEFAULT, CUTSCENE_DIALOG, DIALOG_115)) {

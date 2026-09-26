@@ -13,6 +13,7 @@ static struct ObjectHitbox sRollingSphereHitbox = {
 };
 
 void bhv_snowmans_bottom_init(void) {
+    N64_STACK_FRAME(bhv_snowmans_bottom_init);
     struct Object *snowmansHead;
 
     o->oHomeX = o->oPosX;
@@ -52,6 +53,7 @@ void adjust_rolling_face_pitch(f32 f12) {
 }
 
 void snowmans_bottom_act_1(void) {
+    N64_STACK_FRAME(snowmans_bottom_act_1);
     UNUSED s16 collisionFlags;
     s32 followStatus;
 #ifdef AVOID_UB
@@ -82,6 +84,7 @@ void snowmans_bottom_act_1(void) {
 }
 
 void snowmans_bottom_act_2(void) {
+    N64_STACK_FRAME(snowmans_bottom_act_2);
     UNUSED s16 collisionFlags = object_step_without_floor_orient();
 
     if (o->oForwardVel > 70.0) {
@@ -108,6 +111,7 @@ void snowmans_bottom_act_2(void) {
 }
 
 void snowmans_bottom_act_3(void) {
+    N64_STACK_FRAME(snowmans_bottom_act_3);
     s16 collisionFlags = object_step_without_floor_orient();
 
     if ((collisionFlags & OBJ_COL_FLAGS_LANDED) == OBJ_COL_FLAGS_LANDED) {
@@ -124,6 +128,7 @@ void snowmans_bottom_act_3(void) {
 }
 
 void bhv_snowmans_bottom_loop(void) {
+    N64_STACK_FRAME(bhv_snowmans_bottom_loop);
     switch (o->oAction) {
         case 0:
             if (is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 400) == 1
@@ -165,6 +170,7 @@ void bhv_snowmans_bottom_loop(void) {
 }
 
 void bhv_snowmans_head_init(void) {
+    N64_STACK_FRAME(bhv_snowmans_head_init);
     u8 starFlags = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)));
     s8 sp36 = (o->oBhvParams >> 24) & 0xFF;
 
@@ -185,6 +191,7 @@ void bhv_snowmans_head_init(void) {
 }
 
 void bhv_snowmans_head_loop(void) {
+    N64_STACK_FRAME(bhv_snowmans_head_loop);
     UNUSED s16 unused;
     s16 collisionFlags;
 

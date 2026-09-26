@@ -1,6 +1,7 @@
 // water_bomb_cannon.inc.c
 
 void bhv_bubble_cannon_barrel_loop(void) {
+    N64_STACK_FRAME(bhv_bubble_cannon_barrel_loop);
     if (o->parentObj->oAction == 2) {
         obj_mark_for_deletion(o);
     } else {
@@ -38,6 +39,7 @@ void bhv_bubble_cannon_barrel_loop(void) {
 }
 
 void water_bomb_cannon_act_0(void) {
+    N64_STACK_FRAME(water_bomb_cannon_act_0);
     if (o->oDistanceToMario < 2000.0f) {
         spawn_object(o, MODEL_CANNON_BARREL, bhvCannonBarrelBubbles);
         cur_obj_unhide();
@@ -78,6 +80,7 @@ void water_bomb_cannon_act_2(void) {
 }
 
 void bhv_water_bomb_cannon_loop(void) {
+    N64_STACK_FRAME(bhv_water_bomb_cannon_loop);
     cur_obj_push_mario_away_from_cylinder(220.0f, 300.0f);
 
     switch (o->oAction) {

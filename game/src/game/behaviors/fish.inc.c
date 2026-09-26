@@ -9,6 +9,7 @@
  * These settings are animations, color, and spawn quantity.
  */
 static void fish_spawner_act_spawn(void) {
+    N64_STACK_FRAME(fish_spawner_act_spawn);
     s32 i;
     s32 schoolQuantity;
     s16 model;

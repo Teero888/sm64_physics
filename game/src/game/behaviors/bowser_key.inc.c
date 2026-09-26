@@ -13,6 +13,7 @@ struct ObjectHitbox sBowserKeyHitbox = {
 };
 
 void bhv_bowser_key_loop(void) {
+    N64_STACK_FRAME(bhv_bowser_key_loop);
     cur_obj_scale(0.5f);
 
     if (o->oAngleVelYaw > 0x400) {

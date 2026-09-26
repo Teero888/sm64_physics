@@ -29,6 +29,7 @@ static struct ObjectHitbox sWaterBombHitbox = {
  * Spawn water bombs targeting mario when he comes in range.
  */
 void bhv_water_bomb_spawner_update(void) {
+    N64_STACK_FRAME(bhv_water_bomb_spawner_update);
     f32 latDistToMario;
     f32 spawnerRadius = 50 * (u16)(o->oBhvParams >> 16) + 200.0f;
 
@@ -67,6 +68,7 @@ void bhv_water_bomb_spawner_update(void) {
  * Spawn particles when the water bomb explodes.
  */
 void water_bomb_spawn_explode_particles(s8 offsetY, s8 forwardVelRange, s8 velYBase) {
+    N64_STACK_FRAME(water_bomb_spawn_explode_particles);
     static struct SpawnParticlesInfo waterBombExplodeParticles = {
         /* bhvParam:        */ 0,
         /* count:           */ 5,
@@ -105,6 +107,7 @@ static void water_bomb_act_init(void) {
  * explode.
  */
 static void water_bomb_act_drop(void) {
+    N64_STACK_FRAME(water_bomb_act_drop);
     f32 stretch;
 
     obj_set_hitbox(o, &WORLD(sWaterBombHitbox));
@@ -166,6 +169,7 @@ static void water_bomb_act_drop(void) {
  * despawn as well.
  */
 static void water_bomb_act_explode(void) {
+    N64_STACK_FRAME(water_bomb_act_explode);
     water_bomb_spawn_explode_particles(25, 60, 10);
     o->parentObj->oWaterBombSpawnerBombActive = FALSE;
     obj_mark_for_deletion(o);
@@ -175,6 +179,7 @@ static void water_bomb_act_explode(void) {
  * Despawn after 100 frames.
  */
 static void water_bomb_act_shot_from_cannon(void) {
+    N64_STACK_FRAME(water_bomb_act_shot_from_cannon);
     static struct SpawnParticlesInfo waterBombCannonParticle = {
         /* bhvParam:        */ 0,
         /* count:           */ 1,
@@ -213,6 +218,7 @@ static void water_bomb_act_shot_from_cannon(void) {
  * Update function for bhvWaterBomb.
  */
 void bhv_water_bomb_update(void) {
+    N64_STACK_FRAME(bhv_water_bomb_update);
     if (o->oAction == WATER_BOMB_ACT_SHOT_FROM_CANNON) {
         water_bomb_act_shot_from_cannon();
     } else {

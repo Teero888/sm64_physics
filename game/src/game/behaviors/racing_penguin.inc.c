@@ -60,6 +60,7 @@ static void racing_penguin_act_prepare_for_race(void) {
 }
 
 static void racing_penguin_act_race(void) {
+    N64_STACK_FRAME(racing_penguin_act_race);
     if (cur_obj_follow_path(0) == PATH_REACHED_END) {
         o->oRacingPenguinReachedBottom = TRUE;
         o->oAction = RACING_PENGUIN_ACT_FINISH_RACE;
@@ -113,6 +114,7 @@ static void racing_penguin_act_finish_race(void) {
 }
 
 static void racing_penguin_act_show_final_text(void) {
+    N64_STACK_FRAME(racing_penguin_act_show_final_text);
     if (o->oRacingPenguinFinalTextbox == 0) {
         if (cur_obj_rotate_yaw_toward(0, 200)) {
             cur_obj_init_animation_with_sound(3);
@@ -157,6 +159,7 @@ static void racing_penguin_act_show_final_text(void) {
 }
 
 void bhv_racing_penguin_update(void) {
+    N64_STACK_FRAME(bhv_racing_penguin_update);
     cur_obj_update_floor_and_walls();
 
     switch (o->oAction) {

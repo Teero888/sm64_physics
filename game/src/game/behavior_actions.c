@@ -96,6 +96,7 @@ static struct SpawnParticlesInfo sMistParticles = {
 
 // generate_wind_puffs/dust (something like that)
 void spawn_mist_particles_variable(s32 count, s32 offsetY, f32 size) {
+    N64_STACK_FRAME(spawn_mist_particles_variable);
     WORLD(sMistParticles).sizeBase = size;
     WORLD(sMistParticles).sizeRange = size / 20.0;
     WORLD(sMistParticles).offsetY = offsetY;
@@ -167,6 +168,7 @@ Gfx *geo_move_mario_part_from_parent(s32 run, UNUSED struct GraphNode *node, Mat
 // not in behavior file
 // n is the number of objects to spawn, r if the rate of change of phase (frequency?)
 void spawn_sparkle_particles(s32 n, s32 a1, s32 a2, s32 r) {
+    N64_STACK_FRAME(spawn_sparkle_particles);
     static s16 D_8035FF10;
     s32 i;
     s16 separation = 0x10000 / n; // Evenly spread around a circle

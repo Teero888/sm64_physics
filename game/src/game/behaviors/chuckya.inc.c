@@ -176,6 +176,7 @@ void chuckya_act_0(void) {
 }
 
 void chuckya_act_1(void) {
+    N64_STACK_FRAME(chuckya_act_1);
     if (o->oSubAction == 0) {
         if (cur_obj_init_animation_and_check_if_near_end(0)) {
             o->oSubAction++;
@@ -221,6 +222,7 @@ void chuckya_act_3(void) {
 }
 
 void chuckya_act_2(void) {
+    N64_STACK_FRAME(chuckya_act_2);
     if (o->oMoveFlags & (OBJ_MOVE_HIT_WALL | OBJ_MOVE_MASK_IN_WATER | OBJ_MOVE_LANDED)) {
         obj_mark_for_deletion(o);
         obj_spawn_loot_yellow_coins(o, 5, 20.0f);

@@ -1274,6 +1274,7 @@ Gfx *geo_painting_draw(s32 callContext, struct GraphNode *node, UNUSED void *con
  * Update the painting system's local copy of Mario's current floor and position.
  */
 Gfx *geo_painting_update(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 c) {
+    N64_STACK_FRAME(geo_painting_update);
     struct Surface *surface;
 
     // Reset the update counter

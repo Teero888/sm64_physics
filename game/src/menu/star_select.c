@@ -89,6 +89,7 @@ void bhv_act_selector_star_type_loop(void) {
  * Renders the 100 coin star with an special star selector type.
  */
 void render_100_coin_star(u8 stars) {
+    N64_STACK_FRAME(render_100_coin_star);
     if (stars & (1 << 6)) {
         // If the 100 coin star has been collected, create a new star selector next to the coin score.
         WORLD(sStarSelectorModels)[6] = spawn_object_abs_with_rot(WORLD(gCurrentObject), 0, MODEL_STAR,
@@ -105,6 +106,7 @@ void render_100_coin_star(u8 stars) {
  * checks of what star should be next in sInitSelectedActNum.
  */
 void bhv_act_selector_init(void) {
+    N64_STACK_FRAME(bhv_act_selector_init);
     s16 i = 0;
     s32 selectorModelIDs[10];
     u8 stars = save_file_get_star_flags(WORLD(gCurrSaveFileNum) - 1, COURSE_NUM_TO_INDEX(WORLD(gCurrCourseNum)));

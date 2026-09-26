@@ -25,6 +25,7 @@ void bhv_sliding_snow_mound_loop(void) {
 }
 
 void bhv_snow_mound_spawn_loop(void) {
+    N64_STACK_FRAME(bhv_snow_mound_spawn_loop);
     struct Object *snowMound;
 
     if (!is_point_within_radius_of_mario(o->oPosX, o->oPosY, o->oPosZ, 6000)

@@ -123,6 +123,7 @@ static void toad_message_opaque(void) {
 }
 
 static void toad_message_talking(void) {
+    N64_STACK_FRAME(toad_message_talking);
     if (cur_obj_update_dialog_with_cutscene(MARIO_DIALOG_LOOK_DOWN,
         DIALOG_FLAG_TURN_TO_MARIO, CUTSCENE_DIALOG, WORLD(gCurrentObject)->oToadMessageDialogID)) {
         WORLD(gCurrentObject)->oToadMessageRecentlyTalked = TRUE;
@@ -157,6 +158,7 @@ static void toad_message_fading(void) {
 }
 
 void bhv_toad_message_loop(void) {
+    N64_STACK_FRAME(bhv_toad_message_loop);
     if (WORLD(gCurrentObject)->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
         WORLD(gCurrentObject)->oInteractionSubtype = 0;
         switch (WORLD(gCurrentObject)->oToadMessageState) {
@@ -217,6 +219,7 @@ void bhv_toad_message_init(void) {
 }
 
 static void star_door_unlock_spawn_particles(s16 angleOffset) {
+    N64_STACK_FRAME(star_door_unlock_spawn_particles);
     struct Object *sparkleParticle = spawn_object(WORLD(gCurrentObject), 0, bhvSparkleSpawn);
 
     sparkleParticle->oPosX +=
@@ -239,6 +242,7 @@ void bhv_unlock_door_star_init(void) {
 }
 
 void bhv_unlock_door_star_loop(void) {
+    N64_STACK_FRAME(bhv_unlock_door_star_loop);
     UNUSED u8 filler1[4];
     s16 prevYaw = WORLD(gCurrentObject)->oMoveAngleYaw;
     UNUSED u8 filler2[4];

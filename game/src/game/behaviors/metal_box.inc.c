@@ -13,6 +13,7 @@ struct ObjectHitbox sMetalBoxHitbox = {
 };
 
 s32 check_if_moving_over_floor(f32 a0, f32 a1) {
+    N64_STACK_FRAME(check_if_moving_over_floor);
     struct Surface *sp24;
     f32 sp20 = o->oPosX + sins(o->oMoveAngleYaw) * a1;
     f32 floorHeight;
@@ -28,6 +29,7 @@ s32 check_if_moving_over_floor(f32 a0, f32 a1) {
 }
 
 void bhv_pushable_loop(void) {
+    N64_STACK_FRAME(bhv_pushable_loop);
     UNUSED s16 unused;
 
     obj_set_hitbox(o, &WORLD(sMetalBoxHitbox));

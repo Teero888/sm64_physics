@@ -18,6 +18,7 @@ void bhv_yoshi_init(void) {
 }
 
 void yoshi_walk_loop(void) {
+    N64_STACK_FRAME(yoshi_walk_loop);
     UNUSED s16 collisionFlags;
     s16 animFrame = o->header.gfx.animInfo.animFrame;
 
@@ -102,6 +103,7 @@ void yoshi_talk_loop(void) {
 }
 
 void yoshi_walk_and_jump_off_roof_loop(void) {
+    N64_STACK_FRAME(yoshi_walk_and_jump_off_roof_loop);
     s16 animFrame = o->header.gfx.animInfo.animFrame;
 
     o->oForwardVel = 10.0f;
@@ -159,6 +161,7 @@ void yoshi_give_present_loop(void) {
 }
 
 void bhv_yoshi_loop(void) {
+    N64_STACK_FRAME(bhv_yoshi_loop);
     switch (o->oAction) {
         case YOSHI_ACT_IDLE:
             yoshi_idle_loop();

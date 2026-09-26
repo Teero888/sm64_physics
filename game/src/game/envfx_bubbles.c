@@ -71,6 +71,7 @@ s32 random_flower_offset(void) {
  * camera, and can land on any ground
  */
 void envfx_update_flower(Vec3s centerPos) {
+    N64_STACK_FRAME(envfx_update_flower);
     s32 i;
     struct FloorGeometry *floorGeo; // unused
     s32 globalTimer = WORLD(gGlobalTimer);
@@ -107,6 +108,7 @@ void envfx_update_flower(Vec3s centerPos) {
  * camera below the lava plane.
  */
 void envfx_set_lava_bubble_position(s32 index, Vec3s centerPos) {
+    N64_STACK_FRAME(envfx_set_lava_bubble_position);
     struct Surface *surface;
     s16 floorY;
 
@@ -150,6 +152,7 @@ void envfx_set_lava_bubble_position(s32 index, Vec3s centerPos) {
  * animation is over.
  */
 void envfx_update_lava(Vec3s centerPos) {
+    N64_STACK_FRAME(envfx_update_lava);
     s32 i;
     s32 globalTimer = WORLD(gGlobalTimer);
     s8 chance;
@@ -364,6 +367,7 @@ s32 envfx_init_bubble(s32 mode) {
  * though they are not being rotated yet.
  */
 void envfx_bubbles_update_switch(s32 mode, Vec3s camTo, Vec3s vertex1, Vec3s vertex2, Vec3s vertex3) {
+    N64_STACK_FRAME(envfx_bubbles_update_switch);
     switch (mode) {
         case ENVFX_FLOWERS:
             envfx_update_flower(camTo);
@@ -465,6 +469,7 @@ void envfx_set_bubble_texture(s32 mode, s16 index) {
  * list drawing them.
  */
 Gfx *envfx_update_bubble_particles(s32 mode, UNUSED Vec3s marioPos, Vec3s camFrom, Vec3s camTo) {
+    N64_STACK_FRAME(envfx_update_bubble_particles);
     s32 i;
     s16 radius, pitch, yaw;
 
@@ -531,6 +536,7 @@ void envfx_set_max_bubble_particles(s32 mode) {
  * Returns a display list drawing the particles.
  */
 Gfx *envfx_update_bubbles(s32 mode, Vec3s marioPos, Vec3s camTo, Vec3s camFrom) {
+    N64_STACK_FRAME(envfx_update_bubbles);
     Gfx *gfx;
 
     if (WORLD(gEnvFxMode) == ENVFX_MODE_NONE && !envfx_init_bubble(mode)) {
