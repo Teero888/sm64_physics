@@ -31,9 +31,10 @@ extern const size_t gHostStatePointerCount;
 // platform/world.h: the current world's offset from the section.
 __thread ptrdiff_t gHostWorldOffset __attribute__((tls_model("initial-exec")));
 
-// Settings, per thread: whether the sound thread runs (platform/host.c) and
-// whether the render walk draws (platform/draw.h).
+// Settings, per thread: whether the sound thread runs (platform/host.c), and
+// mixes, and whether the render walk draws (platform/draw.h).
 __thread bool gHostRunAudio __attribute__((tls_model("initial-exec")));
+__thread bool gHostAudioQuiet __attribute__((tls_model("initial-exec")));
 __thread int gHostDraw __attribute__((tls_model("initial-exec")));
 __thread const void *gHostDrawnList __attribute__((tls_model("initial-exec")));
 __thread int gHostDrawMarioOnly __attribute__((tls_model("initial-exec")));
@@ -454,6 +455,10 @@ bool sm64_load_state(sm64_world *world, const void *buffer) {
 
 void sm64_set_audio(bool enabled) {
     gHostRunAudio = enabled;
+}
+
+void sm64_set_audio_quiet(bool quiet) {
+    gHostAudioQuiet = quiet;
 }
 
 void sm64_set_draw(bool enabled) {

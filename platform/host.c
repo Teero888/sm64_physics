@@ -151,7 +151,7 @@ void host_run_audio_frame(void) {
     if (gHostRunAudio) {
         host_ai_vi();
         struct SPTask *task = create_next_audio_frame_task();
-        if (task != NULL) {
+        if (task != NULL && !gHostAudioQuiet) {
             rsp_audio_run((const Acmd *) task->task.t.data_ptr, task->task.t.data_size / sizeof(u64));
         }
     } else {

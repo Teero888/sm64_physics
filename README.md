@@ -90,6 +90,12 @@ sequences are converted from the user's ROM (`platform/sound.c`). The game
 reads nothing back from the sound thread, so a step's state is the same
 with or without it.
 
+`sm64_set_audio_quiet` keeps the sound thread running without the
+microcode: the music and sound effects go on as they would, at a fraction of
+the cost, and the step has no sound. Stepping quietly toward a moment and
+loudly from there on, notes still playing resume from where the microcode left
+them.
+
 `sm64_oracle --audio OUT` records the emulator's sound the same way. Against
 it (mupen64plus's HLE of the microcode), JP, US and EU correlate at 0.998 or
 better in the first seconds of a movie, and the Shindou Edition matches sample

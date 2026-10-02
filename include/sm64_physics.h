@@ -53,6 +53,14 @@ void sm64_world_enter(const sm64_world *world);
 void sm64_set_audio(bool enabled);
 void sm64_set_draw(bool enabled);
 
+// A setting of the calling thread, with sm64_set_audio on: the sound thread
+// runs, so the sequences, sound effects and what they play go on as they
+// would, but the audio microcode does not mix them, which is most of what sound
+// costs; the step has no sound (sm64_audio gives none). For stepping toward a
+// moment to hear from rather than for listening: notes the microcode resumes
+// mixing afterwards start from where it left them, and so does the reverb.
+void sm64_set_audio_quiet(bool quiet);
+
 // The sound of the world's last step, with sm64_set_audio on: what the game
 // handed the audio interface during it, *count stereo samples (16-bit, left
 // then right) at *frequency Hz (the rate the console's DAC plays at, about

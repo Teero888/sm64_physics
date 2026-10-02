@@ -1,5 +1,6 @@
 // The RSP's audio microcode (platform/rsp_audio.c).
 #pragma once
+#include <stdbool.h>
 #include <stddef.h>
 #include <ultra64.h>
 #include <PR/abi.h>
@@ -17,3 +18,5 @@ extern s32 gHostAiFrequency;
 void host_ai_vi(void);
 extern s16 gHostAudio[HOST_AUDIO_MAX * 2];
 extern u32 gHostAudioSamples;
+// sm64_set_audio_quiet: the sound thread runs, the microcode does not.
+extern __thread bool gHostAudioQuiet __attribute__((tls_model("initial-exec")));

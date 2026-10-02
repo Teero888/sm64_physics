@@ -260,6 +260,9 @@ s32 osAiSetNextBuffer(void *buf, u32 size) {
     }
     const u32 samples = size / 4;
     WORLD(sAiSamples)[WORLD(sAiSamples)[0] != 0] = samples;
+    if (gHostAudioQuiet) {
+        return 0;
+    }
     const u32 room = HOST_AUDIO_MAX - WORLD(gHostAudioSamples);
     memcpy(WORLD(gHostAudio) + WORLD(gHostAudioSamples) * 2, buf, (samples < room ? samples : room) * 4);
     WORLD(gHostAudioSamples) += samples < room ? samples : room;
