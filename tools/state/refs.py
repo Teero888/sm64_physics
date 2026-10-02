@@ -10,10 +10,16 @@ compile_commands.json, and prints one line per use inside a function body:
 
 The input for moving the game's variables into a world (docs/state.md).
 """
+import sys
+
+# This directory's types.py is a tool, not the standard library's types, which
+# the imports below reach for (on Windows nothing has imported it yet).
+_here = __file__.replace("\\", "/").rpartition("/")[0].rstrip("/")
+sys.path = [p for p in sys.path if p.replace("\\", "/").rstrip("/") != _here]
+
 import json
 import shlex
 import subprocess
-import sys
 from pathlib import Path
 
 import clang.cindex as ci

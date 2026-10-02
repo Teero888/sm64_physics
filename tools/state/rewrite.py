@@ -16,11 +16,17 @@ state section: globals are the section's symbols in BUILD_DIR/sm64_game.o,
 statics are those of the sources linked into it. Uses that cannot be
 rewritten where they are spelled (token pasting) are listed for review.
 """
+import sys
+
+# This directory's types.py is a tool, not the standard library's types, which
+# the imports below reach for (on Windows nothing has imported it yet).
+_here = __file__.replace("\\", "/").rpartition("/")[0].rstrip("/")
+sys.path = [p for p in sys.path if p.replace("\\", "/").rstrip("/") != _here]
+
 import json
 import multiprocessing
 import re
 import subprocess
-import sys
 from ctypes import byref, c_uint
 from pathlib import Path
 

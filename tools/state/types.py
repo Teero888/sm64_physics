@@ -10,10 +10,16 @@ offsetof expressions, so the compiler lays them out) and a table registering
 the variables (platform/pointers.h). Each source includes its file at its
 end. Also lists unions where an address shares bytes with other data.
 """
+import sys
+
+# This directory's types.py is a tool, not the standard library's types, which
+# the imports below reach for (on Windows nothing has imported it yet).
+_here = __file__.replace("\\", "/").rpartition("/")[0].rstrip("/")
+sys.path = [p for p in sys.path if p.replace("\\", "/").rstrip("/") != _here]
+
 import json
 import multiprocessing
 import re
-import sys
 from pathlib import Path
 
 import clang.cindex as ci

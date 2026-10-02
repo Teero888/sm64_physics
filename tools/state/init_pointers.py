@@ -13,10 +13,16 @@ a pointer would reach the section itself, not the current world's copy.
 
 Reads ELF objects (with readelf) and, for Windows builds, COFF ones.
 """
+import sys
+
+# This directory's types.py is a tool, not the standard library's types, which
+# the imports below reach for (on Windows nothing has imported it yet).
+_here = __file__.replace("\\", "/").rpartition("/")[0].rstrip("/")
+sys.path = [p for p in sys.path if p.replace("\\", "/").rstrip("/") != _here]
+
 import re
 import struct
 import subprocess
-import sys
 
 
 def coff(data):

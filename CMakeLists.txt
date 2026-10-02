@@ -200,9 +200,11 @@ add_custom_command(OUTPUT "${SM64_GAME_OBJECT}"
           "${SM64_STATE_LD}" VERBATIM)
 set_source_files_properties("${SM64_GAME_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
 # The addresses among the state's initial values, which move with every copy.
+# Isolated (-I): the script's directory holds a types.py, which must not stand
+# in for the standard library's.
 set(SM64_STATE_POINTERS "${CMAKE_CURRENT_BINARY_DIR}/state_pointers.c")
 add_custom_command(OUTPUT "${SM64_STATE_POINTERS}"
-  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" "${SM64_GAME_OBJECT}"
+  COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" "${SM64_GAME_OBJECT}"
           "${SM64_STATE_POINTERS}"
   DEPENDS "${SM64_GAME_OBJECT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" VERBATIM)
 if(SM64_PHYSICS_SHARED)
