@@ -23,6 +23,11 @@ extern char sm64_state_start[], sm64_state_end[];
 extern char sm64_overlay_start[], sm64_overlay_bss[], sm64_overlay_end[];
 extern char sm64_level_data_start[], sm64_level_data_bss[], sm64_level_data_end[];
 
+// Fills the state and the constants at load (tools/state/sparse.py), a
+// constructor: named here so a static library keeps it.
+void sm64_sparse_restore(void);
+__attribute__((used)) static void (*const sKeepSparse)(void) = sm64_sparse_restore;
+
 // Offsets in the state of the initial values that are addresses in the state
 // (tools/state/init_pointers.py, sorted).
 extern const uint32_t gHostStatePointers[];

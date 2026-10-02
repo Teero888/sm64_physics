@@ -207,13 +207,23 @@ add_custom_command(OUTPUT "${SM64_STATE_POINTERS}"
   COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" "${SM64_GAME_OBJECT}"
           "${SM64_STATE_POINTERS}"
   DEPENDS "${SM64_GAME_OBJECT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/init_pointers.py" VERBATIM)
+# The object as the library holds it: its state and constants, mostly zeros,
+# as memory the loader reserves, which state_sparse.c fills at load.
+set(SM64_SPARSE_OBJECT "${CMAKE_CURRENT_BINARY_DIR}/sm64_game_sparse.o")
+set(SM64_SPARSE_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/state_sparse.c")
+add_custom_command(OUTPUT "${SM64_SPARSE_OBJECT}" "${SM64_SPARSE_SOURCE}"
+  COMMAND "${Python3_EXECUTABLE}" -I "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/sparse.py" "${CMAKE_OBJCOPY}"
+          "${SM64_GAME_OBJECT}" "${SM64_SPARSE_OBJECT}" "${SM64_SPARSE_SOURCE}"
+  DEPENDS "${SM64_GAME_OBJECT}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/state/sparse.py" VERBATIM)
+set_source_files_properties("${SM64_SPARSE_OBJECT}" PROPERTIES EXTERNAL_OBJECT TRUE GENERATED TRUE)
+set_source_files_properties("${SM64_SPARSE_SOURCE}" PROPERTIES COMPILE_OPTIONS "-fPIC;-fvisibility=hidden")
 if(SM64_PHYSICS_SHARED)
   set(SM64_PHYSICS_TYPE SHARED)
 else()
   set(SM64_PHYSICS_TYPE STATIC)
 endif()
 add_library(sm64_physics${S} ${SM64_PHYSICS_TYPE} $<TARGET_OBJECTS:sm64_ultra_math${S}> $<TARGET_OBJECTS:sm64_shared_objects${S}>
-            "${SM64_GAME_OBJECT}" "${SM64_STATE_POINTERS}")
+            "${SM64_SPARSE_OBJECT}" "${SM64_SPARSE_SOURCE}" "${SM64_STATE_POINTERS}")
 set_source_files_properties("${SM64_STATE_POINTERS}" PROPERTIES COMPILE_OPTIONS "-fPIC;-fvisibility=protected")
 set_target_properties(sm64_physics${S} PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(sm64_physics${S} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

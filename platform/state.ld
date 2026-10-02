@@ -21,4 +21,7 @@ SECTIONS
     . = ALIGN(65536);
     sm64_state_end = .;
   }
+  /* The constants as one section, with no strings or constants the linker
+     merges, which tools/state/sparse.py could not name. */
+  .rodata : { *(.rodata) *(.rodata.*) }
 }
