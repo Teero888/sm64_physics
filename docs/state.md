@@ -57,6 +57,13 @@ library's object (`tools/state/init_pointers.py`), which also fails the build
 if any data outside the state (constant tables, behavior scripts) holds an
 address in it: code reading such a pointer would reach the section itself.
 
+The state is mostly zeros (pools, heaps, framebuffers), as are the constants
+(the textures' stand-ins), so the library's file holds neither section as it
+is: `tools/state/sparse.py` makes both memory the loader only reserves and
+generates a constructor that fills them at load, before any other, with
+their non-zero bytes and the addresses their relocations put there. That
+saves about 9 MB per version.
+
 Once a world exists, the section itself is made inaccessible
 (`mprotect(PROT_NONE)`): code that reaches the state without `WORLD()` faults
 at once instead of quietly sharing a variable between worlds.
